@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   vibe-trading:
-    image: crpi-8qkmcs5mqpg6052i.cn-shanghai.personal.cr.aliyuncs.com/qoeop/vibe-trading:latest
+    image: crpi-8qkmcs5mqpg6052i.cn-shanghai.personal.cr.aliyuncs.com/qoeop/vibe-trading:0.0.1
     ports:
       - "80:80"
     restart: always
