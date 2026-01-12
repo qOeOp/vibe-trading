@@ -7,6 +7,10 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
+// 设置暗色主题
+document.documentElement.classList.add('dark');
+document.documentElement.style.colorScheme = 'dark';
+
 root.render(
   <StrictMode>
     <BrowserRouter>
