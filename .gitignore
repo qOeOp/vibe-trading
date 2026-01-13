@@ -44,3 +44,6 @@ Thumbs.db
 vite.config.*.timestamp*
 **/package-lock.json
 **/pnpm-lock.yaml
+
+# Git worktrees
+.worktrees
