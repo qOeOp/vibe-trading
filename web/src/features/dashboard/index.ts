@@ -7,6 +7,7 @@ export { AIAssistantPage } from './pages/ai-assistant-page';
 export { DashboardLayout } from './components/dashboard-layout';
 export { DashboardSidebar } from './components/dashboard-sidebar';
 export { DashboardHeader } from './components/dashboard-header';
+export { RecentDealsPreview } from './components/recent-deals-preview';
 
 // Types
 export type * from './types';
