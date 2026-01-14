@@ -16,6 +16,7 @@ export function AIAssistantPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -28,7 +29,7 @@ export function AIAssistantPage() {
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       role: "user",
       content: input.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -37,18 +38,25 @@ export function AIAssistantPage() {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
+    setError(null);
 
-    // Placeholder API call - replace with actual AI service
-    setTimeout(() => {
+    try {
+      // Placeholder API call - replace with actual AI service
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         role: "assistant",
         content: "I'm a placeholder response. Connect me to your AI service to enable real conversations!",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred while processing your message");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+      textareaRef.current?.focus();
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -121,6 +129,11 @@ export function AIAssistantPage() {
         </CardContent>
 
         <div className="border-t p-4">
+          {error && (
+            <div className="mb-3 p-3 bg-destructive/10 text-destructive text-sm rounded-lg">
+              {error}
+            </div>
+          )}
           <div className="flex gap-2">
             <Textarea
               ref={textareaRef}
