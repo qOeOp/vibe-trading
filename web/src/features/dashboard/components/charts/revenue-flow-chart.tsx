@@ -1,7 +1,4 @@
-"use client";
-
 import { useState } from "react";
-import { useTheme } from "next-themes";
 import {
   Bar,
   BarChart,
@@ -14,7 +11,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  TooltipProps,
 } from "recharts";
 import {
   BarChart2,
@@ -78,6 +74,16 @@ const insights = [
   "Q1 total: $131,500 - up 15% year over year",
 ];
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    dataKey: string;
+    value: number;
+    [key: string]: unknown;
+  }>;
+  label?: string;
+}
+
 function getDataForPeriod(period: TimePeriod) {
   switch (period) {
     case "3months":
@@ -101,11 +107,11 @@ function CustomTooltip({
   active,
   payload,
   label,
-}: TooltipProps<number, string>) {
+}: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
 
-  const thisYear = payload.find((p) => p.dataKey === "thisYear")?.value || 0;
-  const prevYear = payload.find((p) => p.dataKey === "prevYear")?.value || 0;
+  const thisYear = payload.find((p: { dataKey: string; value: number }) => p.dataKey === "thisYear")?.value || 0;
+  const prevYear = payload.find((p: { dataKey: string; value: number }) => p.dataKey === "prevYear")?.value || 0;
   const diff = Number(thisYear) - Number(prevYear);
   const percentage = prevYear
     ? Math.round((diff / Number(prevYear)) * 100)
@@ -151,7 +157,6 @@ function CustomTooltip({
 }
 
 export function RevenueFlowChart() {
-  const { resolvedTheme } = useTheme();
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [period, setPeriod] = useState<TimePeriod>("6months");
   const [showGrid, setShowGrid] = useState(true);
@@ -160,7 +165,8 @@ export function RevenueFlowChart() {
   const [smoothCurve, setSmoothCurve] = useState(true);
   const [currentInsight, setCurrentInsight] = useState(0);
 
-  const isDark = resolvedTheme === "dark";
+  // Dark mode is hardcoded in main.tsx
+  const isDark = true;
   const axisColor = isDark ? "#71717a" : "#a1a1aa";
   const gridColor = isDark ? "#27272a" : "#f4f4f5";
 
@@ -172,7 +178,7 @@ export function RevenueFlowChart() {
       <div className="flex flex-wrap items-center gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-2.5 flex-1">
           <Button variant="outline" size="icon" className="size-7 sm:size-8">
-            <BarChart2 className="size-4 sm:size-[18px] text-muted-foreground" />
+            <BarChart2 className="size-4 sm:size-4.5 text-muted-foreground" />
           </Button>
           <span className="text-sm sm:text-base font-medium">Revenue Flow</span>
         </div>
@@ -300,7 +306,7 @@ export function RevenueFlowChart() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-10 flex-1 min-h-0">
-        <div className="flex flex-col gap-4 w-full lg:w-[200px] xl:w-[220px] shrink-0">
+        <div className="flex flex-col gap-4 w-full lg:w-50 xl:w-55 shrink-0">
           <div className="space-y-2 sm:space-y-4">
             <p className="text-xl sm:text-2xl lg:text-[28px] font-semibold leading-tight tracking-tight">
               ${totalRevenue.toLocaleString()}
@@ -311,7 +317,9 @@ export function RevenueFlowChart() {
           </div>
 
           <div className="bg-muted/50 rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4">
-            <p className="text-xs sm:text-sm font-semibold">🏆 Best Performing Month</p>
+            <p className="text-xs sm:text-sm font-semibold">
+              <span role="img" aria-label="trophy">🏆</span> Best Performing Month
+            </p>
             <p className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">
               {insights[currentInsight]}
             </p>
@@ -348,7 +356,7 @@ export function RevenueFlowChart() {
           </div>
         </div>
 
-        <div className="flex-1 h-[180px] sm:h-[200px] lg:h-[240px] min-w-0">
+        <div className="flex-1 h-45 sm:h-50 lg:h-60 min-w-0">
           <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 300, height: 180 }}>
             {chartType === "bar" ? (
               <BarChart data={chartData} barGap={2}>

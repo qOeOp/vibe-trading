@@ -3,7 +3,6 @@ import { WelcomeSection } from '../components/welcome-section';
 import { LeadSourcesChart } from '../components/charts/lead-sources-chart';
 import { RevenueFlowChart } from '../components/charts/revenue-flow-chart';
 import { RecentDealsPreview } from '../components/recent-deals-preview';
-import { leadSourcesData, revenueFlowData } from '../data/stats';
 
 export function OverviewPage() {
   return (
@@ -13,14 +12,8 @@ export function OverviewPage() {
       <StatsCards />
 
       <div className="flex flex-col xl:flex-row gap-4 sm:gap-6">
-        <LeadSourcesChart
-          data={leadSourcesData}
-          data-testid="dashboard-chart-lead-sources"
-        />
-        <RevenueFlowChart
-          data={revenueFlowData}
-          data-testid="dashboard-chart-revenue-flow"
-        />
+        <LeadSourcesChart data-testid="dashboard-chart-lead-sources" />
+        <RevenueFlowChart data-testid="dashboard-chart-revenue-flow" />
       </div>
 
       <RecentDealsPreview />
