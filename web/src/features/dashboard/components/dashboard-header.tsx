@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/auth/button";
-import { Input } from "@/components/ui/auth/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/dashboard/sidebar";
 import { ThemeToggle } from "./theme-toggle";
 import {
