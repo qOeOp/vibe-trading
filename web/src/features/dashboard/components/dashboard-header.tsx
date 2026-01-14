@@ -12,6 +12,7 @@ import {
   Search,
   Command,
   MoreVertical,
+  Github,
 } from "lucide-react";
 
 export function DashboardHeader() {
@@ -37,6 +38,18 @@ export function DashboardHeader() {
       </div>
 
       <ThemeToggle />
+
+      <Button variant="ghost" size="icon" asChild>
+        <a
+          href="https://github.com/qOeOp/vibe-trading"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid="dashboard-header-github-link"
+        >
+          <Github className="size-5" />
+          <span className="sr-only">GitHub Repository</span>
+        </a>
+      </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

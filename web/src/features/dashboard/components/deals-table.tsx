@@ -62,7 +62,17 @@ const valueRanges = [
 
 const PAGE_SIZE_OPTIONS = [10, 20, 30, 50];
 
-export function DealsTable() {
+interface DealsTableProps {
+  limit?: number;
+  showPagination?: boolean;
+  showFilters?: boolean;
+}
+
+export function DealsTable({
+  limit,
+  showPagination = true,
+  showFilters = true,
+}: DealsTableProps = {}) {
   const searchQuery = useDashboardStore((state) => state.searchQuery);
   const stageFilter = useDashboardStore((state) => state.stageFilter);
   const ownerFilter = useDashboardStore((state) => state.ownerFilter);
@@ -113,6 +123,8 @@ export function DealsTable() {
     return filteredDeals.slice(startIndex, endIndex);
   }, [filteredDeals, currentPage, pageSize]);
 
+  const displayedDeals = limit ? paginatedDeals.slice(0, limit) : paginatedDeals;
+
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, stageFilter, ownerFilter, valueFilter, pageSize]);
@@ -134,124 +146,126 @@ export function DealsTable() {
           </Badge>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 sm:flex-none">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 sm:size-5 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 sm:pl-10 w-full sm:w-[160px] lg:w-[200px] h-8 sm:h-9 text-sm"
-            />
-          </div>
+        {showFilters && (
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative flex-1 sm:flex-none">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 sm:size-5 text-muted-foreground" />
+              <Input
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 sm:pl-10 w-full sm:w-[160px] lg:w-[200px] h-8 sm:h-9 text-sm"
+              />
+            </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={`h-8 sm:h-9 gap-1.5 sm:gap-2 ${hasActiveFilters ? "border-primary" : ""}`}
-              >
-                <Filter className="size-3.5 sm:size-4" />
-                <span className="hidden sm:inline">Filter</span>
-                {hasActiveFilters && (
-                  <span className="size-1.5 sm:size-2 rounded-full bg-primary" />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[220px]">
-              <DropdownMenuLabel>Filter by Stage</DropdownMenuLabel>
-              <DropdownMenuCheckboxItem
-                checked={stageFilter === "all"}
-                onCheckedChange={() => setStageFilter("all")}
-              >
-                All Stages
-              </DropdownMenuCheckboxItem>
-              {stages.map((stage) => (
-                <DropdownMenuCheckboxItem
-                  key={stage}
-                  checked={stageFilter === stage}
-                  onCheckedChange={() => setStageFilter(stage)}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`h-8 sm:h-9 gap-1.5 sm:gap-2 ${hasActiveFilters ? "border-primary" : ""}`}
                 >
-                  {stage}
-                </DropdownMenuCheckboxItem>
-              ))}
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuLabel>Filter by Owner</DropdownMenuLabel>
-              <DropdownMenuCheckboxItem
-                checked={ownerFilter === "all"}
-                onCheckedChange={() => setOwnerFilter("all")}
-              >
-                All Owners
-              </DropdownMenuCheckboxItem>
-              {owners.map((owner) => (
+                  <Filter className="size-3.5 sm:size-4" />
+                  <span className="hidden sm:inline">Filter</span>
+                  {hasActiveFilters && (
+                    <span className="size-1.5 sm:size-2 rounded-full bg-primary" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[220px]">
+                <DropdownMenuLabel>Filter by Stage</DropdownMenuLabel>
                 <DropdownMenuCheckboxItem
-                  key={owner}
-                  checked={ownerFilter === owner}
-                  onCheckedChange={() => setOwnerFilter(owner)}
+                  checked={stageFilter === "all"}
+                  onCheckedChange={() => setStageFilter("all")}
                 >
-                  {owner}
+                  All Stages
                 </DropdownMenuCheckboxItem>
-              ))}
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuLabel>Filter by Value</DropdownMenuLabel>
-              {valueRanges.map((range) => (
-                <DropdownMenuCheckboxItem
-                  key={range.value}
-                  checked={valueFilter === range.value}
-                  onCheckedChange={() => setValueFilter(range.value)}
-                >
-                  {range.label}
-                </DropdownMenuCheckboxItem>
-              ))}
-
-              {hasActiveFilters && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={clearFilters}
-                    className="text-destructive"
+                {stages.map((stage) => (
+                  <DropdownMenuCheckboxItem
+                    key={stage}
+                    checked={stageFilter === stage}
+                    onCheckedChange={() => setStageFilter(stage)}
                   >
-                    <X className="size-4 mr-2" />
-                    Clear all filters
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                    {stage}
+                  </DropdownMenuCheckboxItem>
+                ))}
 
-          <div className="hidden sm:block w-px h-[22px] bg-border" />
+                <DropdownMenuSeparator />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 sm:h-9 gap-1.5 sm:gap-2">
-                <FileInput className="size-3.5 sm:size-4" />
-                <span className="hidden sm:inline">Import</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <FileSpreadsheet className="size-4 mr-2" />
-                Import from CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <FileText className="size-4 mr-2" />
-                Import from Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Database className="size-4 mr-2" />
-                Import from CRM
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                <DropdownMenuLabel>Filter by Owner</DropdownMenuLabel>
+                <DropdownMenuCheckboxItem
+                  checked={ownerFilter === "all"}
+                  onCheckedChange={() => setOwnerFilter("all")}
+                >
+                  All Owners
+                </DropdownMenuCheckboxItem>
+                {owners.map((owner) => (
+                  <DropdownMenuCheckboxItem
+                    key={owner}
+                    checked={ownerFilter === owner}
+                    onCheckedChange={() => setOwnerFilter(owner)}
+                  >
+                    {owner}
+                  </DropdownMenuCheckboxItem>
+                ))}
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuLabel>Filter by Value</DropdownMenuLabel>
+                {valueRanges.map((range) => (
+                  <DropdownMenuCheckboxItem
+                    key={range.value}
+                    checked={valueFilter === range.value}
+                    onCheckedChange={() => setValueFilter(range.value)}
+                  >
+                    {range.label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+
+                {hasActiveFilters && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={clearFilters}
+                      className="text-destructive"
+                    >
+                      <X className="size-4 mr-2" />
+                      Clear all filters
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <div className="hidden sm:block w-px h-[22px] bg-border" />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 sm:h-9 gap-1.5 sm:gap-2">
+                  <FileInput className="size-3.5 sm:size-4" />
+                  <span className="hidden sm:inline">Import</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <FileSpreadsheet className="size-4 mr-2" />
+                  Import from CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <FileText className="size-4 mr-2" />
+                  Import from Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Database className="size-4 mr-2" />
+                  Import from CRM
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
 
-      {hasActiveFilters && (
+      {showFilters && hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2 px-3 sm:px-6 pb-3">
           <span className="text-[10px] sm:text-xs text-muted-foreground">Filters:</span>
           {stageFilter !== "all" && (
@@ -316,7 +330,7 @@ export function DealsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedDeals.length === 0 ? (
+            {displayedDeals.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -326,7 +340,7 @@ export function DealsTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedDeals.map((deal, index) => (
+              displayedDeals.map((deal, index) => (
                 <TableRow key={deal.id}>
                   <TableCell className="font-medium text-xs sm:text-sm">
                     {(currentPage - 1) * pageSize + index + 1}
@@ -410,96 +424,98 @@ export function DealsTable() {
         </Table>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-3 sm:px-6 py-3 border-t">
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-          <span className="hidden sm:inline">Rows per page:</span>
-          <Select
-            value={pageSize.toString()}
-            onValueChange={(value) => setPageSize(Number(value))}
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <SelectItem key={size} value={size.toString()}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <span className="text-muted-foreground">
-            {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, filteredDeals.length)} of {filteredDeals.length}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={() => goToPage(1)}
-            disabled={currentPage === 1}
-          >
-            <ChevronsLeft className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="size-4" />
-          </Button>
-          
-          <div className="flex items-center gap-1 mx-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum: number;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-              
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
-                  size="icon"
-                  className="size-8"
-                  onClick={() => goToPage(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
+      {showPagination && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-3 sm:px-6 py-3 border-t">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+            <span className="hidden sm:inline">Rows per page:</span>
+            <Select
+              value={pageSize.toString()}
+              onValueChange={(value) => setPageSize(Number(value))}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_SIZE_OPTIONS.map((size) => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="text-muted-foreground">
+              {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, filteredDeals.length)} of {filteredDeals.length}
+            </span>
           </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={() => goToPage(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            <ChevronsRight className="size-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() => goToPage(1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronsLeft className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+
+            <div className="flex items-center gap-1 mx-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="icon"
+                    className="size-8"
+                    onClick={() => goToPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() => goToPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronsRight className="size-4" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

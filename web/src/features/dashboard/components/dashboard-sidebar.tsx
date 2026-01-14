@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/dashboard/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/dashboard/avatar";
 import {
@@ -21,15 +22,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dashboard/dropdown-menu";
 import {
+  Bot,
   LayoutGrid,
   ChartArea,
   Sparkles,
-  LogOut,
-  UserCircle,
-  CreditCard,
+  HelpCircle,
+  Settings,
+  ChevronsUpDown,
 } from "lucide-react";
 
 const menuItems = [
+  {
+    title: "AI Assistant",
+    icon: Bot,
+    href: "/app/dashboard/ai-assistant",
+    testId: "dashboard-sidebar-nav-ai-assistant",
+  },
   {
     title: "Overview",
     icon: LayoutGrid,
@@ -102,37 +110,60 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t p-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 hover:bg-accent"
-              data-testid="dashboard-sidebar-user-menu"
-            >
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>VX</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-1 flex-col items-start text-left text-sm">
-                <span className="font-medium">Vincent Xu</span>
-                <span className="text-muted-foreground text-xs">vincent@vibe.trading</span>
-              </div>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem data-testid="dashboard-sidebar-profile">
-              <UserCircle className="mr-2 h-4 w-4" />
-              <span>Profile</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem data-testid="dashboard-sidebar-billing">
-              <CreditCard className="mr-2 h-4 w-4" />
-              <span>Billing</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem data-testid="dashboard-sidebar-logout">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild data-testid="dashboard-sidebar-help">
+              <a href="#">
+                <HelpCircle className="h-4 w-4" />
+                <span>Help Center</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild data-testid="dashboard-sidebar-settings">
+              <a href="#">
+                <Settings className="h-4 w-4" />
+                <span>Settings</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarSeparator />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex w-full items-center gap-3 rounded-md px-3 py-2 hover:bg-accent"
+                  data-testid="dashboard-sidebar-user-menu"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>VX</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-1 flex-col items-start text-left text-sm">
+                    <span className="font-medium">Vincent Xu</span>
+                    <span className="text-muted-foreground text-xs">vincent@vibe.trading</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Account Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Support</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
