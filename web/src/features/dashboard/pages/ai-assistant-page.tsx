@@ -43,7 +43,7 @@ export function AIAssistantPage() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "This is a placeholder response. Connect this to your AI service to get real responses.",
+        content: "I'm a placeholder response. Connect me to your AI service to enable real conversations!",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, assistantMessage]);
@@ -67,16 +67,18 @@ export function AIAssistantPage() {
     <div className="h-full flex flex-col" data-testid="page-ai-assistant">
       <Card className="flex-1 flex flex-col h-full">
         <CardHeader className="flex-row items-center justify-between border-b pb-4">
-          <div className="flex items-center gap-2">
-            <Bot className="size-5 text-primary" />
-            <CardTitle>AI Assistant</CardTitle>
+          <div>
+            <h2 className="text-2xl font-semibold">AI Assistant</h2>
+            <p className="text-muted-foreground text-sm mt-1">
+              Ask questions and get intelligent responses
+            </p>
           </div>
           {messages.length > 0 && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClear}
-              data-testid="clear-conversation-btn"
+              data-testid="ai-chat-clear-button"
             >
               <Trash2 className="size-4" />
               Clear
@@ -84,7 +86,7 @@ export function AIAssistantPage() {
           )}
         </CardHeader>
 
-        <CardContent className="flex-1 overflow-y-auto min-h-0 py-4">
+        <CardContent className="flex-1 overflow-y-auto min-h-0 py-4" data-testid="ai-chat-messages">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-3">
               <div className="rounded-full bg-muted p-6">
@@ -135,7 +137,7 @@ export function AIAssistantPage() {
               disabled={!input.trim() || isLoading}
               size="icon"
               className="shrink-0"
-              data-testid="send-message-btn"
+              data-testid="ai-chat-send-button"
             >
               <Send className="size-4" />
             </Button>
