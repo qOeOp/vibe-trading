@@ -48,7 +48,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import { useDashboardStore } from "@/store/dashboard-store";
+import { useDashboardStore } from "@/features/dashboard/store/dashboard-store";
 import { deals } from "@/mock-data/deals";
 
 const stages = ["Negotiation", "Proposal Sent", "Qualified", "Discovery"];
