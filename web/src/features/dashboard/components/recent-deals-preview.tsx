@@ -14,7 +14,7 @@ export function RecentDealsPreview() {
 
       <div className="flex justify-center">
         <Button
-          variant="outline"
+          variant="ghost"
           asChild
           className="gap-2"
         >
