@@ -349,7 +349,7 @@ export function RevenueFlowChart() {
         </div>
 
         <div className="flex-1 h-[180px] sm:h-[200px] lg:h-[240px] min-w-0">
-          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={180}>
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 300, height: 180 }}>
             {chartType === "bar" ? (
               <BarChart data={chartData} barGap={2}>
                 <defs>

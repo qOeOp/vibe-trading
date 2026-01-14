@@ -152,7 +152,7 @@ export function LeadSourcesChart() {
 
       <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
         <div className="relative shrink-0 size-[220px]">
-          <ResponsiveContainer width="100%" height="100%" minWidth={220} minHeight={220}>
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 220, height: 220 }}>
             <PieChart>
               <Pie
                 data={data}
