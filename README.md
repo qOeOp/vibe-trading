@@ -1,96 +1,144 @@
-# TempWorkspace
+# Vibe Trading
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A modern trading dashboard application built with React, TypeScript, and Nx monorepo.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## 🚀 Features
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+### Dashboard
+- **AI Assistant**: Interactive chat interface with gradient styling
+- **Overview Page**:
+  - Stats cards with key metrics
+  - Lead sources pie chart (Recharts)
+  - Revenue flow charts (bar/line/area)
+  - Recent deals preview
+- **Deals Management**: Full-featured deals table with filtering, search, and pagination
+- **Analytics**: Coming soon
 
-## Run tasks
+### Tech Stack
+- **Frontend**: React 19, TypeScript, Vite
+- **Routing**: React Router v6
+- **Styling**: Tailwind CSS v4 with OKLCH color space
+- **UI Components**: Radix UI primitives with custom styling
+- **Charts**: Recharts v3
+- **State Management**: Zustand
+- **Icons**: Lucide React
+- **Monorepo**: Nx 22.3.3
 
-To run tasks with Nx use:
+## 📦 Project Structure
 
-```sh
-npx nx <target> <project-name>
+```
+vibe-trading/
+├── web/                    # Main web application
+│   ├── src/
+│   │   ├── app/           # App routing
+│   │   ├── components/    # Shared components
+│   │   │   ├── auth-page.tsx
+│   │   │   ├── ui/        # Base UI components
+│   │   │   └── ...
+│   │   ├── features/      # Feature modules
+│   │   │   └── dashboard/
+│   │   │       ├── components/
+│   │   │       ├── pages/
+│   │   │       ├── data/
+│   │   │       └── store/
+│   │   └── styles.css
+│   └── package.json
+└── dashboard-2/           # Reference template (Next.js)
 ```
 
-For example:
+## 🛠️ Development
 
-```sh
-npx nx build myproject
+### Prerequisites
+- Node.js 20+
+- npm or pnpm
+
+### Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npx nx run web:serve --port=4200
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+Visit http://localhost:4200
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Available Commands
 
-## Add new projects
+```bash
+# Development
+npx nx run web:serve          # Start dev server
+npx nx run web:build          # Build for production
+npx nx run web:test           # Run tests (if configured)
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+# Code Quality
+npx nx run web:lint           # Lint code
+npx nx format:write           # Format code
 
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
+# Nx utilities
+npx nx graph                  # View project graph
+npx nx list                   # List installed plugins
 ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+## 🎨 Design System
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
+### Color Palette (Violet Bloom Theme)
+- Primary: `#6e3ff3` (violet)
+- Accent: `#df3674` (pink)
+- Secondary: `#35b9e9` (cyan)
+- Tertiary: `#375dfb` (blue)
+- Supporting: `#e255f2` (magenta)
 
-# Generate a library
-npx nx g @nx/react:lib some-lib
+### Border Radius
+- Base: `0.625rem` (10px)
+- Cards: `1.025rem` (16.4px)
+
+## 📝 Recent Updates
+
+### Latest Changes (January 2026)
+- ✅ Fixed Recharts v3 initialization warnings using `initialDimension` API
+- ✅ Updated AI Assistant sidebar with Sparkles icon and gradient text
+- ✅ Fixed Auth page Home button navigation to `/app/dashboard/overview`
+- ✅ Changed Overview layout from grid to flex for responsive design
+- ✅ Added missing React dependencies to web package
+- ✅ Corrected all component import paths
+- ✅ Added default dashboard route redirect
+- ✅ Integrated dashboard-2 features with custom architecture
+
+## 🔄 Git Workflow
+
+This project uses git worktrees for feature development:
+
+```bash
+# List worktrees
+git worktree list
+
+# Create new worktree
+git worktree add .worktrees/feature-name -b feature/feature-name
+
+# Remove worktree
+git worktree remove .worktrees/feature-name
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+Active branches:
+- `main`: Production-ready code
+- `feature/dashboard-integration`: Integration work (merged)
+- `feature/dashboard-refinement`: UI refinements (merged)
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🐛 Known Issues
 
-## Set up CI!
+- React Router v7 migration warnings (non-blocking)
+- Chrome extension console messages (external)
 
-### Step 1
+## 📄 License
 
-To connect to Nx Cloud, run the following command:
+Private project
 
-```sh
-npx nx connect
-```
+## 👤 Author
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+Vincent Xu (vincent@vibe.trading)
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Built with ❤️ using Nx and React

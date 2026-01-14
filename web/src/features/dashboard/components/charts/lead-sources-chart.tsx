@@ -14,14 +14,13 @@ import {
 import {
   ChartLine,
   MoreHorizontal,
-  ArrowRight,
   Download,
   Share2,
   Maximize2,
   RefreshCw,
   Settings2,
 } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 const allData = {
   "7days": [
@@ -68,39 +67,14 @@ export function LeadSourcesChart() {
     setActiveIndex(null);
   };
 
-  const renderActiveShape = (props: unknown) => {
-    const typedProps = props as {
-      cx: number;
-      cy: number;
-      innerRadius: number;
-      outerRadius: number;
-      startAngle: number;
-      endAngle: number;
-      fill: string;
-    };
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
-      typedProps;
-    return (
-      <g>
-        <Sector
-          cx={cx}
-          cy={cy}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius + 8}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          fill={fill}
-        />
-      </g>
-    );
-  };
+
 
   return (
-    <div className="flex flex-col gap-4 p-4 sm:p-6 rounded-xl border bg-card w-full xl:w-[410px]">
+    <div className="flex flex-col gap-4 p-4 sm:p-6 rounded-xl border bg-card w-full xl:w-102.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-2.5">
           <Button variant="outline" size="icon" className="size-7 sm:size-8">
-            <ChartLine className="size-4 sm:size-[18px] text-muted-foreground" />
+            <ChartLine className="size-4 sm:size-4.5 text-muted-foreground" />
           </Button>
           <span className="text-sm sm:text-base font-medium">Lead Sources</span>
         </div>
@@ -110,7 +84,7 @@ export function LeadSourcesChart() {
               <MoreHorizontal className="size-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[180px]">
+          <DropdownMenuContent align="end" className="w-45">
             <DropdownMenuLabel>Time Range</DropdownMenuLabel>
             {(Object.keys(timeRangeLabels) as TimeRange[]).map((range) => (
               <DropdownMenuCheckboxItem
@@ -151,7 +125,7 @@ export function LeadSourcesChart() {
       </div>
 
       <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-        <div className="relative shrink-0 size-[220px]">
+        <div className="relative shrink-0 size-55">
           <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 220, height: 220 }}>
             <PieChart>
               <Pie
@@ -163,13 +137,15 @@ export function LeadSourcesChart() {
                 paddingAngle={2}
                 dataKey="value"
                 strokeWidth={0}
-                activeIndex={activeIndex !== null ? activeIndex : undefined}
-                activeShape={renderActiveShape}
                 onMouseEnter={onPieEnter}
                 onMouseLeave={onPieLeave}
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.color}
+                    opacity={activeIndex === null || activeIndex === index ? 1 : 0.6}
+                  />
                 ))}
               </Pie>
             </PieChart>
