@@ -49,7 +49,7 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { useDashboardStore } from "@/features/dashboard/store/dashboard-store";
-import { deals } from "@/mock-data/deals";
+import { deals } from "@/features/dashboard/data/deals";
 
 const stages = ["Negotiation", "Proposal Sent", "Qualified", "Discovery"];
 const owners = ["Alex Ray", "Mina Swan", "John Kim", "Sarah Lee"];
