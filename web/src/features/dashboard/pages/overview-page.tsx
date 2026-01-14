@@ -12,7 +12,7 @@ export function OverviewPage() {
 
       <StatsCards />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="flex flex-col xl:flex-row gap-4 sm:gap-6">
         <LeadSourcesChart
           data={leadSourcesData}
           data-testid="dashboard-chart-lead-sources"

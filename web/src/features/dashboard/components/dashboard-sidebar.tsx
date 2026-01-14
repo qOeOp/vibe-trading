@@ -34,9 +34,10 @@ import {
 const menuItems = [
   {
     title: "AI Assistant",
-    icon: Bot,
+    icon: Sparkles,
     href: "/app/dashboard/ai-assistant",
     testId: "dashboard-sidebar-nav-ai-assistant",
+    special: true,
   },
   {
     title: "Overview",
@@ -52,7 +53,7 @@ const menuItems = [
   },
   {
     title: "Analytics",
-    icon: Sparkles,
+    icon: Bot,
     href: "/app/dashboard/analytics",
     testId: "dashboard-sidebar-nav-analytics",
     disabled: true,
@@ -93,8 +94,22 @@ export function DashboardSidebar() {
                         isActive ? "bg-accent" : ""
                       }
                     >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <item.icon
+                        className={
+                          item.special
+                            ? "size-4 sm:size-5 text-[#6e3ff3]"
+                            : "h-4 w-4"
+                        }
+                      />
+                      <span
+                        className={
+                          item.special
+                            ? "text-sm bg-clip-text text-transparent bg-gradient-to-r from-[#6e3ff3] to-[#df3674]"
+                            : ""
+                        }
+                      >
+                        {item.title}
+                      </span>
                       {item.disabled && (
                         <span className="ml-auto text-muted-foreground text-xs">
                           Soon
