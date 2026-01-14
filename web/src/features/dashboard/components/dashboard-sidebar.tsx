@@ -26,9 +26,6 @@ import {
   LayoutGrid,
   ChartArea,
   Sparkles,
-  LogOut,
-  UserCircle,
-  CreditCard,
   HelpCircle,
   Settings,
   ChevronsUpDown,
@@ -132,38 +129,41 @@ export function DashboardSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarSeparator />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 hover:bg-accent"
-              data-testid="dashboard-sidebar-user-menu"
-            >
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>VX</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-1 flex-col items-start text-left text-sm">
-                <span className="font-medium">Vincent Xu</span>
-                <span className="text-muted-foreground text-xs">vincent@vibe.trading</span>
-              </div>
-              <ChevronsUpDown className="ml-auto h-4 w-4" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem>
-              <UserCircle className="mr-2 h-4 w-4" />
-              <span>Account Settings</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <HelpCircle className="mr-2 h-4 w-4" />
-              <span>Support</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sign out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex w-full items-center gap-3 rounded-md px-3 py-2 hover:bg-accent"
+                  data-testid="dashboard-sidebar-user-menu"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>VX</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-1 flex-col items-start text-left text-sm">
+                    <span className="font-medium">Vincent Xu</span>
+                    <span className="text-muted-foreground text-xs">vincent@vibe.trading</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Account Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Support</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
