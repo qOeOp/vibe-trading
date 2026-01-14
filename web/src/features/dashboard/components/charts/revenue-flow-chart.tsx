@@ -41,7 +41,7 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dashboard/dropdown-menu";
 
 const fullYearData = [
   { month: "Jan", thisYear: 38000, prevYear: 32000 },

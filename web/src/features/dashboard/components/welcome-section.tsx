@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dashboard/dropdown-menu";
 import { ChevronDown, Plus, Download, Upload, FileText } from "lucide-react";
 
 export function WelcomeSection() {
