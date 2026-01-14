@@ -1,6 +1,7 @@
 // Pages
 export { OverviewPage } from './pages/overview-page';
 export { DealsPage } from './pages/deals-page';
+export { AIAssistantPage } from './pages/ai-assistant-page';
 
 // Components
 export { DashboardLayout } from './components/dashboard-layout';
