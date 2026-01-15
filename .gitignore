@@ -47,3 +47,6 @@ vite.config.*.timestamp*
 
 # Git worktrees
 .worktrees
+
+.idea
+.vscode

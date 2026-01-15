@@ -28,7 +28,7 @@ export function DashboardHeader() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
         <Input
           placeholder="Search Anything..."
-          className="pl-10 pr-14 w-[180px] lg:w-[220px] h-9 bg-card border"
+          className="pl-10 pr-14 w-45 lg:w-55 h-9 bg-card border"
           data-testid="dashboard-header-search"
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-muted px-1 py-0.5 rounded text-xs text-muted-foreground">
