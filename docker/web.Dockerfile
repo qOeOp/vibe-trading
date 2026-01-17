@@ -22,7 +22,7 @@ FROM nginx:alpine
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
 # Copy built assets
-COPY --from=builder /app/dist/apps/web /usr/share/nginx/html
+COPY --from=builder /app/dist/web /usr/share/nginx/html
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

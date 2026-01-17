@@ -21,7 +21,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy built assets and node_modules
-COPY --from=builder /app/dist/apps/api ./
+COPY --from=builder /app/dist/api ./
 COPY --from=builder /app/node_modules ./node_modules
 
 # Add healthcheck
