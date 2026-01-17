@@ -1,0 +1,6 @@
+{
+  "name": "@vibe-trading/shared-types",
+  "version": "0.1.0",
+  "type": "commonjs",
+  "main": "./src/index.ts"
+}

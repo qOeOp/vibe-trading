@@ -1,0 +1,37 @@
+{
+  "name": "shared-python",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared-python/vibetrading",
+  "projectType": "library",
+  "tags": ["python", "shared"],
+  "targets": {
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry install",
+        "cwd": "libs/shared-python"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run pytest -v",
+        "cwd": "libs/shared-python"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run ruff check vibetrading/ tests/",
+        "cwd": "libs/shared-python"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run ruff format vibetrading/ tests/",
+        "cwd": "libs/shared-python"
+      }
+    }
+  }
+}

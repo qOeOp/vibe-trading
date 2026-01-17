@@ -1,0 +1,50 @@
+{
+  "name": "ml-models",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/ml-models/src",
+  "projectType": "application",
+  "tags": ["python", "service"],
+  "targets": {
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry install",
+        "cwd": "apps/ml-models"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run uvicorn src.main:app --reload --host 0.0.0.0 --port 8205",
+        "cwd": "apps/ml-models"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run pytest -v",
+        "cwd": "apps/ml-models"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run ruff check src/ tests/",
+        "cwd": "apps/ml-models"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run ruff format src/ tests/",
+        "cwd": "apps/ml-models"
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f docker/ml-models.Dockerfile -t crpi-8qkmcs5mqpg6052i.cn-shanghai.personal.cr.aliyuncs.com/qoeop/vibe-trading-ml-models:latest ."
+      }
+    }
+  }
+}
