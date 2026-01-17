@@ -1,0 +1,50 @@
+{
+  "name": "trading-engine",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/trading-engine/src",
+  "projectType": "application",
+  "tags": ["python", "service"],
+  "targets": {
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry install",
+        "cwd": "apps/trading-engine"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run uvicorn src.main:app --reload --host 0.0.0.0 --port 8202",
+        "cwd": "apps/trading-engine"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run pytest -v",
+        "cwd": "apps/trading-engine"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run ruff check src/ tests/",
+        "cwd": "apps/trading-engine"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run ruff format src/ tests/",
+        "cwd": "apps/trading-engine"
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f docker/trading-engine.Dockerfile -t crpi-8qkmcs5mqpg6052i.cn-shanghai.personal.cr.aliyuncs.com/qoeop/vibe-trading-trading-engine:latest ."
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "market-data",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/market-data/src",
+  "projectType": "application",
+  "tags": ["python", "service"],
+  "targets": {
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry install",
+        "cwd": "apps/market-data"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run uvicorn src.main:app --reload --host 0.0.0.0 --port 8203",
+        "cwd": "apps/market-data"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run pytest -v",
+        "cwd": "apps/market-data"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run ruff check src/ tests/",
+        "cwd": "apps/market-data"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry run ruff format src/ tests/",
+        "cwd": "apps/market-data"
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f docker/market-data.Dockerfile -t crpi-8qkmcs5mqpg6052i.cn-shanghai.personal.cr.aliyuncs.com/qoeop/vibe-trading-market-data:latest ."
+      }
+    }
+  }
+}
