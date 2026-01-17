@@ -11,14 +11,8 @@ COPY nx.json tsconfig.base.json ./
 COPY apps/web ./apps/web
 COPY libs/shared-types ./libs/shared-types
 
-# Install dependencies
+# Install dependencies and build
 RUN npm ci --prefer-offline --no-audit
-
-# Remove and reinstall esbuild with correct platform binaries
-RUN rm -rf node_modules/.bin/esbuild node_modules/esbuild
-RUN npm install esbuild --force
-
-# Build
 RUN npx nx build web --prod
 
 # Production stage with Nginx
