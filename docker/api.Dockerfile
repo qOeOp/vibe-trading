@@ -11,10 +11,14 @@ COPY nx.json tsconfig.base.json ./
 COPY apps/api ./apps/api
 COPY libs/shared-types ./libs/shared-types
 
-# Install dependencies and build
+# Install dependencies
 RUN npm ci --prefer-offline --no-audit
-# Force rebuild native modules for Alpine Linux
-RUN npm rebuild esbuild
+
+# Remove and reinstall esbuild with correct platform binaries
+RUN rm -rf node_modules/.bin/esbuild node_modules/esbuild
+RUN npm install esbuild --force
+
+# Build
 RUN npx nx build api --prod
 
 # Production stage
