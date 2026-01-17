@@ -12,7 +12,9 @@ COPY apps/web ./apps/web
 COPY libs/shared-types ./libs/shared-types
 
 # Install dependencies and build
-RUN npm ci
+RUN npm ci --prefer-offline --no-audit
+# Force rebuild native modules for Alpine Linux
+RUN npm rebuild esbuild
 RUN npx nx build web --prod
 
 # Production stage with Nginx
