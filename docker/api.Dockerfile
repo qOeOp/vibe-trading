@@ -25,8 +25,8 @@ COPY --from=builder /app/dist/api ./
 COPY --from=builder /app/node_modules ./node_modules
 
 # Add healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+  CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://127.0.0.1:3000/health"]
 
 EXPOSE 3000
 
