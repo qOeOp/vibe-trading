@@ -306,6 +306,20 @@ docker-compose build --no-cache
 docker-compose up -d
 ```
 
+**Health check failures (connection refused):**
+
+If services show as "unhealthy" with "connection refused" errors in Alpine Linux containers:
+
+```bash
+# Check health check logs
+docker inspect <container-name> --format='{{json .State.Health}}' | jq .
+
+# Common issue: localhost resolves to IPv6 (::1) in Alpine
+# Solution: Use 127.0.0.1 instead of localhost in health checks
+```
+
+**Fix:** All health checks in this project use `127.0.0.1` (IPv4) instead of `localhost` to avoid IPv6 resolution issues in Alpine Linux containers.
+
 **Port conflicts:**
 ```bash
 # Check what's using ports

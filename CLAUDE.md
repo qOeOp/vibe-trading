@@ -376,12 +376,56 @@ apps/<service>/
 
 2. **Health Checks**
    - Every service must have `/health` endpoint
-   - Health checks in Dockerfile
+   - Health checks in Dockerfile and docker-compose.yml
+   - **CRITICAL**: Use `127.0.0.1` instead of `localhost` in Alpine Linux containers
+   - Reason: `localhost` resolves to IPv6 (`::1`) in Alpine, causing connection failures
 
+   **Python FastAPI:**
    ```python
    @app.get("/health")
    async def health_check():
-       return {"status": "healthy", "service": "trading-engine"}
+       return {"status": "healthy", "service": "trading-engine", "version": "0.1.0"}
+   ```
+
+   **TypeScript Express:**
+   ```typescript
+   app.get('/health', (req, res) => {
+       res.status(200).send({ status: 'healthy', service: 'api' });
+   });
+   ```
+
+   **Dockerfile Health Check (Alpine Linux):**
+   ```dockerfile
+   # Use 127.0.0.1 (IPv4) instead of localhost
+   HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+     CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://127.0.0.1:3000/health"]
+   ```
+
+   **docker-compose.yml Health Check:**
+   ```yaml
+   healthcheck:
+     test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+     interval: 30s
+     timeout: 3s
+     retries: 3
+   ```
+
+3. **Container Networking**
+   - Services must listen on `0.0.0.0` for external container access
+   - Use `127.0.0.1` for health checks (IPv4)
+   - Never use `localhost` in Alpine Linux containers (IPv6 resolution issue)
+
+   **Express.js:**
+   ```typescript
+   const host = process.env.HOST ?? '0.0.0.0';  // Listen on all interfaces
+   app.listen(port, host, () => {
+       console.log(`Server ready at http://${host}:${port}`);
+   });
+   ```
+
+   **FastAPI (default binds to 0.0.0.0):**
+   ```bash
+   uvicorn src.main:app --host 0.0.0.0 --port 8001
    ```
 
 ## Development Commands
@@ -510,6 +554,15 @@ npx nx graph
 8. ❌ Not testing async code with pytest-asyncio
 9. ❌ Installing packages without Poetry
 10. ❌ Not using shared utilities from libs/shared-python
+
+### Docker Pitfalls
+1. ❌ Using `localhost` in health checks (use `127.0.0.1` in Alpine Linux)
+2. ❌ Services listening on `localhost` instead of `0.0.0.0` in containers
+3. ❌ Not setting adequate `start-period` for health checks (min 30s)
+4. ❌ Missing health endpoints in services
+5. ❌ Using `npm ci` without synced package-lock.json (use `npm install` in containers)
+6. ❌ Forgetting to expose ports in Dockerfile
+7. ❌ Not handling IPv6 resolution issues in Alpine containers
 
 ## Resources
 
