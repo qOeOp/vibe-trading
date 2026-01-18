@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Infrastructure Services (Local Kafka - optional with profile)
   zookeeper:

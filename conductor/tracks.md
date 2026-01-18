@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Develop Independent MDX-Driven Documentation Site**
+- [~] **Track: Develop Independent MDX-Driven Documentation Site**
   *Link: [./tracks/docs_site_20260117/](./tracks/docs_site_20260117/)*

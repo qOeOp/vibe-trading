@@ -1,0 +1,39 @@
+:root {
+  /* Vibe Trading "Violet Bloom" Theme Overrides for Rspress */
+  
+  /* Brand Colors */
+  --rp-c-brand: #6e3ff3;
+  --rp-c-brand-dark: #5b32d1;
+  --rp-c-brand-light: #8b66fa;
+  --rp-c-brand-lighter: #a588fc;
+  
+  /* Backgrounds */
+  /* We want a deep dark theme for 'dark' mode */
+}
+
+.dark {
+  --rp-c-bg: #0b0c15; /* Very dark blue/grey */
+  --rp-c-bg-soft: #161822;
+  --rp-c-bg-mute: #202330;
+  
+  --rp-c-text-1: #ffffff;
+  --rp-c-text-2: #a1a1aa;
+  
+  /* Accents */
+  --rp-c-brand: #6e3ff3;
+  --rp-c-brand-dark: #5b32d1; 
+  --rp-c-brand-light: #df3674; /* Using Accent Pink for light brand in dark mode for contrast? Or stick to violet. */
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rp-c-brand);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-track {
+  background: var(--rp-c-bg-mute);
+}
