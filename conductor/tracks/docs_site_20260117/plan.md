@@ -33,7 +33,7 @@
     - [x] Create placeholder pages for `API Reference` and `Product Guide`.
 - [x] Task: Implement Search Functionality.
     - [x] Integrate a search library (e.g., `cmdk` or a lightweight fuzzy search) for documentation pages.
-- [~] Task: Conductor - User Manual Verification 'Content Structure & Migration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Content Structure & Migration' (Protocol in workflow.md) [checkpoint: 0e4b87d]
 
 ## Phase 4: Integration & CI/CD
 - [ ] Task: Update Development Scripts.
