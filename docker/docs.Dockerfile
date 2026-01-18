@@ -1,5 +1,5 @@
-# Multi-stage build for web frontend
-FROM node:20-alpine AS builder
+# Multi-stage build for documentation site
+FROM node:20 AS builder
 
 WORKDIR /app
 
@@ -7,22 +7,23 @@ WORKDIR /app
 COPY package*.json ./
 COPY nx.json tsconfig.base.json ./
 
-# Copy web app
-COPY apps/web ./apps/web
-COPY libs/shared-types ./libs/shared-types
+# Copy wiki app
+COPY apps/wiki ./apps/wiki
 
 # Install dependencies and build
 RUN npm install --prefer-offline --no-audit
-RUN npx nx build web --prod
+RUN npx nx build wiki
 
 # Production stage with Nginx
-FROM nginx:alpine
+FROM nginx:latest
 
 # Copy nginx configuration
+# We use the same nginx.conf as the web app for consistency
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
 # Copy built assets
-COPY --from=builder /app/dist/web /usr/share/nginx/html
+# Rspress build output by default is in apps/wiki/doc_build
+COPY --from=builder /app/apps/wiki/doc_build /usr/share/nginx/html
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
@@ -31,3 +32,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
+
