@@ -39,8 +39,8 @@
 - [x] Task: Update Development Scripts. (3b43115)
     - [x] Update `tools/scripts/dev.sh` to optionally start the docs site.
     - [x] Update `tools/scripts/build-all.sh` to include `docs` image.
-- [ ] Task: Final Polish & Release.
-    - [ ] Verify all internal links.
-    - [ ] Ensure 404 page exists.
-    - [ ] Optimize production build size.
+- [x] Task: Final Polish & Release. (795b6a1)
+    - [x] Verify all internal links.
+    - [x] Ensure 404 page exists.
+    - [x] Optimize production build size.
 - [ ] Task: Conductor - User Manual Verification 'Integration & CI/CD' (Protocol in workflow.md)
