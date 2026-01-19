@@ -8,6 +8,7 @@ To provide a professional-grade, extensible trading ecosystem that democratizes 
 
 ## Core Features
 - **Real-time Dashboard:** A comprehensive UI for monitoring portfolio performance, active orders, and live market data.
+- **Documentation Hub:** A centralized, MDX-driven site for architecture, API references, and user guides.
 - **Algorithmic Trading Engine:** A robust Python-based backend for executing automated trading strategies.
 - **Market Data Ingestion:** High-throughput processing of ticks, klines, and order books via Apache Kafka.
 - **Advanced Analytics:** Real-time calculation of technical indicators and performance metrics.
