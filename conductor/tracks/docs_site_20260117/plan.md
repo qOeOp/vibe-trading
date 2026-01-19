@@ -36,9 +36,9 @@
 - [x] Task: Conductor - User Manual Verification 'Content Structure & Migration' (Protocol in workflow.md) [checkpoint: 0e4b87d]
 
 ## Phase 4: Integration & CI/CD
-- [ ] Task: Update Development Scripts.
-    - [ ] Update `tools/scripts/dev.sh` to optionally start the docs site.
-    - [ ] Update `tools/scripts/build-all.sh` to include `docs` image.
+- [x] Task: Update Development Scripts. (3b43115)
+    - [x] Update `tools/scripts/dev.sh` to optionally start the docs site.
+    - [x] Update `tools/scripts/build-all.sh` to include `docs` image.
 - [ ] Task: Final Polish & Release.
     - [ ] Verify all internal links.
     - [ ] Ensure 404 page exists.
