@@ -34,6 +34,7 @@ case $COMMAND in
     echo "  Market Data:     http://localhost:8203/health"
     echo "  Analytics:       http://localhost:8204/health"
     echo "  ML Models:       http://localhost:8205/health"
+    echo "  Docs:            http://localhost:8216"
     echo ""
     echo "🔍 Observability:"
     echo "  Portainer:       http://localhost:8210"
