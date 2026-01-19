@@ -43,4 +43,4 @@
     - [x] Verify all internal links.
     - [x] Ensure 404 page exists.
     - [x] Optimize production build size.
-- [~] Task: Conductor - User Manual Verification 'Integration & CI/CD' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Integration & CI/CD' (Protocol in workflow.md) [checkpoint: e16cdc7]
