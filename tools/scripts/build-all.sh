@@ -20,6 +20,7 @@ SERVICES=(
   "market-data"
   "analytics"
   "ml-models"
+  "docs"
 )
 
 # Build each service

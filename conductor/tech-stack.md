@@ -2,6 +2,7 @@
 
 ## Frontend
 - **Framework:** React 19 (TypeScript)
+- **Documentation:** Rspress (React 19, MDX-based SSG)
 - **Build Tool:** Vite
 - **Styling:** Tailwind CSS v4
 - **Component Libraries:**

@@ -1,0 +1,27 @@
+[
+  {
+    "text": "Home",
+    "link": "/"
+  },
+  {
+    "text": "Architecture",
+    "link": "/architecture/",
+    "items": [
+      "architecture"
+    ]
+  },
+  {
+    "text": "API Reference",
+    "link": "/api-reference/",
+    "items": [
+      "api-reference"
+    ]
+  },
+  {
+    "text": "Product Guide",
+    "link": "/product-guide/",
+    "items": [
+      "product-guide"
+    ]
+  }
+]

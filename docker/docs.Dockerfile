@@ -11,7 +11,9 @@ COPY nx.json tsconfig.base.json ./
 COPY apps/wiki ./apps/wiki
 
 # Install dependencies and build
-RUN npm install --prefer-offline --no-audit
+RUN npm config set fetch-retry-maxtimeout 600000 \
+    && npm config set fetch-retry-mintimeout 10000 \
+    && npm install --prefer-offline --no-audit
 RUN npx nx build wiki
 
 # Production stage with Nginx
