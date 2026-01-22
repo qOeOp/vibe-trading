@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     port: int = 8203
 
+    # Consul settings
+    consul_host: str = "consul"
+    consul_port: int = 8500
+    service_host: str = "market-data"
+
     class Config:
         """Pydantic config."""
 
