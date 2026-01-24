@@ -1,0 +1,8 @@
+{
+  "track_id": "coding_guidelines_20260124",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-01-24T12:00:00Z",
+  "updated_at": "2026-01-24T12:00:00Z",
+  "description": "Generate a comprehensive set of coding guidelines based on project tech stack, including SOLID, Design Patterns, and Design-First lifecycle."
+}
