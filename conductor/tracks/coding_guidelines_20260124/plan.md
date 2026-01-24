@@ -13,7 +13,7 @@
 - [x] Task: Document the "Design-First" Mandatory Lifecycle. (49ebb0a)
     - [ ] Draft `docs/guidelines/workflow.md` detailing the Analysis -> Diagram -> Interface -> Implementation flow.
     - [ ] Include Mermaid.js diagram examples for Architecture and Sequence flows.
-- [ ] Task: Document Core Software Design Principles.
+- [x] Task: Document Core Software Design Principles. (0edeee4)
     - [ ] Draft `docs/guidelines/principles.md` covering SOLID, SRP, DRY, KISS, and YAGNI with "Bad vs. Good" code snippets.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Design-First Workflow & Core Principles' (Protocol in workflow.md)
 
