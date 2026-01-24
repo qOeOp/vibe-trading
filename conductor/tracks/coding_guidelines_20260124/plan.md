@@ -4,7 +4,7 @@
 - [x] Task: Initialize the guidelines directory structure and entry point. (12e7122)
     - [ ] Create `docs/guidelines/` directory.
     - [ ] Create `docs/guidelines/README.md` as the main index.
-- [ ] Task: Research and synthesize industry standards.
+- [x] Task: Research and synthesize industry standards. (8622e51)
     - [ ] Curate best practices from Google (TS), PEP 8 (Python), and SOLID principles.
     - [ ] Create a "Guidelines Skeleton" mapping spec requirements to specific files.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Research & Structure Setup' (Protocol in workflow.md)
