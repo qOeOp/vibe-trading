@@ -23,7 +23,7 @@
     - [ ] Include React-specific standards (Hooks, Composition, Styling).
 - [x] Task: Draft Python & FastAPI standards. (648ecea)
     - [ ] Create `docs/guidelines/python.md` covering type hinting, async patterns, and Pydantic usage.
-- [ ] Task: Draft Event-Driven & Kafka patterns.
+- [x] Task: Draft Event-Driven & Kafka patterns. (c198f87)
     - [ ] Create `docs/guidelines/kafka.md` for idempotency, schemas, and error handling.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Language-Specific Standards' (Protocol in workflow.md)
 
