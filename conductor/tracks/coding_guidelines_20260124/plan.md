@@ -10,7 +10,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Research & Structure Setup' (Protocol in workflow.md)
 
 ## Phase 2: Design-First Workflow & Core Principles
-- [ ] Task: Document the "Design-First" Mandatory Lifecycle.
+- [x] Task: Document the "Design-First" Mandatory Lifecycle. (49ebb0a)
     - [ ] Draft `docs/guidelines/workflow.md` detailing the Analysis -> Diagram -> Interface -> Implementation flow.
     - [ ] Include Mermaid.js diagram examples for Architecture and Sequence flows.
 - [ ] Task: Document Core Software Design Principles.
