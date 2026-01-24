@@ -21,7 +21,7 @@
     - [ ] Create the sidebar mapping logic using Fumadocs' `source` object
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Fumadocs Core Integration & Source Provider' (Protocol in workflow.md) f52dded
 
-## Phase 3: Content Migration & MDX Layout
+## Phase 3: Content Migration & MDX Layout [checkpoint: e68af5f]
 - [x] Task: Migrate Documentation Files 3190e9e
     - [ ] Move content from `apps/wiki/docs/` to `apps/wiki/content/`
     - [ ] Create `meta.json` files in content folders for ordering (A/B/C logic)
@@ -32,7 +32,7 @@
     - [ ] Create unit tests to verify MDX files are correctly loaded and slugs are generated
 - [x] Task: Implement MDX Component Verification 3190e9e
     - [ ] Ensure custom MDX components (if any) are correctly registered and rendered
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Content Migration & MDX Layout' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Content Migration & MDX Layout' (Protocol in workflow.md) e68af5f
 
 ## Phase 4: Styling & UI Integration
 - [ ] Task: Duplicate Visual Identity from `apps/web`
