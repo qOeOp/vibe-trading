@@ -1,0 +1,34 @@
+---
+title: Wiki Migration Guide
+description: Moving from Rspress to Fumadocs
+---
+
+# Wiki Migration Guide
+
+This document outlines the migration of the Vibe Trading Wiki from Rspress to a modern Next.js + Fumadocs stack.
+
+## Why migrate?
+
+- **Ecosystem Alignment:** Rspress was disconnected from the main project's Next.js/TypeScript architecture.
+- **Component Reuse:** Using Next.js allows sharing UI components and configurations between the main dashboard and the documentation.
+- **Enhanced DX:** Fumadocs provides a superior developer experience for MDX-based documentation with built-in search and better accessibility.
+
+## Key Changes
+
+### Framework
+- Replaced `rspress` with `next`, `fumadocs-ui`, and `fumadocs-core`.
+- Moved from Rspress routing to Next.js App Router.
+
+### Content Processing
+- Integrated `content-collections` for type-safe MDX processing.
+- Renamed `_meta.json` to `meta.json` to align with Fumadocs standards.
+
+### Styling
+- Adopted Tailwind CSS v4.
+- Synchronized color themes (OKLCH) and design tokens with the main `web` application.
+
+## How to add content
+
+1. Place MDX files in `apps/wiki/content/`.
+2. Define metadata in frontmatter.
+3. Configure sidebar hierarchy in `meta.json`.

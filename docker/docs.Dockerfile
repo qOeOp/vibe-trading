@@ -10,16 +10,14 @@ RUN apk add --no-cache libc6-compat python3 make g++
 COPY package*.json ./
 COPY nx.json tsconfig.base.json ./
 
-# Copy wiki app
+# Copy wiki app and content
 COPY apps/wiki ./apps/wiki
 
 # Install dependencies and build
 # Remove lockfile to force fresh install for Linux/Alpine
 RUN rm -f package-lock.json
 RUN npm install --prefer-offline --no-audit
-# WORKAROUND: Rspress build fails in Docker with TypeError in ResolverFactory.
-# RUN npx nx build wiki
-RUN mkdir -p apps/wiki/doc_build && echo "<html><body><h1>Wiki Under Construction</h1></body></html>" > apps/wiki/doc_build/index.html
+RUN npx nx build wiki
 
 # Production stage with Nginx
 FROM nginx:alpine
@@ -27,8 +25,8 @@ FROM nginx:alpine
 # Copy nginx configuration
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-# Copy built assets
-COPY --from=builder /app/apps/wiki/doc_build /usr/share/nginx/html
+# Copy built assets (Next.js static export output)
+COPY --from=builder /app/apps/wiki/out /usr/share/nginx/html
 
 # Add healthcheck (use 127.0.0.1 for IPv4 reliability per CLAUDE.md guidelines)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
