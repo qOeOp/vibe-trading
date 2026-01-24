@@ -1,4 +1,4 @@
-import { allDocs } from 'content-collections';
+import { allDocs } from '../.content-collections/generated';
 import { loader } from 'fumadocs-core/source';
 
 export const source = loader({
