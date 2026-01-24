@@ -1,6 +1,6 @@
 # Implementation Plan: Wiki Service Refactor (Fumadocs Migration)
 
-## Phase 1: Framework Cleanup & Next.js Initialization
+## Phase 1: Framework Cleanup & Next.js Initialization [checkpoint: 4816a32]
 - [x] Task: Clean up legacy Rspress files and dependencies d639d48
     - [ ] Remove `rspress.config.ts`
     - [ ] Remove `doc_build/` directory
@@ -9,7 +9,7 @@
     - [ ] Create `apps/wiki/app/layout.tsx` (Basic structure)
     - [ ] Create `apps/wiki/app/page.tsx` (Root landing page)
     - [ ] Add `next.config.mjs`, `tsconfig.json`, and `postcss.config.mjs` (aligned with project standards)
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Framework Cleanup & Next.js Initialization' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Framework Cleanup & Next.js Initialization' (Protocol in workflow.md) 4816a32
 
 ## Phase 2: Fumadocs Core Integration & Source Provider
 - [ ] Task: Install Fumadocs dependencies
