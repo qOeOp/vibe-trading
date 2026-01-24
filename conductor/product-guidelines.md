@@ -24,3 +24,15 @@
     - Accent: `#df3674` (Pink)
     - Secondary: `#35b9e9` (Cyan)
 - **Typography:** Monospace fonts for data/numbers; Clean sans-serif for UI text.
+
+---
+
+## Engineering Guidelines (Mandatory)
+All development must strictly adhere to the project's [Comprehensive Coding Guidelines](../docs/guidelines/README.md).
+
+### Core Pillars
+1.  **[Design-First Workflow](../docs/guidelines/workflow.md)**: Every task must start with an Analysis phase, Architecture/Sequence diagrams (Mermaid.js), and Interface definitions before implementation.
+2.  **[Software Principles](../docs/guidelines/principles.md)**: Strict adherence to SOLID, SRP, DRY, and Composition over Inheritance.
+3.  **[Design Patterns](../docs/guidelines/patterns.md)**: Identify and apply industry-standard patterns (Strategy, Repository, Factory) to solve architectural challenges.
+4.  **[Language Standards](../docs/guidelines/README.md#language-standards)**: Strict typing in TypeScript (React 19) and mandatory type hinting in Python (FastAPI).
+5.  **[Operational Standards](../docs/guidelines/ops.md)**: TDD mandate, structured logging, and standardized error handling.
