@@ -1,6 +1,6 @@
 # Implementation Plan: Comprehensive Coding Guidelines
 
-## Phase 1: Research & Structure Setup
+## Phase 1: Research & Structure Setup [checkpoint: 552dd0a]
 - [x] Task: Initialize the guidelines directory structure and entry point. (12e7122)
     - [ ] Create `docs/guidelines/` directory.
     - [ ] Create `docs/guidelines/README.md` as the main index.
