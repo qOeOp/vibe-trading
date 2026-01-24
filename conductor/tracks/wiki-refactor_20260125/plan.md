@@ -44,10 +44,10 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 4: Styling & UI Integration' (Protocol in workflow.md) 0661f3a
 
 ## Phase 5: Search & Feature Alignment
-- [ ] Task: Implement Local Search
+- [x] Task: Implement Local Search 4b377f9
     - [ ] Integrate Fumadocs built-in search UI and logic
     - [ ] Verify search indexing for the migrated content
-- [ ] Task: Verify Accessibility Compliance
+- [x] Task: Verify Accessibility Compliance 4b377f9
     - [ ] Perform accessibility audit and fix issues (Keyboard navigation, ARIA labels)
 - [ ] Task: Conductor - User Manual Verification 'Phase 5: Search & Feature Alignment' (Protocol in workflow.md)
 
