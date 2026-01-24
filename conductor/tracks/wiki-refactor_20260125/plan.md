@@ -11,15 +11,15 @@
     - [ ] Add `next.config.mjs`, `tsconfig.json`, and `postcss.config.mjs` (aligned with project standards)
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Framework Cleanup & Next.js Initialization' (Protocol in workflow.md) 4816a32
 
-## Phase 2: Fumadocs Core Integration & Source Provider
-- [~] Task: Install Fumadocs dependencies
+## Phase 2: Fumadocs Core Integration & Source Provider [checkpoint: f52dded]
+- [x] Task: Install Fumadocs dependencies 1025a1f
     - [ ] Run `npm install fumadocs-ui fumadocs-core fumadocs-content-collections` (or equivalent)
-- [ ] Task: Configure Fumadocs Source Provider
+- [x] Task: Configure Fumadocs Source Provider 1025a1f
     - [ ] Create `apps/wiki/lib/source.ts` to define the documentation source using `loader`
     - [ ] Configure `content-collections.config.ts` for MDX processing
-- [ ] Task: Implement Content Mapping Logic
+- [x] Task: Implement Content Mapping Logic 5f2ee61
     - [ ] Create the sidebar mapping logic using Fumadocs' `source` object
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Fumadocs Core Integration & Source Provider' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Fumadocs Core Integration & Source Provider' (Protocol in workflow.md) f52dded
 
 ## Phase 3: Content Migration & MDX Layout
 - [ ] Task: Migrate Documentation Files
