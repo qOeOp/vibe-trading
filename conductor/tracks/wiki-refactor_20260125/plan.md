@@ -22,15 +22,15 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Fumadocs Core Integration & Source Provider' (Protocol in workflow.md) f52dded
 
 ## Phase 3: Content Migration & MDX Layout
-- [ ] Task: Migrate Documentation Files
+- [x] Task: Migrate Documentation Files 3190e9e
     - [ ] Move content from `apps/wiki/docs/` to `apps/wiki/content/`
     - [ ] Create `meta.json` files in content folders for ordering (A/B/C logic)
-- [ ] Task: Implement Documentation Layout
+- [x] Task: Implement Documentation Layout 3190e9e
     - [ ] Create `apps/wiki/app/docs/[[...slug]]/page.tsx` for dynamic routing
     - [ ] Implement `apps/wiki/app/docs/layout.tsx` using `DocsLayout` from Fumadocs
-- [ ] Task: Write Tests for Content Rendering
+- [x] Task: Write Tests for Content Rendering 3190e9e
     - [ ] Create unit tests to verify MDX files are correctly loaded and slugs are generated
-- [ ] Task: Implement MDX Component Verification
+- [x] Task: Implement MDX Component Verification 3190e9e
     - [ ] Ensure custom MDX components (if any) are correctly registered and rendered
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Content Migration & MDX Layout' (Protocol in workflow.md)
 
