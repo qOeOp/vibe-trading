@@ -12,7 +12,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Framework Cleanup & Next.js Initialization' (Protocol in workflow.md) 4816a32
 
 ## Phase 2: Fumadocs Core Integration & Source Provider
-- [ ] Task: Install Fumadocs dependencies
+- [~] Task: Install Fumadocs dependencies
     - [ ] Run `npm install fumadocs-ui fumadocs-core fumadocs-content-collections` (or equivalent)
 - [ ] Task: Configure Fumadocs Source Provider
     - [ ] Create `apps/wiki/lib/source.ts` to define the documentation source using `loader`

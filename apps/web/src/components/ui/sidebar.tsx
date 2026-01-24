@@ -47,7 +47,29 @@ const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 function useSidebar() {
   const context = React.useContext(SidebarContext)
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.")
+    const errorMessage = "useSidebar must be used within a SidebarProvider. Check that your component is wrapped with <SidebarProvider>."
+
+    console.error(errorMessage, {
+      stack: new Error().stack, // Helpful for debugging where this was called
+      component: 'useSidebar'
+    })
+
+    // In development, throw to help developers catch this early
+    if (process.env.NODE_ENV === 'development') {
+      throw new Error(errorMessage)
+    }
+
+    // In production, return a safe default to prevent complete app failure
+    // Log to error tracking service in production
+    return {
+      state: "expanded" as const,
+      open: false,
+      setOpen: () => console.warn('Sidebar not initialized'),
+      openMobile: false,
+      setOpenMobile: () => console.warn('Sidebar not initialized'),
+      isMobile: false,
+      toggleSidebar: () => console.warn('Sidebar not initialized'),
+    }
   }
 
   return context
@@ -82,8 +104,32 @@ function SidebarProvider({
         _setOpen(openState)
       }
 
-      // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+      // Persist sidebar state to cookie with error handling
+      try {
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+
+        // Verify the cookie was actually set
+        const cookies = document.cookie.split(';')
+        const wasCookieSet = cookies.some(c => c.trim().startsWith(`${SIDEBAR_COOKIE_NAME}=`))
+
+        if (!wasCookieSet) {
+          console.warn('Failed to persist sidebar preference: Cookie write was blocked')
+          // Fall back to localStorage if available
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(SIDEBAR_COOKIE_NAME, String(openState))
+          }
+        }
+      } catch (error) {
+        console.error('Failed to persist sidebar preference:', error)
+        // Fall back to localStorage if available
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(SIDEBAR_COOKIE_NAME, String(openState))
+          }
+        } catch (storageError) {
+          console.warn('Both cookie and localStorage failed:', storageError)
+        }
+      }
     },
     [setOpenProp, open]
   )
