@@ -9,7 +9,7 @@
     - [ ] Create a "Guidelines Skeleton" mapping spec requirements to specific files.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Research & Structure Setup' (Protocol in workflow.md)
 
-## Phase 2: Design-First Workflow & Core Principles
+## Phase 2: Design-First Workflow & Core Principles [checkpoint: 897ec88]
 - [x] Task: Document the "Design-First" Mandatory Lifecycle. (49ebb0a)
     - [ ] Draft `docs/guidelines/workflow.md` detailing the Analysis -> Diagram -> Interface -> Implementation flow.
     - [ ] Include Mermaid.js diagram examples for Architecture and Sequence flows.
