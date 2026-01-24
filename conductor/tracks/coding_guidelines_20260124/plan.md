@@ -18,7 +18,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Design-First Workflow & Core Principles' (Protocol in workflow.md)
 
 ## Phase 3: Language-Specific Standards
-- [ ] Task: Draft TypeScript & React standards.
+- [x] Task: Draft TypeScript & React standards. (39273b3)
     - [ ] Create `docs/guidelines/typescript.md` covering strict typing, naming, and functional patterns.
     - [ ] Include React-specific standards (Hooks, Composition, Styling).
 - [ ] Task: Draft Python & FastAPI standards.
