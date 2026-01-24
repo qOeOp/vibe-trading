@@ -1,0 +1,1 @@
+# TypeScript & React Coding Standards
