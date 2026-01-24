@@ -32,6 +32,6 @@
     - [ ] Create `docs/guidelines/patterns.md` with Trading-relevant examples (Strategy Pattern, Repository Pattern, Factory).
 - [x] Task: Document Operational Standards. (f25d5e4)
     - [ ] Create `docs/guidelines/ops.md` for Testing (TDD), Logging, and Error Handling.
-- [ ] Task: Update project-level integration.
+- [x] Task: Update project-level integration. (4dc30e1)
     - [ ] Modify `conductor/product-guidelines.md` to reference the new granular guidelines.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Architecture, Patterns & Integration' (Protocol in workflow.md)
