@@ -30,7 +30,7 @@
 ## Phase 4: Architecture, Patterns & Integration
 - [x] Task: Document Architectural Design Patterns. (774a8ff)
     - [ ] Create `docs/guidelines/patterns.md` with Trading-relevant examples (Strategy Pattern, Repository Pattern, Factory).
-- [ ] Task: Document Operational Standards.
+- [x] Task: Document Operational Standards. (f25d5e4)
     - [ ] Create `docs/guidelines/ops.md` for Testing (TDD), Logging, and Error Handling.
 - [ ] Task: Update project-level integration.
     - [ ] Modify `conductor/product-guidelines.md` to reference the new granular guidelines.
