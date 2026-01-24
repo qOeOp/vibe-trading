@@ -1,8 +1,10 @@
+"use client";
+
 import { StatsCards } from '../components/stats-cards';
 import { WelcomeSection } from '../components/welcome-section';
 import { LeadSourcesChart } from '../components/charts/lead-sources-chart';
 import { RevenueFlowChart } from '../components/charts/revenue-flow-chart';
-import { RecentDealsPreview } from '../components/recent-deals-preview';
+import { RecentDealsPreview } from '@/features/dashboard';
 
 export function OverviewPage() {
   return (

@@ -3,11 +3,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and root configs
 COPY package*.json ./
-COPY nx.json tsconfig.base.json ./
+COPY nx.json tsconfig.base.json eslint.config.mjs .nxignore ./
 
-# Copy web app
+# Copy web app and shared libs
 COPY apps/web ./apps/web
 COPY libs/shared-types ./libs/shared-types
 
@@ -21,8 +21,9 @@ FROM nginx:alpine
 # Copy nginx configuration
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-# Copy built assets
-COPY --from=builder /app/dist/web /usr/share/nginx/html
+# Copy built assets (Next.js static export output)
+# Note: Next.js 15 'output: export' puts files in .next by default in this workspace setup
+COPY --from=builder /app/dist/apps/web/.next /usr/share/nginx/html
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \

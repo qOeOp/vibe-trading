@@ -1,5 +1,8 @@
+"use client";
+
 import * as React from "react";
-import { NavLink } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -12,15 +15,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@/components/ui/dashboard/sidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/dashboard/avatar";
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dashboard/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   Bot,
   LayoutGrid,
@@ -29,38 +32,47 @@ import {
   HelpCircle,
   Settings,
   ChevronsUpDown,
+  CandlestickChart,
 } from "lucide-react";
 
 const menuItems = [
   {
     title: "AI Assistant",
     icon: Sparkles,
-    href: "/app/dashboard/ai-assistant",
+    href: "/ai-assistant",
     testId: "dashboard-sidebar-nav-ai-assistant",
     special: true,
   },
   {
     title: "Overview",
     icon: LayoutGrid,
-    href: "/app/dashboard/overview",
+    href: "/dashboard",
     testId: "dashboard-sidebar-nav-overview",
+  },
+  {
+    title: "Market",
+    icon: CandlestickChart,
+    href: "/market",
+    testId: "dashboard-sidebar-nav-market",
   },
   {
     title: "Deals",
     icon: ChartArea,
-    href: "/app/dashboard/deals",
+    href: "/deals",
     testId: "dashboard-sidebar-nav-deals",
   },
   {
     title: "Analytics",
     icon: Bot,
-    href: "/app/dashboard/analytics",
+    href: "/analytics",
     testId: "dashboard-sidebar-nav-analytics",
     disabled: true,
   },
 ];
 
 export function DashboardSidebar() {
+  const pathname = usePathname();
+
   return (
     <Sidebar className="border-r" data-testid="dashboard-sidebar">
       <SidebarHeader className="border-b px-6 py-4">
@@ -84,16 +96,11 @@ export function DashboardSidebar() {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={false}
+                    isActive={pathname === item.href}
                     disabled={item.disabled}
                     data-testid={item.testId}
                   >
-                    <NavLink
-                      to={item.href}
-                      className={({ isActive }) =>
-                        isActive ? "bg-accent" : ""
-                      }
-                    >
+                    <Link href={item.href}>
                       <item.icon
                         className={
                           item.special
@@ -115,7 +122,7 @@ export function DashboardSidebar() {
                           Soon
                         </span>
                       )}
-                    </NavLink>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
