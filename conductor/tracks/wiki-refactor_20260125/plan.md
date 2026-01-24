@@ -1,11 +1,11 @@
 # Implementation Plan: Wiki Service Refactor (Fumadocs Migration)
 
 ## Phase 1: Framework Cleanup & Next.js Initialization
-- [~] Task: Clean up legacy Rspress files and dependencies
+- [x] Task: Clean up legacy Rspress files and dependencies d639d48
     - [ ] Remove `rspress.config.ts`
     - [ ] Remove `doc_build/` directory
     - [ ] Update `apps/wiki/package.json`: Remove `rspress` and add `next`, `react`, `react-dom`, `typescript`, `@types/react`, `@types/react-dom`, `@types/node`
-- [ ] Task: Initialize Next.js App Router structure in `apps/wiki`
+- [x] Task: Initialize Next.js App Router structure in `apps/wiki` d639d48
     - [ ] Create `apps/wiki/app/layout.tsx` (Basic structure)
     - [ ] Create `apps/wiki/app/page.tsx` (Root landing page)
     - [ ] Add `next.config.mjs`, `tsconfig.json`, and `postcss.config.mjs` (aligned with project standards)
