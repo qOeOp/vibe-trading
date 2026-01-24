@@ -1,9 +1,9 @@
-import { Outlet } from 'react-router-dom';
-import { SidebarProvider } from '@/components/ui/dashboard/sidebar';
+
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { DashboardSidebar } from './dashboard-sidebar';
 import { DashboardHeader } from './dashboard-header';
 
-export function DashboardLayout() {
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider className="bg-sidebar">
       <DashboardSidebar />
@@ -11,7 +11,7 @@ export function DashboardLayout() {
         <div className="lg:border lg:rounded-md overflow-hidden flex flex-col bg-background h-full w-full">
           <DashboardHeader />
           <main className="flex-1 overflow-auto p-6" data-testid="dashboard-main-content">
-            <Outlet />
+            {children}
           </main>
         </div>
       </div>

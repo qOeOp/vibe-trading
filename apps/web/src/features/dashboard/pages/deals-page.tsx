@@ -1,3 +1,5 @@
+"use client";
+
 import { DealsTable } from '../components/deals-table';
 import { deals } from '../data/deals';
 

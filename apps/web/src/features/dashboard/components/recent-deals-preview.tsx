@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { DealsTable } from "./deals-table";
@@ -19,7 +19,7 @@ export function RecentDealsPreview() {
           className="gap-2"
         >
           <Link
-            to="/app/dashboard/deals"
+            href="/deals"
             data-testid="dashboard-view-all-deals-link"
           >
             View All Deals

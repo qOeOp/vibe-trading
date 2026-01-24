@@ -1,6 +1,6 @@
 "use client";
 
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import {
 	InputGroup,
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/input-group";
 import { AtSignIcon, ChevronLeftIcon } from "lucide-react";
 import type React from "react";
-import { FloatingPaths } from "@/components/floating-paths";
+import { FloatingPaths } from "@/components/shared/floating-paths";
 
 export function AuthPage() {
 	return (

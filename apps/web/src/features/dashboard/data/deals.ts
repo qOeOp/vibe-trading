@@ -87,10 +87,11 @@ const dealTemplates = [
   { name: "Gamma Research", client: "Gamma Institute" },
 ];
 
-function getRandomDate(startMonth: number, endMonth: number): string {
+function getDeterministicDate(index: number): string {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const month = Math.floor(Math.random() * (endMonth - startMonth + 1)) + startMonth;
-  const day = Math.floor(Math.random() * 28) + 1;
+  // Deterministic math instead of random
+  const month = (index * 7) % 12;
+  const day = (index * 13) % 28 + 1;
   return `${months[month]} ${day.toString().padStart(2, "0")}, 2025`;
 }
 
@@ -98,7 +99,8 @@ export const deals: Deal[] = dealTemplates.map((template, index) => {
   const owner = owners[index % owners.length];
   const stage = stages[index % stages.length];
   const color = colors[index % colors.length];
-  const value = Math.floor(Math.random() * 40000) + 5000;
+  // Deterministic value
+  const value = 5000 + ((index * 12345) % 40000);
   const initial = template.name.split(" ").map(w => w[0]).join("").slice(0, 2);
 
   return {
@@ -111,6 +113,6 @@ export const deals: Deal[] = dealTemplates.map((template, index) => {
     value,
     owner: owner.name,
     ownerInitials: owner.initials,
-    expectedClose: getRandomDate(3, 8),
+    expectedClose: getDeterministicDate(index),
   };
 });

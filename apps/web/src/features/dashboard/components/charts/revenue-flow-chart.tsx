@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
   Bar,
@@ -37,7 +39,7 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-} from "@/components/ui/dashboard/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 const fullYearData = [
   { month: "Jan", thisYear: 38000, prevYear: 32000 },

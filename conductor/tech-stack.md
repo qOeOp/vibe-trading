@@ -1,6 +1,6 @@
 # Technology Stack
 
-All development must strictly adhere to the project's [Comprehensive Coding Guidelines](../docs/guidelines/README.md).
+All development must strictly adhere to the project's [Comprehensive Coding Guidelines](../guidelines/README.md).
 
 ## Frontend
 - **Framework:** React 19 (TypeScript)

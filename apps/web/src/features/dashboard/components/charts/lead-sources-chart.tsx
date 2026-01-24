@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
-} from "@/components/ui/dashboard/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   ChartLine,
   MoreHorizontal,
