@@ -80,7 +80,7 @@ class RedisCache:
 
         # Try primary cache (unless force refresh)
         if not force_refresh:
-            cached_data = self._safe_cache_read(primary_key)
+            cached_data = await self._safe_cache_read(primary_key)
             if cached_data:
                 logger.info(f"Cache hit: {primary_key}")
                 return self._deserialize(cached_data, model_class)
@@ -92,15 +92,15 @@ class RedisCache:
 
             # Write to both primary and backup
             serialized = self._serialize(data)
-            self._safe_cache_write(primary_key, serialized, ttl)
-            self._safe_backup_write(backup_key, serialized)
+            await self._safe_cache_write(primary_key, serialized, ttl)
+            await self._safe_backup_write(backup_key, serialized)
 
             return data
 
         except Exception as fetch_error:
             # Fetch failed - try backup cache (stale data)
             logger.warning(f"Fetch failed: {fetch_error}, attempting backup cache: {backup_key}")
-            backup_data = self._safe_backup_read(backup_key)
+            backup_data = await self._safe_backup_read(backup_key)
             if backup_data:
                 logger.info(f"Serving stale data from backup: {backup_key}")
                 return self._deserialize(backup_data, model_class)
@@ -109,7 +109,7 @@ class RedisCache:
             logger.error(f"Both fetch and backup failed for key: {cache_key}")
             raise
 
-    def _safe_cache_read(self, key: str) -> Optional[str]:
+    async def _safe_cache_read(self, key: str) -> Optional[str]:
         """
         Safely read from primary cache.
 
@@ -123,7 +123,7 @@ class RedisCache:
             return None
 
         try:
-            value = self.redis_client.get(key)
+            value = await self.redis_client.get(key)
             if value:
                 return value.decode("utf-8")
             return None
@@ -131,7 +131,7 @@ class RedisCache:
             logger.warning(f"Redis read error for key {key}: {e}")
             return None
 
-    def _safe_cache_write(self, key: str, value: str, ttl: timedelta) -> None:
+    async def _safe_cache_write(self, key: str, value: str, ttl: timedelta) -> None:
         """
         Safely write to primary cache with TTL.
 
@@ -145,12 +145,12 @@ class RedisCache:
 
         try:
             ttl_seconds = int(ttl.total_seconds())
-            self.redis_client.setex(key, ttl_seconds, value)
+            await self.redis_client.setex(key, ttl_seconds, value)
             logger.debug(f"Cached with TTL {ttl_seconds}s: {key}")
         except Exception as e:
             logger.warning(f"Redis write error for key {key}: {e}")
 
-    def _safe_backup_write(self, key: str, value: str) -> None:
+    async def _safe_backup_write(self, key: str, value: str) -> None:
         """
         Safely write to backup cache (no expiration).
 
@@ -162,12 +162,12 @@ class RedisCache:
             return
 
         try:
-            self.redis_client.set(key, value)
+            await self.redis_client.set(key, value)
             logger.debug(f"Backup cached: {key}")
         except Exception as e:
             logger.warning(f"Redis backup write error for key {key}: {e}")
 
-    def _safe_backup_read(self, key: str) -> Optional[str]:
+    async def _safe_backup_read(self, key: str) -> Optional[str]:
         """
         Safely read from backup cache.
 
@@ -181,7 +181,7 @@ class RedisCache:
             return None
 
         try:
-            value = self.redis_client.get(key)
+            value = await self.redis_client.get(key)
             if value:
                 return value.decode("utf-8")
             return None

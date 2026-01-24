@@ -175,8 +175,8 @@ class AKShareProvider(DataProvider):
             try:
                 # Base fields for all industry levels
                 data = {
-                    "code": row["指数代码"],
-                    "name": row["指数名称"],
+                    "code": row["行业代码"],
+                    "name": row["行业名称"],
                     "constituent_count": int(row["成份个数"]),
                     "static_pe_ratio": self._safe_float(row.get("静态市盈率")),
                     "ttm_pe_ratio": self._safe_float(row.get("TTM(滚动)市盈率")),
