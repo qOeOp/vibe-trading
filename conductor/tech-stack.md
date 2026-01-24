@@ -4,8 +4,8 @@ All development must strictly adhere to the project's [Comprehensive Coding Guid
 
 ## Frontend
 - **Framework:** React 19 (TypeScript)
-- **Documentation:** Rspress (React 19, MDX-based SSG)
-- **Build Tool:** Vite
+- **Documentation:** Fumadocs (Next.js 15, MDX-based SSG via Content Collections)
+- **Build Tool:** Vite (for web), Next.js (for wiki)
 - **Styling:** Tailwind CSS v4
 - **Component Libraries:**
     - Radix UI / Shadcn UI (Base components)
