@@ -17,7 +17,7 @@
     - [ ] Draft `docs/guidelines/principles.md` covering SOLID, SRP, DRY, KISS, and YAGNI with "Bad vs. Good" code snippets.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Design-First Workflow & Core Principles' (Protocol in workflow.md)
 
-## Phase 3: Language-Specific Standards
+## Phase 3: Language-Specific Standards [checkpoint: 1f86d2d]
 - [x] Task: Draft TypeScript & React standards. (39273b3)
     - [ ] Create `docs/guidelines/typescript.md` covering strict typing, naming, and functional patterns.
     - [ ] Include React-specific standards (Hooks, Composition, Styling).
