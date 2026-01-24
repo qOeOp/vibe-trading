@@ -21,7 +21,7 @@
 - [x] Task: Draft TypeScript & React standards. (39273b3)
     - [ ] Create `docs/guidelines/typescript.md` covering strict typing, naming, and functional patterns.
     - [ ] Include React-specific standards (Hooks, Composition, Styling).
-- [ ] Task: Draft Python & FastAPI standards.
+- [x] Task: Draft Python & FastAPI standards. (648ecea)
     - [ ] Create `docs/guidelines/python.md` covering type hinting, async patterns, and Pydantic usage.
 - [ ] Task: Draft Event-Driven & Kafka patterns.
     - [ ] Create `docs/guidelines/kafka.md` for idempotency, schemas, and error handling.
