@@ -52,13 +52,13 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 5: Search & Feature Alignment' (Protocol in workflow.md) e4d0ad4
 
 ## Phase 6: Build, Documentation & Production Readiness
-- [ ] Task: Update Project Documentation
+- [x] Task: Update Project Documentation f446ebf
     - [ ] Update `apps/wiki/README.md` to reflect the new architecture
     - [ ] Generate fresh MDX content for the Wiki itself based on the current project state (self-documenting)
-- [ ] Task: Build Verification
+- [x] Task: Build Verification f446ebf
     - [ ] Run `npm run build` in `apps/wiki` to verify SSG
     - [ ] Run `nx build wiki` to ensure Nx integration is correct
     - [ ] Fix any broken links or rendering issues found during build
-- [ ] Task: Update Docker Configuration
+- [x] Task: Update Docker Configuration f446ebf
     - [ ] Modify `docker/docs.Dockerfile` (or `wiki.Dockerfile`) to support the new Next.js build process
 - [ ] Task: Conductor - User Manual Verification 'Phase 6: Build, Documentation & Production Readiness' (Protocol in workflow.md)
