@@ -101,6 +101,13 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "test:integration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "jest --config apps/api/jest.integration.config.ts",
+        "cwd": "."
+      }
     }
   }
 }
