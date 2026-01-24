@@ -27,7 +27,7 @@
     - [ ] Create `docs/guidelines/kafka.md` for idempotency, schemas, and error handling.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Language-Specific Standards' (Protocol in workflow.md)
 
-## Phase 4: Architecture, Patterns & Integration
+## Phase 4: Architecture, Patterns & Integration [checkpoint: 76c8f5c]
 - [x] Task: Document Architectural Design Patterns. (774a8ff)
     - [ ] Create `docs/guidelines/patterns.md` with Trading-relevant examples (Strategy Pattern, Repository Pattern, Factory).
 - [x] Task: Document Operational Standards. (f25d5e4)
