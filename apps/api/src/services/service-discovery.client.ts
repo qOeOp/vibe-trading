@@ -20,7 +20,7 @@ export class ServiceDiscoveryClient {
 
   constructor() {
     const consulHost = process.env.CONSUL_HOST || 'consul';
-    const consulPort = parseInt(process.env.CONSUL_PORT || '8500');
+    const consulPort = process.env.CONSUL_PORT || '8500';
 
     try {
       this.consul = new Consul({
@@ -49,12 +49,12 @@ export class ServiceDiscoveryClient {
     // Try Consul discovery
     if (this.consul) {
       try {
-        const result = await this.consul.health.service({
+        const result: any = await this.consul.health.service({
           service: serviceName,
           passing: true, // Only healthy instances
         });
 
-        if (result && result.length > 0) {
+        if (result && Array.isArray(result) && result.length > 0) {
           // Use first healthy instance
           const service = result[0];
           const address = `http://${service.Service.Address}:${service.Service.Port}`;
@@ -103,7 +103,7 @@ export class ServiceDiscoveryClient {
         check: {
           http: `http://${process.env.SERVICE_HOST || 'api'}:${port}${healthCheckPath}`,
           interval: '10s',
-          timeout: '5s',
+          ttl: '5s',
         },
       });
 
