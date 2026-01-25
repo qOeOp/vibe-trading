@@ -10,10 +10,4 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
----
 
-
-
-- [~] **Track: Wiki Service Refactor (Fumadocs Migration)**
-
-*Link: [./tracks/wiki-refactor_20260125/](./tracks/wiki-refactor_20260125/)*
