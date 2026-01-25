@@ -16,7 +16,7 @@ COPY apps/wiki ./apps/wiki
 # Install dependencies and build
 # Remove lockfile to force fresh install for Linux/Alpine
 RUN rm -f package-lock.json
-RUN npm install --prefer-offline --no-audit
+RUN npm install --prefer-offline --no-audit --legacy-peer-deps
 RUN npx nx build wiki
 
 # Production stage with Nginx

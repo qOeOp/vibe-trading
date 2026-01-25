@@ -12,7 +12,7 @@ COPY apps/web ./apps/web
 COPY libs/shared-types ./libs/shared-types
 
 # Install dependencies and build
-RUN npm install --prefer-offline --no-audit
+RUN npm install --prefer-offline --no-audit --legacy-peer-deps
 RUN npx nx build web --prod
 
 # Verify build output exists
