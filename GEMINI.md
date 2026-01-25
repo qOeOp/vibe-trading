@@ -9,7 +9,7 @@ The system follows an **Event-Driven Microservices Architecture** powered by Apa
 ### Core Components
 | Service | Type | Tech Stack | Port | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **Web** | Frontend | React 19, TypeScript, Vite | `8200` | Main user interface/Dashboard. |
+| **Web** | Frontend | React 19, TypeScript, Next.js 15 | `8200` | Main user interface/Dashboard (static export). |
 | **API Gateway** | Gateway | Node.js, Express, TypeScript | `8201` | Unified entry point for the frontend, handles WS & REST. |
 | **Trading Engine** | Microservice | Python, FastAPI | `8202` | Core order execution and strategy management. |
 | **Market Data** | Microservice | Python, FastAPI | `8203` | Ingests and processes ticks, klines, and order books. |

@@ -358,7 +358,7 @@ npx nx run web:build --skip-nx-cache
 
 ### Frontend (apps/web)
 - React 19 with TypeScript
-- Vite for fast builds
+- Next.js 15 with static export for optimized production builds
 - Tailwind CSS v4 with OKLCH colors
 - Radix UI components
 - Recharts v3 for data visualization

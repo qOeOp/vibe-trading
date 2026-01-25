@@ -7,9 +7,8 @@ Vibe Trading is a modern, event-driven trading platform built with a multi-langu
 ## Tech Stack
 
 ### TypeScript Stack
-- **Frontend**: React 19, TypeScript, Vite
+- **Frontend**: React 19, TypeScript, Next.js 15 (static export mode)
 - **API**: Express.js with TypeScript
-- **Routing**: React Router v6
 - **Styling**: Tailwind CSS v4 with OKLCH color space
 - **UI Components**: Radix UI primitives with custom styling
 - **Charts**: Recharts v3
@@ -177,14 +176,20 @@ apps/<service>/
 
 ### Component-Specific Rules
 
-1. **No Next.js Directives**
-   - Never use `"use client"` or `"use server"` (this is a Vite project)
-   - Avoid Next.js-specific imports or patterns
+1. **Next.js App Router Patterns**
+   - Use `"use client"` directive for interactive components (components that use hooks, event handlers, or browser APIs)
+   - Server components are the default in Next.js App Router - only add `"use client"` when necessary
+   - Page components (`page.tsx`) and layouts (`layout.tsx`) must use default exports (required by Next.js)
+   - Other components should use named exports for consistency
+   - Place page components in `app/` directory following Next.js App Router conventions
+   - Use route groups `(auth)`, `(dashboard)` for organizational structure without affecting URL paths
 
 2. **Theme Management**
-   - Dark mode is hardcoded in `main.tsx`
-   - Don't use `next-themes` or external theme providers
-   - Use Tailwind's dark mode classes when needed
+   - Dark mode is currently hardcoded in `app/layout.tsx` root layout
+   - `next-themes` package is installed but theme toggle is not fully integrated
+   - Use Tailwind's dark mode classes (`dark:`) for styling variants
+   - The `dark` class is applied to `<html>` element to enable dark mode utilities
+   - The `color-scheme: 'dark'` CSS property ensures native browser UI elements match the theme
 
 3. **Data Props**
    - Chart components manage their own data internally
@@ -479,6 +484,29 @@ npx nx graph
 - Keep commits atomic and focused
 - Merge completed work to `main` branch
 
+## Next.js Static Export Configuration
+
+The web app uses Next.js 15 with static export mode for deployment:
+
+### Configuration
+- `output: 'export'` in `next.config.js` generates pre-rendered HTML files
+- Enables deployment on static file servers (Nginx) without requiring a Node.js server
+- `images: { unoptimized: true }` is required (Next.js Image optimization needs a server)
+- Build output goes to `dist/apps/web/.next` (configured via Nx `outputPath`)
+
+### Limitations of Static Export
+- No server-side rendering (SSR) - all pages are pre-rendered at build time
+- No API routes - use separate API server (Express.js in `apps/api`)
+- No dynamic routes with `getServerSideProps`
+- No middleware
+- No incremental static regeneration (ISR)
+
+### Best Practices
+- Use `"use client"` for all interactive components
+- Handle SSR/client differences (check for `window` in `useEffect`)
+- Avoid hydration mismatches by keeping server and client renders consistent
+- Use environment variables prefixed with `NEXT_PUBLIC_` for client-side access
+
 ## Performance Considerations
 
 1. **Component Optimization**
@@ -536,12 +564,11 @@ npx nx graph
 ### TypeScript Pitfalls
 1. ❌ Using `"use client"` directive (this is not Next.js)
 2. ❌ Passing data props to chart components
-3. ❌ Using `next-themes` for theme management
-4. ❌ Mixing inline styles with Tailwind
-5. ❌ Creating components without TypeScript types
-6. ❌ Using default exports
-7. ❌ Hardcoding values that should be in constants
-8. ❌ Not handling loading/error states
+3. ❌ Mixing inline styles with Tailwind
+4. ❌ Creating components without TypeScript types
+5. ❌ Using default exports (except for Next.js `page.tsx` and `layout.tsx` files where they're required)
+6. ❌ Hardcoding values that should be in constants
+7. ❌ Not handling loading/error states
 
 ### Python Pitfalls
 1. ❌ Missing type hints on functions

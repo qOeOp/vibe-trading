@@ -5,4 +5,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 ---
 
 - [~] **Track: Redesign web component structure and migrate to Next.js**
+
 *Link: [./tracks/web-arch-redesign_20260124/](./tracks/web-arch-redesign_20260124/)*
+
+
+
+

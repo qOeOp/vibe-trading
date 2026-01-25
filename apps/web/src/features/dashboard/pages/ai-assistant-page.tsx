@@ -19,6 +19,7 @@ export function AIAssistantPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [failedMessage, setFailedMessage] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -53,8 +54,43 @@ export function AIAssistantPage() {
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+      setFailedMessage(null); // Clear failed message on success
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while processing your message");
+      // Provide specific error messages based on error type
+      let errorMessage = "An unexpected error occurred";
+
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        errorMessage = "Unable to connect to the server. Please check your internet connection.";
+      } else if (err instanceof DOMException && err.name === 'AbortError') {
+        errorMessage = "Request timed out. Please try again.";
+      } else if (err instanceof Response) {
+        switch (err.status) {
+          case 401:
+            errorMessage = "Your session has expired. Please sign in again.";
+            break;
+          case 429:
+            errorMessage = "Too many requests. Please wait a moment and try again.";
+            break;
+          case 500:
+          case 502:
+          case 503:
+            errorMessage = "The server is experiencing issues. Please try again later.";
+            break;
+          default:
+            errorMessage = `Server error (${err.status}). Please try again.`;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      console.error('AI Assistant error:', {
+        error: err,
+        timestamp: new Date().toISOString(),
+        userMessage: userMessage.content
+      });
+
+      setError(errorMessage);
+      setFailedMessage(userMessage); // Save for retry
     } finally {
       setIsLoading(false);
       textareaRef.current?.focus();
@@ -71,6 +107,22 @@ export function AIAssistantPage() {
   const handleClear = () => {
     setMessages([]);
     setInput("");
+    setError(null);
+    setFailedMessage(null);
+  };
+
+  const handleRetry = () => {
+    if (!failedMessage) return;
+    setInput(failedMessage.content);
+    setError(null);
+    setFailedMessage(null);
+    // Focus will be set after handleSend completes via the finally block
+    setTimeout(() => handleSend(), 0);
+  };
+
+  const handleDismissError = () => {
+    setError(null);
+    setFailedMessage(null);
   };
 
   return (
@@ -132,8 +184,18 @@ export function AIAssistantPage() {
 
         <div className="border-t p-4">
           {error && (
-            <div className="mb-3 p-3 bg-destructive/10 text-destructive text-sm rounded-lg">
-              {error}
+            <div className="mb-3 p-3 bg-destructive/10 text-destructive text-sm rounded-lg flex justify-between items-start gap-3">
+              <span className="flex-1">{error}</span>
+              <div className="flex gap-2 shrink-0">
+                {failedMessage && (
+                  <Button size="sm" variant="outline" onClick={handleRetry}>
+                    Retry
+                  </Button>
+                )}
+                <Button size="sm" variant="ghost" onClick={handleDismissError}>
+                  Dismiss
+                </Button>
+              </div>
             </div>
           )}
           <div className="flex gap-2">

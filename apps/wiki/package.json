@@ -3,19 +3,25 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "rspress build",
-    "dev": "rspress dev",
-    "preview": "rspress preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "express": "^4.21.2",
+    "@content-collections/core": "^0.13.1",
+    "@content-collections/next": "^0.2.10",
+    "fumadocs-core": "^16.4.8",
+    "fumadocs-ui": "^16.4.8",
     "lucide-react": "^0.562.0",
+    "next": "15.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "6.29.0",
-    "rspress": "^2.0.0-beta.21"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17"
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.0.0"
   }
 }

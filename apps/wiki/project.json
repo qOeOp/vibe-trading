@@ -8,29 +8,29 @@
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "rspress dev --port 8216",
+        "command": "next dev -p 8216",
         "cwd": "apps/wiki"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "rspress build",
+        "command": "next build",
         "cwd": "apps/wiki"
       }
     },
-    "preview": {
+    "start": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "rspress preview --port 8216",
+        "command": "next start -p 8216",
         "cwd": "apps/wiki"
       }
     },
-    "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{options.reportsDirectory}"],
+    "lint": {
+      "executor": "nx:run-commands",
       "options": {
-        "reportsDirectory": "../../coverage/apps/wiki"
+        "command": "next lint",
+        "cwd": "apps/wiki"
       }
     }
   }

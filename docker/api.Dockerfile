@@ -12,7 +12,7 @@ COPY apps/api ./apps/api
 COPY libs/shared-types ./libs/shared-types
 
 # Install dependencies and build
-RUN npm install --prefer-offline --no-audit
+RUN npm install --prefer-offline --no-audit --legacy-peer-deps
 RUN npx nx build api --prod
 
 # Production stage

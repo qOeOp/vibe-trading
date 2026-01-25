@@ -167,7 +167,7 @@ export function RevenueFlowChart() {
   const [smoothCurve, setSmoothCurve] = useState(true);
   const [currentInsight, setCurrentInsight] = useState(0);
 
-  // Dark mode is hardcoded in main.tsx
+  // Dark mode is hardcoded in app/layout.tsx root layout
   const isDark = true;
   const axisColor = isDark ? "#71717a" : "#a1a1aa";
   const gridColor = isDark ? "#27272a" : "#f4f4f5";

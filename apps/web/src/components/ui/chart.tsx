@@ -28,7 +28,20 @@ function useChart() {
   const context = React.useContext(ChartContext)
 
   if (!context) {
-    throw new Error("useChart must be used within a <ChartContainer />")
+    const errorMessage = "useChart must be used within a <ChartContainer />. Check that your component is wrapped with <ChartContainer>."
+
+    console.error(errorMessage, {
+      stack: new Error().stack, // Helpful for debugging where this was called
+      component: 'useChart'
+    })
+
+    // In development, throw to help developers catch this early
+    if (process.env.NODE_ENV === 'development') {
+      throw new Error(errorMessage)
+    }
+
+    // In production, return a safe default to prevent complete app failure
+    return { config: {} }
   }
 
   return context
