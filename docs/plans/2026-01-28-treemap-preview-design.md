@@ -2040,33 +2040,152 @@ interface BreathingDotProps {
 
 ---
 
-## Component Design
+## 7. Layout & Dimensions
 
-### Component Hierarchy
+### 7.1 Page Layout
 
+**Preview Page (`/preview`):**
 ```
-App (layout.tsx + page.tsx)
-  └── HeatMap.tsx (container component)
-        ├── HeatMapHeader.tsx
-        │     ├── Title: "Market Performance" (left)
-        │     ├── Breadcrumb.tsx (below title)
-        │     │     └── "一级行业 > 二级行业 > 三级行业 > 股票"
-        │     ├── SearchBox.tsx (right)
-        │     │     ├── Input field (rounded rectangle)
-        │     │     └── Search icon (inline, clickable)
-        │     └── Two Toggles (right, after search)
-        │           ├── Toggle 1 (top)
-        │           └── Toggle 2 (bottom)
-        │
-        └── Treemap visualization (Recharts)
-              └── Tile.tsx × 31 (individual sector tiles)
-                    ├── Sector name (top-left)
-                    ├── BreathingDot.tsx (top-right, frequency based on attentionLevel)
-                    ├── Capital flow + Change % (bottom-right)
-                    └── Background color (gradient based on change%)
+┌──────────────────────────────────────────────────────────┐
+│  HeatMap Container (920px - 100vw width)                 │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ Header (fixed height ~60-80px)                     │  │
+│  │ ┌────────────────────────────────────────────────┐ │  │
+│  │ │ Market Performance    [Search] [🔍] [T1] [T2] │ │  │
+│  │ │ 一级行业 > 二级行业 > 三级行业 > 股票          │ │  │
+│  │ └────────────────────────────────────────────────┘ │  │
+│  │                                                    │  │
+│  │ Treemap Area (max 580px height)                   │  │
+│  │ ┌────────────────────────────────────────────┐    │  │
+│ 8│ │                                            │    │8 │ ← 8px padding
+│ p│ │     [Tiles dynamically laid out]           │    │p │
+│ x│ │                                            │    │x │
+│  │ │                                            │    │  │
+│ 8│ │                                            │    │8 │
+│ p│ │                                            │    │p │
+│ x│ │                                            │    │x │ ← Scrollbar here
+│  │ └────────────────────────────────────────────┘    │  │   if > 580px
+│  │         ↑ Scrollable if > 580px                   │  │
+│  └────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────┘
 ```
 
-### HeatMap Header Design
+**Page Structure:**
+- Full-width display of HeatMap component
+- No sidebar or additional UI elements
+- HeatMap fills the entire viewport area
+
+### 7.2 HeatMap Container Dimensions
+
+| Property | Value | Behavior |
+|----------|-------|----------|
+| **Min Width** | `920px` | Hard minimum, component won't shrink below |
+| **Max Width** | `100vw` | Fills viewport width |
+| **Height** | `auto` | Dynamically calculated by Treemap algorithm |
+| **Max Height** | `580px` | Hard maximum ceiling (treemap area only, excludes header) |
+| **Overflow** | `scroll` | Vertical scroll when height > 580px |
+| **Padding** | `8px` | All sides, prevents scrollbar overlap with tiles |
+
+**Why 8px Padding?**
+1. **Scrollbar overlap prevention**: When `overflow-y: scroll` is active, the scrollbar appears on the right edge. Without padding, tiles can extend to the edge and be partially obscured by the scrollbar UI.
+2. **Visual breathing room**: Creates consistent spacing around the entire HeatMap visualization.
+3. **Browser consistency**: Different browsers render scrollbars differently (overlay vs. always visible). 8px padding ensures tiles are never hidden regardless of browser behavior.
+4. **Accessibility**: Provides clear visual separation between interactive scrollbar and tile content.
+
+**Dynamic Height Calculation:**
+- Recharts Treemap algorithm computes optimal tile layout
+- Height auto-adjusts based on:
+  - Number of tiles (31 sectors)
+  - Available width
+  - Tile size distribution (market cap values)
+- If calculated height ≤ 580px: use calculated height
+- If calculated height > 580px: fix at 580px + enable scroll
+
+**Zoom/Scale Support:**
+- Component supports CSS `transform: scale()` operations
+- Maintains 920px minimum width constraint at all zoom levels
+- Scroll container adjusts to scaled content dimensions
+- Preserves tile aspect ratios during scaling
+
+**Viewport Breakpoints:**
+- **Desktop (1920px+)**: Full width layout, optimal tile visibility
+- **Tablet (768-1920px)**: Adaptive width, maintains 920px minimum
+- **Mobile (<768px)**: Not prioritized (desktop-first visualization)
+  - If accessed on mobile: horizontal scroll appears due to 920px min-width
+
+### 7.3 Tile Shape & Size Constraints
+
+**⚠️ Critical: Tile aspect ratio and minimum size requirements**
+
+**Tile Aspect Ratio:**
+- **Allowed range**: Square to Golden Ratio rectangle
+  - Minimum ratio: `1:1` (perfect square)
+  - Maximum ratio: `1:1.618` (golden ratio, horizontal)
+  - Formula: `1 ≤ (width / height) ≤ 1.618`
+- **Forbidden**: Vertical rectangles (height > width)
+  - Ratio `< 1` is NOT allowed
+  - Prevents tall, narrow tiles that are hard to read
+
+**Tile Minimum Dimensions:**
+- **Minimum width**: `150px` (hard constraint)
+- **Minimum height**: `150px` (hard constraint)
+- **Rationale**: Tiles smaller than 150px cannot properly display:
+  - Sector name (top-left)
+  - Breathing indicator (top-right)
+  - Capital flow + change% (bottom-right)
+  - Adequate padding and readability
+
+**Treemap Algorithm Constraints:**
+```typescript
+// Tile validation rules
+const isValidTile = (width: number, height: number): boolean => {
+  // Check minimum dimensions
+  if (width < 150 || height < 150) return false;
+
+  // Check aspect ratio (square to golden ratio)
+  const ratio = width / height;
+  if (ratio < 1 || ratio > 1.618) return false;
+
+  return true;
+};
+```
+
+**Handling All 31 Sectors:**
+
+**⚠️ Critical Requirement: All 31 SW Level-1 sectors MUST be displayed**
+
+- **No grouping/clustering**: Cannot use "Others" category to combine small sectors
+- **No exclusions**: All 31 sectors must appear, regardless of market cap size
+- **Minimum size enforcement**: Every tile MUST meet 150px × 150px minimum
+- **Container sizing strategy**:
+  - HeatMap container dimensions (920px width, max 580px height) are designed to accommodate all 31 sectors at minimum 150px × 150px size
+  - Treemap algorithm distributes tiles based on market cap proportions
+  - If any tile would be < 150px, the container may need to expand (within max height limit) or tiles redistribute
+
+**Implementation Strategy:**
+```typescript
+// Validate all tiles meet minimum size
+const validateAllTiles = (tiles: TileData[]): boolean => {
+  return tiles.every(tile => tile.width >= 150 && tile.height >= 150);
+};
+
+// If validation fails, adjust container or algorithm parameters
+// All 31 sectors must remain visible
+```
+
+**Mock Data Validation:**
+- Current mock data has market cap range: ¥9,800亿 to ¥45,200亿
+- Smallest sector: 美容护理 (¥13,800亿)
+- Largest sector: 银行 (¥45,200亿)
+- Ratio: ~1:4.6 (manageable for 150px minimum tiles)
+
+**Scaling Support:**
+- Component supports zoom/scale transformations
+- Maintains minimum width of 920px at all zoom levels
+- Tile constraints apply at all zoom levels (150px minimum after scaling)
+- Scroll container adapts to scaled content
+
+### 7.4 Header Design & Scroll Effects
 
 **Header Structure:**
 
@@ -2075,80 +2194,6 @@ App (layout.tsx + page.tsx)
 │ Market Performance              [Search...] [🔍] [T1] [T2] │
 │ 一级行业 > 二级行业 > 三级行业 > 股票                       │
 └────────────────────────────────────────────────────────────┘
-```
-
-**Layout Breakdown:**
-
-**Left Section:**
-- **Title**: "Market Performance"
-  - Font size: 20-24px
-  - Font weight: 600 (semibold)
-  - Color: Theme-aware (white in dark, gray-900 in light)
-- **Breadcrumb** (below title):
-  - Text: "一级行业 > 二级行业 > 三级行业 > 股票"
-  - Font size: 12-14px
-  - Font weight: 400 (normal)
-  - Color: Theme-aware (gray-400 in dark, gray-600 in light)
-  - Separator: " > " (with spaces)
-  - Interactive: Clickable breadcrumb items (Phase 2)
-
-**Right Section (horizontally aligned):**
-
-**1. Search Box:**
-- Shape: Rounded rectangle
-- Border radius: 8px (matching tile radius)
-- Background: Theme-aware input background
-  - Dark mode: `rgba(255, 255, 255, 0.05)`
-  - Light mode: `#ffffff` with border
-- Border: Theme-aware
-  - Dark mode: `rgba(255, 255, 255, 0.1)`
-  - Light mode: `#d1d5db` (gray-300)
-- Height: 40px (reference height for toggles)
-- Width: 240-280px
-- Padding: 12px 16px
-- **Search Icon**:
-  - Position: Inline at right edge inside input
-  - Icon: Lucide `Search` icon
-  - Size: 20px
-  - Color: Theme-aware (gray-400)
-  - Clickable: Yes (triggers search)
-  - No visible button shape - icon is the affordance
-- **Placeholder**: "Search sectors..."
-- **Input styling**:
-  - Font size: 14px
-  - No outline on focus (use border color change)
-
-**2. Toggle Group (垂直排列):**
-- Position: Immediately after search box (8-12px gap)
-- Layout: Two toggles stacked vertically
-- Container height: 40px (matches search box height)
-- Each toggle height: ~18px (with 4px gap between)
-- Width: Auto (based on content, ~80-100px)
-- Styling: Standard toggle switches
-  - Background: Theme-aware
-  - Active state: Primary color
-  - Inactive state: Gray
-- **Toggle 1** (top): Purpose TBD (e.g., "Live" mode)
-- **Toggle 2** (bottom): Purpose TBD (e.g., "Compact" view)
-
-**Header Layout (Flexbox):**
-```typescript
-<div className="flex items-start justify-between p-4 pb-2">
-  {/* Left section */}
-  <div className="flex flex-col gap-1">
-    <h1 className="text-2xl font-semibold">Market Performance</h1>
-    <Breadcrumb items={["一级行业", "二级行业", "三级行业", "股票"]} />
-  </div>
-
-  {/* Right section */}
-  <div className="flex items-center gap-3">
-    <SearchBox placeholder="Search sectors..." />
-    <div className="flex flex-col gap-1 h-[40px] justify-between">
-      <Toggle label="Toggle 1" />
-      <Toggle label="Toggle 2" />
-    </div>
-  </div>
-</div>
 ```
 
 **Header Dimensions:**
@@ -2233,7 +2278,11 @@ useEffect(() => {
   - No abrupt cutoff
   - Smooth visual continuity
 
-### HeatMap Implementation
+---
+
+## 8. Component Specifications
+
+### 8.1 HeatMap
 
 **Library:** Recharts `<Treemap>` component (used for treemap-style layout)
 
@@ -2242,100 +2291,6 @@ useEffect(() => {
 - `dataKey="marketCap"`: Determines tile size
 - Custom `content`: Renders `Tile` component
 - Responsive sizing with constraints
-
-**Layout & Sizing Specifications:**
-
-**Page Layout:**
-- Full-width display of HeatMap component
-- No sidebar or additional UI elements
-- HeatMap fills the entire viewport area
-
-**HeatMap Container Dimensions:**
-- **Total minimum width**: `920px`
-- **Total maximum width**: `100vw` (full viewport width)
-- **Header height**: Fixed (auto, based on content ~60-80px)
-- **Treemap area height**: Dynamic based on tile count and layout
-  - Treemap algorithm dynamically calculates tile positions
-  - Height adjusts automatically to fit all tiles
-  - **Maximum treemap height**: `580px` (excludes header)
-  - **Total max height**: Header height + 580px + padding
-  - **Overflow behavior**: When treemap height > 580px, apply `overflow-y: scroll`
-- **Padding (Container)**: `8px` on all sides
-  - **Critical**: Prevents scrollbar UI from overlapping with tiles
-  - Creates visual breathing room around HeatMap
-  - Ensures scrollbar doesn't obscure tile content when visible
-
-**Tile Shape & Size Constraints:**
-
-**⚠️ Critical: Tile aspect ratio and minimum size requirements**
-
-**Tile Aspect Ratio:**
-- **Allowed range**: Square to Golden Ratio rectangle
-  - Minimum ratio: `1:1` (perfect square)
-  - Maximum ratio: `1:1.618` (golden ratio, horizontal)
-  - Formula: `1 ≤ (width / height) ≤ 1.618`
-- **Forbidden**: Vertical rectangles (height > width)
-  - Ratio `< 1` is NOT allowed
-  - Prevents tall, narrow tiles that are hard to read
-
-**Tile Minimum Dimensions:**
-- **Minimum width**: `150px` (hard constraint)
-- **Minimum height**: `150px` (hard constraint)
-- **Rationale**: Tiles smaller than 150px cannot properly display:
-  - Sector name (top-left)
-  - Breathing indicator (top-right)
-  - Capital flow + change% (bottom-right)
-  - Adequate padding and readability
-
-**Treemap Algorithm Constraints:**
-```typescript
-// Tile validation rules
-const isValidTile = (width: number, height: number): boolean => {
-  // Check minimum dimensions
-  if (width < 150 || height < 150) return false;
-
-  // Check aspect ratio (square to golden ratio)
-  const ratio = width / height;
-  if (ratio < 1 || ratio > 1.618) return false;
-
-  return true;
-};
-```
-
-**Handling All 31 Sectors:**
-
-**⚠️ Critical Requirement: All 31 SW Level-1 sectors MUST be displayed**
-
-- **No grouping/clustering**: Cannot use "Others" category to combine small sectors
-- **No exclusions**: All 31 sectors must appear, regardless of market cap size
-- **Minimum size enforcement**: Every tile MUST meet 150px × 150px minimum
-- **Container sizing strategy**:
-  - HeatMap container dimensions (920px width, max 580px height) are designed to accommodate all 31 sectors at minimum 150px × 150px size
-  - Treemap algorithm distributes tiles based on market cap proportions
-  - If any tile would be < 150px, the container may need to expand (within max height limit) or tiles redistribute
-
-**Implementation Strategy:**
-```typescript
-// Validate all tiles meet minimum size
-const validateAllTiles = (tiles: TileData[]): boolean => {
-  return tiles.every(tile => tile.width >= 150 && tile.height >= 150);
-};
-
-// If validation fails, adjust container or algorithm parameters
-// All 31 sectors must remain visible
-```
-
-**Mock Data Validation:**
-- Current mock data has market cap range: ¥9,800亿 to ¥45,200亿
-- Smallest sector: 美容护理 (¥13,800亿)
-- Largest sector: 银行 (¥45,200亿)
-- Ratio: ~1:4.6 (manageable for 150px minimum tiles)
-
-**Scaling Support:**
-- Component supports zoom/scale transformations
-- Maintains minimum width of 920px at all zoom levels
-- Tile constraints apply at all zoom levels (150px minimum after scaling)
-- Scroll container adapts to scaled content
 
 **Implementation Example:**
 ```typescript
@@ -2353,318 +2308,386 @@ const validateAllTiles = (tiles: TileData[]): boolean => {
 </div>
 ```
 
-**Why 8px Padding?**
-1. **Scrollbar overlap prevention**: When `overflow-y: scroll` is active, the scrollbar appears on the right edge. Without padding, tiles can extend to the edge and be partially obscured by the scrollbar UI.
-2. **Visual breathing room**: Creates consistent spacing around the entire HeatMap visualization.
-3. **Browser consistency**: Different browsers render scrollbars differently (overlay vs. always visible). 8px padding ensures tiles are never hidden regardless of browser behavior.
-4. **Accessibility**: Provides clear visual separation between interactive scrollbar and tile content.
+### 8.2 HeatMapHeader
 
-**Custom Tile Renderer with Constraints:**
+**Layout Breakdown:**
+
+**Left Section:**
+- **Title**: "Market Performance"
+  - Font size: 20-24px
+  - Font weight: 600 (semibold)
+  - Color: Theme-aware (white in dark, gray-900 in light)
+- **Breadcrumb** (below title):
+  - Text: "一级行业 > 二级行业 > 三级行业 > 股票"
+  - Font size: 12-14px
+  - Font weight: 400 (normal)
+  - Color: Theme-aware (gray-400 in dark, gray-600 in light)
+  - Separator: " > " (with spaces)
+  - Interactive: Clickable breadcrumb items (Phase 2)
+
+**Right Section (horizontally aligned):**
+- Search Box
+- Toggle Group (垂直排列)
+
+**Header Layout (Flexbox):**
 ```typescript
-// apps/preview/src/components/Tile.tsx
+<div className="flex items-start justify-between p-4 pb-2">
+  {/* Left section */}
+  <div className="flex flex-col gap-1">
+    <h1 className="text-2xl font-semibold">Market Performance</h1>
+    <Breadcrumb items={["一级行业", "二级行业", "三级行业", "股票"]} />
+  </div>
+
+  {/* Right section */}
+  <div className="flex items-center gap-3">
+    <SearchBox placeholder="Search sectors..." />
+    <div className="flex flex-col gap-1 h-[40px] justify-between">
+      <Toggle label="Toggle 1" />
+      <Toggle label="Toggle 2" />
+    </div>
+  </div>
+</div>
+```
+
+### 8.3 HeatMapTile
+
+**Component:** Custom tile renderer for Recharts Treemap
+
+**Interface:**
+```typescript
 interface TileProps {
   x?: number;
   y?: number;
   width?: number;
   height?: number;
-  // ... sector data
-}
-
-export function Tile({ x, y, width, height, ...props }: TileProps) {
-  // Validate tile dimensions
-  if (!width || !height || width < 150 || height < 150) {
-    // CRITICAL: Log warning but DO NOT skip rendering
-    // All 31 sectors MUST be displayed
-    console.error(`Tile below minimum size: ${width}x${height}px. Adjusting layout needed.`);
-
-    // Force minimum size (fallback - should be handled by container sizing)
-    width = Math.max(width, 150);
-    height = Math.max(height, 150);
-  }
-
-  // Validate aspect ratio (square to golden ratio)
-  const ratio = width / height;
-  if (ratio < 1 || ratio > 1.618) {
-    console.warn(`Tile aspect ratio ${ratio.toFixed(2)} outside preferred range 1-1.618`);
-    // Still render - all sectors must show
-  }
-
-  return (
-    <g transform={`translate(${x}, ${y})`}>
-      {/* Tile content rendering - always render, never skip */}
-    </g>
-  );
+  name?: string;
+  value?: number;
+  changePercent?: number;
+  capitalFlow?: number;
+  attentionLevel?: number;
 }
 ```
 
-**⚠️ Important:** Tile renderer never returns `null`. All 31 sectors must render, even if constraints are violated (which indicates container sizing needs adjustment).
+**Visual Composition:**
+- Glassmorphism background with color tint
+- Sector name (top-left)
+- BreathingDot indicator (top-right)
+- Capital flow + Change % (bottom-right in TileBottomPanel)
+- Icon identifier (left of sector name, 6px gap)
 
-## Advanced Tile Features
+**Glassmorphism Properties:**
+```css
+.heatmap-tile {
+  /* Glassmorphism core */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
-### Adaptive Content Degradation
+  /* Semi-transparent base */
+  background: rgba(var(--tile-color-rgb), 0.15);
 
-**Content Display Rules:**
-```typescript
-// Content visibility based on tile size
-const getVisibleContent = (width: number, height: number) => {
-  const area = width * height;
+  /* Glass edge refraction */
+  border: 1px solid;
+  border-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.1)
+  ) 1;
 
-  if (area >= 30000) {  // Large tiles (e.g., 200x150)
-    return {
-      showName: true,
-      showBreathingDot: true,
-      showCapitalFlow: true,
-      showChangePercent: true,
-      fontSize: 'base'
-    };
-  } else if (area >= 22500) {  // Medium tiles (e.g., 150x150)
-    return {
-      showName: true,
-      showBreathingDot: true,
-      showCapitalFlow: true,
-      showChangePercent: true,
-      fontSize: 'sm'  // Smaller font
-    };
-  } else {  // Minimum tiles (150px edge)
-    return {
-      showName: true,
-      showBreathingDot: false,  // Hide breathing dot
-      showCapitalFlow: false,   // Hide capital flow
-      showChangePercent: true,  // Keep change% only
-      fontSize: 'xs'
-    };
-  }
-};
-```
+  /* Surface texture */
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),  /* Top highlight */
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1),        /* Bottom shadow */
+    0 10px 20px rgba(0, 0, 0, 0.4);             /* Drop shadow (depth) */
 
-### Variable Speed Linear Mapping
-
-**Color intensity mapping with non-linear curve:**
-```typescript
-// Maps change% to color intensity with variable speed
-const getColorIntensity = (changePercent: number): number => {
-  const absChange = Math.abs(changePercent);
-
-  // Piecewise linear mapping for better visual discrimination
-  if (absChange < 1) {
-    // Slow ramp for small changes (0-1%)
-    return absChange / 1 * 0.3;  // Map to 0-0.3 intensity
-  } else if (absChange < 3) {
-    // Medium ramp (1-3%)
-    return 0.3 + ((absChange - 1) / 2) * 0.4;  // Map to 0.3-0.7
-  } else {
-    // Fast ramp for large changes (3%+)
-    return 0.7 + Math.min((absChange - 3) / 5, 1) * 0.3;  // Map to 0.7-1.0
-  }
-};
-```
-
-**Tile Layout:**
-- **Dimensions**:
-  - Minimum: 150px × 150px (required for content display)
-  - Aspect ratio: 1:1 to 1:1.618 (square to golden ratio)
-  - No vertical rectangles allowed
-  - Gap: 4px between tiles (glassmorphism aesthetic)
-- **Top-left**: Sector icon + name
-  - **Icon** (Lucide React):
-    - Size: 16-18px
-    - Color: `rgba(255, 255, 255, 0.9)`
-    - Margin-right: 6px (gap between icon and text)
-    - Stroke-width: 2px
-    - Visual metaphor for sector category
-  - **Name**:
-    - Dark mode: `#ffffff` (white, 14-16px, font-weight: 600)
-    - Light mode: `#111827` (gray-900, 14-16px, font-weight: 600)
-  - Requires minimum 150px width for proper display
-- **Top-right**: Breathing indicator dot (animated, frequency based on attentionLevel)
-  - High attention (80-100): Fast pulse (0.8s cycle)
-  - Medium attention (40-79): Medium pulse (1.5s cycle)
-  - Low attention (0-39): Slow pulse (3s cycle)
-  - Size: 8px × 8px (fits in 150px minimum tile)
-- **Bottom-right**:
-  - Capital flow (12px, format: "±¥XXX亿" with arrow icon)
-    - Positive flow: Red color (matching market convention)
-    - Negative flow: Green color (matching market convention)
-  - Change percentage (10px, format: "+2.5%")
-    - Color matches tile background gradient
-  - Requires minimum 150px width to avoid text truncation
-- **Padding**: 8-12px (accounts for in minimum 150px dimension)
-- **Border**: Theme-aware with accessible contrast (≥3:1)
-
-**Color Intensity Calculation:**
-```typescript
-// Map change% to color intensity (0-5% range)
-const intensity = Math.min(Math.abs(changePercent) / 5, 1);
-
-// Color progression examples:
-// +0.5%  → Light red (#F08FC8)
-// +2.5%  → Medium red (#D52CA2) ⭐
-// +5.0%  → Deep red (#A52380)
-
-// -0.5%  → Light green (#05C588)
-// -2.5%  → Medium green (#039160) ⭐
-// -5.0%  → Deep green (#026B45)
-```
-
-## Technical Stack
-
-### Framework & Libraries
-
-- **Framework**: Next.js 15 (static export mode)
-- **UI Library**: React 19
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS v4 (OKLCH color space)
-- **Animation**: Framer Motion (drill-down animations, transitions)
-- **Charts**: Recharts v3 (Treemap layout calculation only)
-- **Monorepo**: Nx 22.3.3
-- **Icons**: Lucide React
-
-### Configuration Files
-
-**next.config.js:**
-```javascript
-module.exports = {
-  output: 'export',
-  images: { unoptimized: true },
-  async rewrites() {
-    return [{
-      source: '/api/:path*',
-      destination: 'http://localhost:8201/api/:path*'
-    }]
-  }
+  /* Border radius */
+  border-radius: 8px;
 }
 ```
 
-**Theme Management:**
-- Use `next-themes` for light/dark mode toggle
-- Default theme: `dark`
-- Theme persistence: localStorage
-- Apply theme class to root `<html>` element
-- Use Tailwind `dark:` prefix for dark mode styles
+**Tile Spacing:**
+- **Gap between tiles**: `4px` (凸显晶体边缘折射感)
+- Creates visual separation emphasizing glass facets
+- Applied to Treemap layout algorithm
 
-**project.json:**
-```json
-{
-  "name": "preview",
-  "targets": {
-    "serve": {
-      "executor": "@nx/next:server",
-      "options": {
-        "buildTarget": "preview:build",
-        "dev": true,
-        "port": 4300
-      }
-    },
-    "build": {
-      "executor": "@nx/next:build",
-      "options": {
-        "outputPath": "dist/apps/preview"
-      }
+**Tile Text Styles:**
+
+**Sector Name (Top-left):**
+- Font size: 14-16px (adaptive based on tile size)
+- Font weight: 600 (semibold)
+- Color (dark mode): `#ffffff` (white)
+- Color (light mode): `#111827` (gray-900)
+- Text shadow: Creates "floating above glass" effect
+  ```css
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  ```
+
+**Capital Flow & Change % (Bottom-right):**
+- Font size: 12px
+- Font weight: 400 (normal)
+- Color: `rgba(255, 255, 255, 0.8)` (secondary text)
+- Text shadow: `0 1px 2px rgba(0, 0, 0, 0.4)`
+
+### 8.4 TileBottomPanel
+
+**3D Hover Interaction Component**
+
+**Default State (No Hover):**
+- Part of tile background
+- Contains capital flow + change% text
+- Opacity: 1
+- Transform: none
+
+**Hover State:**
+- Separates from tile (Y-axis transform)
+- Rotates along Z-axis (3deg right tilt)
+- Becomes transparent glass (opacity 0.3)
+- Original content fades out
+- Sparkline chart fades in
+
+**3D Hover Animation:**
+```typescript
+// Tile lifts on hover
+<motion.div
+  className="heatmap-tile"
+  whileHover={{
+    y: -12,  // Lift tile 12px upward
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)'  // Enhanced shadow
+  }}
+  transition={{ duration: 0.4, ease: [0.4, 0.0, 0.2, 1] }}
+>
+  {/* Top 2/3: Sector name + icon */}
+  <div className="tile-top-section">
+    <span>{name}</span>
+    <BreathingDot attentionLevel={attentionLevel} />
+  </div>
+
+  {/* Bottom 1/3: Separable panel */}
+  <motion.div
+    className="tile-bottom-panel"
+    whileHover={{
+      rotateZ: 3,           // 3deg right tilt
+      opacity: 0.3,         // Transparent glass
+      y: 8                  // Separate from tile
+    }}
+  >
+    {/* Default content */}
+    <motion.div whileHover={{ opacity: 0 }}>
+      <div>{formatCapitalFlow(capitalFlow)}</div>
+      <div>{formatChangePercent(changePercent)}</div>
+    </motion.div>
+
+    {/* Sparkline (fades in on hover) */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      whileHover={{ opacity: 1 }}
+    >
+      <Sparkline data={trendData} />
+    </motion.div>
+  </motion.div>
+</motion.div>
+```
+
+**Framer Motion Implementation:**
+```typescript
+const tileVariants = {
+  idle: {
+    y: 0,
+    boxShadow: '0 10px 20px rgba(0, 0, 0, 0.4)'
+  },
+  hover: {
+    y: -12,
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+    transition: {
+      duration: 0.4,
+      ease: [0.4, 0.0, 0.2, 1]  // Material Design easing
     }
   }
-}
+};
+
+const panelVariants = {
+  idle: {
+    rotateZ: 0,
+    opacity: 1,
+    y: 0
+  },
+  hover: {
+    rotateZ: 3,
+    opacity: 0.3,
+    y: 8,
+    transition: {
+      duration: 0.4,
+      ease: [0.4, 0.0, 0.2, 1]
+    }
+  }
+};
 ```
 
-## Implementation Details
+### 8.5 Sparkline
 
-### Data Usage & Page Implementation
+**Component:** Trend chart displayed on tile hover
 
+**Visual Properties:**
+- Stroke width: 2px
+- Stroke color: `rgba(255, 255, 255, 0.9)`
+- Fill: None (line chart only)
+- Curve: Smooth (Bezier curve)
+- Data points: 30 days of trend data
+
+**Implementation:**
 ```typescript
-// apps/preview/src/app/page.tsx
-import { mockSectors } from '@/data/mockSectors';
-import { HeatMap } from '@/components/HeatMap';
+interface SparklineProps {
+  data: number[];  // 30-day trend data
+  width?: number;
+  height?: number;
+}
 
-export default function PreviewPage() {
+export function Sparkline({ data, width = 80, height = 24 }: SparklineProps) {
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-[#0a0f0d] p-0 m-0">
-      {/* Full-width container */}
-      <div className="w-full min-w-[920px]">
-        <HeatMap data={mockSectors} />
-      </div>
-    </main>
+    <svg width={width} height={height} className="sparkline">
+      <path
+        d={generateSparklinePath(data, width, height)}
+        stroke="rgba(255, 255, 255, 0.9)"
+        strokeWidth={2}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Breathing indicator dot at end */}
+      <circle
+        cx={width}
+        cy={getLastYPosition(data, height)}
+        r={3}
+        fill="rgba(255, 255, 255, 0.9)"
+        className="breathing-dot"
+      />
+    </svg>
   );
 }
 ```
 
-```typescript
-// apps/preview/src/components/HeatMap.tsx
-import { Treemap, ResponsiveContainer } from 'recharts';
-import { HeatMapHeader } from './HeatMapHeader';
-import { Tile } from './Tile';
-import type { Sector } from '@/types/sector';
+**Animation:**
+- Fades in on tile hover (opacity 0 → 1)
+- Transition duration: 400ms
+- Easing: cubic-bezier (elastic feel)
 
-interface HeatMapProps {
-  data: Sector[];
+### 8.6 BreathingDot
+
+**Component:** Animated indicator showing sector attention level
+
+**Visual Design:**
+- Dot size: 8px × 8px
+- Color (dark mode): `#ffffff` with 90% opacity
+- Color (light mode): `#111827` with 80% opacity
+- Position: Absolute top-right corner (8-12px from edges)
+- Animation: Fade + scale pulse effect
+- No glow/shadow (clean minimal design)
+
+**Animation Speed Based on Attention Level:**
+- High attention (80-100): Fast pulse (0.8s cycle)
+- Medium attention (40-79): Medium pulse (1.5s cycle)
+- Low attention (0-39): Slow pulse (3s cycle)
+
+**Implementation:**
+```typescript
+interface BreathingDotProps {
+  attentionLevel: number; // 0-100
 }
 
-export function HeatMap({ data }: HeatMapProps) {
-  return (
-    <div className="w-full min-w-[920px]">
-      {/* Header */}
-      <HeatMapHeader />
+// Calculate breathing animation duration based on attention level
+function getBreathingDuration(attentionLevel: number): number {
+  if (attentionLevel >= 80) return 0.8; // Fast
+  if (attentionLevel >= 40) return 1.5; // Medium
+  return 3.0; // Slow
+}
 
-      {/* Treemap visualization area */}
-      <div className="max-h-[580px] overflow-y-auto p-2">
-        {/*
-          p-2 = 8px padding on all sides
-          Prevents scrollbar from overlapping with tiles when overflow occurs
-          max-h-[580px] applies to treemap area only (excludes header)
-        */}
-        <ResponsiveContainer width="100%" height="auto" minHeight={400}>
-          <Treemap
-            data={data}
-            dataKey="marketCap"
-            stroke="#fff"
-            fill="#8884d8"
-            content={<Tile />}
-          />
-        </ResponsiveContainer>
-      </div>
-    </div>
+export function BreathingDot({ attentionLevel }: BreathingDotProps) {
+  return (
+    <div
+      className="w-2 h-2 rounded-full bg-white/90"
+      style={{
+        animation: `breathing ${getBreathingDuration(attentionLevel)}s ease-in-out infinite`
+      }}
+    />
   );
 }
 ```
 
+**CSS Animation Keyframe (in globals.css):**
+```css
+@keyframes breathing {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+```
+
+### 8.7 Breadcrumb
+
+**Component:** Navigation breadcrumb trail
+
+**Properties:**
+- Text: "一级行业 > 二级行业 > 三级行业 > 股票"
+- Font size: 12-14px
+- Font weight: 400 (normal)
+- Color: Theme-aware (gray-400 in dark, gray-600 in light)
+- Separator: " > " (with spaces)
+- Interactive: Clickable breadcrumb items (Phase 2)
+
+**Implementation:**
 ```typescript
-// apps/preview/src/components/HeatMapHeader.tsx
-import { Breadcrumb } from './Breadcrumb';
-import { SearchBox } from './SearchBox';
-import { Search } from 'lucide-react';
+interface BreadcrumbProps {
+  items: string[];
+  separator?: string;
+}
 
-export function HeatMapHeader() {
+export function Breadcrumb({ items, separator = " > " }: BreadcrumbProps) {
   return (
-    <div className="flex items-start justify-between p-4 pb-2 border-b border-gray-200 dark:border-white/5">
-      {/* Left section */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-          Market Performance
-        </h1>
-        <Breadcrumb
-          items={["一级行业", "二级行业", "三级行业", "股票"]}
-          separator=" > "
-        />
-      </div>
-
-      {/* Right section */}
-      <div className="flex items-center gap-3">
-        <SearchBox placeholder="Search sectors..." />
-
-        {/* Toggle group - vertically stacked */}
-        <div className="flex flex-col gap-1 h-[40px] justify-between">
-          <Toggle label="Toggle 1" size="sm" />
-          <Toggle label="Toggle 2" size="sm" />
-        </div>
-      </div>
-    </div>
+    <nav className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+      {items.map((item, index) => (
+        <span key={index}>
+          {item}
+          {index < items.length - 1 && <span className="mx-1">{separator}</span>}
+        </span>
+      ))}
+    </nav>
   );
 }
 ```
 
-```typescript
-// apps/preview/src/components/SearchBox.tsx
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+### 8.8 SearchBox
 
+**Component:** Search input with inline icon
+
+**Visual Properties:**
+- Shape: Rounded rectangle
+- Border radius: 8px (matching tile radius)
+- Background: Theme-aware input background
+  - Dark mode: `rgba(255, 255, 255, 0.05)`
+  - Light mode: `#ffffff` with border
+- Border: Theme-aware
+  - Dark mode: `rgba(255, 255, 255, 0.1)`
+  - Light mode: `#d1d5db` (gray-300)
+- Height: 40px (reference height for toggles)
+- Width: 240-280px
+- Padding: 12px 16px
+
+**Search Icon:**
+- Position: Inline at right edge inside input
+- Icon: Lucide `Search` icon
+- Size: 20px
+- Color: Theme-aware (gray-400)
+- Clickable: Yes (triggers search)
+- No visible button shape - icon is the affordance
+
+**Placeholder:** "Search sectors..."
+
+**Input Styling:**
+- Font size: 14px
+- No outline on focus (use border color change)
+
+**Implementation:**
+```typescript
 interface SearchBoxProps {
   placeholder?: string;
   onSearch?: (query: string) => void;
@@ -2715,28 +2738,186 @@ export function SearchBox({ placeholder = "Search...", onSearch }: SearchBoxProp
 }
 ```
 
+### 8.9 DynamicBackground
+
+**Component:** Animated color blocks behind HeatMap
+
+**Layered Background Architecture:**
+```
+┌─────────────────────────────────────┐
+│  HeatMap Tiles (foreground)         │ ← Glass tiles with content
+│  ├─ backdrop-filter: blur(12px)     │
+│  └─ Semi-transparent colors          │
+├─────────────────────────────────────┤
+│  Dynamic Color Blocks (mid-layer)   │ ← Animated gradient blobs
+│  ├─ Blur: 60px-100px                │
+│  ├─ Opacity: 30-50%                 │
+│  └─ Colors based on market sentiment│
+├─────────────────────────────────────┤
+│  Base Background (back-layer)       │ ← Dark solid color
+│  └─ Dark mode: #0a0f0d              │
+└─────────────────────────────────────┘
+```
+
+**Implementation:**
 ```typescript
-// apps/preview/src/components/Breadcrumb.tsx
-interface BreadcrumbProps {
-  items: string[];
-  separator?: string;
+// Animated color blocks behind HeatMap
+<DynamicBackground
+  colors={[
+    'rgba(213, 44, 162, 0.4)',   // Red blob (bull market)
+    'rgba(3, 145, 96, 0.4)',     // Green blob (bear market)
+    'rgba(110, 63, 243, 0.3)'    // Purple blob (neutral)
+  ]}
+  blur={80}                       // 60-100px blur
+  animationDuration={20}          // Slow morph (20s)
+/>
+```
+
+### 8.10 SpotlightEffect
+
+**Component:** Mouse-following spotlight effect (optional, configurable)
+
+**Visual Properties:**
+- Radial gradient following mouse cursor
+- Soft edge falloff
+- Optional feature (can be disabled)
+- Adds depth and interactivity to glassmorphism
+
+**Implementation:**
+```typescript
+interface SpotlightEffectProps {
+  enabled?: boolean;
+  intensity?: number;  // 0-1
 }
 
-export function Breadcrumb({ items, separator = " > " }: BreadcrumbProps) {
+export function SpotlightEffect({ enabled = true, intensity = 0.5 }: SpotlightEffectProps) {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [enabled]);
+
+  if (!enabled) return null;
+
   return (
-    <nav className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-      {items.map((item, index) => (
-        <span key={index}>
-          {item}
-          {index < items.length - 1 && <span className="mx-1">{separator}</span>}
-        </span>
-      ))}
-    </nav>
+    <div
+      className="pointer-events-none fixed inset-0 z-10"
+      style={{
+        background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 255, 255, ${intensity * 0.15}), transparent 40%)`
+      }}
+    />
   );
 }
 ```
 
-### Color Calculation
+---
+
+## 9. Implementation Guide
+
+### 9.1 Data Usage & Page Setup
+
+**Page Component:**
+```typescript
+// apps/preview/src/app/page.tsx
+import { mockSectors } from '@/data/mockSectors';
+import { HeatMap } from '@/components/HeatMap';
+
+export default function PreviewPage() {
+  return (
+    <main className="min-h-screen bg-gray-50 dark:bg-[#0a0f0d] p-0 m-0">
+      {/* Full-width container */}
+      <div className="w-full min-w-[920px]">
+        <HeatMap data={mockSectors} />
+      </div>
+    </main>
+  );
+}
+```
+
+**HeatMap Container:**
+```typescript
+// apps/preview/src/components/HeatMap.tsx
+import { Treemap, ResponsiveContainer } from 'recharts';
+import { HeatMapHeader } from './HeatMapHeader';
+import { Tile } from './Tile';
+import type { Sector } from '@/types/sector';
+
+interface HeatMapProps {
+  data: Sector[];
+}
+
+export function HeatMap({ data }: HeatMapProps) {
+  return (
+    <div className="w-full min-w-[920px]">
+      {/* Header */}
+      <HeatMapHeader />
+
+      {/* Treemap visualization area */}
+      <div className="max-h-[580px] overflow-y-auto p-2">
+        {/*
+          p-2 = 8px padding on all sides
+          Prevents scrollbar from overlapping with tiles when overflow occurs
+          max-h-[580px] applies to treemap area only (excludes header)
+        */}
+        <ResponsiveContainer width="100%" height="auto" minHeight={400}>
+          <Treemap
+            data={data}
+            dataKey="marketCap"
+            stroke="#fff"
+            fill="#8884d8"
+            content={<Tile />}
+          />
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+```
+
+**HeatMapHeader Component:**
+```typescript
+// apps/preview/src/components/HeatMapHeader.tsx
+import { Breadcrumb } from './Breadcrumb';
+import { SearchBox } from './SearchBox';
+import { Search } from 'lucide-react';
+
+export function HeatMapHeader() {
+  return (
+    <div className="flex items-start justify-between p-4 pb-2 border-b border-gray-200 dark:border-white/5">
+      {/* Left section */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+          Market Performance
+        </h1>
+        <Breadcrumb
+          items={["一级行业", "二级行业", "三级行业", "股票"]}
+          separator=" > "
+        />
+      </div>
+
+      {/* Right section */}
+      <div className="flex items-center gap-3">
+        <SearchBox placeholder="Search sectors..." />
+
+        {/* Toggle group - vertically stacked */}
+        <div className="flex flex-col gap-1 h-[40px] justify-between">
+          <Toggle label="Toggle 1" size="sm" />
+          <Toggle label="Toggle 2" size="sm" />
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### 9.2 Color Calculation Functions
 
 **Chinese Market Convention: Red = UP, Green = DOWN**
 
@@ -2744,6 +2925,7 @@ export function Breadcrumb({ items, separator = " > " }: BreadcrumbProps) {
 - Red (up) medium: `#D52CA2`
 - Green (down) medium: `#039160`
 
+**Color Calculation Function:**
 ```typescript
 function getSectorColor(changePercent: number, theme: 'light' | 'dark' = 'dark'): string {
   // Chinese market: positive change = RED, negative change = GREEN
@@ -2815,8 +2997,7 @@ function interpolateColor(color1: string, color2: string, factor: number): strin
 - **> 5% change**: Deep color (maximum intensity)
 - Medium colors (`#D52CA2` for red, `#039160` for green) appear at ~2.5% change
 
-### Data Formatting
-
+**Data Formatting Functions:**
 ```typescript
 // Format capital flow: 450.0 → "+¥450亿" or -300.0 → "-¥300亿"
 function formatCapitalFlow(value: number): string {
@@ -2829,50 +3010,127 @@ function formatChangePercent(value: number): string {
   const sign = value >= 0 ? '+' : '';
   return `${sign}${value.toFixed(2)}%`;
 }
-
-// Calculate breathing animation duration based on attention level
-function getBreathingDuration(attentionLevel: number): number {
-  if (attentionLevel >= 80) return 0.8; // Fast
-  if (attentionLevel >= 40) return 1.5; // Medium
-  return 3.0; // Slow
-}
 ```
 
-### Breathing Indicator Animation
+### 9.3 Animation Configuration
 
-**Component:** `BreathingDot.tsx`
-
+**Framer Motion Drill-Down Animation:**
 ```typescript
-interface BreathingDotProps {
-  attentionLevel: number; // 0-100
-}
+import { motion, AnimatePresence } from 'framer-motion';
 
-// CSS animation with Tailwind
-<div
-  className="w-2 h-2 rounded-full bg-white/90"
-  style={{
-    animation: `breathing ${getBreathingDuration(attentionLevel)}s ease-in-out infinite`
+const drillDownVariants = {
+  initial: (custom: { parentX: number; parentY: number }) => ({
+    opacity: 0,
+    scale: 0,
+    x: custom.parentX,
+    y: custom.parentY
+  }),
+  animate: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.4, 0.0, 0.2, 1]
+    }
+  },
+  exit: (custom: { parentX: number; parentY: number }) => ({
+    opacity: 0,
+    scale: 0,
+    x: custom.parentX,
+    y: custom.parentY,
+    transition: {
+      duration: 0.4,
+      ease: [0.4, 0.0, 0.2, 1]
+    }
+  })
+};
+```
+
+**Performance Optimization:**
+```typescript
+const [isAnimating, setIsAnimating] = useState(false);
+
+<motion.div
+  variants={drillDownVariants}
+  custom={{ parentX, parentY }}
+  onAnimationStart={() => {
+    setIsAnimating(true);
+    // Disable backdrop-filter during animation
+    tileRef.current.style.backdropFilter = 'none';
   }}
-/>
+  onAnimationComplete={() => {
+    setIsAnimating(false);
+    // Re-enable backdrop-filter after animation
+    tileRef.current.style.backdropFilter = 'blur(12px)';
+  }}
+>
+  {/* Tile content */}
+</motion.div>
+```
 
-// Tailwind animation keyframe (in globals.css)
-@keyframes breathing {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.3; transform: scale(0.8); }
+**Why disable backdrop-filter during animation?**
+- `backdrop-filter` is GPU-intensive
+- Causes jank during scale/position animations
+- Disabling during animation = smooth 60fps
+- Re-enabling after = glass effect restored
+
+**Stagger Animations:**
+```typescript
+const containerVariants = {
+  animate: {
+    transition: {
+      staggerChildren: 0.02,  // 20ms delay between tiles
+      delayChildren: 0.1      // Wait 100ms before starting
+    }
+  }
+};
+
+const tileVariants = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.3 }
+  }
+};
+```
+
+### 9.4 Theme Integration
+
+**Dark Mode (Default):**
+- Background: `#0a0f0d` (dark charcoal)
+- Borders: `#374151` (gray-700)
+- Text: `#ffffff` (white)
+
+**Light Mode:**
+- Background: `#f9fafb` (gray-50)
+- Borders: `#d1d5db` (gray-300)
+- Text: `#111827` (gray-900)
+
+**Theme Configuration:**
+```typescript
+// apps/preview/src/app/layout.tsx
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className="dark">
+      <body className={inter.className}>{children}</body>
+    </html>
+  );
 }
 ```
 
-**Visual Design:**
-- Dot size: 8px × 8px
-- Color (dark mode): `#ffffff` with 90% opacity
-- Color (light mode): `#111827` with 80% opacity
-- Position: Absolute top-right corner (8-12px from edges)
-- Animation: Fade + scale pulse effect
-- No glow/shadow (clean minimal design)
+**Accessibility Requirements:**
+- Border-to-background contrast ratio: **≥ 3:1** (WCAG 2.0 AA)
+- Text-to-background contrast ratio: **≥ 4.5:1** (WCAG 2.0 AA for normal text)
+- Tile color gradients maintain sufficient contrast in both themes
 
-## Development Workflow
+---
 
-### Development Commands
+## 10. Development Workflow
+
+### 10.1 Development Commands
 
 ```bash
 # Start preview app (independent development)
@@ -2889,7 +3147,7 @@ npx nx run preview:lint
 npx nx run preview:type-check
 ```
 
-### Development Ports
+### 10.2 Port Assignments
 
 | Service | Port | Purpose |
 |---------|------|---------|
@@ -2897,161 +3155,53 @@ npx nx run preview:type-check
 
 **Note:** No backend services required - pure frontend development with mock data.
 
-## Future Integration into apps/web
+**Build Output:**
+- Development: `http://localhost:4300`
+- Build output: `dist/apps/preview/.next`
+
+### 10.3 Build & Test Process
+
+**Production Build:**
+```bash
+npx nx run preview:build
+# Output: dist/apps/preview/.next
+# Uses Next.js static export (output: 'export')
+```
+
+**Testing:**
+- Use mock data for all 31 sectors
+- Verify all tiles meet 150px × 150px minimum
+- Check aspect ratios (1:1 to 1:1.618)
+- Test glassmorphism effects
+- Verify Chinese color convention (red = up, green = down)
+
+**Future Integration into apps/web:**
 
 Once styling is finalized, integrate into main web app:
 
-### Step 1: Copy Code
-
+**Step 1: Copy Code**
 ```bash
 mkdir -p apps/web/src/app/preview
 cp -r apps/preview/src/app/* apps/web/src/app/preview/
 ```
 
-### Step 2: Adjust Imports
-
+**Step 2: Adjust Imports**
 - Merge Tailwind configurations
 - Replace duplicate components with shared ones (if any)
 - Update API paths if needed
 
-### Step 3: Test Integration
-
+**Step 3: Test Integration**
 - Access `http://localhost:4200/preview`
 - Verify API routing works
 - Test data fetching
 
-### Step 4: Cleanup
-
+**Step 4: Cleanup**
 - Remove `apps/preview` directory
 - Keep this design doc for reference
 
-## Future: API Integration (Not in Phase 1)
+---
 
-**Phase 1 (Current):** Use frontend mock data only
-**Phase 2 (Future):** Add real-time data integration
-
-### Future API Architecture
-
-When ready to integrate real data:
-
-1. **market-data service** provides `/sectors` endpoint
-2. **Express API** proxies to market-data
-3. **Preview app** fetches from `/api/preview/sectors`
-4. **Mock data** replaced with live updates
-
-This design document focuses on **Phase 1 UI development** with hardcoded mock data.
-
-## Interaction Design
-
-### Phase 1: Pure Display (Current)
-
-- Static treemap visualization
-- No hover effects
-- No click interactions
-- No filters or controls
-- Focus: Style refinement and visual accuracy
-
-### Phase 2: Future Enhancements (Post-Integration)
-
-- Hover tooltips with detailed sector info
-- Click to drill down into sector constituents
-- Time range selector (1D, 1W, 1M, etc.)
-- Real-time updates via WebSocket
-- Export/share functionality
-
-## Chinese Market Conventions
-
-**⚠️ Critical: This application follows Chinese stock market color conventions**
-
-### Color Semantics (Opposite of Western Markets)
-
-| Direction | China | West |
-|-----------|-------|------|
-| **Price Up** | 🔴 **RED** | 🟢 Green |
-| **Price Down** | 🟢 **GREEN** | 🔴 Red |
-| **No Change** | ⚪ Gray | ⚪ Gray |
-
-### Implementation Guidelines
-
-1. **Never** assume red = bad, green = good
-2. **Always** check `changePercent` sign, not color semantics
-3. **Capital flow colors** also follow this convention:
-   - Positive flow (inflow): Red
-   - Negative flow (outflow): Green
-4. **User education**: Consider adding a legend/tooltip explaining colors for international users
-
-### Cultural Context
-
-- Red is an auspicious color in Chinese culture → used for gains
-- Green has neutral/cooling connotation → used for losses
-- This convention is standardized across all Chinese stock exchanges (SSE, SZSE, HKEX)
-
-## Layout & Responsive Design
-
-### Page Structure
-
-**Preview Page (`/preview`):**
-```
-┌──────────────────────────────────────────────────────────┐
-│  HeatMap Container (920px - 100vw width)                 │
-│  ┌────────────────────────────────────────────────────┐  │
-│  │ Header (fixed height ~60-80px)                     │  │
-│  │ ┌────────────────────────────────────────────────┐ │  │
-│  │ │ Market Performance    [Search] [🔍] [T1] [T2] │ │  │
-│  │ │ 一级行业 > 二级行业 > 三级行业 > 股票          │ │  │
-│  │ └────────────────────────────────────────────────┘ │  │
-│  │                                                    │  │
-│  │ Treemap Area (max 580px height)                   │  │
-│  │ ┌────────────────────────────────────────────┐    │  │
-│ 8│ │                                            │    │8 │ ← 8px padding
-│ p│ │     [Tiles dynamically laid out]           │    │p │
-│ x│ │                                            │    │x │
-│  │ │                                            │    │  │
-│ 8│ │                                            │    │8 │
-│ p│ │                                            │    │p │
-│ x│ │                                            │    │x │ ← Scrollbar here
-│  │ └────────────────────────────────────────────┘    │  │   if > 580px
-│  │         ↑ Scrollable if > 580px                   │  │
-│  └────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────┘
-```
-
-### HeatMap Dimensions
-
-| Property | Value | Behavior |
-|----------|-------|----------|
-| **Min Width** | `920px` | Hard minimum, component won't shrink below |
-| **Max Width** | `100vw` | Fills viewport width |
-| **Height** | `auto` | Dynamically calculated by Treemap algorithm |
-| **Max Height** | `580px` | Hard maximum ceiling |
-| **Overflow** | `scroll` | Vertical scroll when height > 580px |
-| **Padding** | `8px` | All sides, prevents scrollbar overlap with tiles |
-
-### Scaling Behavior
-
-**Zoom/Scale Support:**
-- Component supports CSS `transform: scale()` operations
-- Maintains 920px minimum width constraint at all zoom levels
-- Scroll container adjusts to scaled content dimensions
-- Preserves tile aspect ratios during scaling
-
-**Dynamic Height Calculation:**
-- Recharts Treemap algorithm computes optimal tile layout
-- Height auto-adjusts based on:
-  - Number of tiles (31 sectors)
-  - Available width
-  - Tile size distribution (market cap values)
-- If calculated height ≤ 580px: use calculated height
-- If calculated height > 580px: fix at 580px + enable scroll
-
-### Viewport Breakpoints
-
-- **Desktop (1920px+)**: Full width layout, optimal tile visibility
-- **Tablet (768-1920px)**: Adaptive width, maintains 920px minimum
-- **Mobile (<768px)**: Not prioritized (desktop-first visualization)
-  - If accessed on mobile: horizontal scroll appears due to 920px min-width
-
-## Success Criteria
+## 11. Success Criteria
 
 ### Functionality
 1. ✅ Independent app runs on port 4300
