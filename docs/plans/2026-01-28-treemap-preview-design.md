@@ -964,10 +964,84 @@ App (layout.tsx + page.tsx)
 **Header Dimensions:**
 - Height: Auto (~60-80px depending on content)
 - Padding: 16px horizontal, 12px vertical
-- Background: Transparent (inherits from page)
+- Background: Semi-transparent with dynamic opacity
+  - Initial: `rgba(var(--bg-rgb), 0.2)` (20% opacity)
+  - Scrolled: `rgba(var(--bg-rgb), 0.6)` (60% opacity, scrolled state)
 - Border bottom: Optional subtle separator
   - Dark mode: `rgba(255, 255, 255, 0.05)`
   - Light mode: `#e5e7eb` (gray-200)
+
+**Header Mask & Scroll Effects:**
+
+**Bottom Edge Gradient Mask:**
+```css
+.heatmap-header {
+  /* Natural fade-out effect for scrolling tiles */
+  mask-image: linear-gradient(
+    to bottom,
+    black 0%,      /* Fully visible header content */
+    black 80%,     /* Maintain visibility */
+    transparent 100%  /* Fade to transparent at bottom edge */
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 80%,
+    transparent 100%
+  );
+}
+```
+
+**Purpose:** When Grid tiles scroll under Header, they naturally fade out instead of abruptly disappearing. Creates smooth visual transition.
+
+**Scroll-Based Dynamic Styling:**
+```typescript
+const [isScrolled, setIsScrolled] = useState(false);
+
+useEffect(() => {
+  const handleScroll = (e: Event) => {
+    const target = e.target as HTMLElement;
+    setIsScrolled(target.scrollTop > 10);
+  };
+
+  const scrollContainer = document.querySelector('.treemap-scroll-container');
+  scrollContainer?.addEventListener('scroll', handleScroll);
+
+  return () => scrollContainer?.removeEventListener('scroll', handleScroll);
+}, []);
+
+// Apply dynamic classes based on scroll state
+<header
+  className={cn(
+    "heatmap-header transition-all duration-300",
+    isScrolled && "scrolled"
+  )}
+  style={{
+    background: isScrolled
+      ? 'rgba(var(--bg-rgb), 0.6)'  // Deeper background when scrolled
+      : 'rgba(var(--bg-rgb), 0.2)', // Lighter when at top
+    boxShadow: isScrolled
+      ? '0 4px 12px rgba(0, 0, 0, 0.3)'  // Enhanced shadow
+      : '0 1px 3px rgba(0, 0, 0, 0.1)'   // Subtle shadow
+  }}
+>
+  {/* Header content */}
+</header>
+```
+
+**Visual Effect Summary:**
+- **At scroll top (scrollTop = 0)**:
+  - Background opacity: 20%
+  - Box shadow: Light (0 1px 3px)
+  - Header appears nearly transparent
+- **When scrolled (scrollTop > 10px)**:
+  - Background opacity: 60% (linear transition)
+  - Box shadow: Deep (0 4px 12px)
+  - Header becomes more prominent and readable
+- **Tiles scrolling under Header**:
+  - Fade out naturally due to mask-image gradient
+  - No abrupt cutoff
+  - Smooth visual continuity
 
 ### HeatMap Implementation
 
@@ -1483,6 +1557,9 @@ export function Sparkline({
   // End point (current value indicator)
   const endPoint = pathPoints[pathPoints.length - 1];
 
+  // Build area fill path (extends to bottom)
+  const fillPathD = `${pathD} L ${endPoint.x},${height} L ${padding},${height} Z`;
+
   return (
     <svg
       width={width}
@@ -1490,22 +1567,55 @@ export function Sparkline({
       viewBox={`0 0 ${width} ${height}`}
       className="sparkline"
     >
-      {/* Trend line */}
+      {/* Define vertical gradient for area fill */}
+      <defs>
+        <linearGradient id="sparkline-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgba(0, 240, 255, 0.2)" />
+          <stop offset="100%" stopColor="transparent" />
+        </linearGradient>
+      </defs>
+
+      {/* Area fill below line (像面积图) */}
       <path
+        d={fillPathD}
+        fill="url(#sparkline-gradient)"
+        opacity={0.8}
+      />
+
+      {/* Trend line with stroke-dasharray animation */}
+      <motion.path
         d={pathD}
         fill="none"
         stroke={color}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
+        initial={{
+          pathLength: 0,
+          opacity: 0
+        }}
+        animate={{
+          pathLength: 1,
+          opacity: 1
+        }}
+        transition={{
+          pathLength: { duration: 0.4, ease: "easeInOut" },
+          opacity: { duration: 0.2 }
+        }}
       />
 
       {/* Breathing indicator dot at end */}
-      <circle
+      <motion.circle
         cx={endPoint.x}
         cy={endPoint.y}
         r={3}
         fill={color}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          delay: 0.4,  // Appear after line animation completes
+          duration: 0.2
+        }}
         className="animate-breathing-pulse"
       />
     </svg>
