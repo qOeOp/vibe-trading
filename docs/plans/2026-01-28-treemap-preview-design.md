@@ -1620,6 +1620,74 @@ const getColorIntensity = (changePercent: number): number => {
 };
 ```
 
+#### 6.1.1.1 Dynamic Background Color Calculation
+
+**Tile Background Strategy:**
+
+Tile background uses **dynamic semi-transparent color** based on `changePercent` with three zones:
+
+**Zone 1: Dead Zone (Neutral Gray)**
+- Range: `-0.2% ≤ changePercent ≤ +0.2%`
+- Color: `rgba(107, 114, 128, 0.15)` (neutral gray glass)
+- Rationale: Minimal changes are visually neutral
+
+**Zone 2: Active Zone (Linear Mapping)**
+- Range: `0.2% < changePercent ≤ 3.0%` (positive) or `-3.0% ≤ changePercent < -0.2%` (negative)
+- Color: Linear interpolation from light to medium saturation
+- Positive: `rgba(213, 44, 162, alpha)` where alpha = `0.1 + (abs(changePercent) / 3.0) * 0.2`
+- Negative: `rgba(3, 145, 96, alpha)` where alpha = `0.1 + (abs(changePercent) / 3.0) * 0.2`
+
+**Zone 3: Extreme Protection (Saturation Rollback)**
+- Range: `changePercent > 3.0%` or `changePercent < -3.0%`
+- Behavior: Color shifts toward **deeper shade with lower saturation**
+- Rationale: Prevents visual fatigue from overly bright colors
+- Positive: `rgba(165, 35, 128, 0.25)` (deep red, capped saturation)
+- Negative: `rgba(2, 107, 69, 0.25)` (deep green, capped saturation)
+
+**Implementation:**
+```typescript
+function getTileBackgroundColor(changePercent: number): string {
+  const absChange = Math.abs(changePercent);
+
+  // Zone 1: Dead Zone
+  if (absChange <= 0.2) {
+    return 'rgba(107, 114, 128, 0.15)';
+  }
+
+  // Zone 2: Active Zone
+  if (absChange <= 3.0) {
+    const intensity = (absChange - 0.2) / 2.8;  // Normalize to 0-1
+    const alpha = 0.1 + intensity * 0.2;        // Alpha: 0.1 -> 0.3
+
+    if (changePercent > 0) {
+      // Positive: Red gradient
+      return `rgba(213, 44, 162, ${alpha})`;
+    } else {
+      // Negative: Green gradient
+      return `rgba(3, 145, 96, ${alpha})`;
+    }
+  }
+
+  // Zone 3: Extreme Protection
+  if (changePercent > 0) {
+    return 'rgba(165, 35, 128, 0.25)';  // Deep red, capped
+  } else {
+    return 'rgba(2, 107, 69, 0.25)';    // Deep green, capped
+  }
+}
+```
+
+**Visual Progression Examples:**
+```
+Change%    Background Color
+-3.5%   →  rgba(2, 107, 69, 0.25)     [Deep green, extreme]
+-2.0%   →  rgba(3, 145, 96, 0.23)     [Medium green, active]
+-0.1%   →  rgba(107, 114, 128, 0.15)  [Neutral gray, dead zone]
++0.1%   →  rgba(107, 114, 128, 0.15)  [Neutral gray, dead zone]
++2.0%   →  rgba(213, 44, 162, 0.23)   [Medium red, active]
++3.5%   →  rgba(165, 35, 128, 0.25)   [Deep red, extreme]
+```
+
 #### 6.1.2 Typography
 
 **Tile Text Styles:**
@@ -2929,33 +2997,67 @@ interface TileProps {
 - Icon identifier (left of sector name, 6px gap)
 
 **Glassmorphism Properties:**
+
+**Border Gradient Implementation (Dual Backgrounds Method):**
+
+**Problem:** `border-image` breaks `border-radius`, resulting in sharp corners instead of rounded glass edges.
+
+**Solution:** Use **dual background layers** with `background-clip` to simulate gradient borders while preserving rounded corners.
+
+**CSS Implementation:**
 ```css
 .heatmap-tile {
+  /* Position & size */
+  position: absolute;
+
+  /* Dual background layers */
+  background:
+    /* Layer 1: Border gradient (border-box) */
+    linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1)) border-box,
+    /* Layer 2: Content background (padding-box) */
+    linear-gradient(to bottom, rgba(17, 24, 39, 0.8), rgba(0, 0, 0, 0.9)) padding-box;
+
+  /* Border setup */
+  border: 1px solid transparent;  /* Must be transparent for background to show */
+  border-radius: 8px;
+
   /* Glassmorphism core */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 
-  /* Semi-transparent base */
-  background: rgba(var(--tile-color-rgb), 0.15);
-
-  /* Glass edge refraction */
-  border: 1px solid;
-  border-image: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.4),
-    rgba(255, 255, 255, 0.1)
-  ) 1;
-
   /* Surface texture */
   box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),  /* Top highlight */
-    inset 0 -1px 1px rgba(0, 0, 0, 0.1),        /* Bottom shadow */
-    0 10px 20px rgba(0, 0, 0, 0.4);             /* Drop shadow (depth) */
-
-  /* Border radius */
-  border-radius: 8px;
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1),
+    0 10px 20px rgba(0, 0, 0, 0.4);
 }
 ```
+
+**Alternative: Pseudo-Element Method (More Flexible)**
+```typescript
+<div className="group relative rounded-2xl bg-gray-900/80 p-6 backdrop-blur-xl">
+  {/* Gradient border layer */}
+  <div
+    className="pointer-events-none absolute inset-0 rounded-2xl border border-transparent"
+    style={{
+      background: 'linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1)) border-box',
+      mask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
+      maskComposite: 'exclude',
+      WebkitMaskComposite: 'xor'
+    }}
+  />
+
+  {/* Content layer */}
+  <div className="relative z-10">
+    {/* Tile content */}
+  </div>
+</div>
+```
+
+**Visual Effect:**
+- Top-left corner: Bright white edge (rgba(255,255,255,0.4))
+- Bottom-right corner: Dim white edge (rgba(255,255,255,0.1))
+- 135° gradient direction creates natural light source from top-left
 
 **Tile Spacing:**
 - **Gap between tiles**: `4px` (凸显晶体边缘折射感)
@@ -2981,6 +3083,283 @@ interface TileProps {
 - Font weight: 400 (normal)
 - Color: `rgba(255, 255, 255, 0.8)` (secondary text)
 - Text shadow: `0 1px 2px rgba(0, 0, 0, 0.4)`
+
+### 8.3.1 HeatMapTile - Precise Layout Specifications
+
+**Tile Internal Structure:**
+
+```
+┌─────────────────────────────────────┐
+│ Upper Panel (Top 50%)               │
+│  ┌──────────────────────────────┐  │
+│  │ [Icon] Name    [BreathingDot] │  │ ← Top Container (flex, justify-center)
+│  └──────────────────────────────┘  │
+│  (Flexible Space)                   │
+├─────────────────────────────────────┤ ← Panel Divider (50% height)
+│ Lower Panel (Bottom 50%)            │
+│  ┌──────────────────────────────┐  │
+│  │ [Sparkline Graph]       [Dot] │  │ ← Hover: Sparkline visible
+│  │   OR                           │  │
+│  │            [Flow]  8px         │  │ ← Default: Flow + Change%
+│  │            [↑2.5%] 8px         │  │    Right-bottom aligned
+│  └──────────────────────────────┘  │
+└─────────────────────────────────────┘
+```
+
+**Top Container Layout (Icon + Name + BreathingDot):**
+- Container: Horizontal flex layout, `justify-content: center`, `align-items: center`
+- Icon:
+  - Distance from left edge: **8px**
+  - Size: 16-18px (adaptive based on tile size)
+- Name:
+  - Gap from Icon: **4px** (updated from 6px)
+  - Font size: 14-16px (adaptive)
+  - Font weight: 600 (semibold)
+- BreathingDot:
+  - Positioned within the same flex container
+  - Aligned with Icon and Name (horizontal center)
+  - Size: 6px diameter
+
+**Implementation:**
+```typescript
+<div className="flex items-center justify-center gap-1 px-2 py-2">
+  {/* Icon */}
+  <SectorIcon size={iconSize} className="flex-shrink-0" style={{ marginLeft: '8px' }} />
+
+  {/* Name */}
+  <span className="font-semibold" style={{ marginLeft: '4px' }}>
+    {sector.name}
+  </span>
+
+  {/* Breathing Dot */}
+  <BreathingDot attentionLevel={sector.attentionLevel} />
+</div>
+```
+
+**Lower Panel Layout (Capital Flow + Change%):**
+- Container: Horizontal flex layout, `justify-content: flex-end`, `align-items: flex-end`
+- Content: Vertical stack (flex-col)
+- Gap between Flow and Change%: **4px**
+- Padding from right edge: **8px**
+- Padding from bottom edge: **8px**
+
+**Implementation:**
+```typescript
+<div className="flex justify-end items-end p-2">
+  <div className="flex flex-col gap-1 pr-2 pb-2">  {/* 8px padding */}
+    {/* Capital Flow */}
+    <div className="text-xs font-normal text-white/80">
+      {formatCapitalFlow(sector.capitalFlow)}
+    </div>
+
+    {/* Change% with Arrow */}
+    <div className="flex items-center gap-1">
+      {sector.changePercent > 0 ? (
+        <ArrowUp size={14} className="text-red-600" style={{ filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))' }} />
+      ) : (
+        <ArrowDown size={14} className="text-green-600" style={{ filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))' }} />
+      )}
+      <span className="text-xs font-semibold text-white">
+        {formatChangePercent(sector.changePercent)}
+      </span>
+    </div>
+  </div>
+</div>
+```
+
+**Panel Height Logic:**
+- Lower Panel: Always **50% of tile height** (not 1/3)
+- Upper Panel: **50% of tile height**
+- When Lower Panel height < 100px:
+  - Lower Panel squeezes Upper Panel upward
+  - Upper Panel minimum height: Same as Top Container (Icon + Name + Dot)
+  - Lower Panel never goes below 100px if possible
+
+```typescript
+const getPanelHeights = (tileHeight: number) => {
+  const lowerPanelHeight = tileHeight * 0.5;
+
+  if (lowerPanelHeight < 100) {
+    // Squeeze upper panel
+    const topContainerHeight = 32;  // Icon + Name + Dot container
+    const upperPanelHeight = Math.max(topContainerHeight, tileHeight - 100);
+    return {
+      upper: upperPanelHeight,
+      lower: tileHeight - upperPanelHeight
+    };
+  }
+
+  return {
+    upper: tileHeight * 0.5,
+    lower: tileHeight * 0.5
+  };
+};
+```
+
+### 8.3.2 HeatMapTile - Adaptive Content Scaling
+
+**Scaling Strategy:** Content shrinks proportionally in smaller tiles, **nothing is hidden**
+
+**Size Thresholds:**
+
+| Tile Size | Dimensions | Content Scale | Visible Elements | Notes |
+|-----------|------------|---------------|------------------|-------|
+| **Large** | > 180×180 | 100% | All (Icon, Name, Dot, Flow, Change%) | Full detail |
+| **Medium** | 150×150 to 180×180 | 85% | All | Slightly reduced |
+| **Small** | 150×150 | 70% | All | Compact but readable |
+
+**Scaling Implementation:**
+```typescript
+function getContentScale(tileWidth: number, tileHeight: number): number {
+  const minDimension = Math.min(tileWidth, tileHeight);
+
+  if (minDimension >= 180) {
+    return 1.0;  // 100% scale
+  } else if (minDimension >= 150) {
+    return 0.85;  // 85% scale
+  } else {
+    return 0.70;  // 70% scale (minimum tile size 150×150)
+  }
+}
+
+// Apply scale to all content
+const scale = getContentScale(width, height);
+
+<div style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+  <Icon size={16 * scale} />
+  <Name fontSize={14 * scale} />
+  <CapitalFlow fontSize={12 * scale} />
+  <ChangePercent fontSize={12 * scale} />
+</div>
+```
+
+**Font Size Scaling:**
+```typescript
+const baseFontSizes = {
+  name: 16,         // Sector name
+  flow: 12,         // Capital flow
+  changePercent: 12 // Change %
+};
+
+const scaledFontSizes = {
+  name: baseFontSizes.name * scale,
+  flow: baseFontSizes.flow * scale,
+  changePercent: baseFontSizes.changePercent * scale
+};
+```
+
+**Icon Size Scaling:**
+```typescript
+const baseIconSize = 16;
+const scaledIconSize = baseIconSize * scale;
+
+// At 150×150 (70% scale): Icon = 11.2px (~11px)
+// At 180×180 (100% scale): Icon = 16px
+```
+
+**BreathingDot Behavior:**
+- **Never hidden** regardless of tile size
+- Size: Always 6px diameter (no scaling)
+- Rationale: Serves as attention indicator, must remain visible
+
+**Visual Comparison:**
+```
+Large Tile (200×200, 100% scale):
+┌────────────────────────┐
+│ [16px Icon] Name [Dot] │
+│                        │
+│              +¥450亿   │ ← 12px font
+│                 ↑2.5% │
+└────────────────────────┘
+
+Small Tile (150×150, 70% scale):
+┌──────────────────┐
+│ [11px Icon]Name● │
+│                  │
+│        +¥450亿   │ ← 8.4px font
+│           ↑2.5% │
+└──────────────────┘
+```
+
+**Performance Note:**
+Use CSS `transform: scale()` instead of recalculating all dimensions for better performance.
+
+### 8.3.3 HeatMapTile - Z-Index and Hover Behavior
+
+**Default Z-Index:**
+```css
+.heatmap-tile {
+  z-index: 1;
+  position: absolute;
+}
+```
+
+**Hover Elevation:**
+- **Visual lift:** 2px upward (not -12px)
+- **Shadow enhancement:** Deeper drop-shadow on hover
+- **Z-index boost:** `z-index: 10` to appear above other tiles
+
+```css
+.heatmap-tile:hover {
+  z-index: 10;
+  transform: translateY(-2px);  /* Subtle 2px lift */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);  /* Enhanced shadow */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+```
+
+**Simultaneous Hover Handling:**
+
+**Scenario:** Two adjacent tiles hovered at the same time (edge case, rare in practice)
+
+**Solution:** Priority to **bottom-right** tile
+```typescript
+// On hover, check position relative to other hovered tiles
+function getHoverPriority(x: number, y: number, otherTiles: Tile[]): number {
+  const hoveredTiles = otherTiles.filter(t => t.isHovered);
+
+  if (hoveredTiles.length === 0) {
+    return 10;  // Normal hover z-index
+  }
+
+  // Calculate priority: lower-right has higher z-index
+  const priority = x + y;  // Sum of coordinates
+  const maxPriority = Math.max(...hoveredTiles.map(t => t.x + t.y));
+
+  return priority >= maxPriority ? 11 : 9;
+}
+```
+
+**Visual Priority:**
+```
+Grid Layout:
+┌────┬────┬────┐
+│ A  │ B  │ C  │  If B and C both hovered:
+├────┼────┼────┤  → C (right) has priority
+│ D  │ E  │ F  │  → C appears on top
+└────┴────┴────┘
+
+If E and F both hovered:
+→ F (bottom-right) has priority
+```
+
+**Focus State (Accessibility):**
+- **No visible focus ring on hover**
+- Rationale: 2px elevation micro-interaction already provides visual feedback
+- Keyboard focus uses default browser outline (for keyboard navigation)
+
+```css
+/* Keyboard focus only (not hover) */
+.heatmap-tile:focus:not(:hover) {
+  outline: 2px solid rgba(110, 63, 243, 0.8);
+  outline-offset: 4px;
+}
+
+/* Hover: no outline */
+.heatmap-tile:hover {
+  outline: none;
+}
+```
 
 ### 8.3.5 HeatMapTile - Interaction State Matrix
 
@@ -3203,53 +3582,143 @@ const panelVariants = {
 };
 ```
 
-### 8.5 Sparkline
+### 8.5 Sparkline - 30-Day Trend Chart
 
-**Component:** Trend chart displayed on tile hover
+**Component:** SVG-based line chart displayed on tile hover in Lower Panel
 
-**Visual Properties:**
-- Stroke width: 2px
-- Stroke color: `rgba(255, 255, 255, 0.9)`
-- Fill: None (line chart only)
-- Curve: Smooth (Bezier curve)
-- Data points: 30 days of trend data
+**Layout Strategy:**
+- **Container:** Lower Panel (50% of tile height)
+- **Padding:** None - Sparkline fills entire panel
+- **Height Calculation:** Dynamic based on data points with 8px top/bottom margins
 
-**Implementation:**
+**Height Algorithm:**
 ```typescript
-interface SparklineProps {
-  data: number[];  // 30-day trend data
-  width?: number;
-  height?: number;
-}
+function calculateSparklineLayout(data: number[], panelHeight: number) {
+  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data);
+  const valueRange = maxValue - minValue;
 
-export function Sparkline({ data, width = 80, height = 24 }: SparklineProps) {
-  return (
-    <svg width={width} height={height} className="sparkline">
-      <path
-        d={generateSparklinePath(data, width, height)}
-        stroke="rgba(255, 255, 255, 0.9)"
-        strokeWidth={2}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Breathing indicator dot at end */}
-      <circle
-        cx={width}
-        cy={getLastYPosition(data, height)}
-        r={3}
-        fill="rgba(255, 255, 255, 0.9)"
-        className="breathing-dot"
-      />
-    </svg>
-  );
+  // Reserve 8px margins top and bottom
+  const availableHeight = panelHeight - 16;  // 8px top + 8px bottom
+
+  // Scale points to fit within available height
+  const points = data.map((value, index) => {
+    const normalizedValue = (value - minValue) / valueRange;
+    const x = (index / (data.length - 1)) * panelWidth;
+    const y = panelHeight - 8 - (normalizedValue * availableHeight);  // 8px from bottom
+    return { x, y };
+  });
+
+  return points;
 }
 ```
 
-**Animation:**
-- Fades in on tile hover (opacity 0 → 1)
-- Transition duration: 400ms
-- Easing: cubic-bezier (elastic feel)
+**Visual Constraints:**
+- **Lowest point:** 8px above panel bottom edge
+- **Highest point:** 8px below panel top edge
+- **All points:** Scaled proportionally between these bounds
+
+**Color Specifications:**
+
+| Element | Color | Opacity | Notes |
+|---------|-------|---------|-------|
+| **Stroke (Line)** | `rgba(84, 148, 250, 1)` | 100% | Bright blue, highly visible |
+| **Fill (Area)** | Linear gradient | 60% → 0% | Cyan to transparent |
+| **BreathingDot** | `rgba(53, 185, 233, 0.9)` | 90% | Cyan, matches theme |
+
+**Stroke Properties:**
+- Width: 2px
+- Line cap: round
+- Line join: round
+- Stroke animation: `stroke-dasharray` (0.4s draw-in)
+
+**Fill Gradient:**
+```typescript
+<defs>
+  <linearGradient id="sparkline-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stopColor="rgba(53, 185, 233, 0.6)" />
+    <stop offset="100%" stopColor="rgba(53, 185, 233, 0)" />
+  </linearGradient>
+</defs>
+
+<path
+  d={generatePath(points)}
+  fill="url(#sparkline-gradient)"
+  stroke="rgba(84, 148, 250, 1)"
+  strokeWidth="2"
+/>
+```
+
+**BreathingDot Position:**
+- Location: **Last point of sparkline** (index = data.length - 1)
+- Horizontal: At sparkline endpoint X coordinate
+- Vertical: At sparkline endpoint Y coordinate
+- Visual effect: Dot appears **half inside panel, half outside**
+  - Left semicircle: Inside panel
+  - Right semicircle: Outside panel (extends beyond right edge)
+
+**Implementation:**
+```typescript
+const lastPoint = points[points.length - 1];
+
+<BreathingDot
+  attentionLevel={attentionLevel}
+  style={{
+    position: 'absolute',
+    left: `${lastPoint.x}px`,
+    top: `${lastPoint.y}px`,
+    transform: 'translate(0, -50%)'  // Center vertically on line
+  }}
+/>
+```
+
+**Hover State Transition:**
+
+Default state (no hover):
+```
+┌─────────────────────────────┐
+│ Upper Panel                  │
+├─────────────────────────────┤
+│ [Flow] [↑2.5%]              │ ← Lower Panel shows metrics
+└─────────────────────────────┘
+```
+
+Hover state:
+```
+┌─────────────────────────────┐
+│ Upper Panel                  │
+├─────────────────────────────┤
+│ [Sparkline Graph]       ●   │ ← Lower Panel shows sparkline
+│  /\  /\    /\          ◐   │    Dot half-out
+└─────────────────────────────┘
+```
+
+**Animation Sequence:**
+```typescript
+// On hover
+<motion.div
+  initial={{ opacity: 0 }}
+  whileHover={{ opacity: 1 }}
+  transition={{ duration: 0.3 }}
+>
+  {/* Capital Flow + Change% fade out */}
+  <motion.div initial={{ opacity: 1 }} whileHover={{ opacity: 0 }}>
+    <CapitalFlow />
+    <ChangePercent />
+  </motion.div>
+
+  {/* Sparkline fades in */}
+  <motion.div initial={{ opacity: 0 }} whileHover={{ opacity: 1 }}>
+    <Sparkline />
+  </motion.div>
+
+  {/* Panel becomes transparent glass */}
+  <motion.div
+    initial={{ background: 'rgba(0,0,0,0.4)' }}
+    whileHover={{ background: 'rgba(255,255,255,0.1)' }}
+  />
+</motion.div>
+```
 
 ### 8.6 BreathingDot
 
@@ -4375,6 +4844,106 @@ function formatChangePercent(value: number): string {
   return `${sign}${value.toFixed(2)}%`;
 }
 ```
+
+### 9.2.2 Number Formatting Specifications
+
+**Capital Flow Formatting:**
+```typescript
+/**
+ * Format capital flow with ¥ symbol and 亿 unit
+ * @param value - Capital flow in 亿元
+ * @returns Formatted string with sign, ¥ symbol, and unit
+ *
+ * Examples:
+ *   450.5  → "+¥451亿"  (rounded to integer)
+ *   -320.8 → "-¥321亿"
+ *   0      → "¥0亿"
+ */
+function formatCapitalFlow(value: number): string {
+  const rounded = Math.round(value);
+  const sign = value > 0 ? '+' : value < 0 ? '' : '';  // No sign for zero
+  return `${sign}¥${Math.abs(rounded)}亿`;
+}
+```
+
+**Change Percent Formatting with Arrows:**
+```typescript
+import { ArrowUp, ArrowDown } from 'lucide-react';
+
+/**
+ * Format change percent with colored arrow and drop shadow
+ * Arrow colors have white drop-shadow to prevent fusion with background
+ *
+ * @param changePercent - Change percentage value
+ * @returns JSX element with arrow and formatted percentage
+ */
+function formatChangePercentWithArrow(changePercent: number) {
+  const formatted = Math.abs(changePercent).toFixed(2);  // 2 decimal places
+  const isPositive = changePercent > 0;
+
+  return (
+    <div className="flex items-center gap-1">
+      {isPositive ? (
+        <ArrowUp
+          size={14}
+          className="text-red-600"
+          style={{
+            filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9)) drop-shadow(0 1px 1px rgba(0,0,0,0.3))'
+          }}
+        />
+      ) : (
+        <ArrowDown
+          size={14}
+          className="text-green-600"
+          style={{
+            filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9)) drop-shadow(0 1px 1px rgba(0,0,0,0.3))'
+          }}
+        />
+      )}
+      <span className="text-xs font-semibold text-white text-shadow-sm">
+        {formatted}%
+      </span>
+    </div>
+  );
+}
+```
+
+**Arrow Color Anti-Fusion Strategy:**
+
+**Problem:** Red arrow on red background / green arrow on green background causes visual fusion
+
+**Solution:** SVG icons with dual drop-shadow filter
+1. **White glow** (2px radius, 90% opacity): Creates separation halo
+2. **Black shadow** (1px offset, 30% opacity): Adds depth
+
+**Visual Effect:**
+- On red background: Red arrow with white outline → clearly visible
+- On green background: Green arrow with white outline → clearly visible
+- Maintains color semantics while preventing fusion
+
+**Market Cap Formatting:**
+```typescript
+/**
+ * Format market cap in 亿元 units
+ * For values > 1000亿, still display as "1250亿" (not "1.25千亿")
+ *
+ * @param marketCap - Market cap in 亿元
+ * @returns Formatted string
+ *
+ * Examples:
+ *   450.5  → "451亿"   (rounded)
+ *   1250.8 → "1251亿"  (not "1.25千亿")
+ *   12500  → "12500亿" (not "1.25万亿")
+ */
+function formatMarketCap(marketCap: number): string {
+  return `${Math.round(marketCap)}亿`;
+}
+```
+
+**Decimal Precision:**
+- Capital Flow: **0 decimal places** (rounded to integer)
+- Change Percent: **2 decimal places** (e.g., "2.50%")
+- Market Cap: **0 decimal places** (rounded to integer)
 
 ### 9.3 Animation Configuration
 
