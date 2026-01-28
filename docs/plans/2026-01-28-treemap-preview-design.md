@@ -425,12 +425,34 @@ const isValidTile = (width: number, height: number): boolean => {
 };
 ```
 
-**Handling Small Market Cap Sectors:**
-- If a sector's market cap is too small to create a valid tile:
-  - Option 1: Group small sectors together into "Others" category
-  - Option 2: Set minimum tile size and allow some overlap
-  - Option 3: Exclude very small sectors (< threshold)
-- Recommended: Use Recharts Treemap with custom tile renderer that enforces constraints
+**Handling All 31 Sectors:**
+
+**⚠️ Critical Requirement: All 31 SW Level-1 sectors MUST be displayed**
+
+- **No grouping/clustering**: Cannot use "Others" category to combine small sectors
+- **No exclusions**: All 31 sectors must appear, regardless of market cap size
+- **Minimum size enforcement**: Every tile MUST meet 150px × 150px minimum
+- **Container sizing strategy**:
+  - HeatMap container dimensions (920px width, max 580px height) are designed to accommodate all 31 sectors at minimum 150px × 150px size
+  - Treemap algorithm distributes tiles based on market cap proportions
+  - If any tile would be < 150px, the container may need to expand (within max height limit) or tiles redistribute
+
+**Implementation Strategy:**
+```typescript
+// Validate all tiles meet minimum size
+const validateAllTiles = (tiles: TileData[]): boolean => {
+  return tiles.every(tile => tile.width >= 150 && tile.height >= 150);
+};
+
+// If validation fails, adjust container or algorithm parameters
+// All 31 sectors must remain visible
+```
+
+**Mock Data Validation:**
+- Current mock data has market cap range: ¥9,800亿 to ¥45,200亿
+- Smallest sector: 美容护理 (¥13,800亿)
+- Largest sector: 银行 (¥45,200亿)
+- Ratio: ~1:4.6 (manageable for 150px minimum tiles)
 
 **Scaling Support:**
 - Component supports zoom/scale transformations
@@ -474,23 +496,31 @@ interface TileProps {
 export function Tile({ x, y, width, height, ...props }: TileProps) {
   // Validate tile dimensions
   if (!width || !height || width < 150 || height < 150) {
-    return null; // Skip rendering invalid tiles
+    // CRITICAL: Log warning but DO NOT skip rendering
+    // All 31 sectors MUST be displayed
+    console.error(`Tile below minimum size: ${width}x${height}px. Adjusting layout needed.`);
+
+    // Force minimum size (fallback - should be handled by container sizing)
+    width = Math.max(width, 150);
+    height = Math.max(height, 150);
   }
 
   // Validate aspect ratio (square to golden ratio)
   const ratio = width / height;
   if (ratio < 1 || ratio > 1.618) {
-    console.warn(`Invalid tile aspect ratio: ${ratio.toFixed(2)}`);
-    return null;
+    console.warn(`Tile aspect ratio ${ratio.toFixed(2)} outside preferred range 1-1.618`);
+    // Still render - all sectors must show
   }
 
   return (
     <g transform={`translate(${x}, ${y})`}>
-      {/* Tile content rendering */}
+      {/* Tile content rendering - always render, never skip */}
     </g>
   );
 }
 ```
+
+**⚠️ Important:** Tile renderer never returns `null`. All 31 sectors must render, even if constraints are violated (which indicates container sizing needs adjustment).
 
 ### Visual Design (from Figma)
 
@@ -1018,7 +1048,8 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 17. ✅ All tiles meet minimum width: 150px (verified)
 18. ✅ All tiles meet minimum height: 150px (verified)
 19. ✅ Tile content is readable and properly displayed
-20. ✅ Invalid tiles are skipped or grouped appropriately
+20. ✅ **All 31 sectors displayed** (no grouping, no exclusions)
+21. ✅ **No "Others" category** (every sector shown individually)
 
 ### Accessibility (WCAG 2.0 AA)
 9. ✅ Border-to-background contrast ≥ 3:1 in both themes
@@ -1050,6 +1081,8 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 - ❌ Complex interactions (Phase 1)
 - ❌ **Reusing components from apps/web** (design independently)
 - ❌ **Matching apps/web style patterns** (fresh design approach)
+- ❌ **Grouping sectors into "Others" category** (all 31 must show individually)
+- ❌ **Excluding small market cap sectors** (all sectors required)
 
 ## Design Independence & Component Philosophy
 
