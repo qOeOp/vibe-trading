@@ -55,8 +55,13 @@ apps/preview/
 │       │   ├── HeatMapHeader.tsx    # Header with title, breadcrumb, search, toggles
 │       │   ├── Breadcrumb.tsx       # Breadcrumb navigation component
 │       │   ├── SearchBox.tsx        # Search input with inline icon button
-│       │   ├── Tile.tsx             # Individual sector tile
-│       │   └── BreathingDot.tsx     # Breathing indicator component
+│       │   ├── HeatMapTile.tsx      # UI rendering component (glassmorphism)
+│       │   ├── BreathingDot.tsx     # Breathing indicator component
+│       │   ├── DynamicBackground.tsx # Blurred color blocks background
+│       │   └── SpotlightEffect.tsx  # Mouse-following highlight (optional)
+│       ├── hooks/
+│       │   ├── useTreeMap.ts        # Layout calculation logic (decoupled)
+│       │   └── useDrillDown.ts      # 4-level drill-down state management
 │       ├── types/
 │       │   └── sector.ts        # Sector data TypeScript types
 │       ├── data/
@@ -346,6 +351,319 @@ export const mockSectors: Sector[] = [
 - Change range: -2.85% to +3.25%
 - Capital flow range: -¥720亿 to +¥1,050亿
 - Attention level range: 22 to 95 (varied breathing frequencies)
+
+### 4-Level Drill-Down Mock Data
+
+**Level 1: 一级行业 - 电子** (from existing 31 sectors)
+```typescript
+{
+  code: "801980",
+  name: "电子",
+  marketCap: 38500.0,
+  changePercent: 3.15,
+  capitalFlow: 1050.0,
+  attentionLevel: 95,
+  hasChildren: true, // Indicates L2 data exists
+  level: 1
+}
+```
+
+**Level 2: 二级行业 (under 电子)**
+```typescript
+export const mockLevel2_Electronics: Industry[] = [
+  {
+    code: "801980_01",
+    name: "半导体",
+    marketCap: 15800.0,
+    changePercent: 4.2,
+    capitalFlow: 520.0,
+    attentionLevel: 92,
+    hasChildren: true,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_02",
+    name: "元件",
+    marketCap: 8200.0,
+    changePercent: 2.8,
+    capitalFlow: 280.0,
+    attentionLevel: 68,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_03",
+    name: "光学光电子",
+    marketCap: 6500.0,
+    changePercent: 3.5,
+    capitalFlow: 310.0,
+    attentionLevel: 85,
+    hasChildren: true, // Has L4 stocks
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_04",
+    name: "消费电子",
+    marketCap: 3800.0,
+    changePercent: 1.9,
+    capitalFlow: 150.0,
+    attentionLevel: 55,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_05",
+    name: "电子化学品",
+    marketCap: 1600.0,
+    changePercent: 2.2,
+    capitalFlow: 95.0,
+    attentionLevel: 48,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_06",
+    name: "其他电子",
+    marketCap: 1200.0,
+    changePercent: 1.5,
+    capitalFlow: 45.0,
+    attentionLevel: 35,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_07",
+    name: "军工电子",
+    marketCap: 900.0,
+    changePercent: 3.8,
+    capitalFlow: 68.0,
+    attentionLevel: 72,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_08",
+    name: "汽车电子",
+    marketCap: 500.0,
+    changePercent: 2.6,
+    capitalFlow: 32.0,
+    attentionLevel: 58,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  }
+];
+```
+
+**Level 3: 三级行业 (under 半导体)**
+```typescript
+export const mockLevel3_Semiconductor: SubIndustry[] = [
+  {
+    code: "801980_01_01",
+    name: "半导体设备",
+    marketCap: 3200.0,
+    changePercent: 5.1,
+    capitalFlow: 180.0,
+    attentionLevel: 88,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_02",
+    name: "半导体材料",
+    marketCap: 2800.0,
+    changePercent: 4.8,
+    capitalFlow: 150.0,
+    attentionLevel: 82,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_03",
+    name: "数字芯片设计",
+    marketCap: 3500.0,
+    changePercent: 3.9,
+    capitalFlow: 190.0,
+    attentionLevel: 90,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_04",
+    name: "模拟芯片设计",
+    marketCap: 2200.0,
+    changePercent: 4.2,
+    capitalFlow: 120.0,
+    attentionLevel: 78,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_05",
+    name: "集成电路制造",
+    marketCap: 2500.0,
+    changePercent: 3.6,
+    capitalFlow: 140.0,
+    attentionLevel: 85,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_06",
+    name: "集成电路封测",
+    marketCap: 1100.0,
+    changePercent: 3.2,
+    capitalFlow: 68.0,
+    attentionLevel: 70,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_07",
+    name: "分立器件",
+    marketCap: 500.0,
+    changePercent: 2.8,
+    capitalFlow: 32.0,
+    attentionLevel: 55,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  }
+];
+```
+
+**Level 4: 股票 (under 光学光电子)**
+```typescript
+export const mockLevel4_Optoelectronics: Stock[] = [
+  // 显示面板类
+  { code: "000725", name: "京东方A", price: 3.85, marketCap: 1450.0, changePercent: 2.8, volume: 185000, attentionLevel: 88, level: 4, parent: "801980_03" },
+  { code: "000100", name: "TCL科技", price: 4.62, marketCap: 680.0, changePercent: 3.2, volume: 92000, attentionLevel: 82, level: 4, parent: "801980_03" },
+  { code: "000050", name: "深天马A", price: 10.25, marketCap: 320.0, changePercent: 1.9, volume: 45000, attentionLevel: 68, level: 4, parent: "801980_03" },
+  { code: "002387", name: "维信诺", price: 8.15, marketCap: 280.0, changePercent: 4.5, volume: 68000, attentionLevel: 90, level: 4, parent: "801980_03" },
+  { code: "600707", name: "彩虹股份", price: 5.32, marketCap: 185.0, changePercent: 2.1, volume: 32000, attentionLevel: 62, level: 4, parent: "801980_03" },
+
+  // LED 照明类
+  { code: "600703", name: "三安光电", price: 18.65, marketCap: 850.0, changePercent: 3.8, volume: 125000, attentionLevel: 92, level: 4, parent: "801980_03" },
+  { code: "002745", name: "木林森", price: 12.40, marketCap: 420.0, changePercent: 2.5, volume: 58000, attentionLevel: 72, level: 4, parent: "801980_03" },
+  { code: "002449", name: "国星光电", price: 9.88, marketCap: 195.0, changePercent: 1.8, volume: 28000, attentionLevel: 58, level: 4, parent: "801980_03" },
+  { code: "002429", name: "兆驰股份", price: 6.52, marketCap: 380.0, changePercent: 3.1, volume: 78000, attentionLevel: 78, level: 4, parent: "801980_03" },
+  { code: "300303", name: "聚飞光电", price: 4.95, marketCap: 145.0, changePercent: 2.2, volume: 38000, attentionLevel: 65, level: 4, parent: "801980_03" },
+
+  // 光学镜头类
+  { code: "002273", name: "水晶光电", price: 15.20, marketCap: 280.0, changePercent: 4.2, volume: 62000, attentionLevel: 85, level: 4, parent: "801980_03" },
+  { code: "002036", name: "联创电子", price: 11.35, marketCap: 165.0, changePercent: 3.5, volume: 48000, attentionLevel: 75, level: 4, parent: "801980_03" },
+  { code: "603297", name: "永新光学", price: 68.50, marketCap: 95.0, changePercent: 1.5, volume: 12000, attentionLevel: 52, level: 4, parent: "801980_03" },
+  { code: "688010", name: "福光股份", price: 28.90, marketCap: 78.0, changePercent: 2.8, volume: 18000, attentionLevel: 68, level: 4, parent: "801980_03" },
+  { code: "300790", name: "宇瞳光学", price: 32.45, marketCap: 55.0, changePercent: 3.2, volume: 15000, attentionLevel: 70, level: 4, parent: "801980_03" }
+];
+```
+
+**Data Structure Interface:**
+```typescript
+interface BaseEntity {
+  code: string;
+  name: string;
+  marketCap: number;     // 亿元
+  changePercent: number;
+  capitalFlow: number;   // 亿元
+  attentionLevel: number; // 0-100
+  level: 1 | 2 | 3 | 4;
+  parent?: string;       // Parent code
+  hasChildren?: boolean;
+}
+
+interface Stock extends BaseEntity {
+  price: number;         // Stock price
+  volume: number;        // Trading volume (手)
+  level: 4;
+}
+```
+
+## Architecture Design
+
+### Single Responsibility Principle (SRP)
+
+**⚠️ Critical: Layout Calculation MUST be decoupled from UI Rendering**
+
+**Separation of Concerns:**
+
+1. **useTreeMap Hook** (Layout Calculation)
+   - Pure logic, no UI dependencies
+   - Calculates tile positions, sizes, aspect ratios
+   - Implements 150px minimum size constraints
+   - Enforces 1:1 to 1:1.618 aspect ratio
+   - Returns computed layout data structure
+   - Location: `hooks/useTreeMap.ts`
+
+2. **HeatMapTile Component** (UI Rendering)
+   - Pure presentation, receives layout props
+   - Implements glassmorphism visual effects
+   - Handles animations (Framer Motion)
+   - Renders breathing indicator, content
+   - No layout calculation logic
+   - Location: `components/HeatMapTile.tsx`
+
+**Data Flow:**
+```typescript
+// Hook: Layout calculation (pure logic)
+const { tiles, totalHeight } = useTreeMap({
+  data: sectors,
+  containerWidth: 920,
+  maxHeight: 580,
+  minTileSize: 150,
+  gap: 4 // 4px gap between tiles
+});
+
+// Component: UI rendering (presentation)
+{tiles.map(tile => (
+  <HeatMapTile
+    key={tile.id}
+    x={tile.x}
+    y={tile.y}
+    width={tile.width}
+    height={tile.height}
+    sector={tile.data}
+  />
+))}
+```
+
+### 4-Level Drill-Down Architecture
+
+**Hierarchy:**
+```
+Level 1: 一级行业 (31 sectors)
+    ↓
+Level 2: 二级行业 (varies by L1 sector)
+    ↓
+Level 3: 三级行业 (varies by L2 industry)
+    ↓
+Level 4: 股票 (individual stocks)
+```
+
+**State Management:**
+```typescript
+interface DrillDownState {
+  level: 1 | 2 | 3 | 4;
+  path: string[]; // e.g., ["电子", "光学光电子", null, null]
+  currentData: Sector[] | Industry[] | SubIndustry[] | Stock[];
+  breadcrumb: string[]; // ["一级行业", "电子", "光学光电子"]
+}
+
+const { state, drillDown, drillUp } = useDrillDown();
+```
 
 ## Component Design
 
@@ -673,11 +991,291 @@ export function Tile({ x, y, width, height, ...props }: TileProps) {
 - Text-to-background contrast ratio: **≥ 4.5:1** (WCAG 2.0 AA for normal text)
 - Tile color gradients maintain sufficient contrast in both themes
 
+## Glassmorphism Visual Design
+
+### Tile Gap & Crystal Aesthetics
+
+**Tile Spacing:**
+- **Gap between tiles**: `4px` (凸显晶体边缘折射感)
+- Creates visual separation emphasizing glass facets
+- Applied to Treemap layout algorithm
+
+### Glass Material Properties
+
+**Base Glass Effect:**
+```css
+.heatmap-tile {
+  /* Glassmorphism core */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Semi-transparent base */
+  background: rgba(var(--tile-color-rgb), 0.15);
+
+  /* Glass edge refraction */
+  border: 1px solid;
+  border-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.1)
+  ) 1;
+
+  /* Surface texture */
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),  /* Top highlight */
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1),        /* Bottom shadow */
+    0 10px 20px rgba(0, 0, 0, 0.4);             /* Drop shadow (depth) */
+
+  /* Border radius */
+  border-radius: 8px;
+}
+```
+
+**Color-Specific Glass Tint:**
+- **Red tiles (up)**: `background: rgba(213, 44, 162, 0.15)` (#D52CA2 with 15% opacity)
+- **Green tiles (down)**: `background: rgba(3, 145, 96, 0.15)` (#039160 with 15% opacity)
+- **Neutral tiles**: `background: rgba(107, 114, 128, 0.15)` (gray)
+
+### Typography Layer
+
+**Text Elevation Effect:**
+```css
+.tile-text {
+  /* Force white/light gray on glass */
+  color: rgba(255, 255, 255, 0.95);
+
+  /* Text shadow creates "floating above glass" effect */
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+
+  /* Slight blur for depth */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* Secondary text (capital flow, change%) */
+.tile-secondary-text {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+```
+
+### Dynamic Background Environment
+
+**Layered Background Architecture:**
+```
+┌─────────────────────────────────────┐
+│  HeatMap Tiles (foreground)         │ ← Glass tiles with content
+│  ├─ backdrop-filter: blur(12px)     │
+│  └─ Semi-transparent colors          │
+├─────────────────────────────────────┤
+│  Dynamic Color Blocks (mid-layer)   │ ← Animated gradient blobs
+│  ├─ Blur: 60px-100px                │
+│  ├─ Opacity: 30-50%                 │
+│  └─ Colors based on market sentiment│
+├─────────────────────────────────────┤
+│  Base Background (back-layer)       │ ← Dark solid color
+│  └─ Dark mode: #0a0f0d              │
+└─────────────────────────────────────┘
+```
+
+**DynamicBackground Component:**
+```typescript
+// Animated color blocks behind HeatMap
+<DynamicBackground
+  colors={[
+    'rgba(213, 44, 162, 0.4)',   // Red blob (bull market)
+    'rgba(3, 145, 96, 0.4)',     // Green blob (bear market)
+    'rgba(110, 63, 243, 0.3)'    // Purple blob (neutral)
+  ]}
+  blur={80}                       // 60-100px blur
+  animationDuration={20}          // Slow morph (20s)
+/>
+```
+
+### Spotlight Effect (Optional)
+
+**Mouse-Following Highlight:**
+```typescript
+interface SpotlightConfig {
+  enabled: boolean;              // Toggle on/off
+  size: number;                  // Spotlight radius (200-400px)
+  intensity: number;             // Brightness 0-1
+  color: string;                 // Highlight color
+  blend: 'screen' | 'overlay';   // Blend mode
+}
+
+// Usage
+<SpotlightEffect
+  enabled={true}
+  size={300}
+  intensity={0.15}
+  color="rgba(255, 255, 255, 0.2)"
+  blend="screen"
+/>
+```
+
+**Implementation:**
+- Radial gradient follows mouse cursor
+- Applied as overlay layer above background, below tiles
+- Mix-blend-mode for subtle luminance boost
+- Debounced mouse tracking for performance
+
+## Framer Motion Animation System
+
+### AnimatePresence & Drill-Down Animations
+
+**Animation States:**
+```typescript
+// Parent → Child drill-down
+const drillDownVariants = {
+  initial: (custom) => ({
+    opacity: 0,
+    scale: 0,
+    x: custom.parentX,  // Start from parent tile center
+    y: custom.parentY,
+    transformOrigin: 'center center'
+  }),
+  animate: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.4, 0, 0.2, 1]  // Custom easing curve
+    }
+  },
+  exit: (custom) => ({
+    opacity: 0,
+    scale: 0,
+    x: custom.parentX,
+    y: custom.parentY,
+    transition: {
+      duration: 0.3,
+      ease: [0.4, 0, 0.6, 1]
+    }
+  })
+};
+```
+
+**Performance Optimization:**
+```typescript
+const [isAnimating, setIsAnimating] = useState(false);
+
+<motion.div
+  variants={drillDownVariants}
+  custom={{ parentX, parentY }}
+  onAnimationStart={() => {
+    setIsAnimating(true);
+    // Disable backdrop-filter during animation
+    tileRef.current.style.backdropFilter = 'none';
+  }}
+  onAnimationComplete={() => {
+    setIsAnimating(false);
+    // Re-enable backdrop-filter after animation
+    tileRef.current.style.backdropFilter = 'blur(12px)';
+  }}
+>
+  {/* Tile content */}
+</motion.div>
+```
+
+**Why disable backdrop-filter during animation?**
+- `backdrop-filter` is GPU-intensive
+- Causes jank during scale/position animations
+- Disabling during animation = smooth 60fps
+- Re-enabling after = glass effect restored
+
+### Stagger Animations
+
+**Tiles appear with stagger effect:**
+```typescript
+const containerVariants = {
+  animate: {
+    transition: {
+      staggerChildren: 0.02,  // 20ms delay between tiles
+      delayChildren: 0.1      // Wait 100ms before starting
+    }
+  }
+};
+
+const tileVariants = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.3 }
+  }
+};
+```
+
+## Advanced Tile Features
+
+### Adaptive Content Degradation
+
+**Content Display Rules:**
+```typescript
+// Content visibility based on tile size
+const getVisibleContent = (width: number, height: number) => {
+  const area = width * height;
+
+  if (area >= 30000) {  // Large tiles (e.g., 200x150)
+    return {
+      showName: true,
+      showBreathingDot: true,
+      showCapitalFlow: true,
+      showChangePercent: true,
+      fontSize: 'base'
+    };
+  } else if (area >= 22500) {  // Medium tiles (e.g., 150x150)
+    return {
+      showName: true,
+      showBreathingDot: true,
+      showCapitalFlow: true,
+      showChangePercent: true,
+      fontSize: 'sm'  // Smaller font
+    };
+  } else {  // Minimum tiles (150px edge)
+    return {
+      showName: true,
+      showBreathingDot: false,  // Hide breathing dot
+      showCapitalFlow: false,   // Hide capital flow
+      showChangePercent: true,  // Keep change% only
+      fontSize: 'xs'
+    };
+  }
+};
+```
+
+### Variable Speed Linear Mapping
+
+**Color intensity mapping with non-linear curve:**
+```typescript
+// Maps change% to color intensity with variable speed
+const getColorIntensity = (changePercent: number): number => {
+  const absChange = Math.abs(changePercent);
+
+  // Piecewise linear mapping for better visual discrimination
+  if (absChange < 1) {
+    // Slow ramp for small changes (0-1%)
+    return absChange / 1 * 0.3;  // Map to 0-0.3 intensity
+  } else if (absChange < 3) {
+    // Medium ramp (1-3%)
+    return 0.3 + ((absChange - 1) / 2) * 0.4;  // Map to 0.3-0.7
+  } else {
+    // Fast ramp for large changes (3%+)
+    return 0.7 + Math.min((absChange - 3) / 5, 1) * 0.3;  // Map to 0.7-1.0
+  }
+};
+```
+
 **Tile Layout:**
 - **Dimensions**:
   - Minimum: 150px × 150px (required for content display)
   - Aspect ratio: 1:1 to 1:1.618 (square to golden ratio)
   - No vertical rectangles allowed
+  - Gap: 4px between tiles (glassmorphism aesthetic)
 - **Top-left**: Sector name
   - Dark mode: `#ffffff` (white, 14-16px, font-weight: 600)
   - Light mode: `#111827` (gray-900, 14-16px, font-weight: 600)
@@ -720,8 +1318,10 @@ const intensity = Math.min(Math.abs(changePercent) / 5, 1);
 - **UI Library**: React 19
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4 (OKLCH color space)
-- **Charts**: Recharts v3 (Treemap component)
+- **Animation**: Framer Motion (drill-down animations, transitions)
+- **Charts**: Recharts v3 (Treemap layout calculation only)
 - **Monorepo**: Nx 22.3.3
+- **Icons**: Lucide React
 
 ### Configuration Files
 
@@ -1277,6 +1877,35 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 26. ✅ Two toggles vertically stacked after search box
 27. ✅ Toggle group height matches search box height (40px)
 28. ✅ Header layout responsive and properly aligned
+
+### Architecture & Code Quality
+29. ✅ **Layout calculation (useTreeMap) decoupled from UI rendering (HeatMapTile)**
+30. ✅ Single Responsibility Principle enforced
+31. ✅ 4-level drill-down state management (useDrillDown hook)
+32. ✅ Mock data for all 4 levels (L1: 电子, L2: 8 industries, L3: 7 sub-industries, L4: 15 stocks)
+
+### Glassmorphism Visual Effects
+33. ✅ Tile gap: 4px (crystal edge refraction aesthetic)
+34. ✅ Backdrop-filter blur(12px) glass effect
+35. ✅ Semi-transparent background with color tint
+36. ✅ Linear gradient borders (glass edge simulation)
+37. ✅ Inset box-shadow (surface texture)
+38. ✅ Drop shadow (0 10px 20px) for depth
+39. ✅ Text with shadow (floating above glass effect)
+40. ✅ Dynamic background with animated color blocks (60-100px blur)
+41. ✅ Spotlight effect (mouse-following, optional, configurable)
+
+### Animation System
+42. ✅ Framer Motion AnimatePresence integration
+43. ✅ Drill-down animation (expand from parent coordinate)
+44. ✅ Drill-up animation (reverse shrink to parent)
+45. ✅ Performance optimization (disable backdrop-filter during animation)
+46. ✅ Stagger animation (tiles appear with 20ms delay)
+
+### Advanced Features
+47. ✅ Adaptive content degradation (based on tile size)
+48. ✅ Variable speed linear mapping (color intensity)
+49. ✅ 4-level drill-down support (一级→二级→三级→股票)
 
 ### Layout & Dimensions
 9. ✅ Page displays HeatMap in full-width layout
