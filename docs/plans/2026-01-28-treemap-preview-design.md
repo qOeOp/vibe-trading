@@ -210,6 +210,104 @@ HeatMap Visualization
 
 ---
 
+## 3. Project File Structure
+
+### 3.1 Directory Layout
+
+```
+apps/preview/
+├── src/
+│   └── app/
+│       ├── layout.tsx           # Root layout with dark theme
+│       ├── page.tsx             # Main treemap page
+│       ├── components/          # Feature components
+│       ├── hooks/               # Custom React hooks
+│       ├── types/               # TypeScript type definitions
+│       ├── data/                # Mock data
+│       └── globals.css          # Tailwind CSS imports
+├── tailwind.config.ts           # Independent Tailwind config
+├── tsconfig.json                # TypeScript configuration
+├── next.config.js               # Next.js config (static export)
+└── project.json                 # Nx target configuration
+```
+
+### 3.2 Component Files
+
+**Core Components:**
+```
+app/components/
+├── HeatMap.tsx                  # Main container component
+├── HeatMapHeader.tsx            # Header with title, breadcrumb, search
+├── HeatMapTile.tsx              # Glassmorphism tile UI
+├── TileBottomPanel.tsx          # 3D-transformed bottom panel
+├── Sparkline.tsx                # Mini trend chart (2px stroke)
+├── BreathingDot.tsx             # Animated attention indicator
+├── Breadcrumb.tsx               # Navigation breadcrumb
+├── SearchBox.tsx                # Search input with icon
+├── DynamicBackground.tsx        # Blurred color blocks
+└── SpotlightEffect.tsx          # Mouse-following highlight
+```
+
+**Hooks:**
+```
+app/hooks/
+├── useTreeMap.ts                # Recharts layout calculation
+└── useDrillDown.ts              # 4-level navigation state
+```
+
+**Data & Types:**
+```
+app/types/sector.ts              # TypeScript interfaces
+app/data/mockSectors.ts          # Mock data (31 sectors + drill-down)
+```
+
+### 3.3 Configuration Files
+
+**next.config.js:**
+```javascript
+module.exports = {
+  output: 'export',
+  images: { unoptimized: true },
+  async rewrites() {
+    return [{
+      source: '/api/:path*',
+      destination: 'http://localhost:8201/api/:path*'
+    }]
+  }
+}
+```
+
+**project.json (Nx):**
+```json
+{
+  "name": "preview",
+  "targets": {
+    "serve": {
+      "executor": "@nx/next:server",
+      "options": {
+        "buildTarget": "preview:build",
+        "dev": true,
+        "port": 4300
+      }
+    },
+    "build": {
+      "executor": "@nx/next:build",
+      "options": {
+        "outputPath": "dist/apps/preview"
+      }
+    }
+  }
+}
+```
+
+**tailwind.config.ts:**
+- Independent configuration (not inherited from apps/web)
+- Uses Violet Bloom theme colors
+- Includes glassmorphism utilities
+- Supports dark mode via `next-themes`
+
+---
+
 ## 4. Data Model & Mock Data
 
 ### 4.1 Type Definitions
@@ -1144,39 +1242,6 @@ const getVisibleContent = (width: number, height: number) => {
 ```
 
 ---
-
-## Project Structure
-
-```
-apps/preview/
-├── src/
-│   └── app/
-│       ├── layout.tsx           # Root layout with dark theme
-│       ├── page.tsx             # Main treemap page
-│       ├── components/
-│       │   ├── HeatMap.tsx          # HeatMap container component
-│       │   ├── HeatMapHeader.tsx    # Header with title, breadcrumb, search, toggles
-│       │   ├── Breadcrumb.tsx       # Breadcrumb navigation component
-│       │   ├── SearchBox.tsx        # Search input with inline icon button
-│       │   ├── HeatMapTile.tsx      # UI rendering component (glassmorphism)
-│       │   ├── TileBottomPanel.tsx  # Bottom 1/3 panel with 3D transform
-│       │   ├── Sparkline.tsx        # Mini trend line chart (2px stroke)
-│       │   ├── BreathingDot.tsx     # Breathing indicator component
-│       │   ├── DynamicBackground.tsx # Blurred color blocks background
-│       │   └── SpotlightEffect.tsx  # Mouse-following highlight (optional)
-│       ├── hooks/
-│       │   ├── useTreeMap.ts        # Layout calculation logic (decoupled)
-│       │   └── useDrillDown.ts      # 4-level drill-down state management
-│       ├── types/
-│       │   └── sector.ts        # Sector data TypeScript types
-│       ├── data/
-│       │   └── mockSectors.ts   # Mock data for 31 SW sectors
-│       └── globals.css          # Tailwind CSS imports
-├── tailwind.config.ts           # Independent Tailwind config
-├── tsconfig.json                # TypeScript configuration
-├── next.config.js               # Next.js config (static export)
-└── project.json                 # Nx target configuration
-```
 
 ## 5. Code Architecture
 
