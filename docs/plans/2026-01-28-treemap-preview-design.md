@@ -15,9 +15,9 @@ Create an independent treemap visualization page for displaying 31 SW Level-1 se
 
 The design shows a heatmap visualization with:
 - Sector tiles sized by market capitalization
-- Color-coded by performance (green=up, red=down)
+- Color-coded by performance (Chinese market convention: **red=up, green=down**)
 - Tile displays: sector name (top-left), breathing indicator (top-right), capital flow + change% (bottom-right)
-- Dark background with white borders between tiles
+- Supports light/dark theme with accessible border contrast (WCAG 2.0 AA: 3:1 minimum)
 
 ## Architecture
 
@@ -130,25 +130,54 @@ App (layout.tsx + page.tsx)
 
 ### Visual Design (from Figma)
 
-**Color Scheme:**
-- **Positive (Green)**: `#0d7d5e` (deep) to `#1aa179` (medium)
-  - OKLCH: `oklch(0.45-0.55 0.15 150)` with intensity based on change%
-- **Negative (Red)**: `#7d1f2e` (deep) to `#a52a3a` (medium)
+**Color Scheme (Chinese Market Convention):**
+
+**⚠️ Important: Chinese market uses RED for UP, GREEN for DOWN (opposite of Western markets)**
+
+- **Positive/Up (Red)**: `#7d1f2e` (deep) to `#a52a3a` (medium)
   - OKLCH: `oklch(0.35-0.45 0.18 15)` with intensity based on change%
-- **Background**: `#0a0f0d` (dark)
-- **Borders**: `#ffffff` (white), 2px
-- **Border Radius**: Small rounded corners
+  - Used when `changePercent > 0`
+- **Negative/Down (Green)**: `#0d7d5e` (deep) to `#1aa179` (medium)
+  - OKLCH: `oklch(0.45-0.55 0.15 150)` with intensity based on change%
+  - Used when `changePercent < 0`
+
+**Theme Support:**
+
+**Dark Mode (Default):**
+- Background: `#0a0f0d` (dark charcoal)
+- Borders: `#374151` (gray-700, provides 4.5:1 contrast with background)
+- Text: `#ffffff` (white)
+- Border width: 2px
+- Border radius: 4px (small rounded corners)
+
+**Light Mode:**
+- Background: `#f9fafb` (gray-50)
+- Borders: `#d1d5db` (gray-300, provides 3.5:1 contrast with background)
+- Text: `#111827` (gray-900)
+- Border width: 2px
+- Border radius: 4px (small rounded corners)
+
+**Accessibility Requirements:**
+- Border-to-background contrast ratio: **≥ 3:1** (WCAG 2.0 AA)
+- Text-to-background contrast ratio: **≥ 4.5:1** (WCAG 2.0 AA for normal text)
+- Tile color gradients maintain sufficient contrast in both themes
 
 **Tile Layout:**
-- **Top-left**: Sector name (white, 14-16px, font-weight: 600)
+- **Top-left**: Sector name
+  - Dark mode: `#ffffff` (white, 14-16px, font-weight: 600)
+  - Light mode: `#111827` (gray-900, 14-16px, font-weight: 600)
 - **Top-right**: Breathing indicator dot (animated, frequency based on attentionLevel)
   - High attention (80-100): Fast pulse (0.8s cycle)
   - Medium attention (40-79): Medium pulse (1.5s cycle)
   - Low attention (0-39): Slow pulse (3s cycle)
 - **Bottom-right**:
-  - Capital flow (white, 12px, format: "±¥XXX亿" with arrow icon)
-  - Change percentage (white, 10px, format: "+2.5%")
+  - Capital flow (12px, format: "±¥XXX亿" with arrow icon)
+    - Positive flow: Red color (matching market convention)
+    - Negative flow: Green color (matching market convention)
+  - Change percentage (10px, format: "+2.5%")
+    - Color matches tile background gradient
 - **Padding**: 8-12px
+- **Border**: Theme-aware with accessible contrast (≥3:1)
 
 **Color Intensity Calculation:**
 ```typescript
@@ -182,6 +211,13 @@ module.exports = {
   }
 }
 ```
+
+**Theme Management:**
+- Use `next-themes` for light/dark mode toggle
+- Default theme: `dark`
+- Theme persistence: localStorage
+- Apply theme class to root `<html>` element
+- Use Tailwind `dark:` prefix for dark mode styles
 
 **project.json:**
 ```json
@@ -230,14 +266,24 @@ export async function fetchSectors(): Promise<Sector[]> {
 
 ### Color Calculation
 
+**Chinese Market Convention: Red = UP, Green = DOWN**
+
 ```typescript
-function getSectorColor(changePercent: number): string {
+function getSectorColor(changePercent: number, theme: 'light' | 'dark' = 'dark'): string {
+  // Chinese market: positive change = RED, negative change = GREEN
   if (changePercent > 0) {
+    // UP = RED
     const intensity = Math.min(changePercent / 5, 1);
-    return `oklch(${0.45 + intensity * 0.1} 0.15 150)`;
-  } else {
+    const lightness = theme === 'light' ? 0.40 : 0.35;
+    return `oklch(${lightness + intensity * 0.1} 0.18 15)`;
+  } else if (changePercent < 0) {
+    // DOWN = GREEN
     const intensity = Math.min(Math.abs(changePercent) / 5, 1);
-    return `oklch(${0.35 + intensity * 0.1} 0.18 15)`;
+    const lightness = theme === 'light' ? 0.50 : 0.45;
+    return `oklch(${lightness + intensity * 0.1} 0.15 150)`;
+  } else {
+    // No change = neutral gray
+    return theme === 'light' ? '#9ca3af' : '#6b7280';
   }
 }
 ```
@@ -291,7 +337,8 @@ interface BreathingDotProps {
 
 **Visual Design:**
 - Dot size: 8px × 8px
-- Color: white with 90% opacity
+- Color (dark mode): `#ffffff` with 90% opacity
+- Color (light mode): `#111827` with 80% opacity
 - Position: Absolute top-right corner (8-12px from edges)
 - Animation: Fade + scale pulse effect
 - No glow/shadow (clean minimal design)
@@ -432,6 +479,33 @@ export default router;
 - Real-time updates via WebSocket
 - Export/share functionality
 
+## Chinese Market Conventions
+
+**⚠️ Critical: This application follows Chinese stock market color conventions**
+
+### Color Semantics (Opposite of Western Markets)
+
+| Direction | China | West |
+|-----------|-------|------|
+| **Price Up** | 🔴 **RED** | 🟢 Green |
+| **Price Down** | 🟢 **GREEN** | 🔴 Red |
+| **No Change** | ⚪ Gray | ⚪ Gray |
+
+### Implementation Guidelines
+
+1. **Never** assume red = bad, green = good
+2. **Always** check `changePercent` sign, not color semantics
+3. **Capital flow colors** also follow this convention:
+   - Positive flow (inflow): Red
+   - Negative flow (outflow): Green
+4. **User education**: Consider adding a legend/tooltip explaining colors for international users
+
+### Cultural Context
+
+- Red is an auspicious color in Chinese culture → used for gains
+- Green has neutral/cooling connotation → used for losses
+- This convention is standardized across all Chinese stock exchanges (SSE, SZSE, HKEX)
+
 ## Responsive Design
 
 - **Desktop (1920px+)**: Full treemap layout
@@ -440,14 +514,34 @@ export default router;
 
 ## Success Criteria
 
+### Functionality
 1. ✅ Independent app runs on port 4300
-2. ✅ Matches Figma visual design (colors, layout, typography)
-3. ✅ Displays 31 SW Level-1 sectors correctly
-4. ✅ Card sizes proportional to market cap
-5. ✅ Colors accurately reflect sector performance
-6. ✅ Clean, maintainable code structure
-7. ✅ Easy integration path into apps/web
-8. ✅ Fast iteration for style adjustments
+2. ✅ Displays 31 SW Level-1 sectors correctly
+3. ✅ Tile sizes proportional to market cap
+4. ✅ Data fetches correctly from market-data service via API
+
+### Visual Design
+5. ✅ Matches Figma visual design (layout, typography, spacing)
+6. ✅ **Chinese market colors**: RED for up, GREEN for down (verified)
+7. ✅ Light/dark theme toggle works correctly
+8. ✅ Breathing indicator animates at correct frequency
+
+### Accessibility (WCAG 2.0 AA)
+9. ✅ Border-to-background contrast ≥ 3:1 in both themes
+10. ✅ Text-to-background contrast ≥ 4.5:1 in both themes
+11. ✅ Color is not the only means of conveying information (use text labels)
+12. ✅ Tile gradients maintain sufficient contrast
+
+### Code Quality
+13. ✅ Clean, maintainable code structure
+14. ✅ TypeScript types are explicit and correct
+15. ✅ Components follow single responsibility principle
+16. ✅ Easy integration path into apps/web
+
+### Performance
+17. ✅ Fast iteration for style adjustments
+18. ✅ Smooth breathing animations (no jank)
+19. ✅ Responsive to theme changes
 
 ## Non-Goals
 
