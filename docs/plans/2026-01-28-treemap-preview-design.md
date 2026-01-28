@@ -159,6 +159,57 @@ Create an independent HeatMap visualization page for displaying 31 SW Level-1 se
 
 ---
 
+## 2. System Architecture
+
+### 2.1 System Flow
+
+```
+Browser (localhost:4300 dev / localhost:4200/preview prod)
+    ↓
+apps/preview (Next.js 15 + React 19)
+    ↓
+Mock Data (hardcoded TypeScript arrays)
+    ↓
+HeatMap Visualization
+    ├─ useTreeMap Hook → Layout Calculation
+    ├─ HeatMapTile Components → UI Rendering
+    └─ useDrillDown Hook → Navigation State
+```
+
+### 2.2 Data Flow
+
+**Phase 1 (Current):**
+1. **Frontend mock data** - Hardcoded array of 31 SW Level-1 sectors
+2. **Preview app** - Uses mock data directly for rendering
+3. **No API calls** - Pure frontend development for UI iteration
+4. **Pure display mode** - No user interactions beyond hover
+
+**Note:** API integration will be added in Phase 2. Current focus is UI design and styling.
+
+### 2.3 Technology Stack
+
+**Frontend Framework:**
+- **Next.js 15** - Static export mode for deployment
+- **React 19** - UI library with latest features
+- **TypeScript** - Type-safe development
+- **Tailwind CSS v4** - Utility-first styling with OKLCH color space
+- **Framer Motion** - Animation library for drill-down and hover effects
+
+**Visualization:**
+- **Recharts v3** - Treemap layout calculation only (not for rendering)
+- **Custom SVG rendering** - For glassmorphism and 3D effects
+
+**UI Components:**
+- **Lucide React** - Icon system (31 sector icons)
+- **Custom components** - Built using `/ui-ux-pro-max` skill patterns
+
+**Build Tools:**
+- **Nx 22.3.3** - Monorepo tooling
+- **ESBuild** - Fast bundling
+- **PostCSS** - CSS processing
+
+---
+
 ## Project Structure
 
 ```
