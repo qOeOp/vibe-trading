@@ -1286,6 +1286,760 @@ function useDrillDown(): UseDrillDownReturn
 
 ---
 
+## 6. Visual Design System
+
+### 6.1 Base Design (Figma Specifications)
+
+#### 6.1.1 Chinese Market Color Convention
+
+**⚠️ Critical: Opposite of Western Markets**
+
+Chinese market uses **RED for UP, GREEN for DOWN** (opposite of Western markets).
+
+**Color Gradients:**
+
+**Positive/Up (Red):**
+```
+Light:  #F08FC8 (0-1% change)
+Medium: #D52CA2 (2-3% change) ⭐ Base color
+Deep:   #A52380 (5%+ change)
+```
+
+- Used when `changePercent > 0`
+- Color intensity varies based on change% magnitude
+
+**Negative/Down (Green):**
+```
+Light:  #05C588 (0-1% change)
+Medium: #039160 (2-3% change) ⭐ Base color
+Deep:   #026B45 (5%+ change)
+```
+
+- Used when `changePercent < 0`
+- Color intensity varies based on change% magnitude
+
+**Variable Speed Linear Mapping:**
+
+Color intensity mapping with non-linear curve for better visual discrimination:
+
+```typescript
+// Maps change% to color intensity with variable speed
+const getColorIntensity = (changePercent: number): number => {
+  const absChange = Math.abs(changePercent);
+
+  // Piecewise linear mapping for better visual discrimination
+  if (absChange < 1) {
+    // Slow ramp for small changes (0-1%)
+    return absChange / 1 * 0.3;  // Map to 0-0.3 intensity
+  } else if (absChange < 3) {
+    // Medium ramp (1-3%)
+    return 0.3 + ((absChange - 1) / 2) * 0.4;  // Map to 0.3-0.7
+  } else {
+    // Fast ramp for large changes (3%+)
+    return 0.7 + Math.min((absChange - 3) / 5, 1) * 0.3;  // Map to 0.7-1.0
+  }
+};
+```
+
+#### 6.1.2 Typography
+
+**Tile Text Styles:**
+
+**Sector Name (Top-left):**
+- Font size: 14-16px (adaptive based on tile size)
+- Font weight: 600 (semibold)
+- Color (dark mode): `#ffffff` (white)
+- Color (light mode): `#111827` (gray-900)
+- Text shadow: Creates "floating above glass" effect
+  ```css
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  ```
+
+**Capital Flow & Change % (Bottom-right):**
+- Font size: 12px
+- Font weight: 400 (normal)
+- Color: `rgba(255, 255, 255, 0.8)` (secondary text)
+- Text shadow: `0 1px 2px rgba(0, 0, 0, 0.4)`
+
+**Text Elevation Effect:**
+```css
+.tile-text {
+  /* Force white/light gray on glass */
+  color: rgba(255, 255, 255, 0.95);
+
+  /* Text shadow creates "floating above glass" effect */
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+
+  /* Slight blur for depth */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* Secondary text (capital flow, change%) */
+.tile-secondary-text {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+```
+
+#### 6.1.3 Spacing & Layout
+
+**Tile Spacing:**
+- **Gap between tiles**: `4px` (凸显晶体边缘折射感)
+- Creates visual separation emphasizing glass facets
+- Applied to Treemap layout algorithm
+
+**Border Properties:**
+- Border width: 2px
+- Border radius: 4px (small rounded corners)
+- Border color (dark mode): `#374151` (gray-700, 4.5:1 contrast)
+- Border color (light mode): `#d1d5db` (gray-300, 3.5:1 contrast)
+
+**Theme Support:**
+
+**Dark Mode (Default):**
+- Background: `#0a0f0d` (dark charcoal)
+- Borders: `#374151` (gray-700)
+- Text: `#ffffff` (white)
+
+**Light Mode:**
+- Background: `#f9fafb` (gray-50)
+- Borders: `#d1d5db` (gray-300)
+- Text: `#111827` (gray-900)
+
+**Accessibility Requirements:**
+- Border-to-background contrast ratio: **≥ 3:1** (WCAG 2.0 AA)
+- Text-to-background contrast ratio: **≥ 4.5:1** (WCAG 2.0 AA for normal text)
+- Tile color gradients maintain sufficient contrast in both themes
+
+### 6.2 Glassmorphism Effects
+
+#### 6.2.1 Glass Material Properties
+
+**Base Glass Effect:**
+```css
+.heatmap-tile {
+  /* Glassmorphism core */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Semi-transparent base */
+  background: rgba(var(--tile-color-rgb), 0.15);
+
+  /* Glass edge refraction */
+  border: 1px solid;
+  border-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.1)
+  ) 1;
+
+  /* Surface texture */
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),  /* Top highlight */
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1),        /* Bottom shadow */
+    0 10px 20px rgba(0, 0, 0, 0.4);             /* Drop shadow (depth) */
+
+  /* Border radius */
+  border-radius: 8px;
+}
+```
+
+**Color-Specific Glass Tint:**
+- **Red tiles (up)**: `background: rgba(213, 44, 162, 0.15)` (#D52CA2 with 15% opacity)
+- **Green tiles (down)**: `background: rgba(3, 145, 96, 0.15)` (#039160 with 15% opacity)
+- **Neutral tiles**: `background: rgba(107, 114, 128, 0.15)` (gray)
+
+#### 6.2.2 Dynamic Background Environment
+
+**Layered Background Architecture:**
+```
+┌─────────────────────────────────────┐
+│  HeatMap Tiles (foreground)         │ ← Glass tiles with content
+│  ├─ backdrop-filter: blur(12px)     │
+│  └─ Semi-transparent colors          │
+├─────────────────────────────────────┤
+│  Dynamic Color Blocks (mid-layer)   │ ← Animated gradient blobs
+│  ├─ Blur: 60px-100px                │
+│  ├─ Opacity: 30-50%                 │
+│  └─ Colors based on market sentiment│
+├─────────────────────────────────────┤
+│  Base Background (back-layer)       │ ← Dark solid color
+│  └─ Dark mode: #0a0f0d              │
+└─────────────────────────────────────┘
+```
+
+**DynamicBackground Component:**
+```typescript
+// Animated color blocks behind HeatMap
+<DynamicBackground
+  colors={[
+    'rgba(213, 44, 162, 0.4)',   // Red blob (bull market)
+    'rgba(3, 145, 96, 0.4)',     // Green blob (bear market)
+    'rgba(110, 63, 243, 0.3)'    // Purple blob (neutral)
+  ]}
+  blur={80}                       // 60-100px blur
+  animationDuration={20}          // Slow morph (20s)
+/>
+```
+
+#### 6.2.3 Spotlight Effect (Optional)
+
+**Mouse-Following Highlight:**
+```typescript
+interface SpotlightConfig {
+  enabled: boolean;              // Toggle on/off
+  size: number;                  // Spotlight radius (200-400px)
+  intensity: number;             // Brightness 0-1
+  color: string;                 // Highlight color
+  blend: 'screen' | 'overlay';   // Blend mode
+}
+
+// Usage
+<SpotlightEffect
+  enabled={true}
+  size={300}
+  intensity={0.15}
+  color="rgba(255, 255, 255, 0.2)"
+  blend="screen"
+/>
+```
+
+**Implementation:**
+- Radial gradient follows mouse cursor
+- Applied as overlay layer above background, below tiles
+- Mix-blend-mode for subtle luminance boost
+- Debounced mouse tracking for performance
+
+### 6.3 3D Hover Interaction
+
+#### 6.3.1 Hover State Transformation
+
+**Overview:**
+When user hovers over a tile, it transforms with sophisticated 3D effects:
+1. Tile lifts slightly (Y-axis elevation)
+2. Bottom 1/3 panel separates from tile
+3. Panel rotates along Z-axis (tilts right)
+4. Panel becomes transparent glass
+5. Original content (capital flow + change%) hidden
+6. Sparkline chart appears with breathing indicator
+
+#### 6.3.2 Tile Elevation
+
+**Tile Lift Animation:**
+```css
+.heatmap-tile {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.heatmap-tile:hover {
+  /* Lift tile slightly (12px up) */
+  transform: translateY(-12px) translateZ(10px);
+
+  /* Enhanced drop shadow for elevation */
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1),
+    0 20px 40px rgba(0, 0, 0, 0.5),     /* Deeper shadow */
+    0 10px 20px rgba(0, 0, 0, 0.3);     /* Mid-range shadow */
+}
+```
+
+#### 6.3.3 Bottom Panel 3D Transformation
+
+**Panel Structure (Bottom 1/3):**
+```typescript
+// Calculate panel dimensions
+const panelHeight = tileHeight / 3;  // Bottom 1/3
+const panelY = tileHeight * 2 / 3;   // Start at 66% down
+
+// Panel states
+interface PanelState {
+  default: {
+    position: 'absolute';
+    bottom: 0;
+    height: `${panelHeight}px`;
+    transform: 'none';
+    opacity: 1;
+  };
+  hover: {
+    position: 'absolute';
+    bottom: 0;
+    height: `${panelHeight}px`;
+    transform: 'translateZ(20px) rotateZ(3deg)';  // Z-axis tilt right
+    opacity: 0.3;  // Transparent glass
+  };
+}
+```
+
+**3D Transform Details:**
+```css
+.tile-bottom-panel {
+  /* Default state */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 33.333%;  /* Bottom 1/3 */
+
+  /* 3D context */
+  transform-origin: bottom left;
+  transform-style: preserve-3d;
+
+  /* Smooth transition */
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),  /* Elastic ease-out */
+              opacity 0.4s ease,
+              backdrop-filter 0.4s ease;
+
+  /* Initial content visible */
+  backdrop-filter: blur(12px);
+  background: rgba(var(--tile-color-rgb), 0.15);
+}
+
+.heatmap-tile:hover .tile-bottom-panel {
+  /* Separate and tilt */
+  transform: translateZ(20px) rotateZ(3deg) translateX(2px);
+
+  /* Become more transparent */
+  opacity: 0.3;
+  backdrop-filter: blur(20px);  /* Stronger blur */
+  background: rgba(255, 255, 255, 0.05);  /* Neutral glass */
+}
+```
+
+**Content Switching:**
+```typescript
+// Hide original content on hover
+<div className="panel-original-content opacity-100 group-hover:opacity-0">
+  {/* Capital flow + Change % */}
+</div>
+
+// Show sparkline on hover
+<div className="panel-sparkline-content opacity-0 group-hover:opacity-100">
+  <Sparkline data={trendData} currentValue={currentPrice} />
+</div>
+```
+
+#### 6.3.4 Sparkline Chart Component
+
+**Design Specifications:**
+
+**Line Properties:**
+- Stroke width: `2px` (thin, elegant line)
+- Stroke color: White with 80% opacity `rgba(255, 255, 255, 0.8)`
+- No fill (transparent area under line)
+- Smooth curve (use SVG path with bezier curves)
+
+**Breathing Indicator Dot:**
+- Position: End of sparkline (right edge)
+- Size: 6px diameter
+- Color: Matches line color (white)
+- Animation: Opacity pulse 0.6 → 1.0 → 0.6 (2s loop)
+- Represents: Current date position on timeline
+
+**Sparkline Component:**
+```typescript
+interface SparklineProps {
+  data: number[];           // Historical price/value data points
+  currentValue: number;     // Current value (end point)
+  width: number;            // Panel width
+  height: number;           // Panel height (~1/3 of tile)
+  color?: string;           // Line color (default: white)
+  strokeWidth?: number;     // Line thickness (default: 2px)
+}
+
+export function Sparkline({
+  data,
+  currentValue,
+  width,
+  height,
+  color = 'rgba(255, 255, 255, 0.8)',
+  strokeWidth = 2
+}: SparklineProps) {
+  // Calculate viewBox and path
+  const padding = 8;  // Padding from edges
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
+
+  // Normalize data to chart dimensions
+  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data);
+  const valueRange = maxValue - minValue;
+
+  // Generate SVG path
+  const pathPoints = data.map((value, index) => {
+    const x = padding + (index / (data.length - 1)) * chartWidth;
+    const y = padding + ((maxValue - value) / valueRange) * chartHeight;
+    return { x, y };
+  });
+
+  // Build path string
+  const pathD = pathPoints.reduce((path, point, index) => {
+    if (index === 0) return `M ${point.x},${point.y}`;
+
+    // Use quadratic bezier for smooth curves
+    const prevPoint = pathPoints[index - 1];
+    const cpX = (prevPoint.x + point.x) / 2;
+    return `${path} Q ${cpX},${prevPoint.y} ${point.x},${point.y}`;
+  }, '');
+
+  // End point (current value indicator)
+  const endPoint = pathPoints[pathPoints.length - 1];
+
+  // Build area fill path (extends to bottom)
+  const fillPathD = `${pathD} L ${endPoint.x},${height} L ${padding},${height} Z`;
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      className="sparkline"
+    >
+      {/* Define vertical gradient for area fill */}
+      <defs>
+        <linearGradient id="sparkline-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgba(0, 240, 255, 0.2)" />
+          <stop offset="100%" stopColor="transparent" />
+        </linearGradient>
+      </defs>
+
+      {/* Area fill below line (像面积图) */}
+      <path
+        d={fillPathD}
+        fill="url(#sparkline-gradient)"
+        opacity={0.8}
+      />
+
+      {/* Trend line with stroke-dasharray animation */}
+      <motion.path
+        d={pathD}
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{
+          pathLength: 0,
+          opacity: 0
+        }}
+        animate={{
+          pathLength: 1,
+          opacity: 1
+        }}
+        transition={{
+          pathLength: { duration: 0.4, ease: "easeInOut" },
+          opacity: { duration: 0.2 }
+        }}
+      />
+
+      {/* Breathing indicator dot at end */}
+      <motion.circle
+        cx={endPoint.x}
+        cy={endPoint.y}
+        r={3}
+        fill={color}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          delay: 0.4,  // Appear after line animation completes
+          duration: 0.2
+        }}
+        className="animate-breathing-pulse"
+      />
+    </svg>
+  );
+}
+```
+
+**Breathing Pulse Animation:**
+```css
+@keyframes breathing-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.animate-breathing-pulse {
+  animation: breathing-pulse 2s ease-in-out infinite;
+  transform-origin: center;
+}
+```
+
+**Mock Trend Data:**
+```typescript
+// Generate realistic trend data (last 30 days)
+function generateTrendData(currentValue: number, volatility = 0.05): number[] {
+  const days = 30;
+  const data: number[] = [];
+
+  // Start from 30 days ago
+  let value = currentValue * (1 + (Math.random() - 0.5) * 0.1);
+
+  for (let i = 0; i < days; i++) {
+    // Random walk with drift
+    const change = (Math.random() - 0.5) * volatility;
+    value = value * (1 + change);
+    data.push(value);
+  }
+
+  // Ensure last value matches current
+  data[days - 1] = currentValue;
+
+  return data;
+}
+
+// Add to each sector/stock in mock data
+{
+  code: "801980",
+  name: "电子",
+  marketCap: 38500.0,
+  changePercent: 3.15,
+  capitalFlow: 1050.0,
+  attentionLevel: 95,
+  trendData: generateTrendData(38500.0)  // 30-day trend
+}
+```
+
+#### 6.3.5 Complete Hover Interaction Flow
+
+**Timeline:**
+```
+0ms:   User hovers
+  ↓
+0-300ms:  Tile lifts (translateY -12px)
+  ↓
+100ms: Bottom panel starts separating
+  ↓
+100-500ms: Panel rotates Z-axis 3deg + becomes transparent
+  ↓
+200ms: Original content fades out (opacity 1 → 0)
+  ↓
+300ms: Sparkline fades in (opacity 0 → 1)
+  ↓
+500ms: Breathing dot animation starts
+```
+
+**Framer Motion Implementation:**
+```typescript
+<motion.div
+  className="heatmap-tile group"
+  whileHover={{
+    y: -12,
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+  }}
+>
+  {/* Tile main content (top 2/3) */}
+  <div className="tile-main-content">
+    {/* Sector name, breathing dot, etc. */}
+  </div>
+
+  {/* Bottom panel (bottom 1/3) */}
+  <motion.div
+    className="tile-bottom-panel"
+    variants={{
+      default: {
+        z: 0,
+        rotateZ: 0,
+        x: 0,
+        opacity: 1
+      },
+      hover: {
+        z: 20,
+        rotateZ: 3,
+        x: 2,
+        opacity: 0.3,
+        transition: {
+          duration: 0.4,
+          ease: [0.34, 1.56, 0.64, 1]  // Elastic
+        }
+      }
+    }}
+    initial="default"
+    animate="default"
+    whileHover="hover"
+  >
+    {/* Original content (hidden on hover) */}
+    <motion.div
+      className="panel-original"
+      animate={{ opacity: isHovered ? 0 : 1 }}
+    >
+      <div className="capital-flow">{formatCapitalFlow(capitalFlow)}</div>
+      <div className="change-percent">{formatChangePercent(changePercent)}</div>
+    </motion.div>
+
+    {/* Sparkline (shown on hover) */}
+    <motion.div
+      className="panel-sparkline"
+      animate={{ opacity: isHovered ? 1 : 0 }}
+    >
+      <Sparkline
+        data={trendData}
+        currentValue={marketCap}
+        width={tileWidth}
+        height={tileHeight / 3}
+      />
+    </motion.div>
+  </motion.div>
+</motion.div>
+```
+
+**Visual Design Summary:**
+
+**Hover State Layers (Z-depth):**
+```
+Z = 30px: Breathing indicator dot (pulsing)
+Z = 20px: Bottom panel (tilted glass)
+Z = 10px: Main tile (elevated)
+Z = 0px:  Base layer (original position)
+```
+
+**Glass Transition:**
+- **Before hover**: Colored glass (15% opacity, color tint)
+- **During hover**: Transparent glass (30% opacity, neutral white)
+- **Blur increase**: 12px → 20px (stronger frosted effect)
+
+**Content Transition:**
+- **Crossfade duration**: 300ms
+- **Sparkline draw**: Instant (pre-rendered SVG)
+- **Breathing dot**: Continuous 2s loop animation
+
+### 6.4 Animation System
+
+#### 6.4.1 AnimatePresence & Drill-Down Animations
+
+**Animation States:**
+```typescript
+// Parent → Child drill-down
+const drillDownVariants = {
+  initial: (custom) => ({
+    opacity: 0,
+    scale: 0,
+    x: custom.parentX,  // Start from parent tile center
+    y: custom.parentY,
+    transformOrigin: 'center center'
+  }),
+  animate: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.4, 0, 0.2, 1]  // Custom easing curve
+    }
+  },
+  exit: (custom) => ({
+    opacity: 0,
+    scale: 0,
+    x: custom.parentX,
+    y: custom.parentY,
+    transition: {
+      duration: 0.3,
+      ease: [0.4, 0, 0.6, 1]
+    }
+  })
+};
+```
+
+**Performance Optimization:**
+```typescript
+const [isAnimating, setIsAnimating] = useState(false);
+
+<motion.div
+  variants={drillDownVariants}
+  custom={{ parentX, parentY }}
+  onAnimationStart={() => {
+    setIsAnimating(true);
+    // Disable backdrop-filter during animation
+    tileRef.current.style.backdropFilter = 'none';
+  }}
+  onAnimationComplete={() => {
+    setIsAnimating(false);
+    // Re-enable backdrop-filter after animation
+    tileRef.current.style.backdropFilter = 'blur(12px)';
+  }}
+>
+  {/* Tile content */}
+</motion.div>
+```
+
+**Why disable backdrop-filter during animation?**
+- `backdrop-filter` is GPU-intensive
+- Causes jank during scale/position animations
+- Disabling during animation = smooth 60fps
+- Re-enabling after = glass effect restored
+
+#### 6.4.2 Stagger Animations
+
+**Tiles appear with stagger effect:**
+```typescript
+const containerVariants = {
+  animate: {
+    transition: {
+      staggerChildren: 0.02,  // 20ms delay between tiles
+      delayChildren: 0.1      // Wait 100ms before starting
+    }
+  }
+};
+
+const tileVariants = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.3 }
+  }
+};
+```
+
+#### 6.4.3 Breathing Indicator Animation
+
+**Component:** `BreathingDot.tsx`
+
+```typescript
+interface BreathingDotProps {
+  attentionLevel: number; // 0-100
+}
+
+// CSS animation with Tailwind
+<div
+  className="w-2 h-2 rounded-full bg-white/90"
+  style={{
+    animation: `breathing ${getBreathingDuration(attentionLevel)}s ease-in-out infinite`
+  }}
+/>
+
+// Tailwind animation keyframe (in globals.css)
+@keyframes breathing {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+```
+
+**Visual Design:**
+- Dot size: 8px × 8px
+- Color (dark mode): `#ffffff` with 90% opacity
+- Color (light mode): `#111827` with 80% opacity
+- Position: Absolute top-right corner (8-12px from edges)
+- Animation: Fade + scale pulse effect
+- No glow/shadow (clean minimal design)
+- High attention (80-100): Fast pulse (0.8s cycle)
+- Medium attention (40-79): Medium pulse (1.5s cycle)
+- Low attention (0-39): Slow pulse (3s cycle)
+
+---
+
 ## Component Design
 
 ### Component Hierarchy
@@ -1644,668 +2398,6 @@ export function Tile({ x, y, width, height, ...props }: TileProps) {
 ```
 
 **⚠️ Important:** Tile renderer never returns `null`. All 31 sectors must render, even if constraints are violated (which indicates container sizing needs adjustment).
-
-### Visual Design (from Figma)
-
-**Color Scheme (Chinese Market Convention):**
-
-**⚠️ Important: Chinese market uses RED for UP, GREEN for DOWN (opposite of Western markets)**
-
-- **Positive/Up (Red)**:
-  - Medium (base): `#D52CA2` ⭐ **Primary red for moderate gains**
-  - Deep (high gains): Darker red gradient
-  - Light (low gains): Lighter red gradient
-  - Used when `changePercent > 0`
-  - Color intensity varies based on change% magnitude
-
-- **Negative/Down (Green)**:
-  - Medium (base): `#039160` ⭐ **Primary green for moderate losses**
-  - Deep (high losses): Darker green gradient
-  - Light (low losses): Lighter green gradient
-  - Used when `changePercent < 0`
-  - Color intensity varies based on change% magnitude
-
-**Theme Support:**
-
-**Dark Mode (Default):**
-- Background: `#0a0f0d` (dark charcoal)
-- Borders: `#374151` (gray-700, provides 4.5:1 contrast with background)
-- Text: `#ffffff` (white)
-- Border width: 2px
-- Border radius: 4px (small rounded corners)
-
-**Light Mode:**
-- Background: `#f9fafb` (gray-50)
-- Borders: `#d1d5db` (gray-300, provides 3.5:1 contrast with background)
-- Text: `#111827` (gray-900)
-- Border width: 2px
-- Border radius: 4px (small rounded corners)
-
-**Accessibility Requirements:**
-- Border-to-background contrast ratio: **≥ 3:1** (WCAG 2.0 AA)
-- Text-to-background contrast ratio: **≥ 4.5:1** (WCAG 2.0 AA for normal text)
-- Tile color gradients maintain sufficient contrast in both themes
-
-## Glassmorphism Visual Design
-
-### Tile Gap & Crystal Aesthetics
-
-**Tile Spacing:**
-- **Gap between tiles**: `4px` (凸显晶体边缘折射感)
-- Creates visual separation emphasizing glass facets
-- Applied to Treemap layout algorithm
-
-### Glass Material Properties
-
-**Base Glass Effect:**
-```css
-.heatmap-tile {
-  /* Glassmorphism core */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  /* Semi-transparent base */
-  background: rgba(var(--tile-color-rgb), 0.15);
-
-  /* Glass edge refraction */
-  border: 1px solid;
-  border-image: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.4),
-    rgba(255, 255, 255, 0.1)
-  ) 1;
-
-  /* Surface texture */
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),  /* Top highlight */
-    inset 0 -1px 1px rgba(0, 0, 0, 0.1),        /* Bottom shadow */
-    0 10px 20px rgba(0, 0, 0, 0.4);             /* Drop shadow (depth) */
-
-  /* Border radius */
-  border-radius: 8px;
-}
-```
-
-**Color-Specific Glass Tint:**
-- **Red tiles (up)**: `background: rgba(213, 44, 162, 0.15)` (#D52CA2 with 15% opacity)
-- **Green tiles (down)**: `background: rgba(3, 145, 96, 0.15)` (#039160 with 15% opacity)
-- **Neutral tiles**: `background: rgba(107, 114, 128, 0.15)` (gray)
-
-### Typography Layer
-
-**Text Elevation Effect:**
-```css
-.tile-text {
-  /* Force white/light gray on glass */
-  color: rgba(255, 255, 255, 0.95);
-
-  /* Text shadow creates "floating above glass" effect */
-  text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.5),
-    0 2px 4px rgba(0, 0, 0, 0.3);
-
-  /* Slight blur for depth */
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
-}
-
-/* Secondary text (capital flow, change%) */
-.tile-secondary-text {
-  color: rgba(255, 255, 255, 0.8);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-```
-
-### Dynamic Background Environment
-
-**Layered Background Architecture:**
-```
-┌─────────────────────────────────────┐
-│  HeatMap Tiles (foreground)         │ ← Glass tiles with content
-│  ├─ backdrop-filter: blur(12px)     │
-│  └─ Semi-transparent colors          │
-├─────────────────────────────────────┤
-│  Dynamic Color Blocks (mid-layer)   │ ← Animated gradient blobs
-│  ├─ Blur: 60px-100px                │
-│  ├─ Opacity: 30-50%                 │
-│  └─ Colors based on market sentiment│
-├─────────────────────────────────────┤
-│  Base Background (back-layer)       │ ← Dark solid color
-│  └─ Dark mode: #0a0f0d              │
-└─────────────────────────────────────┘
-```
-
-**DynamicBackground Component:**
-```typescript
-// Animated color blocks behind HeatMap
-<DynamicBackground
-  colors={[
-    'rgba(213, 44, 162, 0.4)',   // Red blob (bull market)
-    'rgba(3, 145, 96, 0.4)',     // Green blob (bear market)
-    'rgba(110, 63, 243, 0.3)'    // Purple blob (neutral)
-  ]}
-  blur={80}                       // 60-100px blur
-  animationDuration={20}          // Slow morph (20s)
-/>
-```
-
-### Spotlight Effect (Optional)
-
-**Mouse-Following Highlight:**
-```typescript
-interface SpotlightConfig {
-  enabled: boolean;              // Toggle on/off
-  size: number;                  // Spotlight radius (200-400px)
-  intensity: number;             // Brightness 0-1
-  color: string;                 // Highlight color
-  blend: 'screen' | 'overlay';   // Blend mode
-}
-
-// Usage
-<SpotlightEffect
-  enabled={true}
-  size={300}
-  intensity={0.15}
-  color="rgba(255, 255, 255, 0.2)"
-  blend="screen"
-/>
-```
-
-**Implementation:**
-- Radial gradient follows mouse cursor
-- Applied as overlay layer above background, below tiles
-- Mix-blend-mode for subtle luminance boost
-- Debounced mouse tracking for performance
-
-## Advanced 3D Hover Interaction
-
-### Hover State Transformation
-
-**Overview:**
-When user hovers over a tile, it transforms with sophisticated 3D effects:
-1. Tile lifts slightly (Y-axis elevation)
-2. Bottom 1/3 panel separates from tile
-3. Panel rotates along Z-axis (tilts right)
-4. Panel becomes transparent glass
-5. Original content (capital flow + change%) hidden
-6. Sparkline chart appears with breathing indicator
-
-### 3D Elevation Effect
-
-**Tile Lift Animation:**
-```css
-.heatmap-tile {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-}
-
-.heatmap-tile:hover {
-  /* Lift tile slightly (12px up) */
-  transform: translateY(-12px) translateZ(10px);
-
-  /* Enhanced drop shadow for elevation */
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.1),
-    0 20px 40px rgba(0, 0, 0, 0.5),     /* Deeper shadow */
-    0 10px 20px rgba(0, 0, 0, 0.3);     /* Mid-range shadow */
-}
-```
-
-### Bottom Panel 3D Transformation
-
-**Panel Structure (Bottom 1/3):**
-```typescript
-// Calculate panel dimensions
-const panelHeight = tileHeight / 3;  // Bottom 1/3
-const panelY = tileHeight * 2 / 3;   // Start at 66% down
-
-// Panel states
-interface PanelState {
-  default: {
-    position: 'absolute';
-    bottom: 0;
-    height: `${panelHeight}px`;
-    transform: 'none';
-    opacity: 1;
-  };
-  hover: {
-    position: 'absolute';
-    bottom: 0;
-    height: `${panelHeight}px`;
-    transform: 'translateZ(20px) rotateZ(3deg)';  // Z-axis tilt right
-    opacity: 0.3;  // Transparent glass
-  };
-}
-```
-
-**3D Transform Details:**
-```css
-.tile-bottom-panel {
-  /* Default state */
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 33.333%;  /* Bottom 1/3 */
-
-  /* 3D context */
-  transform-origin: bottom left;
-  transform-style: preserve-3d;
-
-  /* Smooth transition */
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),  /* Elastic ease-out */
-              opacity 0.4s ease,
-              backdrop-filter 0.4s ease;
-
-  /* Initial content visible */
-  backdrop-filter: blur(12px);
-  background: rgba(var(--tile-color-rgb), 0.15);
-}
-
-.heatmap-tile:hover .tile-bottom-panel {
-  /* Separate and tilt */
-  transform: translateZ(20px) rotateZ(3deg) translateX(2px);
-
-  /* Become more transparent */
-  opacity: 0.3;
-  backdrop-filter: blur(20px);  /* Stronger blur */
-  background: rgba(255, 255, 255, 0.05);  /* Neutral glass */
-}
-```
-
-**Content Switching:**
-```typescript
-// Hide original content on hover
-<div className="panel-original-content opacity-100 group-hover:opacity-0">
-  {/* Capital flow + Change % */}
-</div>
-
-// Show sparkline on hover
-<div className="panel-sparkline-content opacity-0 group-hover:opacity-100">
-  <Sparkline data={trendData} currentValue={currentPrice} />
-</div>
-```
-
-### Sparkline Chart Component
-
-**Design Specifications:**
-
-**Line Properties:**
-- Stroke width: `2px` (thin, elegant line)
-- Stroke color: White with 80% opacity `rgba(255, 255, 255, 0.8)`
-- No fill (transparent area under line)
-- Smooth curve (use SVG path with bezier curves)
-
-**Breathing Indicator Dot:**
-- Position: End of sparkline (right edge)
-- Size: 6px diameter
-- Color: Matches line color (white)
-- Animation: Opacity pulse 0.6 → 1.0 → 0.6 (2s loop)
-- Represents: Current date position on timeline
-
-**Sparkline Component:**
-```typescript
-interface SparklineProps {
-  data: number[];           // Historical price/value data points
-  currentValue: number;     // Current value (end point)
-  width: number;            // Panel width
-  height: number;           // Panel height (~1/3 of tile)
-  color?: string;           // Line color (default: white)
-  strokeWidth?: number;     // Line thickness (default: 2px)
-}
-
-export function Sparkline({
-  data,
-  currentValue,
-  width,
-  height,
-  color = 'rgba(255, 255, 255, 0.8)',
-  strokeWidth = 2
-}: SparklineProps) {
-  // Calculate viewBox and path
-  const padding = 8;  // Padding from edges
-  const chartWidth = width - padding * 2;
-  const chartHeight = height - padding * 2;
-
-  // Normalize data to chart dimensions
-  const minValue = Math.min(...data);
-  const maxValue = Math.max(...data);
-  const valueRange = maxValue - minValue;
-
-  // Generate SVG path
-  const pathPoints = data.map((value, index) => {
-    const x = padding + (index / (data.length - 1)) * chartWidth;
-    const y = padding + ((maxValue - value) / valueRange) * chartHeight;
-    return { x, y };
-  });
-
-  // Build path string
-  const pathD = pathPoints.reduce((path, point, index) => {
-    if (index === 0) return `M ${point.x},${point.y}`;
-
-    // Use quadratic bezier for smooth curves
-    const prevPoint = pathPoints[index - 1];
-    const cpX = (prevPoint.x + point.x) / 2;
-    return `${path} Q ${cpX},${prevPoint.y} ${point.x},${point.y}`;
-  }, '');
-
-  // End point (current value indicator)
-  const endPoint = pathPoints[pathPoints.length - 1];
-
-  // Build area fill path (extends to bottom)
-  const fillPathD = `${pathD} L ${endPoint.x},${height} L ${padding},${height} Z`;
-
-  return (
-    <svg
-      width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
-      className="sparkline"
-    >
-      {/* Define vertical gradient for area fill */}
-      <defs>
-        <linearGradient id="sparkline-gradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(0, 240, 255, 0.2)" />
-          <stop offset="100%" stopColor="transparent" />
-        </linearGradient>
-      </defs>
-
-      {/* Area fill below line (像面积图) */}
-      <path
-        d={fillPathD}
-        fill="url(#sparkline-gradient)"
-        opacity={0.8}
-      />
-
-      {/* Trend line with stroke-dasharray animation */}
-      <motion.path
-        d={pathD}
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        initial={{
-          pathLength: 0,
-          opacity: 0
-        }}
-        animate={{
-          pathLength: 1,
-          opacity: 1
-        }}
-        transition={{
-          pathLength: { duration: 0.4, ease: "easeInOut" },
-          opacity: { duration: 0.2 }
-        }}
-      />
-
-      {/* Breathing indicator dot at end */}
-      <motion.circle
-        cx={endPoint.x}
-        cy={endPoint.y}
-        r={3}
-        fill={color}
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{
-          delay: 0.4,  // Appear after line animation completes
-          duration: 0.2
-        }}
-        className="animate-breathing-pulse"
-      />
-    </svg>
-  );
-}
-```
-
-**Breathing Pulse Animation:**
-```css
-@keyframes breathing-pulse {
-  0%, 100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-}
-
-.animate-breathing-pulse {
-  animation: breathing-pulse 2s ease-in-out infinite;
-  transform-origin: center;
-}
-```
-
-### Mock Trend Data
-
-**Generate trend data for sparkline:**
-```typescript
-// Generate realistic trend data (last 30 days)
-function generateTrendData(currentValue: number, volatility = 0.05): number[] {
-  const days = 30;
-  const data: number[] = [];
-
-  // Start from 30 days ago
-  let value = currentValue * (1 + (Math.random() - 0.5) * 0.1);
-
-  for (let i = 0; i < days; i++) {
-    // Random walk with drift
-    const change = (Math.random() - 0.5) * volatility;
-    value = value * (1 + change);
-    data.push(value);
-  }
-
-  // Ensure last value matches current
-  data[days - 1] = currentValue;
-
-  return data;
-}
-
-// Add to each sector/stock in mock data
-{
-  code: "801980",
-  name: "电子",
-  marketCap: 38500.0,
-  changePercent: 3.15,
-  capitalFlow: 1050.0,
-  attentionLevel: 95,
-  trendData: generateTrendData(38500.0)  // 30-day trend
-}
-```
-
-### Complete Hover Interaction Flow
-
-**Timeline:**
-```
-0ms:   User hovers
-  ↓
-0-300ms:  Tile lifts (translateY -12px)
-  ↓
-100ms: Bottom panel starts separating
-  ↓
-100-500ms: Panel rotates Z-axis 3deg + becomes transparent
-  ↓
-200ms: Original content fades out (opacity 1 → 0)
-  ↓
-300ms: Sparkline fades in (opacity 0 → 1)
-  ↓
-500ms: Breathing dot animation starts
-```
-
-**Framer Motion Implementation:**
-```typescript
-<motion.div
-  className="heatmap-tile group"
-  whileHover={{
-    y: -12,
-    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
-  }}
->
-  {/* Tile main content (top 2/3) */}
-  <div className="tile-main-content">
-    {/* Sector name, breathing dot, etc. */}
-  </div>
-
-  {/* Bottom panel (bottom 1/3) */}
-  <motion.div
-    className="tile-bottom-panel"
-    variants={{
-      default: {
-        z: 0,
-        rotateZ: 0,
-        x: 0,
-        opacity: 1
-      },
-      hover: {
-        z: 20,
-        rotateZ: 3,
-        x: 2,
-        opacity: 0.3,
-        transition: {
-          duration: 0.4,
-          ease: [0.34, 1.56, 0.64, 1]  // Elastic
-        }
-      }
-    }}
-    initial="default"
-    animate="default"
-    whileHover="hover"
-  >
-    {/* Original content (hidden on hover) */}
-    <motion.div
-      className="panel-original"
-      animate={{ opacity: isHovered ? 0 : 1 }}
-    >
-      <div className="capital-flow">{formatCapitalFlow(capitalFlow)}</div>
-      <div className="change-percent">{formatChangePercent(changePercent)}</div>
-    </motion.div>
-
-    {/* Sparkline (shown on hover) */}
-    <motion.div
-      className="panel-sparkline"
-      animate={{ opacity: isHovered ? 1 : 0 }}
-    >
-      <Sparkline
-        data={trendData}
-        currentValue={marketCap}
-        width={tileWidth}
-        height={tileHeight / 3}
-      />
-    </motion.div>
-  </motion.div>
-</motion.div>
-```
-
-### Visual Design Summary
-
-**Hover State Layers (Z-depth):**
-```
-Z = 30px: Breathing indicator dot (pulsing)
-Z = 20px: Bottom panel (tilted glass)
-Z = 10px: Main tile (elevated)
-Z = 0px:  Base layer (original position)
-```
-
-**Glass Transition:**
-- **Before hover**: Colored glass (15% opacity, color tint)
-- **During hover**: Transparent glass (30% opacity, neutral white)
-- **Blur increase**: 12px → 20px (stronger frosted effect)
-
-**Content Transition:**
-- **Crossfade duration**: 300ms
-- **Sparkline draw**: Instant (pre-rendered SVG)
-- **Breathing dot**: Continuous 2s loop animation
-
-## Framer Motion Animation System
-
-### AnimatePresence & Drill-Down Animations
-
-**Animation States:**
-```typescript
-// Parent → Child drill-down
-const drillDownVariants = {
-  initial: (custom) => ({
-    opacity: 0,
-    scale: 0,
-    x: custom.parentX,  // Start from parent tile center
-    y: custom.parentY,
-    transformOrigin: 'center center'
-  }),
-  animate: {
-    opacity: 1,
-    scale: 1,
-    x: 0,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.4, 0, 0.2, 1]  // Custom easing curve
-    }
-  },
-  exit: (custom) => ({
-    opacity: 0,
-    scale: 0,
-    x: custom.parentX,
-    y: custom.parentY,
-    transition: {
-      duration: 0.3,
-      ease: [0.4, 0, 0.6, 1]
-    }
-  })
-};
-```
-
-**Performance Optimization:**
-```typescript
-const [isAnimating, setIsAnimating] = useState(false);
-
-<motion.div
-  variants={drillDownVariants}
-  custom={{ parentX, parentY }}
-  onAnimationStart={() => {
-    setIsAnimating(true);
-    // Disable backdrop-filter during animation
-    tileRef.current.style.backdropFilter = 'none';
-  }}
-  onAnimationComplete={() => {
-    setIsAnimating(false);
-    // Re-enable backdrop-filter after animation
-    tileRef.current.style.backdropFilter = 'blur(12px)';
-  }}
->
-  {/* Tile content */}
-</motion.div>
-```
-
-**Why disable backdrop-filter during animation?**
-- `backdrop-filter` is GPU-intensive
-- Causes jank during scale/position animations
-- Disabling during animation = smooth 60fps
-- Re-enabling after = glass effect restored
-
-### Stagger Animations
-
-**Tiles appear with stagger effect:**
-```typescript
-const containerVariants = {
-  animate: {
-    transition: {
-      staggerChildren: 0.02,  // 20ms delay between tiles
-      delayChildren: 0.1      // Wait 100ms before starting
-    }
-  }
-};
-
-const tileVariants = {
-  initial: { opacity: 0, scale: 0.8 },
-  animate: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.3 }
-  }
-};
-```
 
 ## Advanced Tile Features
 
