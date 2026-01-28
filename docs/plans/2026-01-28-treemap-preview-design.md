@@ -384,10 +384,54 @@ App (layout.tsx + page.tsx)
   - **Maximum height**: `580px`
   - **Overflow behavior**: When height > 580px, apply `overflow-y: scroll`
 
+**Tile Shape & Size Constraints:**
+
+**⚠️ Critical: Tile aspect ratio and minimum size requirements**
+
+**Tile Aspect Ratio:**
+- **Allowed range**: Square to Golden Ratio rectangle
+  - Minimum ratio: `1:1` (perfect square)
+  - Maximum ratio: `1:1.618` (golden ratio, horizontal)
+  - Formula: `1 ≤ (width / height) ≤ 1.618`
+- **Forbidden**: Vertical rectangles (height > width)
+  - Ratio `< 1` is NOT allowed
+  - Prevents tall, narrow tiles that are hard to read
+
+**Tile Minimum Dimensions:**
+- **Minimum width**: `150px` (hard constraint)
+- **Minimum height**: `150px` (hard constraint)
+- **Rationale**: Tiles smaller than 150px cannot properly display:
+  - Sector name (top-left)
+  - Breathing indicator (top-right)
+  - Capital flow + change% (bottom-right)
+  - Adequate padding and readability
+
+**Treemap Algorithm Constraints:**
+```typescript
+// Tile validation rules
+const isValidTile = (width: number, height: number): boolean => {
+  // Check minimum dimensions
+  if (width < 150 || height < 150) return false;
+
+  // Check aspect ratio (square to golden ratio)
+  const ratio = width / height;
+  if (ratio < 1 || ratio > 1.618) return false;
+
+  return true;
+};
+```
+
+**Handling Small Market Cap Sectors:**
+- If a sector's market cap is too small to create a valid tile:
+  - Option 1: Group small sectors together into "Others" category
+  - Option 2: Set minimum tile size and allow some overlap
+  - Option 3: Exclude very small sectors (< threshold)
+- Recommended: Use Recharts Treemap with custom tile renderer that enforces constraints
+
 **Scaling Support:**
 - Component supports zoom/scale transformations
 - Maintains minimum width of 920px at all zoom levels
-- Preserves aspect ratio during scaling
+- Tile constraints apply at all zoom levels (150px minimum after scaling)
 - Scroll container adapts to scaled content
 
 **Implementation Example:**
@@ -397,10 +441,44 @@ App (layout.tsx + page.tsx)
     <Treemap
       data={sectors}
       dataKey="marketCap"
-      // ... other props
+      aspectRatio={1.618}  // Golden ratio maximum
+      isAnimationActive={false}
+      content={<CustomTile />}
     />
   </ResponsiveContainer>
 </div>
+```
+
+**Custom Tile Renderer with Constraints:**
+```typescript
+// apps/preview/src/components/Tile.tsx
+interface TileProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  // ... sector data
+}
+
+export function Tile({ x, y, width, height, ...props }: TileProps) {
+  // Validate tile dimensions
+  if (!width || !height || width < 150 || height < 150) {
+    return null; // Skip rendering invalid tiles
+  }
+
+  // Validate aspect ratio (square to golden ratio)
+  const ratio = width / height;
+  if (ratio < 1 || ratio > 1.618) {
+    console.warn(`Invalid tile aspect ratio: ${ratio.toFixed(2)}`);
+    return null;
+  }
+
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      {/* Tile content rendering */}
+    </g>
+  );
+}
 ```
 
 ### Visual Design (from Figma)
@@ -438,20 +516,27 @@ App (layout.tsx + page.tsx)
 - Tile color gradients maintain sufficient contrast in both themes
 
 **Tile Layout:**
+- **Dimensions**:
+  - Minimum: 150px × 150px (required for content display)
+  - Aspect ratio: 1:1 to 1:1.618 (square to golden ratio)
+  - No vertical rectangles allowed
 - **Top-left**: Sector name
   - Dark mode: `#ffffff` (white, 14-16px, font-weight: 600)
   - Light mode: `#111827` (gray-900, 14-16px, font-weight: 600)
+  - Requires minimum 150px width for proper display
 - **Top-right**: Breathing indicator dot (animated, frequency based on attentionLevel)
   - High attention (80-100): Fast pulse (0.8s cycle)
   - Medium attention (40-79): Medium pulse (1.5s cycle)
   - Low attention (0-39): Slow pulse (3s cycle)
+  - Size: 8px × 8px (fits in 150px minimum tile)
 - **Bottom-right**:
   - Capital flow (12px, format: "±¥XXX亿" with arrow icon)
     - Positive flow: Red color (matching market convention)
     - Negative flow: Green color (matching market convention)
   - Change percentage (10px, format: "+2.5%")
     - Color matches tile background gradient
-- **Padding**: 8-12px
+  - Requires minimum 150px width to avoid text truncation
+- **Padding**: 8-12px (accounts for in minimum 150px dimension)
 - **Border**: Theme-aware with accessible contrast (≥3:1)
 
 **Color Intensity Calculation:**
@@ -836,6 +921,14 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 12. ✅ Vertical scroll appears when height > 580px
 13. ✅ Height dynamically adjusts based on tile layout
 14. ✅ Component supports scaling/zoom operations
+
+### Tile Shape & Size
+15. ✅ All tiles have aspect ratio between 1:1 and 1:1.618 (verified)
+16. ✅ No vertical rectangles (width always ≥ height)
+17. ✅ All tiles meet minimum width: 150px (verified)
+18. ✅ All tiles meet minimum height: 150px (verified)
+19. ✅ Tile content is readable and properly displayed
+20. ✅ Invalid tiles are skipped or grouped appropriately
 
 ### Accessibility (WCAG 2.0 AA)
 9. ✅ Border-to-background contrast ≥ 3:1 in both themes
