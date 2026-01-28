@@ -354,6 +354,189 @@ export const mockSectors: Sector[] = [
 - Capital flow range: -¥720亿 to +¥1,050亿
 - Attention level range: 22 to 95 (varied breathing frequencies)
 
+### Sector Icon System (Lucide React)
+
+**Icon Specifications:**
+- Library: Lucide React (already in dependencies)
+- Size: 16-18px (consistent across all tiles)
+- Stroke-width: 2px (matches Lucide default)
+- Color: `rgba(255, 255, 255, 0.9)` (slightly transparent white)
+- Position: Left of sector name (top-left area)
+- Spacing: 6px gap between icon and text
+
+**Complete Icon Mapping (31 SW Level-1 Sectors):**
+
+| Sector | Icon Component | Visual Metaphor |
+|--------|----------------|-----------------|
+| 银行 (Banking) | `<Landmark />` | 传统金融基石 |
+| 电子 (Electronics) | `<Cpu />` | 核心硬件/半导体 |
+| 石油石化 (Petrochemical) | `<Droplets />` | 能源流体 |
+| 计算机 (IT/Software) | `<Monitor />` | 软件与显示 |
+| 医药 (Biotech) | `<Dna />` | 生命科学 |
+| 电力设备 (Power Equipment) | `<Zap />` | 电能与高压 |
+| 国防军工 (Defense) | `<ShieldCheck />` | 安全与防护 |
+| 有色金属 (Non-ferrous Metals) | `<Component />` | 工业原材料 |
+| 食品饮料 (F&B) | `<Utensils />` | 消费必需品 |
+| 房地产 (Real Estate) | `<Home />` | 空间与资产 |
+| 汽车 (Automotive) | `<CarFront />` | 交通载具 |
+| 通信 (Telecom) | `<Rss />` | 信号传输 |
+| 煤炭 (Coal) | `<Fuel />` | 化石能源 |
+| 钢铁 (Steel) | `<Anvil />` | 重工业金属 |
+| 基础化工 (Basic Chemicals) | `<FlaskConical />` | 化学合成 |
+| 建筑 (Construction) | `<HardHat />` | 工程建设 |
+| 建材 (Building Materials) | `<Boxes />` | 建造材料 |
+| 轻工制造 (Light Manufacturing) | `<Package />` | 轻量产品 |
+| 机械 (Machinery) | `<Cog />` | 机械设备 |
+| 商贸零售 (Retail) | `<ShoppingCart />` | 零售流通 |
+| 消费者服务 (Consumer Services) | `<Users />` | 服务人群 |
+| 家电 (Home Appliances) | `<TvMinimal />` | 家用电器 |
+| 纺织服装 (Textile & Apparel) | `<Shirt />` | 衣料制品 |
+| 农林牧渔 (Agriculture) | `<Sprout />` | 农业生产 |
+| 非银行金融 (Non-bank Finance) | `<TrendingUp />` | 金融市场 |
+| 交通运输 (Transportation) | `<Truck />` | 物流运输 |
+| 传媒 (Media) | `<Radio />` | 媒体传播 |
+| 电力及公用事业 (Utilities) | `<Lightbulb />` | 公共服务 |
+| 环保 (Environmental) | `<Leaf />` | 生态保护 |
+| 美容护理 (Beauty & Personal Care) | `<Sparkles />` | 美容护理 |
+| 农业 (Agriculture - if separate) | `<Tractor />` | 农机耕作 |
+
+**Icon Usage Example:**
+```typescript
+import {
+  Landmark, Cpu, Droplets, Monitor, Dna, Zap,
+  ShieldCheck, Component, Utensils, Home, CarFront, Rss,
+  Fuel, Anvil, FlaskConical, HardHat, Boxes, Package,
+  Cog, ShoppingCart, Users, TvMinimal, Shirt, Sprout,
+  TrendingUp, Truck, Radio, Lightbulb, Leaf, Sparkles, Tractor
+} from 'lucide-react';
+
+// Sector icon map
+const sectorIcons: Record<string, React.FC<LucideProps>> = {
+  '银行': Landmark,
+  '电子': Cpu,
+  '石油石化': Droplets,
+  '计算机': Monitor,
+  '医药': Dna,
+  '电力设备': Zap,
+  '国防军工': ShieldCheck,
+  '有色金属': Component,
+  '食品饮料': Utensils,
+  '房地产': Home,
+  '汽车': CarFront,
+  '通信': Rss,
+  '煤炭': Fuel,
+  '钢铁': Anvil,
+  '基础化工': FlaskConical,
+  '建筑': HardHat,
+  '建材': Boxes,
+  '轻工制造': Package,
+  '机械': Cog,
+  '商贸零售': ShoppingCart,
+  '消费者服务': Users,
+  '家电': TvMinimal,
+  '纺织服装': Shirt,
+  '农林牧渔': Sprout,
+  '非银行金融': TrendingUp,
+  '交通运输': Truck,
+  '传媒': Radio,
+  '电力及公用事业': Lightbulb,
+  '环保': Leaf,
+  '美容护理': Sparkles,
+  '农业': Tractor
+};
+
+// Get icon for sector
+const getSectorIcon = (sectorName: string) => {
+  return sectorIcons[sectorName] || Monitor; // Fallback to Monitor
+};
+```
+
+**Tile Layout with Icon:**
+```typescript
+// HeatMapTile.tsx
+<div className="tile-header absolute top-3 left-3 flex items-center gap-1.5">
+  {/* Sector icon */}
+  <SectorIcon
+    size={16}
+    strokeWidth={2}
+    className="text-white/90"
+  />
+
+  {/* Sector name */}
+  <h3 className="text-base font-semibold text-white">
+    {sectorName}
+  </h3>
+</div>
+```
+
+**Adaptive Icon Display:**
+```typescript
+// Content visibility rules with icon
+const getVisibleContent = (width: number, height: number) => {
+  const area = width * height;
+
+  if (area >= 30000) {  // Large tiles
+    return {
+      showIcon: true,        // Show icon
+      showName: true,
+      iconSize: 18,          // Larger icon
+      fontSize: 'base'
+    };
+  } else if (area >= 22500) {  // Medium tiles
+    return {
+      showIcon: true,        // Show icon
+      showName: true,
+      iconSize: 16,          // Standard icon
+      fontSize: 'sm'
+    };
+  } else {  // Minimum tiles
+    return {
+      showIcon: false,       // Hide icon to save space
+      showName: true,
+      iconSize: 0,
+      fontSize: 'xs'
+    };
+  }
+};
+```
+
+**Icon in Mock Data:**
+```typescript
+export const mockSectors: Sector[] = [
+  {
+    code: "801010",
+    name: "农林牧渔",
+    icon: "Sprout",         // Icon identifier
+    marketCap: 12500.0,
+    // ... other fields
+  },
+  {
+    code: "801980",
+    name: "电子",
+    icon: "Cpu",            // Icon identifier
+    marketCap: 38500.0,
+    // ... other fields
+  },
+  // ... rest of 31 sectors
+];
+```
+
+**Interface Update:**
+```typescript
+interface BaseEntity {
+  code: string;
+  name: string;
+  icon?: string;          // Icon name (e.g., "Cpu", "Landmark")
+  marketCap: number;
+  changePercent: number;
+  capitalFlow: number;
+  attentionLevel: number;
+  level: 1 | 2 | 3 | 4;
+  parent?: string;
+  hasChildren?: boolean;
+}
+```
+
 ### 4-Level Drill-Down Mock Data
 
 **Level 1: 一级行业 - 电子** (from existing 31 sectors)
@@ -1644,9 +1827,16 @@ const getColorIntensity = (changePercent: number): number => {
   - Aspect ratio: 1:1 to 1:1.618 (square to golden ratio)
   - No vertical rectangles allowed
   - Gap: 4px between tiles (glassmorphism aesthetic)
-- **Top-left**: Sector name
-  - Dark mode: `#ffffff` (white, 14-16px, font-weight: 600)
-  - Light mode: `#111827` (gray-900, 14-16px, font-weight: 600)
+- **Top-left**: Sector icon + name
+  - **Icon** (Lucide React):
+    - Size: 16-18px
+    - Color: `rgba(255, 255, 255, 0.9)`
+    - Margin-right: 6px (gap between icon and text)
+    - Stroke-width: 2px
+    - Visual metaphor for sector category
+  - **Name**:
+    - Dark mode: `#ffffff` (white, 14-16px, font-weight: 600)
+    - Light mode: `#111827` (gray-900, 14-16px, font-weight: 600)
   - Requires minimum 150px width for proper display
 - **Top-right**: Breathing indicator dot (animated, frequency based on attentionLevel)
   - High attention (80-100): Fast pulse (0.8s cycle)
@@ -2286,6 +2476,14 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 57. ✅ Breathing indicator dot at sparkline end (6px, 2s pulse)
 58. ✅ 30-day trend data for all sectors/stocks
 59. ✅ Smooth elastic transition (400ms cubic-bezier)
+
+### Visual Enhancement - Sector Icons
+60. ✅ Lucide icons for all 31 sectors (visual metaphors)
+61. ✅ Icon size: 16-18px, stroke-width: 2px
+62. ✅ Icon color: rgba(255, 255, 255, 0.9)
+63. ✅ Icon position: Left of sector name (6px gap)
+64. ✅ Adaptive icon display (hidden on smallest tiles)
+65. ✅ Icon identifier stored in mock data
 
 ### Layout & Dimensions
 9. ✅ Page displays HeatMap in full-width layout
