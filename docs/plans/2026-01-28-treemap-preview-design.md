@@ -111,43 +111,53 @@
 
 ---
 
-## Overview
+## 1. Overview
 
-Create an independent treemap visualization page for displaying 31 SW Level-1 sector indices. The application will be built as a standalone Next.js app (`apps/preview`) for rapid style iteration, then integrated into `apps/web` once finalized.
+### 1.1 Purpose & Scope
 
-## Design Source
+Create an independent HeatMap visualization page for displaying 31 SW Level-1 sector indices. The application will be built as a standalone Next.js app (`apps/preview`) for rapid UI/UX iteration, then integrated into `apps/web` once finalized.
+
+**Key Goals:**
+- Pure frontend development with mock data (no API in Phase 1)
+- Focus on visual design and glassmorphism effects
+- Support 4-level drill-down (sector → industry → sub-industry → stock)
+- Advanced 3D hover interactions with sparkline trends
+- Complete design independence from existing apps/web components
+
+### 1.2 Design Source
 
 **Figma:** https://www.figma.com/design/O52eqHmOTyh0tzZwpC7sl9/landing-page?node-id=524-11
-![Treemap Preview](./images/treemap.png)
 
-The design shows a heatmap visualization with:
-- Sector tiles sized by market capitalization
+**Visual Characteristics:**
+- Sector tiles sized proportionally by market capitalization
 - Color-coded by performance (Chinese market convention: **red=up, green=down**)
+- Glassmorphism aesthetic with backdrop blur and transparency
+- 4px gaps between tiles for crystal edge refraction
 - Tile displays: sector name (top-left), breathing indicator (top-right), capital flow + change% (bottom-right)
 - Supports light/dark theme with accessible border contrast (WCAG 2.0 AA: 3:1 minimum)
 
-## Architecture
+### 1.3 Key Features
 
-### System Flow
+**Visual Effects:**
+- ✅ Glassmorphism (backdrop-filter blur, semi-transparent layers)
+- ✅ 3D hover interaction (tile elevation, panel separation, sparkline reveal)
+- ✅ Framer Motion animations (drill-down, stagger, transitions)
+- ✅ Dynamic background with animated color blocks
+- ✅ Optional spotlight effect (mouse-following)
 
-```
-Browser (localhost:4300)
-    ↓
-apps/preview (Next.js + React)
-    ↓
-Mock Data (hardcoded in frontend)
-    ↓
-HeatMap Visualization (31 SW Level-1 Sectors)
-```
+**Interaction:**
+- ✅ 4-level drill-down navigation
+- ✅ Hover-triggered sparkline with 30-day trend
+- ✅ Breathing indicator (frequency based on attention level)
+- ✅ Sector icons (31 Lucide icons for visual metaphors)
 
-### Data Flow
+**Technical:**
+- ✅ Single Responsibility Principle (layout logic decoupled from UI)
+- ✅ Mock data for all 4 levels (31 sectors + sub-levels)
+- ✅ Adaptive content degradation (based on tile size)
+- ✅ Variable speed color mapping (non-linear intensity)
 
-1. **Frontend mock data** hardcoded array of 31 SW Level-1 sectors
-2. **Preview app** uses mock data directly for rendering
-3. **No API calls** - pure frontend development for UI iteration
-4. Pure display mode - no user interactions in initial version
-
-**Note:** API integration will be added later. Focus is on UI design and styling first.
+---
 
 ## Project Structure
 
