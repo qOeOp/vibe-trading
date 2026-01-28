@@ -366,7 +366,42 @@ App (layout.tsx + page.tsx)
 - `data`: Array of 31 sectors
 - `dataKey="marketCap"`: Determines tile size
 - Custom `content`: Renders `Tile` component
-- Responsive container with full viewport dimensions
+- Responsive sizing with constraints
+
+**Layout & Sizing Specifications:**
+
+**Page Layout:**
+- Full-width display of HeatMap component
+- No sidebar or additional UI elements
+- HeatMap fills the entire viewport area
+
+**HeatMap Container Dimensions:**
+- **Minimum width**: `920px`
+- **Maximum width**: `100vw` (full viewport width)
+- **Height**: Dynamic based on tile count and layout
+  - Treemap algorithm dynamically calculates tile positions
+  - Height adjusts automatically to fit all tiles
+  - **Maximum height**: `580px`
+  - **Overflow behavior**: When height > 580px, apply `overflow-y: scroll`
+
+**Scaling Support:**
+- Component supports zoom/scale transformations
+- Maintains minimum width of 920px at all zoom levels
+- Preserves aspect ratio during scaling
+- Scroll container adapts to scaled content
+
+**Implementation Example:**
+```typescript
+<div className="w-full min-w-[920px] max-h-[580px] overflow-y-auto">
+  <ResponsiveContainer width="100%" height="auto" minHeight={400}>
+    <Treemap
+      data={sectors}
+      dataKey="marketCap"
+      // ... other props
+    />
+  </ResponsiveContainer>
+</div>
+```
 
 ### Visual Design (from Figma)
 
@@ -484,20 +519,48 @@ module.exports = {
 
 ## Implementation Details
 
-### Data Usage
+### Data Usage & Page Implementation
 
 ```typescript
 // apps/preview/src/app/page.tsx
 import { mockSectors } from '@/data/mockSectors';
+import { HeatMap } from '@/components/HeatMap';
 
 export default function PreviewPage() {
-  // Use mock data directly - no API calls needed
-  const sectors = mockSectors;
-
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-[#0a0f0d]">
-      <HeatMap data={sectors} />
+    <main className="min-h-screen bg-gray-50 dark:bg-[#0a0f0d] p-0 m-0">
+      {/* Full-width container */}
+      <div className="w-full min-w-[920px]">
+        <HeatMap data={mockSectors} />
+      </div>
     </main>
+  );
+}
+```
+
+```typescript
+// apps/preview/src/components/HeatMap.tsx
+import { Treemap, ResponsiveContainer } from 'recharts';
+import { Tile } from './Tile';
+import type { Sector } from '@/types/sector';
+
+interface HeatMapProps {
+  data: Sector[];
+}
+
+export function HeatMap({ data }: HeatMapProps) {
+  return (
+    <div className="w-full min-w-[920px] max-h-[580px] overflow-y-auto">
+      <ResponsiveContainer width="100%" height="auto" minHeight={400}>
+        <Treemap
+          data={data}
+          dataKey="marketCap"
+          stroke="#fff"
+          fill="#8884d8"
+          content={<Tile />}
+        />
+      </ResponsiveContainer>
+    </div>
   );
 }
 ```
@@ -697,11 +760,60 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 - Green has neutral/cooling connotation → used for losses
 - This convention is standardized across all Chinese stock exchanges (SSE, SZSE, HKEX)
 
-## Responsive Design
+## Layout & Responsive Design
 
-- **Desktop (1920px+)**: Full treemap layout
-- **Tablet (768-1920px)**: Adaptive scaling
+### Page Structure
+
+**Preview Page (`/preview`):**
+```
+┌─────────────────────────────────────────┐
+│  Full-width HeatMap Container           │
+│  ┌───────────────────────────────────┐  │
+│  │                                   │  │
+│  │     HeatMap Component             │  │
+│  │     (920px - 100vw width)         │  │
+│  │     (auto - max 580px height)     │  │
+│  │                                   │  │
+│  │     [Tiles dynamically laid out]  │  │
+│  │                                   │  │
+│  └───────────────────────────────────┘  │
+│         ↑ Scrollable if > 580px         │
+└─────────────────────────────────────────┘
+```
+
+### HeatMap Dimensions
+
+| Property | Value | Behavior |
+|----------|-------|----------|
+| **Min Width** | `920px` | Hard minimum, component won't shrink below |
+| **Max Width** | `100vw` | Fills viewport width |
+| **Height** | `auto` | Dynamically calculated by Treemap algorithm |
+| **Max Height** | `580px` | Hard maximum ceiling |
+| **Overflow** | `scroll` | Vertical scroll when height > 580px |
+
+### Scaling Behavior
+
+**Zoom/Scale Support:**
+- Component supports CSS `transform: scale()` operations
+- Maintains 920px minimum width constraint at all zoom levels
+- Scroll container adjusts to scaled content dimensions
+- Preserves tile aspect ratios during scaling
+
+**Dynamic Height Calculation:**
+- Recharts Treemap algorithm computes optimal tile layout
+- Height auto-adjusts based on:
+  - Number of tiles (31 sectors)
+  - Available width
+  - Tile size distribution (market cap values)
+- If calculated height ≤ 580px: use calculated height
+- If calculated height > 580px: fix at 580px + enable scroll
+
+### Viewport Breakpoints
+
+- **Desktop (1920px+)**: Full width layout, optimal tile visibility
+- **Tablet (768-1920px)**: Adaptive width, maintains 920px minimum
 - **Mobile (<768px)**: Not prioritized (desktop-first visualization)
+  - If accessed on mobile: horizontal scroll appears due to 920px min-width
 
 ## Success Criteria
 
@@ -716,6 +828,14 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 6. ✅ **Chinese market colors**: RED for up, GREEN for down (verified)
 7. ✅ Light/dark theme toggle works correctly
 8. ✅ Breathing indicator animates at correct frequency
+
+### Layout & Dimensions
+9. ✅ Page displays HeatMap in full-width layout
+10. ✅ HeatMap minimum width: 920px (enforced)
+11. ✅ HeatMap maximum height: 580px (enforced)
+12. ✅ Vertical scroll appears when height > 580px
+13. ✅ Height dynamically adjusts based on tile layout
+14. ✅ Component supports scaling/zoom operations
 
 ### Accessibility (WCAG 2.0 AA)
 9. ✅ Border-to-background contrast ≥ 3:1 in both themes
