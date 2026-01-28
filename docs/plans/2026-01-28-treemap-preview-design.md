@@ -51,9 +51,12 @@ apps/preview/
 │       ├── layout.tsx           # Root layout with dark theme
 │       ├── page.tsx             # Main treemap page
 │       ├── components/
-│       │   ├── HeatMap.tsx      # HeatMap container component
-│       │   ├── Tile.tsx         # Individual sector tile
-│       │   └── BreathingDot.tsx # Breathing indicator component
+│       │   ├── HeatMap.tsx          # HeatMap container component
+│       │   ├── HeatMapHeader.tsx    # Header with title, breadcrumb, search, toggles
+│       │   ├── Breadcrumb.tsx       # Breadcrumb navigation component
+│       │   ├── SearchBox.tsx        # Search input with inline icon button
+│       │   ├── Tile.tsx             # Individual sector tile
+│       │   └── BreathingDot.tsx     # Breathing indicator component
 │       ├── types/
 │       │   └── sector.ts        # Sector data TypeScript types
 │       ├── data/
@@ -350,13 +353,118 @@ export const mockSectors: Sector[] = [
 
 ```
 App (layout.tsx + page.tsx)
-  └── HeatMap.tsx (data fetching & layout calculation)
-        └── Tile.tsx × 31 (individual sector tiles)
-              ├── Sector name (top-left)
-              ├── BreathingDot.tsx (top-right, frequency based on attentionLevel)
-              ├── Capital flow + Change % (bottom-right)
-              └── Background color (gradient based on change%)
+  └── HeatMap.tsx (container component)
+        ├── HeatMapHeader.tsx
+        │     ├── Title: "Market Performance" (left)
+        │     ├── Breadcrumb.tsx (below title)
+        │     │     └── "一级行业 > 二级行业 > 三级行业 > 股票"
+        │     ├── SearchBox.tsx (right)
+        │     │     ├── Input field (rounded rectangle)
+        │     │     └── Search icon (inline, clickable)
+        │     └── Two Toggles (right, after search)
+        │           ├── Toggle 1 (top)
+        │           └── Toggle 2 (bottom)
+        │
+        └── Treemap visualization (Recharts)
+              └── Tile.tsx × 31 (individual sector tiles)
+                    ├── Sector name (top-left)
+                    ├── BreathingDot.tsx (top-right, frequency based on attentionLevel)
+                    ├── Capital flow + Change % (bottom-right)
+                    └── Background color (gradient based on change%)
 ```
+
+### HeatMap Header Design
+
+**Header Structure:**
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ Market Performance              [Search...] [🔍] [T1] [T2] │
+│ 一级行业 > 二级行业 > 三级行业 > 股票                       │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Layout Breakdown:**
+
+**Left Section:**
+- **Title**: "Market Performance"
+  - Font size: 20-24px
+  - Font weight: 600 (semibold)
+  - Color: Theme-aware (white in dark, gray-900 in light)
+- **Breadcrumb** (below title):
+  - Text: "一级行业 > 二级行业 > 三级行业 > 股票"
+  - Font size: 12-14px
+  - Font weight: 400 (normal)
+  - Color: Theme-aware (gray-400 in dark, gray-600 in light)
+  - Separator: " > " (with spaces)
+  - Interactive: Clickable breadcrumb items (Phase 2)
+
+**Right Section (horizontally aligned):**
+
+**1. Search Box:**
+- Shape: Rounded rectangle
+- Border radius: 8px (matching tile radius)
+- Background: Theme-aware input background
+  - Dark mode: `rgba(255, 255, 255, 0.05)`
+  - Light mode: `#ffffff` with border
+- Border: Theme-aware
+  - Dark mode: `rgba(255, 255, 255, 0.1)`
+  - Light mode: `#d1d5db` (gray-300)
+- Height: 40px (reference height for toggles)
+- Width: 240-280px
+- Padding: 12px 16px
+- **Search Icon**:
+  - Position: Inline at right edge inside input
+  - Icon: Lucide `Search` icon
+  - Size: 20px
+  - Color: Theme-aware (gray-400)
+  - Clickable: Yes (triggers search)
+  - No visible button shape - icon is the affordance
+- **Placeholder**: "Search sectors..."
+- **Input styling**:
+  - Font size: 14px
+  - No outline on focus (use border color change)
+
+**2. Toggle Group (垂直排列):**
+- Position: Immediately after search box (8-12px gap)
+- Layout: Two toggles stacked vertically
+- Container height: 40px (matches search box height)
+- Each toggle height: ~18px (with 4px gap between)
+- Width: Auto (based on content, ~80-100px)
+- Styling: Standard toggle switches
+  - Background: Theme-aware
+  - Active state: Primary color
+  - Inactive state: Gray
+- **Toggle 1** (top): Purpose TBD (e.g., "Live" mode)
+- **Toggle 2** (bottom): Purpose TBD (e.g., "Compact" view)
+
+**Header Layout (Flexbox):**
+```typescript
+<div className="flex items-start justify-between p-4 pb-2">
+  {/* Left section */}
+  <div className="flex flex-col gap-1">
+    <h1 className="text-2xl font-semibold">Market Performance</h1>
+    <Breadcrumb items={["一级行业", "二级行业", "三级行业", "股票"]} />
+  </div>
+
+  {/* Right section */}
+  <div className="flex items-center gap-3">
+    <SearchBox placeholder="Search sectors..." />
+    <div className="flex flex-col gap-1 h-[40px] justify-between">
+      <Toggle label="Toggle 1" />
+      <Toggle label="Toggle 2" />
+    </div>
+  </div>
+</div>
+```
+
+**Header Dimensions:**
+- Height: Auto (~60-80px depending on content)
+- Padding: 16px horizontal, 12px vertical
+- Background: Transparent (inherits from page)
+- Border bottom: Optional subtle separator
+  - Dark mode: `rgba(255, 255, 255, 0.05)`
+  - Light mode: `#e5e7eb` (gray-200)
 
 ### HeatMap Implementation
 
@@ -376,13 +484,15 @@ App (layout.tsx + page.tsx)
 - HeatMap fills the entire viewport area
 
 **HeatMap Container Dimensions:**
-- **Minimum width**: `920px`
-- **Maximum width**: `100vw` (full viewport width)
-- **Height**: Dynamic based on tile count and layout
+- **Total minimum width**: `920px`
+- **Total maximum width**: `100vw` (full viewport width)
+- **Header height**: Fixed (auto, based on content ~60-80px)
+- **Treemap area height**: Dynamic based on tile count and layout
   - Treemap algorithm dynamically calculates tile positions
   - Height adjusts automatically to fit all tiles
-  - **Maximum height**: `580px`
-  - **Overflow behavior**: When height > 580px, apply `overflow-y: scroll`
+  - **Maximum treemap height**: `580px` (excludes header)
+  - **Total max height**: Header height + 580px + padding
+  - **Overflow behavior**: When treemap height > 580px, apply `overflow-y: scroll`
 - **Padding (Container)**: `8px` on all sides
   - **Critical**: Prevents scrollbar UI from overlapping with tiles
   - Creates visual breathing room around HeatMap
@@ -683,6 +793,7 @@ export default function PreviewPage() {
 ```typescript
 // apps/preview/src/components/HeatMap.tsx
 import { Treemap, ResponsiveContainer } from 'recharts';
+import { HeatMapHeader } from './HeatMapHeader';
 import { Tile } from './Tile';
 import type { Sector } from '@/types/sector';
 
@@ -692,21 +803,139 @@ interface HeatMapProps {
 
 export function HeatMap({ data }: HeatMapProps) {
   return (
-    <div className="w-full min-w-[920px] max-h-[580px] overflow-y-auto p-2">
-      {/*
-        p-2 = 8px padding on all sides
-        Prevents scrollbar from overlapping with tiles when overflow occurs
-      */}
-      <ResponsiveContainer width="100%" height="auto" minHeight={400}>
-        <Treemap
-          data={data}
-          dataKey="marketCap"
-          stroke="#fff"
-          fill="#8884d8"
-          content={<Tile />}
-        />
-      </ResponsiveContainer>
+    <div className="w-full min-w-[920px]">
+      {/* Header */}
+      <HeatMapHeader />
+
+      {/* Treemap visualization area */}
+      <div className="max-h-[580px] overflow-y-auto p-2">
+        {/*
+          p-2 = 8px padding on all sides
+          Prevents scrollbar from overlapping with tiles when overflow occurs
+          max-h-[580px] applies to treemap area only (excludes header)
+        */}
+        <ResponsiveContainer width="100%" height="auto" minHeight={400}>
+          <Treemap
+            data={data}
+            dataKey="marketCap"
+            stroke="#fff"
+            fill="#8884d8"
+            content={<Tile />}
+          />
+        </ResponsiveContainer>
+      </div>
     </div>
+  );
+}
+```
+
+```typescript
+// apps/preview/src/components/HeatMapHeader.tsx
+import { Breadcrumb } from './Breadcrumb';
+import { SearchBox } from './SearchBox';
+import { Search } from 'lucide-react';
+
+export function HeatMapHeader() {
+  return (
+    <div className="flex items-start justify-between p-4 pb-2 border-b border-gray-200 dark:border-white/5">
+      {/* Left section */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+          Market Performance
+        </h1>
+        <Breadcrumb
+          items={["一级行业", "二级行业", "三级行业", "股票"]}
+          separator=" > "
+        />
+      </div>
+
+      {/* Right section */}
+      <div className="flex items-center gap-3">
+        <SearchBox placeholder="Search sectors..." />
+
+        {/* Toggle group - vertically stacked */}
+        <div className="flex flex-col gap-1 h-[40px] justify-between">
+          <Toggle label="Toggle 1" size="sm" />
+          <Toggle label="Toggle 2" size="sm" />
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+```typescript
+// apps/preview/src/components/SearchBox.tsx
+import { Search } from 'lucide-react';
+import { useState } from 'react';
+
+interface SearchBoxProps {
+  placeholder?: string;
+  onSearch?: (query: string) => void;
+}
+
+export function SearchBox({ placeholder = "Search...", onSearch }: SearchBoxProps) {
+  const [query, setQuery] = useState('');
+
+  const handleSearch = () => {
+    if (onSearch) {
+      onSearch(query);
+    }
+  };
+
+  return (
+    <div className="relative w-[260px]">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+        placeholder={placeholder}
+        className="
+          w-full h-[40px] px-4 pr-10
+          bg-white/5 dark:bg-white/5
+          border border-gray-300 dark:border-white/10
+          rounded-lg
+          text-sm text-gray-900 dark:text-white
+          placeholder:text-gray-500 dark:placeholder:text-gray-400
+          focus:outline-none focus:border-primary-500
+          transition-colors
+        "
+      />
+      {/* Inline search icon button */}
+      <button
+        onClick={handleSearch}
+        className="
+          absolute right-3 top-1/2 -translate-y-1/2
+          text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+          transition-colors
+        "
+        aria-label="Search"
+      >
+        <Search size={20} />
+      </button>
+    </div>
+  );
+}
+```
+
+```typescript
+// apps/preview/src/components/Breadcrumb.tsx
+interface BreadcrumbProps {
+  items: string[];
+  separator?: string;
+}
+
+export function Breadcrumb({ items, separator = " > " }: BreadcrumbProps) {
+  return (
+    <nav className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+      {items.map((item, index) => (
+        <span key={index}>
+          {item}
+          {index < items.length - 1 && <span className="mx-1">{separator}</span>}
+        </span>
+      ))}
+    </nav>
   );
 }
 ```
@@ -967,20 +1196,28 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 
 **Preview Page (`/preview`):**
 ```
-┌─────────────────────────────────────────┐
-│  Full-width HeatMap Container           │
-│  ┌───────────────────────────────────┐  │
-│ 8│                                   │8 │ ← 8px padding
-│ p│     HeatMap Component             │p │
-│ x│     (920px - 100vw width)         │x │
-│  │     (auto - max 580px height)     │  │
-│ 8│                                   │8 │
-│ p│     [Tiles dynamically laid out]  │p │
-│ x│                                   │x │ ← Scrollbar appears here
-│  └───────────────────────────────────┘  │   when height > 580px
-│         ↑ Scrollable if > 580px         │   (padding prevents overlap)
-└─────────────────────────────────────────┘
-      8px padding bottom
+┌──────────────────────────────────────────────────────────┐
+│  HeatMap Container (920px - 100vw width)                 │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ Header (fixed height ~60-80px)                     │  │
+│  │ ┌────────────────────────────────────────────────┐ │  │
+│  │ │ Market Performance    [Search] [🔍] [T1] [T2] │ │  │
+│  │ │ 一级行业 > 二级行业 > 三级行业 > 股票          │ │  │
+│  │ └────────────────────────────────────────────────┘ │  │
+│  │                                                    │  │
+│  │ Treemap Area (max 580px height)                   │  │
+│  │ ┌────────────────────────────────────────────┐    │  │
+│ 8│ │                                            │    │8 │ ← 8px padding
+│ p│ │     [Tiles dynamically laid out]           │    │p │
+│ x│ │                                            │    │x │
+│  │ │                                            │    │  │
+│ 8│ │                                            │    │8 │
+│ p│ │                                            │    │p │
+│ x│ │                                            │    │x │ ← Scrollbar here
+│  │ └────────────────────────────────────────────┘    │  │   if > 580px
+│  │         ↑ Scrollable if > 580px                   │  │
+│  └────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ### HeatMap Dimensions
@@ -1031,6 +1268,15 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 6. ✅ **Chinese market colors**: RED for up, GREEN for down (verified)
 7. ✅ Light/dark theme toggle works correctly
 8. ✅ Breathing indicator animates at correct frequency
+
+### Header Components
+22. ✅ Header displays "Market Performance" title (left aligned)
+23. ✅ Breadcrumb navigation below title ("一级行业 > 二级行业 > 三级行业 > 股票")
+24. ✅ Search box with inline icon (right aligned, rounded rectangle)
+25. ✅ Search icon clickable, no visible button shape
+26. ✅ Two toggles vertically stacked after search box
+27. ✅ Toggle group height matches search box height (40px)
+28. ✅ Header layout responsive and properly aligned
 
 ### Layout & Dimensions
 9. ✅ Page displays HeatMap in full-width layout
@@ -1171,9 +1417,12 @@ Not provided - focus on implementation tasks, not time predictions.
 3. Set up preview Next.js application structure
 4. **Use Figma MCP tools** to extract detailed component specs
 5. Implement mock data (31 SW sectors)
-6. **Use `/ui-ux-pro-max` skill** to build HeatMap component
-7. **Use `/ui-ux-pro-max` skill** to build Tile component
-8. **Use `/ui-ux-pro-max` skill** to build BreathingDot component
-9. Add light/dark theme support with next-themes
-10. Style refinement iterations (compare with Figma)
-11. Integration into apps/web (selective, not wholesale)
+6. **Use `/ui-ux-pro-max` skill** to build HeatMapHeader component
+7. **Use `/ui-ux-pro-max` skill** to build SearchBox component
+8. **Use `/ui-ux-pro-max` skill** to build Breadcrumb component
+9. **Use `/ui-ux-pro-max` skill** to build HeatMap container component
+10. **Use `/ui-ux-pro-max` skill** to build Tile component
+11. **Use `/ui-ux-pro-max` skill** to build BreathingDot component
+12. Add light/dark theme support with next-themes
+13. Style refinement iterations (compare with Figma)
+14. Integration into apps/web (selective, not wholesale)
