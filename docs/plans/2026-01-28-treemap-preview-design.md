@@ -487,12 +487,19 @@ export function Tile({ x, y, width, height, ...props }: TileProps) {
 
 **⚠️ Important: Chinese market uses RED for UP, GREEN for DOWN (opposite of Western markets)**
 
-- **Positive/Up (Red)**: `#7d1f2e` (deep) to `#a52a3a` (medium)
-  - OKLCH: `oklch(0.35-0.45 0.18 15)` with intensity based on change%
+- **Positive/Up (Red)**:
+  - Medium (base): `#D52CA2` ⭐ **Primary red for moderate gains**
+  - Deep (high gains): Darker red gradient
+  - Light (low gains): Lighter red gradient
   - Used when `changePercent > 0`
-- **Negative/Down (Green)**: `#0d7d5e` (deep) to `#1aa179` (medium)
-  - OKLCH: `oklch(0.45-0.55 0.15 150)` with intensity based on change%
+  - Color intensity varies based on change% magnitude
+
+- **Negative/Down (Green)**:
+  - Medium (base): `#039160` ⭐ **Primary green for moderate losses**
+  - Deep (high losses): Darker green gradient
+  - Light (low losses): Lighter green gradient
   - Used when `changePercent < 0`
+  - Color intensity varies based on change% magnitude
 
 **Theme Support:**
 
@@ -543,6 +550,15 @@ export function Tile({ x, y, width, height, ...props }: TileProps) {
 ```typescript
 // Map change% to color intensity (0-5% range)
 const intensity = Math.min(Math.abs(changePercent) / 5, 1);
+
+// Color progression examples:
+// +0.5%  → Light red (#F08FC8)
+// +2.5%  → Medium red (#D52CA2) ⭐
+// +5.0%  → Deep red (#A52380)
+
+// -0.5%  → Light green (#05C588)
+// -2.5%  → Medium green (#039160) ⭐
+// -5.0%  → Deep green (#026B45)
 ```
 
 ## Technical Stack
@@ -654,25 +670,80 @@ export function HeatMap({ data }: HeatMapProps) {
 
 **Chinese Market Convention: Red = UP, Green = DOWN**
 
+**Base Colors:**
+- Red (up) medium: `#D52CA2`
+- Green (down) medium: `#039160`
+
 ```typescript
 function getSectorColor(changePercent: number, theme: 'light' | 'dark' = 'dark'): string {
   // Chinese market: positive change = RED, negative change = GREEN
+
   if (changePercent > 0) {
-    // UP = RED
-    const intensity = Math.min(changePercent / 5, 1);
-    const lightness = theme === 'light' ? 0.40 : 0.35;
-    return `oklch(${lightness + intensity * 0.1} 0.18 15)`;
+    // UP = RED gradient based on intensity
+    const intensity = Math.min(Math.abs(changePercent) / 5, 1); // 0-1 scale, max at 5%
+
+    if (theme === 'dark') {
+      // Dark mode: gradient from medium red (#D52CA2) to lighter/darker
+      if (intensity < 0.5) {
+        // Low gain: lighter red
+        return interpolateColor('#F08FC8', '#D52CA2', intensity * 2);
+      } else {
+        // High gain: deeper red
+        return interpolateColor('#D52CA2', '#A52380', (intensity - 0.5) * 2);
+      }
+    } else {
+      // Light mode: adjusted for contrast
+      if (intensity < 0.5) {
+        return interpolateColor('#E87DB8', '#D52CA2', intensity * 2);
+      } else {
+        return interpolateColor('#D52CA2', '#B52390', (intensity - 0.5) * 2);
+      }
+    }
   } else if (changePercent < 0) {
-    // DOWN = GREEN
-    const intensity = Math.min(Math.abs(changePercent) / 5, 1);
-    const lightness = theme === 'light' ? 0.50 : 0.45;
-    return `oklch(${lightness + intensity * 0.1} 0.15 150)`;
+    // DOWN = GREEN gradient based on intensity
+    const intensity = Math.min(Math.abs(changePercent) / 5, 1); // 0-1 scale, max at 5%
+
+    if (theme === 'dark') {
+      // Dark mode: gradient from medium green (#039160) to lighter/darker
+      if (intensity < 0.5) {
+        // Low loss: lighter green
+        return interpolateColor('#05C588', '#039160', intensity * 2);
+      } else {
+        // High loss: deeper green
+        return interpolateColor('#039160', '#026B45', (intensity - 0.5) * 2);
+      }
+    } else {
+      // Light mode: adjusted for contrast
+      if (intensity < 0.5) {
+        return interpolateColor('#04B876', '#039160', intensity * 2);
+      } else {
+        return interpolateColor('#039160', '#027650', (intensity - 0.5) * 2);
+      }
+    }
   } else {
     // No change = neutral gray
     return theme === 'light' ? '#9ca3af' : '#6b7280';
   }
 }
+
+// Helper function to interpolate between two hex colors
+function interpolateColor(color1: string, color2: string, factor: number): string {
+  const c1 = hexToRgb(color1);
+  const c2 = hexToRgb(color2);
+
+  const r = Math.round(c1.r + (c2.r - c1.r) * factor);
+  const g = Math.round(c1.g + (c2.g - c1.g) * factor);
+  const b = Math.round(c1.b + (c2.b - c1.b) * factor);
+
+  return rgbToHex(r, g, b);
+}
 ```
+
+**Color Gradient Strategy:**
+- **0-2.5% change**: Gradient from light to medium color
+- **2.5-5% change**: Gradient from medium to deep color
+- **> 5% change**: Deep color (maximum intensity)
+- Medium colors (`#D52CA2` for red, `#039160` for green) appear at ~2.5% change
 
 ### Data Formatting
 
