@@ -3203,77 +3203,22 @@ cp -r apps/preview/src/app/* apps/web/src/app/preview/
 
 ## 11. Success Criteria
 
-### Functionality
+### 11.1 Functionality (1-4)
+
 1. ✅ Independent app runs on port 4300
 2. ✅ Displays 31 SW Level-1 sectors correctly
 3. ✅ Tile sizes proportional to market cap
-4. ✅ Data fetches correctly from market-data service via API
+4. ✅ Mock data renders without errors
 
-### Visual Design
+### 11.2 Visual Design (5-8)
+
 5. ✅ Matches Figma visual design (layout, typography, spacing)
 6. ✅ **Chinese market colors**: RED for up, GREEN for down (verified)
 7. ✅ Light/dark theme toggle works correctly
 8. ✅ Breathing indicator animates at correct frequency
 
-### Header Components
-22. ✅ Header displays "Market Performance" title (left aligned)
-23. ✅ Breadcrumb navigation below title ("一级行业 > 二级行业 > 三级行业 > 股票")
-24. ✅ Search box with inline icon (right aligned, rounded rectangle)
-25. ✅ Search icon clickable, no visible button shape
-26. ✅ Two toggles vertically stacked after search box
-27. ✅ Toggle group height matches search box height (40px)
-28. ✅ Header layout responsive and properly aligned
+### 11.3 Layout & Dimensions (9-16)
 
-### Architecture & Code Quality
-29. ✅ **Layout calculation (useTreeMap) decoupled from UI rendering (HeatMapTile)**
-30. ✅ Single Responsibility Principle enforced
-31. ✅ 4-level drill-down state management (useDrillDown hook)
-32. ✅ Mock data for all 4 levels (L1: 电子, L2: 8 industries, L3: 7 sub-industries, L4: 15 stocks)
-
-### Glassmorphism Visual Effects
-33. ✅ Tile gap: 4px (crystal edge refraction aesthetic)
-34. ✅ Backdrop-filter blur(12px) glass effect
-35. ✅ Semi-transparent background with color tint
-36. ✅ Linear gradient borders (glass edge simulation)
-37. ✅ Inset box-shadow (surface texture)
-38. ✅ Drop shadow (0 10px 20px) for depth
-39. ✅ Text with shadow (floating above glass effect)
-40. ✅ Dynamic background with animated color blocks (60-100px blur)
-41. ✅ Spotlight effect (mouse-following, optional, configurable)
-
-### Animation System
-42. ✅ Framer Motion AnimatePresence integration
-43. ✅ Drill-down animation (expand from parent coordinate)
-44. ✅ Drill-up animation (reverse shrink to parent)
-45. ✅ Performance optimization (disable backdrop-filter during animation)
-46. ✅ Stagger animation (tiles appear with 20ms delay)
-
-### Advanced Features
-47. ✅ Adaptive content degradation (based on tile size)
-48. ✅ Variable speed linear mapping (color intensity)
-49. ✅ 4-level drill-down support (一级→二级→三级→股票)
-
-### 3D Hover Interaction
-50. ✅ Tile lifts on hover (Y-axis -12px elevation)
-51. ✅ Enhanced shadow depth during hover
-52. ✅ Bottom 1/3 panel separates from tile
-53. ✅ Panel rotates along Z-axis (3deg right tilt)
-54. ✅ Panel becomes transparent glass (opacity 0.3)
-55. ✅ Original content (capital flow + change%) fades out
-56. ✅ Sparkline chart fades in (2px stroke, smooth curve)
-57. ✅ Breathing indicator dot at sparkline end (6px, 2s pulse)
-58. ✅ 30-day trend data for all sectors/stocks
-59. ✅ Smooth elastic transition (400ms cubic-bezier)
-
-### Visual Enhancement - Sector Icons
-60. ✅ Lucide icons for all 31 sectors (visual metaphors)
-61. ✅ Icon size: 16-18px, stroke-width: 2px
-62. ✅ Icon color: rgba(255, 255, 255, 0.9)
-63. ✅ Icon position: Left of sector name (6px gap)
-64. ✅ Adaptive icon display (hidden on smallest tiles)
-65. ✅ Icon identifier stored in mock data
-
-### Layout & Dimensions
 9. ✅ Page displays HeatMap in full-width layout
 10. ✅ HeatMap minimum width: 920px (enforced)
 11. ✅ HeatMap maximum height: 580px (enforced)
@@ -3283,34 +3228,96 @@ cp -r apps/preview/src/app/* apps/web/src/app/preview/
 15. ✅ Height dynamically adjusts based on tile layout
 16. ✅ Component supports scaling/zoom operations
 
-### Tile Shape & Size
-15. ✅ All tiles have aspect ratio between 1:1 and 1:1.618 (verified)
-16. ✅ No vertical rectangles (width always ≥ height)
-17. ✅ All tiles meet minimum width: 150px (verified)
-18. ✅ All tiles meet minimum height: 150px (verified)
-19. ✅ Tile content is readable and properly displayed
-20. ✅ **All 31 sectors displayed** (no grouping, no exclusions)
-21. ✅ **No "Others" category** (every sector shown individually)
+### 11.4 Tile Shape & Size (17-21)
 
-### Accessibility (WCAG 2.0 AA)
-9. ✅ Border-to-background contrast ≥ 3:1 in both themes
-10. ✅ Text-to-background contrast ≥ 4.5:1 in both themes
-11. ✅ Color is not the only means of conveying information (use text labels)
-12. ✅ Tile gradients maintain sufficient contrast
+17. ✅ All tiles have aspect ratio between 1:1 and 1:1.618 (verified)
+18. ✅ No vertical rectangles (width always ≥ height)
+19. ✅ All tiles meet minimum width: 150px (verified)
+20. ✅ All tiles meet minimum height: 150px (verified)
+21. ✅ Tile content is readable and properly displayed
 
-### Code Quality
-13. ✅ Clean, maintainable code structure
-14. ✅ TypeScript types are explicit and correct
-15. ✅ Components follow single responsibility principle
-16. ✅ **Zero imports from apps/web** (complete independence)
-17. ✅ Components built using `/ui-ux-pro-max` skill patterns
-18. ✅ Design specs extracted from Figma using MCP tools
-19. ✅ Easy integration path into apps/web
+### 11.5 Header Components (22-28)
 
-### Performance
-17. ✅ Fast iteration for style adjustments
-18. ✅ Smooth breathing animations (no jank)
-19. ✅ Responsive to theme changes
+22. ✅ Header displays "Market Performance" title (left aligned)
+23. ✅ Breadcrumb navigation below title
+24. ✅ Search box with inline icon (rounded rectangle)
+25. ✅ Search icon clickable, no visible button shape
+26. ✅ Two toggles vertically stacked after search box
+27. ✅ Toggle group height matches search box (40px)
+28. ✅ Header layout responsive and properly aligned
+
+### 11.6 Architecture & Code Quality (29-32)
+
+29. ✅ Layout calculation (useTreeMap) decoupled from UI (HeatMapTile)
+30. ✅ Single Responsibility Principle enforced
+31. ✅ 4-level drill-down state management (useDrillDown)
+32. ✅ Mock data for all 4 levels complete
+
+### 11.7 Glassmorphism Effects (33-41)
+
+33. ✅ Tile gap: 4px (crystal edge aesthetic)
+34. ✅ Backdrop-filter blur(12px) glass effect
+35. ✅ Semi-transparent background with color tint
+36. ✅ Linear gradient borders (glass edge simulation)
+37. ✅ Inset box-shadow (surface texture)
+38. ✅ Drop shadow (0 10px 20px) for depth
+39. ✅ Text with shadow (floating above glass)
+40. ✅ Dynamic background (60-100px blur)
+41. ✅ Spotlight effect (optional, configurable)
+
+### 11.8 Animation System (42-46)
+
+42. ✅ Framer Motion AnimatePresence integration
+43. ✅ Drill-down animation (expand from parent)
+44. ✅ Drill-up animation (reverse shrink)
+45. ✅ Performance optimization (disable backdrop-filter during animation)
+46. ✅ Stagger animation (20ms delay between tiles)
+
+### 11.9 Advanced Features (47-49)
+
+47. ✅ Adaptive content degradation (based on tile size)
+48. ✅ Variable speed linear mapping (color intensity)
+49. ✅ 4-level drill-down support (一级→二级→三级→股票)
+
+### 11.10 3D Hover Interaction (50-59)
+
+50. ✅ Tile lifts on hover (-12px Y-axis)
+51. ✅ Enhanced shadow depth during hover
+52. ✅ Bottom 1/3 panel separates from tile
+53. ✅ Panel rotates along Z-axis (3deg right tilt)
+54. ✅ Panel becomes transparent glass (0.3 opacity)
+55. ✅ Original content fades out (capital flow + change%)
+56. ✅ Sparkline chart fades in (2px stroke)
+57. ✅ Breathing indicator dot at sparkline end (6px, 2s pulse)
+58. ✅ 30-day trend data for all sectors/stocks
+59. ✅ Smooth elastic transition (400ms cubic-bezier)
+
+### 11.11 Sector Icons (60-65)
+
+60. ✅ Lucide icons for all 31 sectors (visual metaphors)
+61. ✅ Icon size: 16-18px, stroke-width: 2px
+62. ✅ Icon color: rgba(255, 255, 255, 0.9)
+63. ✅ Icon position: Left of sector name (6px gap)
+64. ✅ Adaptive icon display (hidden on smallest tiles)
+65. ✅ Icon identifier stored in mock data
+
+### 11.12 Header Scroll Effects (66-71)
+
+66. ✅ Header bottom edge gradient mask (80-100% fade)
+67. ✅ Tiles fade naturally when scrolling under header
+68. ✅ Background opacity transitions (0.2 → 0.6)
+69. ✅ Shadow enhances during scroll (subtle → deep)
+70. ✅ Smooth 300ms transition between states
+71. ✅ Scroll state tracked and applied correctly
+
+### 11.13 Sparkline Animations (72-77)
+
+72. ✅ Area fill gradient (cyan → transparent)
+73. ✅ Stroke-dasharray animation (0.4s draw)
+74. ✅ Line draws from left to right
+75. ✅ Breathing dot appears after line (0.4s delay)
+76. ✅ Dot scale animation (0 → 1)
+77. ✅ Continuous breathing pulse (2s cycle)
 
 ## Non-Goals
 
