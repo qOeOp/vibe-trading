@@ -383,6 +383,10 @@ App (layout.tsx + page.tsx)
   - Height adjusts automatically to fit all tiles
   - **Maximum height**: `580px`
   - **Overflow behavior**: When height > 580px, apply `overflow-y: scroll`
+- **Padding (Container)**: `8px` on all sides
+  - **Critical**: Prevents scrollbar UI from overlapping with tiles
+  - Creates visual breathing room around HeatMap
+  - Ensures scrollbar doesn't obscure tile content when visible
 
 **Tile Shape & Size Constraints:**
 
@@ -436,7 +440,8 @@ const isValidTile = (width: number, height: number): boolean => {
 
 **Implementation Example:**
 ```typescript
-<div className="w-full min-w-[920px] max-h-[580px] overflow-y-auto">
+<div className="w-full min-w-[920px] max-h-[580px] overflow-y-auto p-2">
+  {/* p-2 = 8px padding on all sides (Tailwind) */}
   <ResponsiveContainer width="100%" height="auto" minHeight={400}>
     <Treemap
       data={sectors}
@@ -448,6 +453,12 @@ const isValidTile = (width: number, height: number): boolean => {
   </ResponsiveContainer>
 </div>
 ```
+
+**Why 8px Padding?**
+1. **Scrollbar overlap prevention**: When `overflow-y: scroll` is active, the scrollbar appears on the right edge. Without padding, tiles can extend to the edge and be partially obscured by the scrollbar UI.
+2. **Visual breathing room**: Creates consistent spacing around the entire HeatMap visualization.
+3. **Browser consistency**: Different browsers render scrollbars differently (overlay vs. always visible). 8px padding ensures tiles are never hidden regardless of browser behavior.
+4. **Accessibility**: Provides clear visual separation between interactive scrollbar and tile content.
 
 **Custom Tile Renderer with Constraints:**
 ```typescript
@@ -651,7 +662,11 @@ interface HeatMapProps {
 
 export function HeatMap({ data }: HeatMapProps) {
   return (
-    <div className="w-full min-w-[920px] max-h-[580px] overflow-y-auto">
+    <div className="w-full min-w-[920px] max-h-[580px] overflow-y-auto p-2">
+      {/*
+        p-2 = 8px padding on all sides
+        Prevents scrollbar from overlapping with tiles when overflow occurs
+      */}
       <ResponsiveContainer width="100%" height="auto" minHeight={400}>
         <Treemap
           data={data}
@@ -925,16 +940,17 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 ┌─────────────────────────────────────────┐
 │  Full-width HeatMap Container           │
 │  ┌───────────────────────────────────┐  │
-│  │                                   │  │
-│  │     HeatMap Component             │  │
-│  │     (920px - 100vw width)         │  │
+│ 8│                                   │8 │ ← 8px padding
+│ p│     HeatMap Component             │p │
+│ x│     (920px - 100vw width)         │x │
 │  │     (auto - max 580px height)     │  │
-│  │                                   │  │
-│  │     [Tiles dynamically laid out]  │  │
-│  │                                   │  │
-│  └───────────────────────────────────┘  │
-│         ↑ Scrollable if > 580px         │
+│ 8│                                   │8 │
+│ p│     [Tiles dynamically laid out]  │p │
+│ x│                                   │x │ ← Scrollbar appears here
+│  └───────────────────────────────────┘  │   when height > 580px
+│         ↑ Scrollable if > 580px         │   (padding prevents overlap)
 └─────────────────────────────────────────┘
+      8px padding bottom
 ```
 
 ### HeatMap Dimensions
@@ -946,6 +962,7 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 | **Height** | `auto` | Dynamically calculated by Treemap algorithm |
 | **Max Height** | `580px` | Hard maximum ceiling |
 | **Overflow** | `scroll` | Vertical scroll when height > 580px |
+| **Padding** | `8px` | All sides, prevents scrollbar overlap with tiles |
 
 ### Scaling Behavior
 
@@ -989,9 +1006,11 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 9. ✅ Page displays HeatMap in full-width layout
 10. ✅ HeatMap minimum width: 920px (enforced)
 11. ✅ HeatMap maximum height: 580px (enforced)
-12. ✅ Vertical scroll appears when height > 580px
-13. ✅ Height dynamically adjusts based on tile layout
-14. ✅ Component supports scaling/zoom operations
+12. ✅ HeatMap container padding: 8px all sides (enforced)
+13. ✅ Vertical scroll appears when height > 580px
+14. ✅ Scrollbar does NOT overlap with tiles (8px padding prevents)
+15. ✅ Height dynamically adjusts based on tile layout
+16. ✅ Component supports scaling/zoom operations
 
 ### Tile Shape & Size
 15. ✅ All tiles have aspect ratio between 1:1 and 1:1.618 (verified)
