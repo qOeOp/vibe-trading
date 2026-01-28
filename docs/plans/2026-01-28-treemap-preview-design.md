@@ -210,55 +210,60 @@ HeatMap Visualization
 
 ---
 
-## Project Structure
+## 4. Data Model & Mock Data
 
-```
-apps/preview/
-├── src/
-│   └── app/
-│       ├── layout.tsx           # Root layout with dark theme
-│       ├── page.tsx             # Main treemap page
-│       ├── components/
-│       │   ├── HeatMap.tsx          # HeatMap container component
-│       │   ├── HeatMapHeader.tsx    # Header with title, breadcrumb, search, toggles
-│       │   ├── Breadcrumb.tsx       # Breadcrumb navigation component
-│       │   ├── SearchBox.tsx        # Search input with inline icon button
-│       │   ├── HeatMapTile.tsx      # UI rendering component (glassmorphism)
-│       │   ├── TileBottomPanel.tsx  # Bottom 1/3 panel with 3D transform
-│       │   ├── Sparkline.tsx        # Mini trend line chart (2px stroke)
-│       │   ├── BreathingDot.tsx     # Breathing indicator component
-│       │   ├── DynamicBackground.tsx # Blurred color blocks background
-│       │   └── SpotlightEffect.tsx  # Mouse-following highlight (optional)
-│       ├── hooks/
-│       │   ├── useTreeMap.ts        # Layout calculation logic (decoupled)
-│       │   └── useDrillDown.ts      # 4-level drill-down state management
-│       ├── types/
-│       │   └── sector.ts        # Sector data TypeScript types
-│       ├── data/
-│       │   └── mockSectors.ts   # Mock data for 31 SW sectors
-│       └── globals.css          # Tailwind CSS imports
-├── tailwind.config.ts           # Independent Tailwind config
-├── tsconfig.json                # TypeScript configuration
-├── next.config.js               # Next.js config (static export)
-└── project.json                 # Nx target configuration
-```
+### 4.1 Type Definitions
 
-## Data Model
-
-### Sector Interface (TypeScript)
-
+**Base Entity Interface:**
 ```typescript
-interface Sector {
-  code: string;           // Sector code, e.g., "801010"
-  name: string;           // Sector name, e.g., "农林牧渔"
+interface BaseEntity {
+  code: string;
+  name: string;
+  icon?: string;          // Icon name (e.g., "Cpu", "Landmark")
   marketCap: number;      // Market cap in 亿元 (determines tile size)
   changePercent: number;  // Change percentage (determines color)
   capitalFlow: number;    // Capital flow in 亿元 (positive=inflow, negative=outflow)
   attentionLevel: number; // Attention level 0-100 (determines breathing indicator frequency)
+  level: 1 | 2 | 3 | 4;
+  parent?: string;        // Parent code
+  hasChildren?: boolean;
 }
 ```
 
-### Mock Data (Frontend)
+**Sector (Level 1):**
+```typescript
+interface Sector extends BaseEntity {
+  level: 1;
+}
+```
+
+**Industry (Level 2):**
+```typescript
+interface Industry extends BaseEntity {
+  level: 2;
+  parent: string;  // Required for Level 2+
+}
+```
+
+**Sub-Industry (Level 3):**
+```typescript
+interface SubIndustry extends BaseEntity {
+  level: 3;
+  parent: string;
+}
+```
+
+**Stock (Level 4):**
+```typescript
+interface Stock extends BaseEntity {
+  price: number;         // Stock price
+  volume: number;        // Trading volume (手)
+  level: 4;
+  parent: string;
+}
+```
+
+### 4.2 Level 1: SW Industry Sectors (31 items)
 
 **File:** `apps/preview/src/data/mockSectors.ts`
 
@@ -267,262 +272,732 @@ export const mockSectors: Sector[] = [
   {
     code: "801010",
     name: "农林牧渔",
+    icon: "Sprout",
     marketCap: 12500.0,
     changePercent: 1.85,
     capitalFlow: 320.5,
-    attentionLevel: 45
+    attentionLevel: 45,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801020",
     name: "煤炭",
+    icon: "Fuel",
     marketCap: 18200.0,
     changePercent: -2.15,
     capitalFlow: -580.2,
-    attentionLevel: 88
+    attentionLevel: 88,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801030",
     name: "有色金属",
+    icon: "Component",
     marketCap: 22100.0,
     changePercent: 0.95,
     capitalFlow: 450.8,
-    attentionLevel: 62
+    attentionLevel: 62,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801040",
     name: "钢铁",
+    icon: "Anvil",
     marketCap: 14300.0,
     changePercent: -1.45,
     capitalFlow: -320.0,
-    attentionLevel: 55
+    attentionLevel: 55,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801050",
     name: "基础化工",
+    icon: "FlaskConical",
     marketCap: 25800.0,
     changePercent: 2.35,
     capitalFlow: 680.5,
-    attentionLevel: 72
+    attentionLevel: 72,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801080",
     name: "建筑",
+    icon: "HardHat",
     marketCap: 16500.0,
     changePercent: 0.65,
     capitalFlow: 210.3,
-    attentionLevel: 38
+    attentionLevel: 38,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801110",
     name: "建材",
+    icon: "Boxes",
     marketCap: 13200.0,
     changePercent: -0.85,
     capitalFlow: -180.5,
-    attentionLevel: 42
+    attentionLevel: 42,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801120",
     name: "轻工制造",
+    icon: "Package",
     marketCap: 11800.0,
     changePercent: 1.25,
     capitalFlow: 155.0,
-    attentionLevel: 35
+    attentionLevel: 35,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801140",
     name: "机械",
+    icon: "Cog",
     marketCap: 19500.0,
     changePercent: 1.75,
     capitalFlow: 425.8,
-    attentionLevel: 58
+    attentionLevel: 58,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801150",
     name: "电力设备",
+    icon: "Zap",
     marketCap: 28900.0,
     changePercent: 3.25,
     capitalFlow: 920.5,
-    attentionLevel: 91
+    attentionLevel: 91,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801160",
     name: "国防军工",
+    icon: "ShieldCheck",
     marketCap: 15600.0,
     changePercent: -1.95,
     capitalFlow: -410.2,
-    attentionLevel: 76
+    attentionLevel: 76,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801170",
     name: "汽车",
+    icon: "CarFront",
     marketCap: 21500.0,
     changePercent: 2.85,
     capitalFlow: 650.0,
-    attentionLevel: 82
+    attentionLevel: 82,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801180",
     name: "商贸零售",
+    icon: "ShoppingCart",
     marketCap: 12900.0,
     changePercent: 0.45,
     capitalFlow: 95.5,
-    attentionLevel: 28
+    attentionLevel: 28,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801200",
     name: "消费者服务",
+    icon: "Users",
     marketCap: 14800.0,
     changePercent: 1.55,
     capitalFlow: 280.0,
-    attentionLevel: 48
+    attentionLevel: 48,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801210",
     name: "家电",
+    icon: "TvMinimal",
     marketCap: 16200.0,
     changePercent: -0.95,
     capitalFlow: -220.5,
-    attentionLevel: 52
+    attentionLevel: 52,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801230",
     name: "纺织服装",
+    icon: "Shirt",
     marketCap: 9800.0,
     changePercent: 0.35,
     capitalFlow: 65.0,
-    attentionLevel: 22
+    attentionLevel: 22,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801710",
     name: "医药",
+    icon: "Dna",
     marketCap: 32500.0,
     changePercent: 1.95,
     capitalFlow: 780.5,
-    attentionLevel: 68
+    attentionLevel: 68,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801720",
     name: "食品饮料",
+    icon: "Utensils",
     marketCap: 35800.0,
     changePercent: 2.15,
     capitalFlow: 850.0,
-    attentionLevel: 74
+    attentionLevel: 74,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801730",
     name: "农业",
+    icon: "Tractor",
     marketCap: 11200.0,
     changePercent: -1.25,
     capitalFlow: -195.0,
-    attentionLevel: 44
+    attentionLevel: 44,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801780",
     name: "银行",
+    icon: "Landmark",
     marketCap: 45200.0,
     changePercent: 0.85,
     capitalFlow: 520.0,
-    attentionLevel: 56
+    attentionLevel: 56,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801790",
     name: "非银行金融",
+    icon: "TrendingUp",
     marketCap: 28500.0,
     changePercent: 1.45,
     capitalFlow: 480.5,
-    attentionLevel: 64
+    attentionLevel: 64,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801880",
     name: "房地产",
+    icon: "Home",
     marketCap: 18900.0,
     changePercent: -2.85,
     capitalFlow: -720.0,
-    attentionLevel: 92
+    attentionLevel: 92,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801890",
     name: "交通运输",
+    icon: "Truck",
     marketCap: 17200.0,
     changePercent: 0.55,
     capitalFlow: 135.5,
-    attentionLevel: 40
+    attentionLevel: 40,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "801980",
     name: "电子",
+    icon: "Cpu",
     marketCap: 38500.0,
     changePercent: 3.15,
     capitalFlow: 1050.0,
-    attentionLevel: 95
+    attentionLevel: 95,
+    level: 1,
+    hasChildren: true  // Has Level 2 sub-industries
   },
   {
     code: "801990",
     name: "通信",
+    icon: "Rss",
     marketCap: 14500.0,
     changePercent: 1.05,
     capitalFlow: 210.0,
-    attentionLevel: 50
+    attentionLevel: 50,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "802010",
     name: "计算机",
+    icon: "Monitor",
     marketCap: 26800.0,
     changePercent: 2.65,
     capitalFlow: 720.5,
-    attentionLevel: 78
+    attentionLevel: 78,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "802020",
     name: "传媒",
+    icon: "Radio",
     marketCap: 12300.0,
     changePercent: -0.65,
     capitalFlow: -125.0,
-    attentionLevel: 36
+    attentionLevel: 36,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "802030",
     name: "电力及公用事业",
+    icon: "Lightbulb",
     marketCap: 15800.0,
     changePercent: 0.25,
     capitalFlow: 58.0,
-    attentionLevel: 25
+    attentionLevel: 25,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "802040",
     name: "石油石化",
+    icon: "Droplets",
     marketCap: 24500.0,
     changePercent: -1.75,
     capitalFlow: -520.5,
-    attentionLevel: 70
+    attentionLevel: 70,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "802050",
     name: "环保",
+    icon: "Leaf",
     marketCap: 10500.0,
     changePercent: 1.35,
     capitalFlow: 165.0,
-    attentionLevel: 46
+    attentionLevel: 46,
+    level: 1,
+    hasChildren: false
   },
   {
     code: "802060",
     name: "美容护理",
+    icon: "Sparkles",
     marketCap: 13800.0,
     changePercent: 0.75,
     capitalFlow: 125.5,
-    attentionLevel: 32
+    attentionLevel: 32,
+    level: 1,
+    hasChildren: false
   }
 ];
 ```
 
 **Data Characteristics:**
-- Total sectors: 31 (complete SW Level-1 classification)
-- Market cap range: ¥9,800亿 to ¥45,200亿
-- Change range: -2.85% to +3.25%
-- Capital flow range: -¥720亿 to +¥1,050亿
-- Attention level range: 22 to 95 (varied breathing frequencies)
+- Total: 31 sectors (complete SW Level-1 classification)
+- Market Cap Range: ¥9,800亿 to ¥45,200亿
+- Change Range: -2.85% to +3.25%
+- Capital Flow Range: -¥720亿 to +¥1,050亿
+- Attention Level Range: 22 to 95
 
-### Sector Icon System (Lucide React)
+### 4.3 Level 2: Sub-Industries (8 items under 电子)
+
+**File:** `apps/preview/src/data/mockLevel2.ts`
+
+```typescript
+export const mockLevel2_Electronics: Industry[] = [
+  {
+    code: "801980_01",
+    name: "半导体",
+    marketCap: 15800.0,
+    changePercent: 4.2,
+    capitalFlow: 520.0,
+    attentionLevel: 92,
+    hasChildren: true,  // Has Level 3 sub-industries
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_02",
+    name: "元件",
+    marketCap: 8200.0,
+    changePercent: 2.8,
+    capitalFlow: 280.0,
+    attentionLevel: 68,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_03",
+    name: "光学光电子",
+    marketCap: 6500.0,
+    changePercent: 3.5,
+    capitalFlow: 310.0,
+    attentionLevel: 85,
+    hasChildren: true,  // Has Level 4 stocks
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_04",
+    name: "消费电子",
+    marketCap: 3800.0,
+    changePercent: 1.9,
+    capitalFlow: 150.0,
+    attentionLevel: 55,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_05",
+    name: "电子化学品",
+    marketCap: 1600.0,
+    changePercent: 2.2,
+    capitalFlow: 95.0,
+    attentionLevel: 48,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_06",
+    name: "其他电子",
+    marketCap: 1200.0,
+    changePercent: 1.5,
+    capitalFlow: 45.0,
+    attentionLevel: 35,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_07",
+    name: "军工电子",
+    marketCap: 900.0,
+    changePercent: 3.8,
+    capitalFlow: 68.0,
+    attentionLevel: 72,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  },
+  {
+    code: "801980_08",
+    name: "汽车电子",
+    marketCap: 500.0,
+    changePercent: 2.6,
+    capitalFlow: 32.0,
+    attentionLevel: 58,
+    hasChildren: false,
+    level: 2,
+    parent: "801980"
+  }
+];
+```
+
+### 4.4 Level 3: Tertiary Industries (7 items under 半导体)
+
+**File:** `apps/preview/src/data/mockLevel3.ts`
+
+```typescript
+export const mockLevel3_Semiconductor: SubIndustry[] = [
+  {
+    code: "801980_01_01",
+    name: "半导体设备",
+    marketCap: 3200.0,
+    changePercent: 5.1,
+    capitalFlow: 180.0,
+    attentionLevel: 88,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_02",
+    name: "半导体材料",
+    marketCap: 2800.0,
+    changePercent: 4.8,
+    capitalFlow: 150.0,
+    attentionLevel: 82,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_03",
+    name: "数字芯片设计",
+    marketCap: 3500.0,
+    changePercent: 3.9,
+    capitalFlow: 190.0,
+    attentionLevel: 90,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_04",
+    name: "模拟芯片设计",
+    marketCap: 2200.0,
+    changePercent: 4.2,
+    capitalFlow: 120.0,
+    attentionLevel: 78,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_05",
+    name: "集成电路制造",
+    marketCap: 2500.0,
+    changePercent: 3.6,
+    capitalFlow: 140.0,
+    attentionLevel: 85,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_06",
+    name: "集成电路封测",
+    marketCap: 1100.0,
+    changePercent: 3.2,
+    capitalFlow: 68.0,
+    attentionLevel: 70,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  },
+  {
+    code: "801980_01_07",
+    name: "分立器件",
+    marketCap: 500.0,
+    changePercent: 2.8,
+    capitalFlow: 32.0,
+    attentionLevel: 55,
+    hasChildren: false,
+    level: 3,
+    parent: "801980_01"
+  }
+];
+```
+
+### 4.5 Level 4: Individual Stocks (15 items under 光学光电子)
+
+**File:** `apps/preview/src/data/mockLevel4.ts`
+
+```typescript
+export const mockLevel4_Optoelectronics: Stock[] = [
+  // 显示面板类
+  {
+    code: "000725",
+    name: "京东方A",
+    price: 3.85,
+    marketCap: 1450.0,
+    changePercent: 2.8,
+    volume: 185000,
+    attentionLevel: 88,
+    capitalFlow: 105.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "000100",
+    name: "TCL科技",
+    price: 4.62,
+    marketCap: 680.0,
+    changePercent: 3.2,
+    volume: 92000,
+    attentionLevel: 82,
+    capitalFlow: 58.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "000050",
+    name: "深天马A",
+    price: 10.25,
+    marketCap: 320.0,
+    changePercent: 1.9,
+    volume: 45000,
+    attentionLevel: 68,
+    capitalFlow: 28.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "002387",
+    name: "维信诺",
+    price: 8.15,
+    marketCap: 280.0,
+    changePercent: 4.5,
+    volume: 68000,
+    attentionLevel: 90,
+    capitalFlow: 45.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "600707",
+    name: "彩虹股份",
+    price: 5.32,
+    marketCap: 185.0,
+    changePercent: 2.1,
+    volume: 32000,
+    attentionLevel: 62,
+    capitalFlow: 18.0,
+    level: 4,
+    parent: "801980_03"
+  },
+
+  // LED 照明类
+  {
+    code: "600703",
+    name: "三安光电",
+    price: 18.65,
+    marketCap: 850.0,
+    changePercent: 3.8,
+    volume: 125000,
+    attentionLevel: 92,
+    capitalFlow: 68.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "002745",
+    name: "木林森",
+    price: 12.40,
+    marketCap: 420.0,
+    changePercent: 2.5,
+    volume: 58000,
+    attentionLevel: 72,
+    capitalFlow: 32.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "002449",
+    name: "国星光电",
+    price: 9.88,
+    marketCap: 195.0,
+    changePercent: 1.8,
+    volume: 28000,
+    attentionLevel: 58,
+    capitalFlow: 15.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "002429",
+    name: "兆驰股份",
+    price: 6.52,
+    marketCap: 380.0,
+    changePercent: 3.1,
+    volume: 78000,
+    attentionLevel: 78,
+    capitalFlow: 38.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "300303",
+    name: "聚飞光电",
+    price: 4.95,
+    marketCap: 145.0,
+    changePercent: 2.2,
+    volume: 38000,
+    attentionLevel: 65,
+    capitalFlow: 12.0,
+    level: 4,
+    parent: "801980_03"
+  },
+
+  // 光学镜头类
+  {
+    code: "002273",
+    name: "水晶光电",
+    price: 15.20,
+    marketCap: 280.0,
+    changePercent: 4.2,
+    volume: 62000,
+    attentionLevel: 85,
+    capitalFlow: 28.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "002036",
+    name: "联创电子",
+    price: 11.35,
+    marketCap: 165.0,
+    changePercent: 3.5,
+    volume: 48000,
+    attentionLevel: 75,
+    capitalFlow: 18.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "603297",
+    name: "永新光学",
+    price: 68.50,
+    marketCap: 95.0,
+    changePercent: 1.5,
+    volume: 12000,
+    attentionLevel: 52,
+    capitalFlow: 8.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "688010",
+    name: "福光股份",
+    price: 28.90,
+    marketCap: 78.0,
+    changePercent: 2.8,
+    volume: 18000,
+    attentionLevel: 68,
+    capitalFlow: 10.0,
+    level: 4,
+    parent: "801980_03"
+  },
+  {
+    code: "300790",
+    name: "宇瞳光学",
+    price: 32.45,
+    marketCap: 55.0,
+    changePercent: 3.2,
+    volume: 15000,
+    attentionLevel: 70,
+    capitalFlow: 6.0,
+    level: 4,
+    parent: "801980_03"
+  }
+];
+```
+
+### 4.6 Sector Icon System (31 Lucide mappings)
 
 **Icon Specifications:**
 - Library: Lucide React (already in dependencies)
@@ -668,281 +1143,39 @@ const getVisibleContent = (width: number, height: number) => {
 };
 ```
 
-**Icon in Mock Data:**
-```typescript
-export const mockSectors: Sector[] = [
-  {
-    code: "801010",
-    name: "农林牧渔",
-    icon: "Sprout",         // Icon identifier
-    marketCap: 12500.0,
-    // ... other fields
-  },
-  {
-    code: "801980",
-    name: "电子",
-    icon: "Cpu",            // Icon identifier
-    marketCap: 38500.0,
-    // ... other fields
-  },
-  // ... rest of 31 sectors
-];
+---
+
+## Project Structure
+
 ```
-
-**Interface Update:**
-```typescript
-interface BaseEntity {
-  code: string;
-  name: string;
-  icon?: string;          // Icon name (e.g., "Cpu", "Landmark")
-  marketCap: number;
-  changePercent: number;
-  capitalFlow: number;
-  attentionLevel: number;
-  level: 1 | 2 | 3 | 4;
-  parent?: string;
-  hasChildren?: boolean;
-}
-```
-
-### 4-Level Drill-Down Mock Data
-
-**Level 1: 一级行业 - 电子** (from existing 31 sectors)
-```typescript
-{
-  code: "801980",
-  name: "电子",
-  marketCap: 38500.0,
-  changePercent: 3.15,
-  capitalFlow: 1050.0,
-  attentionLevel: 95,
-  hasChildren: true, // Indicates L2 data exists
-  level: 1
-}
-```
-
-**Level 2: 二级行业 (under 电子)**
-```typescript
-export const mockLevel2_Electronics: Industry[] = [
-  {
-    code: "801980_01",
-    name: "半导体",
-    marketCap: 15800.0,
-    changePercent: 4.2,
-    capitalFlow: 520.0,
-    attentionLevel: 92,
-    hasChildren: true,
-    level: 2,
-    parent: "801980"
-  },
-  {
-    code: "801980_02",
-    name: "元件",
-    marketCap: 8200.0,
-    changePercent: 2.8,
-    capitalFlow: 280.0,
-    attentionLevel: 68,
-    hasChildren: false,
-    level: 2,
-    parent: "801980"
-  },
-  {
-    code: "801980_03",
-    name: "光学光电子",
-    marketCap: 6500.0,
-    changePercent: 3.5,
-    capitalFlow: 310.0,
-    attentionLevel: 85,
-    hasChildren: true, // Has L4 stocks
-    level: 2,
-    parent: "801980"
-  },
-  {
-    code: "801980_04",
-    name: "消费电子",
-    marketCap: 3800.0,
-    changePercent: 1.9,
-    capitalFlow: 150.0,
-    attentionLevel: 55,
-    hasChildren: false,
-    level: 2,
-    parent: "801980"
-  },
-  {
-    code: "801980_05",
-    name: "电子化学品",
-    marketCap: 1600.0,
-    changePercent: 2.2,
-    capitalFlow: 95.0,
-    attentionLevel: 48,
-    hasChildren: false,
-    level: 2,
-    parent: "801980"
-  },
-  {
-    code: "801980_06",
-    name: "其他电子",
-    marketCap: 1200.0,
-    changePercent: 1.5,
-    capitalFlow: 45.0,
-    attentionLevel: 35,
-    hasChildren: false,
-    level: 2,
-    parent: "801980"
-  },
-  {
-    code: "801980_07",
-    name: "军工电子",
-    marketCap: 900.0,
-    changePercent: 3.8,
-    capitalFlow: 68.0,
-    attentionLevel: 72,
-    hasChildren: false,
-    level: 2,
-    parent: "801980"
-  },
-  {
-    code: "801980_08",
-    name: "汽车电子",
-    marketCap: 500.0,
-    changePercent: 2.6,
-    capitalFlow: 32.0,
-    attentionLevel: 58,
-    hasChildren: false,
-    level: 2,
-    parent: "801980"
-  }
-];
-```
-
-**Level 3: 三级行业 (under 半导体)**
-```typescript
-export const mockLevel3_Semiconductor: SubIndustry[] = [
-  {
-    code: "801980_01_01",
-    name: "半导体设备",
-    marketCap: 3200.0,
-    changePercent: 5.1,
-    capitalFlow: 180.0,
-    attentionLevel: 88,
-    hasChildren: false,
-    level: 3,
-    parent: "801980_01"
-  },
-  {
-    code: "801980_01_02",
-    name: "半导体材料",
-    marketCap: 2800.0,
-    changePercent: 4.8,
-    capitalFlow: 150.0,
-    attentionLevel: 82,
-    hasChildren: false,
-    level: 3,
-    parent: "801980_01"
-  },
-  {
-    code: "801980_01_03",
-    name: "数字芯片设计",
-    marketCap: 3500.0,
-    changePercent: 3.9,
-    capitalFlow: 190.0,
-    attentionLevel: 90,
-    hasChildren: false,
-    level: 3,
-    parent: "801980_01"
-  },
-  {
-    code: "801980_01_04",
-    name: "模拟芯片设计",
-    marketCap: 2200.0,
-    changePercent: 4.2,
-    capitalFlow: 120.0,
-    attentionLevel: 78,
-    hasChildren: false,
-    level: 3,
-    parent: "801980_01"
-  },
-  {
-    code: "801980_01_05",
-    name: "集成电路制造",
-    marketCap: 2500.0,
-    changePercent: 3.6,
-    capitalFlow: 140.0,
-    attentionLevel: 85,
-    hasChildren: false,
-    level: 3,
-    parent: "801980_01"
-  },
-  {
-    code: "801980_01_06",
-    name: "集成电路封测",
-    marketCap: 1100.0,
-    changePercent: 3.2,
-    capitalFlow: 68.0,
-    attentionLevel: 70,
-    hasChildren: false,
-    level: 3,
-    parent: "801980_01"
-  },
-  {
-    code: "801980_01_07",
-    name: "分立器件",
-    marketCap: 500.0,
-    changePercent: 2.8,
-    capitalFlow: 32.0,
-    attentionLevel: 55,
-    hasChildren: false,
-    level: 3,
-    parent: "801980_01"
-  }
-];
-```
-
-**Level 4: 股票 (under 光学光电子)**
-```typescript
-export const mockLevel4_Optoelectronics: Stock[] = [
-  // 显示面板类
-  { code: "000725", name: "京东方A", price: 3.85, marketCap: 1450.0, changePercent: 2.8, volume: 185000, attentionLevel: 88, level: 4, parent: "801980_03" },
-  { code: "000100", name: "TCL科技", price: 4.62, marketCap: 680.0, changePercent: 3.2, volume: 92000, attentionLevel: 82, level: 4, parent: "801980_03" },
-  { code: "000050", name: "深天马A", price: 10.25, marketCap: 320.0, changePercent: 1.9, volume: 45000, attentionLevel: 68, level: 4, parent: "801980_03" },
-  { code: "002387", name: "维信诺", price: 8.15, marketCap: 280.0, changePercent: 4.5, volume: 68000, attentionLevel: 90, level: 4, parent: "801980_03" },
-  { code: "600707", name: "彩虹股份", price: 5.32, marketCap: 185.0, changePercent: 2.1, volume: 32000, attentionLevel: 62, level: 4, parent: "801980_03" },
-
-  // LED 照明类
-  { code: "600703", name: "三安光电", price: 18.65, marketCap: 850.0, changePercent: 3.8, volume: 125000, attentionLevel: 92, level: 4, parent: "801980_03" },
-  { code: "002745", name: "木林森", price: 12.40, marketCap: 420.0, changePercent: 2.5, volume: 58000, attentionLevel: 72, level: 4, parent: "801980_03" },
-  { code: "002449", name: "国星光电", price: 9.88, marketCap: 195.0, changePercent: 1.8, volume: 28000, attentionLevel: 58, level: 4, parent: "801980_03" },
-  { code: "002429", name: "兆驰股份", price: 6.52, marketCap: 380.0, changePercent: 3.1, volume: 78000, attentionLevel: 78, level: 4, parent: "801980_03" },
-  { code: "300303", name: "聚飞光电", price: 4.95, marketCap: 145.0, changePercent: 2.2, volume: 38000, attentionLevel: 65, level: 4, parent: "801980_03" },
-
-  // 光学镜头类
-  { code: "002273", name: "水晶光电", price: 15.20, marketCap: 280.0, changePercent: 4.2, volume: 62000, attentionLevel: 85, level: 4, parent: "801980_03" },
-  { code: "002036", name: "联创电子", price: 11.35, marketCap: 165.0, changePercent: 3.5, volume: 48000, attentionLevel: 75, level: 4, parent: "801980_03" },
-  { code: "603297", name: "永新光学", price: 68.50, marketCap: 95.0, changePercent: 1.5, volume: 12000, attentionLevel: 52, level: 4, parent: "801980_03" },
-  { code: "688010", name: "福光股份", price: 28.90, marketCap: 78.0, changePercent: 2.8, volume: 18000, attentionLevel: 68, level: 4, parent: "801980_03" },
-  { code: "300790", name: "宇瞳光学", price: 32.45, marketCap: 55.0, changePercent: 3.2, volume: 15000, attentionLevel: 70, level: 4, parent: "801980_03" }
-];
-```
-
-**Data Structure Interface:**
-```typescript
-interface BaseEntity {
-  code: string;
-  name: string;
-  marketCap: number;     // 亿元
-  changePercent: number;
-  capitalFlow: number;   // 亿元
-  attentionLevel: number; // 0-100
-  level: 1 | 2 | 3 | 4;
-  parent?: string;       // Parent code
-  hasChildren?: boolean;
-}
-
-interface Stock extends BaseEntity {
-  price: number;         // Stock price
-  volume: number;        // Trading volume (手)
-  level: 4;
-}
+apps/preview/
+├── src/
+│   └── app/
+│       ├── layout.tsx           # Root layout with dark theme
+│       ├── page.tsx             # Main treemap page
+│       ├── components/
+│       │   ├── HeatMap.tsx          # HeatMap container component
+│       │   ├── HeatMapHeader.tsx    # Header with title, breadcrumb, search, toggles
+│       │   ├── Breadcrumb.tsx       # Breadcrumb navigation component
+│       │   ├── SearchBox.tsx        # Search input with inline icon button
+│       │   ├── HeatMapTile.tsx      # UI rendering component (glassmorphism)
+│       │   ├── TileBottomPanel.tsx  # Bottom 1/3 panel with 3D transform
+│       │   ├── Sparkline.tsx        # Mini trend line chart (2px stroke)
+│       │   ├── BreathingDot.tsx     # Breathing indicator component
+│       │   ├── DynamicBackground.tsx # Blurred color blocks background
+│       │   └── SpotlightEffect.tsx  # Mouse-following highlight (optional)
+│       ├── hooks/
+│       │   ├── useTreeMap.ts        # Layout calculation logic (decoupled)
+│       │   └── useDrillDown.ts      # 4-level drill-down state management
+│       ├── types/
+│       │   └── sector.ts        # Sector data TypeScript types
+│       ├── data/
+│       │   └── mockSectors.ts   # Mock data for 31 SW sectors
+│       └── globals.css          # Tailwind CSS imports
+├── tailwind.config.ts           # Independent Tailwind config
+├── tsconfig.json                # TypeScript configuration
+├── next.config.js               # Next.js config (static export)
+└── project.json                 # Nx target configuration
 ```
 
 ## Architecture Design
