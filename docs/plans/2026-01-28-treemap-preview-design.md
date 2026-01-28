@@ -56,6 +56,8 @@ apps/preview/
 │       │   ├── Breadcrumb.tsx       # Breadcrumb navigation component
 │       │   ├── SearchBox.tsx        # Search input with inline icon button
 │       │   ├── HeatMapTile.tsx      # UI rendering component (glassmorphism)
+│       │   ├── TileBottomPanel.tsx  # Bottom 1/3 panel with 3D transform
+│       │   ├── Sparkline.tsx        # Mini trend line chart (2px stroke)
 │       │   ├── BreathingDot.tsx     # Breathing indicator component
 │       │   ├── DynamicBackground.tsx # Blurred color blocks background
 │       │   └── SpotlightEffect.tsx  # Mouse-following highlight (optional)
@@ -1121,6 +1123,372 @@ interface SpotlightConfig {
 - Mix-blend-mode for subtle luminance boost
 - Debounced mouse tracking for performance
 
+## Advanced 3D Hover Interaction
+
+### Hover State Transformation
+
+**Overview:**
+When user hovers over a tile, it transforms with sophisticated 3D effects:
+1. Tile lifts slightly (Y-axis elevation)
+2. Bottom 1/3 panel separates from tile
+3. Panel rotates along Z-axis (tilts right)
+4. Panel becomes transparent glass
+5. Original content (capital flow + change%) hidden
+6. Sparkline chart appears with breathing indicator
+
+### 3D Elevation Effect
+
+**Tile Lift Animation:**
+```css
+.heatmap-tile {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.heatmap-tile:hover {
+  /* Lift tile slightly (12px up) */
+  transform: translateY(-12px) translateZ(10px);
+
+  /* Enhanced drop shadow for elevation */
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1),
+    0 20px 40px rgba(0, 0, 0, 0.5),     /* Deeper shadow */
+    0 10px 20px rgba(0, 0, 0, 0.3);     /* Mid-range shadow */
+}
+```
+
+### Bottom Panel 3D Transformation
+
+**Panel Structure (Bottom 1/3):**
+```typescript
+// Calculate panel dimensions
+const panelHeight = tileHeight / 3;  // Bottom 1/3
+const panelY = tileHeight * 2 / 3;   // Start at 66% down
+
+// Panel states
+interface PanelState {
+  default: {
+    position: 'absolute';
+    bottom: 0;
+    height: `${panelHeight}px`;
+    transform: 'none';
+    opacity: 1;
+  };
+  hover: {
+    position: 'absolute';
+    bottom: 0;
+    height: `${panelHeight}px`;
+    transform: 'translateZ(20px) rotateZ(3deg)';  // Z-axis tilt right
+    opacity: 0.3;  // Transparent glass
+  };
+}
+```
+
+**3D Transform Details:**
+```css
+.tile-bottom-panel {
+  /* Default state */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 33.333%;  /* Bottom 1/3 */
+
+  /* 3D context */
+  transform-origin: bottom left;
+  transform-style: preserve-3d;
+
+  /* Smooth transition */
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),  /* Elastic ease-out */
+              opacity 0.4s ease,
+              backdrop-filter 0.4s ease;
+
+  /* Initial content visible */
+  backdrop-filter: blur(12px);
+  background: rgba(var(--tile-color-rgb), 0.15);
+}
+
+.heatmap-tile:hover .tile-bottom-panel {
+  /* Separate and tilt */
+  transform: translateZ(20px) rotateZ(3deg) translateX(2px);
+
+  /* Become more transparent */
+  opacity: 0.3;
+  backdrop-filter: blur(20px);  /* Stronger blur */
+  background: rgba(255, 255, 255, 0.05);  /* Neutral glass */
+}
+```
+
+**Content Switching:**
+```typescript
+// Hide original content on hover
+<div className="panel-original-content opacity-100 group-hover:opacity-0">
+  {/* Capital flow + Change % */}
+</div>
+
+// Show sparkline on hover
+<div className="panel-sparkline-content opacity-0 group-hover:opacity-100">
+  <Sparkline data={trendData} currentValue={currentPrice} />
+</div>
+```
+
+### Sparkline Chart Component
+
+**Design Specifications:**
+
+**Line Properties:**
+- Stroke width: `2px` (thin, elegant line)
+- Stroke color: White with 80% opacity `rgba(255, 255, 255, 0.8)`
+- No fill (transparent area under line)
+- Smooth curve (use SVG path with bezier curves)
+
+**Breathing Indicator Dot:**
+- Position: End of sparkline (right edge)
+- Size: 6px diameter
+- Color: Matches line color (white)
+- Animation: Opacity pulse 0.6 → 1.0 → 0.6 (2s loop)
+- Represents: Current date position on timeline
+
+**Sparkline Component:**
+```typescript
+interface SparklineProps {
+  data: number[];           // Historical price/value data points
+  currentValue: number;     // Current value (end point)
+  width: number;            // Panel width
+  height: number;           // Panel height (~1/3 of tile)
+  color?: string;           // Line color (default: white)
+  strokeWidth?: number;     // Line thickness (default: 2px)
+}
+
+export function Sparkline({
+  data,
+  currentValue,
+  width,
+  height,
+  color = 'rgba(255, 255, 255, 0.8)',
+  strokeWidth = 2
+}: SparklineProps) {
+  // Calculate viewBox and path
+  const padding = 8;  // Padding from edges
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
+
+  // Normalize data to chart dimensions
+  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data);
+  const valueRange = maxValue - minValue;
+
+  // Generate SVG path
+  const pathPoints = data.map((value, index) => {
+    const x = padding + (index / (data.length - 1)) * chartWidth;
+    const y = padding + ((maxValue - value) / valueRange) * chartHeight;
+    return { x, y };
+  });
+
+  // Build path string
+  const pathD = pathPoints.reduce((path, point, index) => {
+    if (index === 0) return `M ${point.x},${point.y}`;
+
+    // Use quadratic bezier for smooth curves
+    const prevPoint = pathPoints[index - 1];
+    const cpX = (prevPoint.x + point.x) / 2;
+    return `${path} Q ${cpX},${prevPoint.y} ${point.x},${point.y}`;
+  }, '');
+
+  // End point (current value indicator)
+  const endPoint = pathPoints[pathPoints.length - 1];
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      className="sparkline"
+    >
+      {/* Trend line */}
+      <path
+        d={pathD}
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* Breathing indicator dot at end */}
+      <circle
+        cx={endPoint.x}
+        cy={endPoint.y}
+        r={3}
+        fill={color}
+        className="animate-breathing-pulse"
+      />
+    </svg>
+  );
+}
+```
+
+**Breathing Pulse Animation:**
+```css
+@keyframes breathing-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.animate-breathing-pulse {
+  animation: breathing-pulse 2s ease-in-out infinite;
+  transform-origin: center;
+}
+```
+
+### Mock Trend Data
+
+**Generate trend data for sparkline:**
+```typescript
+// Generate realistic trend data (last 30 days)
+function generateTrendData(currentValue: number, volatility = 0.05): number[] {
+  const days = 30;
+  const data: number[] = [];
+
+  // Start from 30 days ago
+  let value = currentValue * (1 + (Math.random() - 0.5) * 0.1);
+
+  for (let i = 0; i < days; i++) {
+    // Random walk with drift
+    const change = (Math.random() - 0.5) * volatility;
+    value = value * (1 + change);
+    data.push(value);
+  }
+
+  // Ensure last value matches current
+  data[days - 1] = currentValue;
+
+  return data;
+}
+
+// Add to each sector/stock in mock data
+{
+  code: "801980",
+  name: "电子",
+  marketCap: 38500.0,
+  changePercent: 3.15,
+  capitalFlow: 1050.0,
+  attentionLevel: 95,
+  trendData: generateTrendData(38500.0)  // 30-day trend
+}
+```
+
+### Complete Hover Interaction Flow
+
+**Timeline:**
+```
+0ms:   User hovers
+  ↓
+0-300ms:  Tile lifts (translateY -12px)
+  ↓
+100ms: Bottom panel starts separating
+  ↓
+100-500ms: Panel rotates Z-axis 3deg + becomes transparent
+  ↓
+200ms: Original content fades out (opacity 1 → 0)
+  ↓
+300ms: Sparkline fades in (opacity 0 → 1)
+  ↓
+500ms: Breathing dot animation starts
+```
+
+**Framer Motion Implementation:**
+```typescript
+<motion.div
+  className="heatmap-tile group"
+  whileHover={{
+    y: -12,
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+  }}
+>
+  {/* Tile main content (top 2/3) */}
+  <div className="tile-main-content">
+    {/* Sector name, breathing dot, etc. */}
+  </div>
+
+  {/* Bottom panel (bottom 1/3) */}
+  <motion.div
+    className="tile-bottom-panel"
+    variants={{
+      default: {
+        z: 0,
+        rotateZ: 0,
+        x: 0,
+        opacity: 1
+      },
+      hover: {
+        z: 20,
+        rotateZ: 3,
+        x: 2,
+        opacity: 0.3,
+        transition: {
+          duration: 0.4,
+          ease: [0.34, 1.56, 0.64, 1]  // Elastic
+        }
+      }
+    }}
+    initial="default"
+    animate="default"
+    whileHover="hover"
+  >
+    {/* Original content (hidden on hover) */}
+    <motion.div
+      className="panel-original"
+      animate={{ opacity: isHovered ? 0 : 1 }}
+    >
+      <div className="capital-flow">{formatCapitalFlow(capitalFlow)}</div>
+      <div className="change-percent">{formatChangePercent(changePercent)}</div>
+    </motion.div>
+
+    {/* Sparkline (shown on hover) */}
+    <motion.div
+      className="panel-sparkline"
+      animate={{ opacity: isHovered ? 1 : 0 }}
+    >
+      <Sparkline
+        data={trendData}
+        currentValue={marketCap}
+        width={tileWidth}
+        height={tileHeight / 3}
+      />
+    </motion.div>
+  </motion.div>
+</motion.div>
+```
+
+### Visual Design Summary
+
+**Hover State Layers (Z-depth):**
+```
+Z = 30px: Breathing indicator dot (pulsing)
+Z = 20px: Bottom panel (tilted glass)
+Z = 10px: Main tile (elevated)
+Z = 0px:  Base layer (original position)
+```
+
+**Glass Transition:**
+- **Before hover**: Colored glass (15% opacity, color tint)
+- **During hover**: Transparent glass (30% opacity, neutral white)
+- **Blur increase**: 12px → 20px (stronger frosted effect)
+
+**Content Transition:**
+- **Crossfade duration**: 300ms
+- **Sparkline draw**: Instant (pre-rendered SVG)
+- **Breathing dot**: Continuous 2s loop animation
+
 ## Framer Motion Animation System
 
 ### AnimatePresence & Drill-Down Animations
@@ -1906,6 +2274,18 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 47. ✅ Adaptive content degradation (based on tile size)
 48. ✅ Variable speed linear mapping (color intensity)
 49. ✅ 4-level drill-down support (一级→二级→三级→股票)
+
+### 3D Hover Interaction
+50. ✅ Tile lifts on hover (Y-axis -12px elevation)
+51. ✅ Enhanced shadow depth during hover
+52. ✅ Bottom 1/3 panel separates from tile
+53. ✅ Panel rotates along Z-axis (3deg right tilt)
+54. ✅ Panel becomes transparent glass (opacity 0.3)
+55. ✅ Original content (capital flow + change%) fades out
+56. ✅ Sparkline chart fades in (2px stroke, smooth curve)
+57. ✅ Breathing indicator dot at sparkline end (6px, 2s pulse)
+58. ✅ 30-day trend data for all sectors/stocks
+59. ✅ Smooth elastic transition (400ms cubic-bezier)
 
 ### Layout & Dimensions
 9. ✅ Page displays HeatMap in full-width layout
