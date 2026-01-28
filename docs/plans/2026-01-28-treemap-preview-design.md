@@ -727,7 +727,10 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 13. ✅ Clean, maintainable code structure
 14. ✅ TypeScript types are explicit and correct
 15. ✅ Components follow single responsibility principle
-16. ✅ Easy integration path into apps/web
+16. ✅ **Zero imports from apps/web** (complete independence)
+17. ✅ Components built using `/ui-ux-pro-max` skill patterns
+18. ✅ Design specs extracted from Figma using MCP tools
+19. ✅ Easy integration path into apps/web
 
 ### Performance
 17. ✅ Fast iteration for style adjustments
@@ -742,6 +745,54 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 - ❌ Real market data integration (mock only)
 - ❌ Mobile responsiveness (desktop-first)
 - ❌ Complex interactions (Phase 1)
+- ❌ **Reusing components from apps/web** (design independently)
+- ❌ **Matching apps/web style patterns** (fresh design approach)
+
+## Design Independence & Component Philosophy
+
+### ⚠️ Critical: Complete Design Independence from apps/web
+
+**The preview app components must be designed independently without being influenced by apps/web components.**
+
+**Design Principles:**
+1. **No code sharing** with apps/web during Phase 1
+2. **No style inheritance** from apps/web's Tailwind config
+3. **No component reuse** from apps/web/components
+4. **Clean slate** - design components from scratch based on Figma
+5. **Fresh perspective** - not constrained by existing patterns
+
+**Rationale:**
+- Allows for innovative UI/UX without legacy constraints
+- Faster iteration without worrying about breaking web
+- Pure implementation of Figma design vision
+- Better component API design from ground up
+- Can be selectively integrated later (not wholesale copy)
+
+### Required Development Tools
+
+**🎨 UI/UX Design Tool:**
+```bash
+/ui-ux-pro-max
+```
+- **Use when:** Building any component (HeatMap, Tile, BreathingDot)
+- **Purpose:** Professional UI/UX design with best practices
+- **Features:** 50 styles, 21 palettes, component patterns, accessibility
+
+**📐 Figma Integration Tool:**
+```bash
+/figma or Figma MCP tools
+```
+- **Use when:** Extracting component specs from Figma design
+- **Purpose:** Get accurate measurements, colors, spacing from design
+- **Features:** Screenshot, design context, variable definitions
+
+### Component Development Workflow
+
+1. **Extract from Figma** → Use Figma MCP tools to get exact specs
+2. **Design component** → Use `/ui-ux-pro-max` skill for implementation
+3. **Implement** → Build with React + Tailwind (independent config)
+4. **Iterate** → Refine based on visual comparison with Figma
+5. **No web imports** → Zero dependencies on apps/web
 
 ## Technical Decisions
 
@@ -757,12 +808,13 @@ This design document focuses on **Phase 1 UI development** with hardcoded mock d
 - **Fast iteration**: Independent build/serve cycles
 - **Clean separation**: Clear boundary during development
 - **Easy cleanup**: Remove when integrated
+- **Design freedom**: Not constrained by web's component patterns
 
 ### Why Recharts for treemap?
 
 - **Already in stack**: No new dependencies
 - **React-first**: Native React component
-- **Flexible**: Custom rendering with SectorCard
+- **Flexible**: Custom rendering with Tile component
 - **Proven**: Used in existing dashboards
 
 ## Timeline Estimate
@@ -781,9 +833,11 @@ Not provided - focus on implementation tasks, not time predictions.
 1. Set up git worktree for isolated development
 2. Create implementation plan with detailed tasks
 3. Set up preview Next.js application structure
-4. Implement mock data (31 SW sectors)
-5. Build HeatMap and Tile components
-6. Implement breathing indicator animation
-7. Add light/dark theme support
-8. Style refinement iterations
-9. Integration into apps/web
+4. **Use Figma MCP tools** to extract detailed component specs
+5. Implement mock data (31 SW sectors)
+6. **Use `/ui-ux-pro-max` skill** to build HeatMap component
+7. **Use `/ui-ux-pro-max` skill** to build Tile component
+8. **Use `/ui-ux-pro-max` skill** to build BreathingDot component
+9. Add light/dark theme support with next-themes
+10. Style refinement iterations (compare with Figma)
+11. Integration into apps/web (selective, not wholesale)
