@@ -1310,7 +1310,7 @@ Background Layers:
 
 ### 5.3 Hooks & State Management
 
-**5.3.1 useTreeMap Hook**
+**5.3.1 useTreeMap Hook - Layout Calculation Algorithm**
 
 ```typescript
 interface UseTreeMapOptions {
@@ -1328,6 +1328,220 @@ interface TreeMapLayout {
 
 function useTreeMap(options: UseTreeMapOptions): TreeMapLayout
 ```
+
+**Algorithm Implementation Details:**
+
+**Step 1: Data Preparation**
+```typescript
+function useTreeMap(options: UseTreeMapOptions): TreeMapLayout {
+  const { data, containerWidth, maxHeight, minTileSize, gap } = options;
+
+  // Calculate total market cap
+  const totalMarketCap = data.reduce((sum, item) => sum + item.marketCap, 0);
+
+  // Transform to Recharts format
+  const rechartData = {
+    name: 'root',
+    children: data.map(item => ({
+      name: item.name,
+      size: item.marketCap,
+      data: item
+    }))
+  };
+}
+```
+
+**Step 2: Recharts Squarify Algorithm**
+```typescript
+import { Treemap } from 'recharts';
+
+// Use Recharts to calculate initial layout
+const initialLayout = Treemap.computeNode({
+  data: rechartData,
+  width: containerWidth,
+  height: maxHeight,
+  type: 'squarify',  // Squarified treemap algorithm
+  ratio: 1.5,        // Target aspect ratio (closer to golden ratio)
+  paddingInner: 0,   // No padding (we'll apply gap separately)
+  paddingOuter: 0
+});
+```
+
+**Step 3: Apply Gap Constraint**
+
+**Gap Application Strategy:**
+- Deduct gap from adjacent tiles
+- Prefer shrinking larger tiles
+- Never shrink below 150px minimum (except as last resort)
+
+```typescript
+function applyGapConstraint(tiles: TileLayout[], gap: number): TileLayout[] {
+  const adjustedTiles = tiles.map(tile => {
+    const adjacentTiles = findAdjacentTiles(tile, tiles);
+
+    // Calculate gap deduction for each edge
+    const gapAdjustments = {
+      right: hasRightNeighbor(tile, adjacentTiles) ? gap / 2 : 0,
+      bottom: hasBottomNeighbor(tile, adjacentTiles) ? gap / 2 : 0,
+      left: hasLeftNeighbor(tile, adjacentTiles) ? gap / 2 : 0,
+      top: hasTopNeighbor(tile, adjacentTiles) ? gap / 2 : 0
+    };
+
+    return {
+      ...tile,
+      width: tile.width - gapAdjustments.left - gapAdjustments.right,
+      height: tile.height - gapAdjustments.top - gapAdjustments.bottom,
+      x: tile.x + gapAdjustments.left,
+      y: tile.y + gapAdjustments.top
+    };
+  });
+
+  return adjustedTiles;
+}
+
+// Special case: Both tiles at 150px minimum
+function handleBothMinimum(tile1: TileLayout, tile2: TileLayout, gap: number) {
+  // Each shrinks 2px (total 4px gap)
+  tile1.width -= 2;
+  tile2.width -= 2;
+  tile2.x += 2;  // Shift right by 2px
+}
+
+// Special case: One tile at minimum
+function handleOneMinimum(minTile: TileLayout, largeTile: TileLayout, gap: number) {
+  // Large tile shrinks full 4px
+  largeTile.width -= 4;
+  largeTile.x += 4;
+  // Min tile unchanged (stays at 150px, ignore constraint)
+}
+```
+
+**Step 4: Enforce 150px Minimum Constraint**
+```typescript
+function enforceMinimumSize(tiles: TileLayout[], minSize: number): TileLayout[] {
+  return tiles.map(tile => ({
+    ...tile,
+    width: Math.max(tile.width, minSize),
+    height: Math.max(tile.height, minSize)
+  }));
+}
+```
+
+**Step 5: Enforce 1:1.618 Aspect Ratio Constraint**
+```typescript
+function enforceAspectRatio(tiles: TileLayout[], maxRatio: number = 1.618): TileLayout[] {
+  return tiles.map(tile => {
+    const currentRatio = tile.width / tile.height;
+
+    if (currentRatio > maxRatio) {
+      // Too wide: reduce width or increase height
+      const targetWidth = tile.height * maxRatio;
+      return { ...tile, width: targetWidth };
+    } else if (currentRatio < 1 / maxRatio) {
+      // Too tall: reduce height or increase width
+      const targetHeight = tile.width * maxRatio;
+      return { ...tile, height: targetHeight };
+    }
+
+    return tile;  // Aspect ratio OK
+  });
+}
+```
+
+**Step 6: Gap Elimination Algorithm**
+
+**Problem:** After constraints, small unfillable gaps may appear
+
+**Solution:** Dynamic tile resizing to consume gaps
+
+```typescript
+function eliminateGaps(tiles: TileLayout[], containerWidth: number, containerHeight: number): TileLayout[] {
+  // Detect gaps (unfilled regions)
+  const gaps = detectGaps(tiles, containerWidth, containerHeight);
+
+  if (gaps.length === 0) return tiles;
+
+  // For each gap, find surrounding tiles
+  gaps.forEach(gap => {
+    const surroundingTiles = findSurroundingTiles(gap, tiles);
+
+    // Distribute gap area among surrounding tiles
+    const areaPerTile = (gap.width * gap.height) / surroundingTiles.length;
+
+    surroundingTiles.forEach(tile => {
+      // Expand tile to consume gap
+      if (gap.x + gap.width === tile.x) {
+        // Gap is on left edge of tile: expand left
+        tile.x -= gap.width;
+        tile.width += gap.width;
+      } else if (tile.x + tile.width === gap.x) {
+        // Gap is on right edge of tile: expand right
+        tile.width += gap.width;
+      }
+      // Similar logic for top/bottom gaps
+    });
+  });
+
+  return tiles;
+}
+
+function detectGaps(tiles: TileLayout[], width: number, height: number): Gap[] {
+  // Create occupancy grid
+  const grid = createOccupancyGrid(tiles, width, height);
+
+  // Find contiguous empty regions
+  const gaps: Gap[] = [];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (!grid[y][x]) {
+        // Empty cell found, expand to find full gap region
+        const gap = expandGapRegion(grid, x, y);
+        if (gap.width * gap.height > 100) {  // Ignore tiny gaps
+          gaps.push(gap);
+        }
+      }
+    }
+  }
+
+  return gaps;
+}
+```
+
+**Step 7: Final Layout Assembly**
+```typescript
+function useTreeMap(options: UseTreeMapOptions): TreeMapLayout {
+  // ... steps 1-2 ...
+
+  let tiles = initialLayout.children;
+
+  // Apply constraints in order
+  tiles = applyGapConstraint(tiles, gap);
+  tiles = enforceMinimumSize(tiles, minTileSize);
+  tiles = enforceAspectRatio(tiles, 1.618);
+  tiles = eliminateGaps(tiles, containerWidth, maxHeight);
+
+  // Calculate total height used
+  const totalHeight = Math.max(...tiles.map(t => t.y + t.height));
+
+  return {
+    tiles: tiles,
+    totalHeight: Math.min(totalHeight, maxHeight)
+  };
+}
+```
+
+**Advanced Algorithm Note:**
+
+The gap elimination algorithm may require **custom layout logic beyond traditional squarify**, especially when:
+- Multiple tiles are at 150px minimum
+- Aspect ratio constraints conflict with gap requirements
+- Container size is tight relative to tile count
+
+**Future Enhancement:** Consider implementing a **custom iterative refinement algorithm** that:
+1. Starts with Recharts squarify
+2. Iteratively adjusts tile positions/sizes
+3. Minimizes gap area while respecting constraints
+4. Uses optimization techniques (simulated annealing, gradient descent)
 
 **5.3.2 useDrillDown Hook**
 
@@ -2103,6 +2317,187 @@ interface BreathingDotProps {
 - Medium attention (40-79): Medium pulse (1.5s cycle)
 - Low attention (0-39): Slow pulse (3s cycle)
 
+### 6.4.4 Drill-Down Complete UX Flow
+
+**Click → Drill-Down 5-Stage Animation Timeline:**
+
+#### Stage 1: Pre-Animation (0-100ms)
+**Click Feedback:**
+```typescript
+// Tile click visual feedback
+<motion.div
+  animate={{
+    scale: 0.98,
+    opacity: 0.95
+  }}
+  transition={{ duration: 0.1 }}
+/>
+```
+
+**Actions:**
+- Disable click on all other tiles
+- Store clicked tile position (for animation origin)
+- Prepare next level data
+
+#### Stage 2: Fade Out Current Level (100-300ms)
+**All Tiles Fade Out:**
+```typescript
+const fadeOutVariants = {
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    transition: {
+      duration: 0.2,
+      ease: 'easeIn'
+    }
+  }
+};
+
+// Apply to all current tiles
+{currentTiles.map(tile => (
+  <motion.div
+    key={tile.id}
+    variants={fadeOutVariants}
+    exit="exit"
+  />
+))}
+```
+
+**Performance Optimization:**
+- Temporarily disable `backdrop-filter` during animation
+- Set `backdrop-filter: none` on all tiles
+- Reduces GPU load, ensures 60fps
+
+#### Stage 3: Layout Calculation (Synchronous)
+**Calculate New Tile Layout:**
+```typescript
+const { tiles: newTiles, totalHeight } = useTreeMap({
+  data: nextLevelData,
+  containerWidth: 920,
+  maxHeight: 580,
+  minTileSize: 150,
+  gap: 4
+});
+```
+
+**Determine Animation Origin:**
+- Use clicked tile's center position as expand origin
+- Calculate `parentX` and `parentY` for custom animation
+
+#### Stage 4: Expand Animation (300-800ms)
+**New Tiles Expand from Origin:**
+```typescript
+const expandVariants = {
+  initial: (custom: { parentX: number; parentY: number }) => ({
+    opacity: 0,
+    scale: 0,
+    x: custom.parentX,
+    y: custom.parentY
+  }),
+  animate: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.4, 0.0, 0.2, 1],
+      delay: 0  // Stagger applied via staggerChildren
+    }
+  }
+};
+
+<motion.div
+  variants={containerVariants}
+  initial="initial"
+  animate="animate"
+>
+  {newTiles.map((tile, index) => (
+    <motion.div
+      key={tile.id}
+      variants={expandVariants}
+      custom={{ parentX, parentY }}
+    />
+  ))}
+</motion.div>
+```
+
+**Stagger Effect:**
+```typescript
+const containerVariants = {
+  animate: {
+    transition: {
+      staggerChildren: 0.02,  // 20ms delay between tiles
+      delayChildren: 0.1
+    }
+  }
+};
+```
+
+#### Stage 5: Complete (800ms+)
+**Final Actions:**
+```typescript
+onAnimationComplete={() => {
+  // 1. Re-enable backdrop-filter
+  tileRefs.forEach(ref => {
+    ref.current.style.backdropFilter = 'blur(12px)';
+  });
+
+  // 2. Enable tile interactions
+  setIsAnimating(false);
+
+  // 3. Update breadcrumb
+  setBreadcrumb([...breadcrumb, clickedTile.name]);
+
+  // 4. Update URL (optional)
+  router.push(`/preview?level=2&sector=${clickedTile.code}`);
+}
+```
+
+**Drill-Up (Return to Parent Level):**
+
+Reverse animation sequence:
+```typescript
+const shrinkVariants = {
+  exit: (custom: { parentX: number; parentY: number }) => ({
+    opacity: 0,
+    scale: 0,
+    x: custom.parentX,
+    y: custom.parentY,
+    transition: {
+      duration: 0.4,
+      ease: [0.4, 0.0, 0.2, 1]
+    }
+  })
+};
+
+// Triggered by breadcrumb click or back button
+const handleDrillUp = () => {
+  // Animate current level shrinking back to parent tile position
+  // Then load parent level data with fade-in
+};
+```
+
+**Complete Flow Diagram:**
+```
+[User Clicks Tile]
+     ↓
+[Stage 1: 100ms] Press feedback, disable interactions
+     ↓
+[Stage 2: 200ms] All tiles fade out, disable backdrop-filter
+     ↓
+[Stage 3: sync] Calculate new layout
+     ↓
+[Stage 4: 500ms] New tiles expand from origin (stagger 20ms)
+     ↓
+[Stage 5: complete] Re-enable effects, update breadcrumb, enable interactions
+```
+
+**Performance Metrics:**
+- Total animation duration: ~800ms
+- Target frame rate: 60fps
+- No dropped frames during transition
+
 ---
 
 ## 7. Layout & Dimensions
@@ -2116,21 +2511,21 @@ interface BreathingDotProps {
 │  ┌────────────────────────────────────────────────────┐  │
 │  │ Header (fixed height ~60-80px)                     │  │
 │  │ ┌────────────────────────────────────────────────┐ │  │
-│  │ │ Market Performance    [Search] [🔍] [T1] [T2] │ │  │
-│  │ │ 一级行业 > 二级行业 > 三级行业 > 股票          │ │  │
+│  │ │ Market Performance    [Search] [🔍] [T1] [T2]  │ │  │
+│  │ │ 一级行业 > 二级行业 > 三级行业 > 股票               │ │  │
 │  │ └────────────────────────────────────────────────┘ │  │
 │  │                                                    │  │
-│  │ Treemap Area (max 580px height)                   │  │
-│  │ ┌────────────────────────────────────────────┐    │  │
-│ 8│ │                                            │    │8 │ ← 8px padding
-│ p│ │     [Tiles dynamically laid out]           │    │p │
-│ x│ │                                            │    │x │
-│  │ │                                            │    │  │
-│ 8│ │                                            │    │8 │
-│ p│ │                                            │    │p │
-│ x│ │                                            │    │x │ ← Scrollbar here
-│  │ └────────────────────────────────────────────┘    │  │   if > 580px
-│  │         ↑ Scrollable if > 580px                   │  │
+│  │ Treemap Area (max 580px height)                    │  │
+│  │ ┌────────────────────────────────────────────┐     │  │
+│ 8│ │                                            │     │8 │ ← 8px padding
+│ p│ │     [Tiles dynamically laid out]           │     │p │
+│ x│ │                                            │     │x │
+│  │ │                                            │     │  │
+│ 8│ │                                            │     │8 │
+│ p│ │                                            │     │p │
+│ x│ │                                            │     │x │ ← Scrollbar here
+│  │ └────────────────────────────────────────────┘     │  │   if > 580px
+│  │         ↑ Scrollable if > 580px                    │  │
 │  └────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -2343,6 +2738,99 @@ useEffect(() => {
   - No abrupt cutoff
   - Smooth visual continuity
 
+### 7.5 Responsive Design Strategy
+
+**Breakpoint Definitions:**
+
+| Breakpoint | Screen Width | Strategy | Features |
+|------------|--------------|----------|----------|
+| Desktop | 1920px+ | Full functionality | All features enabled |
+| Laptop | 1280-1919px | Scaled layout | Smaller tiles, all features |
+| Tablet | 768-1279px | Simplified | Reduced animations |
+| Mobile | < 768px | Minimal | Simplified UI, no advanced effects |
+
+**Container Width Adaptation:**
+
+- **Desktop/Laptop/Tablet**: Full-width display, respects 920px minimum
+- **Mobile (< 768px)**:
+  - Full-width display (no horizontal scroll)
+  - Container scales to screen width
+  - Tile layout recalculates for smaller viewport
+
+**Tile Adaptation Strategy:**
+
+**Desktop/Laptop (≥1280px):**
+- Minimum tile size: 150px × 150px
+- Show: Icon + Name + BreathingDot + Capital Flow + Change%
+- Hover: Full 3D effect + Sparkline reveal
+- Font size: 14-16px
+
+**Tablet (768-1279px):**
+- Minimum tile size: 130px × 130px
+- Show: Icon + Name + BreathingDot + Capital Flow + Change%
+- Hover: Simplified 3D effect (no sparkline)
+- Font size: 12-14px
+
+**Mobile (< 768px):**
+- Minimum tile size: 120px × 120px
+- Show: Name + Change% ONLY
+- No icon, no BreathingDot, no capital flow
+- No hover effects (touch-only interaction)
+- No sparkline animation
+- Font size: 10-12px
+- Header: Search box only (no toggles)
+
+**Responsive CSS:**
+```css
+/* Desktop - Full experience */
+@media (min-width: 1280px) {
+  .heatmap-tile {
+    min-width: 150px;
+    min-height: 150px;
+  }
+  .tile-icon { display: block; }
+  .breathing-dot { display: block; }
+  .capital-flow { display: block; }
+  .sparkline { display: block; }
+}
+
+/* Tablet - Simplified */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .heatmap-tile {
+    min-width: 130px;
+    min-height: 130px;
+  }
+  .sparkline { display: none; }
+  .toggle-group { display: none; }
+}
+
+/* Mobile - Minimal */
+@media (max-width: 767px) {
+  .heatmap-tile {
+    min-width: 120px;
+    min-height: 120px;
+    font-size: 10px;
+  }
+  .tile-icon { display: none; }
+  .breathing-dot { display: none; }
+  .capital-flow { display: none; }
+  .sparkline { display: none; }
+  .toggle-group { display: none; }
+
+  /* Mobile: Only show name + change% */
+  .tile-content {
+    justify-content: center;
+    align-items: center;
+  }
+}
+```
+
+**Performance Considerations:**
+- Mobile devices: Disable backdrop-filter animations
+- Mobile devices: Disable DynamicBackground (static gradient only)
+- Mobile devices: Disable SpotlightEffect
+- Touch devices: Replace hover with tap interactions
+
 ---
 
 ## 8. Component Specifications
@@ -2494,6 +2982,132 @@ interface TileProps {
 - Color: `rgba(255, 255, 255, 0.8)` (secondary text)
 - Text shadow: `0 1px 2px rgba(0, 0, 0, 0.4)`
 
+### 8.3.5 HeatMapTile - Interaction State Matrix
+
+**Complete Interaction States:**
+
+| State | Visual Effect | Trigger Condition | Animation |
+|-------|--------------|-------------------|-----------|
+| **Idle** | Default glassmorphism | No interaction | Static |
+| **Hover** | Tile lift (-12px Y) + 3D panel separation | Mouse hover | 400ms cubic-bezier |
+| **Active/Pressed** | Scale down (0.98) + brief flash | Mouse/touch down | 100ms ease-out |
+| **Animating** | Opacity fade + position transform | Drill-down/up transition | 500ms ease-in-out |
+
+**Click Behavior - Drill-Down Interaction:**
+
+```typescript
+const HeatMapTile = ({ sector, onDrillDown }: TileProps) => {
+  const [isPressed, setIsPressed] = useState(false);
+
+  const handleClick = () => {
+    if (!sector.hasChildren) return;
+
+    // Visual feedback: brief press effect
+    setIsPressed(true);
+    setTimeout(() => setIsPressed(false), 100);
+
+    // Trigger drill-down with animation
+    onDrillDown(sector);
+  };
+
+  return (
+    <motion.div
+      className="heatmap-tile cursor-pointer"
+      onClick={handleClick}
+      animate={{
+        scale: isPressed ? 0.98 : 1
+      }}
+      transition={{ duration: 0.1 }}
+    >
+      {/* Tile content */}
+    </motion.div>
+  );
+};
+```
+
+**State Transitions:**
+```
+Idle → [Hover] → Hover State
+Hover State → [Mouse Down] → Active/Pressed
+Active/Pressed → [Mouse Up] → [Click Event] → Animating
+Animating → [Animation Complete] → Idle (new level)
+```
+
+**Notes:**
+- Focus, Disabled, Selected states are NOT implemented (per user requirement)
+- Double-click behavior: Not implemented (single click only)
+- Touch devices: Replace hover with tap (no hover state on mobile)
+
+### 8.3.6 HeatMapTile - Accessibility
+
+**ARIA Attributes:**
+```typescript
+<motion.div
+  role="button"
+  tabIndex={0}
+  aria-label={`${sector.name}, 涨跌幅 ${formatChangePercent(sector.changePercent)}, 市值 ${sector.marketCap}亿元, 资金流向 ${formatCapitalFlow(sector.capitalFlow)}`}
+  aria-disabled={!sector.hasChildren}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleDrillDown();
+    }
+  }}
+>
+```
+
+**Keyboard Navigation:**
+- **Tab**: Focus next tile (natural DOM order)
+- **Shift + Tab**: Focus previous tile
+- **Enter / Space**: Drill down (if hasChildren = true)
+- **Escape**: Drill up (return to parent level)
+- **Arrow Keys**: Navigate tile grid (optional enhancement)
+
+**Screen Reader Announcements:**
+```typescript
+// On drill-down
+announceToScreenReader(`进入 ${sector.name} 板块，当前显示 ${newTiles.length} 个行业`);
+
+// On drill-up
+announceToScreenReader(`返回上一级，当前显示 ${tiles.length} 个板块`);
+
+// Helper function
+const announceToScreenReader = (message: string) => {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1000);
+};
+```
+
+**Focus Management:**
+```typescript
+// After drill-down animation, focus first tile
+useEffect(() => {
+  if (!isAnimating && tiles.length > 0) {
+    const firstTile = tileRefs[0].current;
+    firstTile?.focus();
+  }
+}, [isAnimating, tiles]);
+```
+
+**Visual Focus Indicator:**
+```css
+.heatmap-tile:focus {
+  outline: 2px solid rgba(110, 63, 243, 0.8);
+  outline-offset: 4px;
+}
+
+.heatmap-tile:focus-visible {
+  box-shadow:
+    0 0 0 4px rgba(110, 63, 243, 0.3),
+    0 10px 20px rgba(0, 0, 0, 0.4);
+}
+```
+
 ### 8.4 TileBottomPanel
 
 **3D Hover Interaction Component**
@@ -2639,15 +3253,23 @@ export function Sparkline({ data, width = 80, height = 24 }: SparklineProps) {
 
 ### 8.6 BreathingDot
 
-**Component:** Animated indicator showing sector attention level
+**Component:** Animated attention indicator
 
-**Visual Design:**
-- Dot size: 8px × 8px
-- Color (dark mode): `#ffffff` with 90% opacity
-- Color (light mode): `#111827` with 80% opacity
-- Position: Absolute top-right corner (8-12px from edges)
-- Animation: Fade + scale pulse effect
-- No glow/shadow (clean minimal design)
+**Default Color:** Cyan (`rgba(53, 185, 233, 0.9)`)
+*Changed from white - uses cyan to stand out against glassmorphism*
+
+**Color Behavior:**
+- **No color change** based on sector up/down performance
+- Always cyan regardless of tile color (red/green)
+- Ensures visibility on all backgrounds
+
+**Visual Properties:**
+- Size: 6px diameter (idle)
+- Scale animation: 6px → 8px → 6px
+- Opacity animation: 0.7 → 1.0 → 0.7
+- Color: `rgba(53, 185, 233, 0.9)` (cyan)
+- Border: None
+- Shadow: `0 0 8px rgba(53, 185, 233, 0.4)` (subtle glow)
 
 **Animation Speed Based on Attention Level:**
 - High attention (80-100): Fast pulse (0.8s cycle)
@@ -2656,187 +3278,665 @@ export function Sparkline({ data, width = 80, height = 24 }: SparklineProps) {
 
 **Implementation:**
 ```typescript
-interface BreathingDotProps {
-  attentionLevel: number; // 0-100
-}
+const BreathingDot = ({ attentionLevel }: { attentionLevel: number }) => {
+  const duration = getPulseDuration(attentionLevel);
 
-// Calculate breathing animation duration based on attention level
-function getBreathingDuration(attentionLevel: number): number {
+  return (
+    <motion.div
+      className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full"
+      style={{
+        backgroundColor: 'rgba(53, 185, 233, 0.9)',
+        boxShadow: '0 0 8px rgba(53, 185, 233, 0.4)'
+      }}
+      animate={{
+        scale: [1, 1.33, 1],
+        opacity: [0.7, 1, 0.7]
+      }}
+      transition={{
+        duration: duration,
+        repeat: Infinity,
+        ease: 'easeInOut'
+      }}
+    />
+  );
+};
+
+function getPulseDuration(attentionLevel: number): number {
   if (attentionLevel >= 80) return 0.8; // Fast
   if (attentionLevel >= 40) return 1.5; // Medium
   return 3.0; // Slow
 }
+```
 
-export function BreathingDot({ attentionLevel }: BreathingDotProps) {
-  return (
-    <div
-      className="w-2 h-2 rounded-full bg-white/90"
-      style={{
-        animation: `breathing ${getBreathingDuration(attentionLevel)}s ease-in-out infinite`
-      }}
-    />
-  );
+### 8.7 Breadcrumb - Navigation Component
+
+**Component:** Navigation trail showing current drill-down path
+
+**Structure:**
+```typescript
+interface BreadcrumbItem {
+  label: string;
+  level: 1 | 2 | 3 | 4;
+  code: string;  // Sector/industry/stock code
+}
+
+interface BreadcrumbProps {
+  items: BreadcrumbItem[];
+  onNavigate: (level: number) => void;
 }
 ```
 
-**CSS Animation Keyframe (in globals.css):**
-```css
-@keyframes breathing {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.3; transform: scale(0.8); }
-}
+**Visual Design:**
+```
+一级行业 / 电子 / 半导体 / 光学光电子
+└─────┘   └──┘   └────┘   └────────┘
+   L1      L2      L3         L4
+ (link)  (link)  (link)    (current)
 ```
 
-### 8.7 Breadcrumb
+**Separator:** Use forward slash `/` between levels
 
-**Component:** Navigation breadcrumb trail
+**Visual States:**
 
-**Properties:**
-- Text: "一级行业 > 二级行业 > 三级行业 > 股票"
-- Font size: 12-14px
-- Font weight: 400 (normal)
-- Color: Theme-aware (gray-400 in dark, gray-600 in light)
-- Separator: " > " (with spaces)
-- Interactive: Clickable breadcrumb items (Phase 2)
+| Item Type | Style | Interaction |
+|-----------|-------|-------------|
+| **Current Level** | `text-white font-semibold` | Not clickable, no hover effect |
+| **Parent Levels** | `text-white/60 font-normal` | Clickable, underline on hover |
+| **Separator** | `text-white/40` | Decorative only, `aria-hidden="true"` |
 
 **Implementation:**
 ```typescript
-interface BreadcrumbProps {
-  items: string[];
-  separator?: string;
-}
-
-export function Breadcrumb({ items, separator = " > " }: BreadcrumbProps) {
+const Breadcrumb = ({ items, onNavigate }: BreadcrumbProps) => {
   return (
-    <nav className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-      {items.map((item, index) => (
-        <span key={index}>
-          {item}
-          {index < items.length - 1 && <span className="mx-1">{separator}</span>}
-        </span>
-      ))}
+    <nav aria-label="面包屑导航" className="flex items-center gap-2 text-sm">
+      {items.map((item, index) => {
+        const isCurrent = index === items.length - 1;
+
+        return (
+          <React.Fragment key={item.code}>
+            {isCurrent ? (
+              <span
+                className="text-white font-semibold"
+                aria-current="page"
+              >
+                {item.label}
+              </span>
+            ) : (
+              <button
+                onClick={() => onNavigate(item.level)}
+                className="text-white/60 hover:text-white hover:underline transition-colors"
+                aria-label={`返回${item.label}`}
+              >
+                {item.label}
+              </button>
+            )}
+
+            {!isCurrent && (
+              <span className="text-white/40" aria-hidden="true">/</span>
+            )}
+          </React.Fragment>
+        );
+      })}
     </nav>
   );
-}
+};
 ```
 
-### 8.8 SearchBox
-
-**Component:** Search input with inline icon
-
-**Visual Properties:**
-- Shape: Rounded rectangle
-- Border radius: 8px (matching tile radius)
-- Background: Theme-aware input background
-  - Dark mode: `rgba(255, 255, 255, 0.05)`
-  - Light mode: `#ffffff` with border
-- Border: Theme-aware
-  - Dark mode: `rgba(255, 255, 255, 0.1)`
-  - Light mode: `#d1d5db` (gray-300)
-- Height: 40px (reference height for toggles)
-- Width: 240-280px
-- Padding: 12px 16px
-
-**Search Icon:**
-- Position: Inline at right edge inside input
-- Icon: Lucide `Search` icon
-- Size: 20px
-- Color: Theme-aware (gray-400)
-- Clickable: Yes (triggers search)
-- No visible button shape - icon is the affordance
-
-**Placeholder:** "Search sectors..."
-
-**Input Styling:**
-- Font size: 14px
-- No outline on focus (use border color change)
-
-**Implementation:**
+**Animation - Drill-Down (Add Item):**
 ```typescript
-interface SearchBoxProps {
-  placeholder?: string;
-  onSearch?: (query: string) => void;
+const itemVariants = {
+  initial: { opacity: 0, x: -10 },
+  animate: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.3, ease: 'easeOut' }
+  }
+};
+
+// New item slides in from left
+<motion.span
+  variants={itemVariants}
+  initial="initial"
+  animate="animate"
+>
+  {newItem.label}
+</motion.span>
+```
+
+**Animation - Drill-Up (Remove Item):**
+```typescript
+const removeVariants = {
+  exit: {
+    opacity: 0,
+    x: 10,
+    transition: { duration: 0.2, ease: 'easeIn' }
+  }
+};
+
+// Last item fades out and slides right
+<motion.span
+  variants={removeVariants}
+  exit="exit"
+>
+  {removedItem.label}
+</motion.span>
+```
+
+**Truncation for Long Names:**
+```typescript
+const truncateName = (name: string, maxLength: number = 12) => {
+  return name.length > maxLength
+    ? name.substring(0, maxLength) + '...'
+    : name;
+};
+
+// Usage
+<button title={item.label}>
+  {truncateName(item.label)}
+</button>
+```
+
+**Maximum Levels Display:**
+- Shows all 4 levels: 一级行业 / 二级行业 / 三级行业 / 股票
+- No ellipsis truncation between levels
+- Individual item names truncate if > 12 characters
+
+### 8.7.1 Breadcrumb - Accessibility
+
+**ARIA Attributes:**
+```typescript
+<nav aria-label="面包屑导航">
+  <ol className="flex items-center gap-2">
+    {items.map((item, index) => (
+      <li key={item.level}>
+        {index < items.length - 1 ? (
+          <button
+            onClick={() => onNavigate(item.level)}
+            aria-label={`返回${item.label}`}
+            className="hover:underline"
+          >
+            {item.label}
+          </button>
+        ) : (
+          <span aria-current="page">{item.label}</span>
+        )}
+        {index < items.length - 1 && <span aria-hidden="true">/</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+```
+
+**Keyboard Navigation:**
+- Tab through breadcrumb items
+- Enter/Space to navigate to level
+
+### 8.8 SearchBox - Cross-Level Search
+
+**Component:** Intelligent search with cross-level drill-down
+
+**Search Scope:**
+- **From Level 1 (一级行业)**: Search Level 2/3/4 (二级/三级/股票)
+- **From Level 2**: Search Level 3/4
+- **From Level 3**: Search Level 4
+- Always searches DEEPER levels, never current or parent levels
+
+**Search Capabilities:**
+- **Pinyin matching**: "dianzi" → "电子"
+- **Hanzi matching**: "电子" → "电子"
+- **Stock code matching**: "600519" → "贵州茅台"
+- **Fuzzy matching**: Partial matches allowed
+
+**UI States:**
+
+| State | Description | Visual | Search Icon State |
+|-------|-------------|--------|------------------|
+| Empty | No input | Placeholder: "搜索行业..." | Disabled (gray) |
+| Typing | User typing | Show autocomplete dropdown | Disabled until valid |
+| Valid Selection | User clicked suggestion | Input filled with selection | Enabled (clickable) |
+| Searching | After click search icon | Loading spinner | Disabled |
+| No Results | No matches found | "未找到结果" message | Disabled |
+
+**Autocomplete Dropdown:**
+
+```typescript
+interface SearchSuggestion {
+  code: string;
+  name: string;
+  level: 2 | 3 | 4;
+  levelName: '二级行业' | '三级行业' | '股票';
+  parent: string;  // Parent sector name
+  matchType: 'pinyin' | 'hanzi' | 'code';
 }
 
-export function SearchBox({ placeholder = "Search...", onSearch }: SearchBoxProps) {
+const SearchDropdown = ({ suggestions }: { suggestions: SearchSuggestion[] }) => {
+  return (
+    <div className="absolute top-full mt-2 w-full bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+      {/* Group by level */}
+      {Object.entries(groupByLevel(suggestions)).map(([level, items]) => (
+        <div key={level}>
+          <div className="px-4 py-2 text-xs text-gray-400 bg-gray-900">
+            {items[0].levelName}
+          </div>
+          {items.map(suggestion => (
+            <button
+              key={suggestion.code}
+              onClick={() => handleSelect(suggestion)}
+              className="w-full px-4 py-2 hover:bg-gray-700 text-left"
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{suggestion.name}</span>
+                <span className="text-xs text-gray-400">{suggestion.code}</span>
+              </div>
+              <div className="text-xs text-gray-500">
+                {suggestion.parent}
+              </div>
+            </button>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+**Search Flow:**
+
+```typescript
+const SearchBox = () => {
   const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [selectedSuggestion, setSelectedSuggestion] = useState<SearchSuggestion | null>(null);
+  const [isSearchEnabled, setIsSearchEnabled] = useState(false);
+
+  // Debounced search (300ms)
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    if (value.length === 0) {
+      setSuggestions([]);
+      return;
+    }
+
+    // Search across L2/L3/L4
+    const results = searchAcrossLevels(value, currentLevel);
+    setSuggestions(results);
+  }, 300);
+
+  const handleInputChange = (value: string) => {
+    setQuery(value);
+    setSelectedSuggestion(null);
+    setIsSearchEnabled(false);
+    debouncedSearch(value);
+  };
+
+  const handleSelectSuggestion = (suggestion: SearchSuggestion) => {
+    setQuery(suggestion.name);
+    setSelectedSuggestion(suggestion);
+    setSuggestions([]);
+    setIsSearchEnabled(true);  // Enable search icon
+  };
 
   const handleSearch = () => {
-    if (onSearch) {
-      onSearch(query);
-    }
+    if (!selectedSuggestion) return;
+
+    // Drill down to the level where result is located
+    drillDownToResult(selectedSuggestion);
   };
 
   return (
-    <div className="relative w-[260px]">
+    <div className="relative">
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-        placeholder={placeholder}
-        className="
-          w-full h-[40px] px-4 pr-10
-          bg-white/5 dark:bg-white/5
-          border border-gray-300 dark:border-white/10
-          rounded-lg
-          text-sm text-gray-900 dark:text-white
-          placeholder:text-gray-500 dark:placeholder:text-gray-400
-          focus:outline-none focus:border-primary-500
-          transition-colors
-        "
+        onChange={(e) => handleInputChange(e.target.value)}
+        placeholder="搜索行业..."
+        className="w-64 px-4 py-2 pr-10 rounded-lg bg-gray-800"
       />
-      {/* Inline search icon button */}
+
       <button
         onClick={handleSearch}
-        className="
-          absolute right-3 top-1/2 -translate-y-1/2
-          text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
-          transition-colors
-        "
-        aria-label="Search"
+        disabled={!isSearchEnabled}
+        className={`absolute right-2 top-1/2 -translate-y-1/2 ${
+          isSearchEnabled ? 'text-white' : 'text-gray-600 cursor-not-allowed'
+        }`}
       >
-        <Search size={20} />
+        <Search size={18} />
       </button>
+
+      {suggestions.length > 0 && (
+        <SearchDropdown suggestions={suggestions} />
+      )}
     </div>
   );
+};
+```
+
+**Drill-Down After Search:**
+
+```typescript
+const drillDownToResult = (result: SearchSuggestion) => {
+  const targetLevel = result.level;
+  const pathToResult = getPathToResult(result);  // e.g., ['801030', '801031', '801032']
+
+  // Animate through levels
+  animateDrillDownPath(pathToResult, () => {
+    // After reaching target level, highlight the result briefly
+    highlightSearchResult(result.code);
+  });
+};
+
+const highlightSearchResult = (code: string) => {
+  // Find the tile with matching code
+  const targetTile = document.querySelector(`[data-code="${code}"]`);
+
+  // Brief border highlight animation (2s)
+  targetTile?.classList.add('search-result-highlight');
+
+  // Dim non-matching tiles temporarily
+  const allTiles = document.querySelectorAll('.heatmap-tile');
+  allTiles.forEach(tile => {
+    if (tile.getAttribute('data-code') !== code) {
+      tile.classList.add('dimmed');
+    }
+  });
+
+  // Remove effects after 2 seconds
+  setTimeout(() => {
+    targetTile?.classList.remove('search-result-highlight');
+    allTiles.forEach(tile => tile.classList.remove('dimmed'));
+  }, 2000);
+};
+```
+
+**CSS Animations:**
+```css
+.search-result-highlight {
+  animation: glow-border 2s ease-in-out;
+}
+
+@keyframes glow-border {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(110, 63, 243, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(110, 63, 243, 0.8);
+  }
+}
+
+.dimmed {
+  opacity: 0.4;
+  transition: opacity 0.3s ease-in-out;
 }
 ```
 
-### 8.9 DynamicBackground
-
-**Component:** Animated color blocks behind HeatMap
-
-**Layered Background Architecture:**
-```
-┌─────────────────────────────────────┐
-│  HeatMap Tiles (foreground)         │ ← Glass tiles with content
-│  ├─ backdrop-filter: blur(12px)     │
-│  └─ Semi-transparent colors          │
-├─────────────────────────────────────┤
-│  Dynamic Color Blocks (mid-layer)   │ ← Animated gradient blobs
-│  ├─ Blur: 60px-100px                │
-│  ├─ Opacity: 30-50%                 │
-│  └─ Colors based on market sentiment│
-├─────────────────────────────────────┤
-│  Base Background (back-layer)       │ ← Dark solid color
-│  └─ Dark mode: #0a0f0d              │
-└─────────────────────────────────────┘
-```
-
-**Implementation:**
+**Search Algorithm:**
 ```typescript
-// Animated color blocks behind HeatMap
-<DynamicBackground
-  colors={[
-    'rgba(213, 44, 162, 0.4)',   // Red blob (bull market)
-    'rgba(3, 145, 96, 0.4)',     // Green blob (bear market)
-    'rgba(110, 63, 243, 0.3)'    // Purple blob (neutral)
-  ]}
-  blur={80}                       // 60-100px blur
-  animationDuration={20}          // Slow morph (20s)
-/>
+function searchAcrossLevels(query: string, currentLevel: 1 | 2 | 3 | 4): SearchSuggestion[] {
+  const results: SearchSuggestion[] = [];
+  const targetLevels = getTargetLevels(currentLevel);  // e.g., if L1, search L2/L3/L4
+
+  targetLevels.forEach(level => {
+    const entities = getAllEntitiesAtLevel(level);
+
+    entities.forEach(entity => {
+      // Pinyin match
+      if (pinyinMatch(query, entity.name)) {
+        results.push(createSuggestion(entity, 'pinyin'));
+      }
+      // Hanzi match
+      else if (entity.name.includes(query)) {
+        results.push(createSuggestion(entity, 'hanzi'));
+      }
+      // Stock code match (level 4 only)
+      else if (level === 4 && entity.code.includes(query)) {
+        results.push(createSuggestion(entity, 'code'));
+      }
+    });
+  });
+
+  // Sort: Exact matches first, then by level (L2 > L3 > L4)
+  return results.sort((a, b) => {
+    if (a.matchType === 'hanzi' && b.matchType !== 'hanzi') return -1;
+    if (a.level !== b.level) return a.level - b.level;
+    return 0;
+  }).slice(0, 10);  // Max 10 results
+}
 ```
+
+**Notes:**
+- No clear button (user must use Delete/Backspace)
+- Search icon only enabled when valid suggestion selected
+- Result count not shown (unique results only, no duplicates)
+
+### 8.8.1 SearchBox - Accessibility
+
+**ARIA Attributes:**
+```typescript
+<div role="search">
+  <label htmlFor="sector-search" className="sr-only">
+    搜索行业或股票
+  </label>
+  <input
+    id="sector-search"
+    type="text"
+    role="combobox"
+    aria-autocomplete="list"
+    aria-expanded={showSuggestions}
+    aria-controls="search-suggestions"
+    aria-activedescendant={selectedSuggestionId}
+  />
+
+  {showSuggestions && (
+    <ul
+      id="search-suggestions"
+      role="listbox"
+      aria-label="搜索建议"
+    >
+      {suggestions.map((suggestion, index) => (
+        <li
+          key={suggestion.code}
+          id={`suggestion-${index}`}
+          role="option"
+          aria-selected={index === selectedIndex}
+        >
+          {suggestion.name}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+```
+
+**Keyboard Navigation:**
+- **Arrow Down/Up**: Navigate suggestions
+- **Enter**: Select current suggestion and drill down
+- **Escape**: Close suggestions
+
+### 8.9 DynamicBackground - Animated Gradient Environment
+
+**Component:** CSS-based animated gradient blobs (方案A)
+
+**Implementation Strategy:** CSS Keyframes for best performance
+
+**Configuration Parameters:**
+
+| Blob | Color | Size | Position (Start) | Blur | Duration | Movement Pattern |
+|------|-------|------|-----------------|------|----------|-----------------|
+| Red (牛市情绪) | rgba(213,44,162,0.3) | 600px | top: -10%, left: 10% | 80px | 20s | Elliptical drift |
+| Green (熊市情绪) | rgba(3,145,96,0.3) | 500px | bottom: -10%, right: 15% | 100px | 25s | Elliptical drift |
+| Purple (中性基调) | rgba(110,63,243,0.2) | 700px | top: 40%, left: 50% | 90px | 30s | Circular + rotation |
+
+**Complete Implementation:**
+
+```typescript
+// Component
+export const DynamicBackground = () => {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-gray-900 to-black">
+      {/* Blob 1 - Red */}
+      <div className="blob blob-red" />
+
+      {/* Blob 2 - Green */}
+      <div className="blob blob-green" />
+
+      {/* Blob 3 - Purple */}
+      <div className="blob blob-purple" />
+    </div>
+  );
+};
+```
+
+**CSS Styles:**
+```css
+/* Base blob styles */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.3;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);  /* GPU acceleration */
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* Blob 1 - Red (Market Bull Sentiment) */
+.blob-red {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(213, 44, 162, 1) 0%, transparent 70%);
+  filter: blur(80px);
+  top: -10%;
+  left: 10%;
+  animation: float-red 20s;
+}
+
+/* Blob 2 - Green (Market Bear Sentiment) */
+.blob-green {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(3, 145, 96, 1) 0%, transparent 70%);
+  filter: blur(100px);
+  bottom: -10%;
+  right: 15%;
+  animation: float-green 25s;
+}
+
+/* Blob 3 - Purple (Neutral Tone) */
+.blob-purple {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(110, 63, 243, 1) 0%, transparent 70%);
+  filter: blur(90px);
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: float-purple 30s;
+}
+
+/* Animation - Red Blob (Elliptical drift) */
+@keyframes float-red {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(150px, 100px) scale(1.1);
+  }
+}
+
+/* Animation - Green Blob (Elliptical drift, opposite direction) */
+@keyframes float-green {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-120px, -80px) scale(1.15);
+  }
+}
+
+/* Animation - Purple Blob (Circular + rotation) */
+@keyframes float-purple {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate(calc(-50% - 100px), calc(-50% + 150px)) scale(0.9) rotate(180deg);
+  }
+}
+```
+
+**Performance Optimization:**
+```css
+.blob {
+  /* GPU Acceleration */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+
+  /* Prevent text blur */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Disable on low-end devices */
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none;
+    opacity: 0.2;
+  }
+}
+```
+
+**Responsive Degradation:**
+
+```typescript
+// Optional: Device performance detection
+export const DynamicBackground = () => {
+  const [enableAnimation, setEnableAnimation] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768;
+      const isLowEnd = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+
+      // Disable on mobile or low-end devices
+      if (isMobile || isLowEnd) {
+        setEnableAnimation(false);
+      }
+    }
+  }, []);
+
+  if (!enableAnimation) {
+    // Static gradient fallback
+    return (
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-gray-900 via-purple-900/20 to-black" />
+    );
+  }
+
+  // Animated version
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-gray-900 to-black">
+      <div className="blob blob-red" />
+      <div className="blob blob-green" />
+      <div className="blob blob-purple" />
+    </div>
+  );
+};
+```
+
+**Z-Index Layering:**
+```
+Background Layer (z-index: -10):
+  ├── Base gradient (gray-900 to black)
+  └── Animated blobs (3 elements)
+
+Foreground Layer (z-index: 0+):
+  └── HeatMap tiles with glassmorphism
+```
+
+**Browser Compatibility:**
+- Chrome/Edge: Full support
+- Firefox: Full support
+- Safari: Full support (with `-webkit-` prefixes)
+- Mobile browsers: Automatic fallback to static gradient
 
 ### 8.10 SpotlightEffect
 
@@ -2880,6 +3980,205 @@ export function SpotlightEffect({ enabled = true, intensity = 0.5 }: SpotlightEf
     />
   );
 }
+```
+
+### 8.11 LoadingState
+
+**Component:** Skeleton screen during initial data load
+
+**Visual Design:**
+- 31 tile placeholders in treemap layout
+- Shimmer animation effect (left-to-right sweep)
+- Semi-transparent glassmorphism style
+- Pulsing breathing dots
+
+**Implementation:**
+```typescript
+const LoadingState = () => {
+  return (
+    <div className="relative w-[920px] h-[580px]">
+      {/* Generate 31 skeleton tiles */}
+      {Array.from({ length: 31 }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute bg-gray-800/20 backdrop-blur-sm rounded-lg animate-pulse"
+          style={{
+            width: `${Math.random() * 100 + 150}px`,
+            height: `${Math.random() * 80 + 150}px`,
+            top: `${Math.random() * 450}px`,
+            left: `${Math.random() * 750}px`
+          }}
+        >
+          {/* Shimmer overlay */}
+          <div className="absolute inset-0 shimmer" />
+        </div>
+      ))}
+
+      {/* Loading text */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <p className="text-white/60 text-sm">Loading market data...</p>
+      </div>
+    </div>
+  );
+};
+```
+
+**Shimmer Animation:**
+```css
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+```
+
+**Timeout Behavior:**
+- If loading exceeds 2 seconds, show progress message
+- If loading exceeds 10 seconds, transition to ErrorState
+
+### 8.12 ErrorState
+
+**Component:** Error screen with retry option
+
+**Error Types:**
+1. **Data Load Failure** - API/mock data fetch failed
+2. **Render Error** - Component rendering exception
+3. **Performance Degradation** - Animation frame rate below threshold
+
+**Visual Design:**
+```typescript
+interface ErrorStateProps {
+  error: Error;
+  onRetry: () => void;
+  onDisableEffects?: () => void;
+}
+
+const ErrorState = ({ error, onRetry, onDisableEffects }: ErrorStateProps) => {
+  const errorMessages = {
+    'FETCH_ERROR': '数据加载失败',
+    'RENDER_ERROR': '渲染错误',
+    'PERFORMANCE_ERROR': '性能不足，建议关闭特效'
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center h-[580px] gap-6">
+      {/* Error icon */}
+      <AlertCircle size={64} className="text-red-500" />
+
+      {/* Error message */}
+      <div className="text-center">
+        <h3 className="text-xl font-semibold text-white mb-2">
+          {errorMessages[error.name] || '发生错误'}
+        </h3>
+        <p className="text-sm text-white/60">
+          {error.message}
+        </p>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex gap-3">
+        <button
+          onClick={onRetry}
+          className="px-6 py-2 bg-violet-600 hover:bg-violet-700 rounded-lg"
+        >
+          重试
+        </button>
+
+        {error.name === 'PERFORMANCE_ERROR' && onDisableEffects && (
+          <button
+            onClick={onDisableEffects}
+            className="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg"
+          >
+            关闭特效
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+```
+
+**Fallback Strategy:**
+- **Data Load Failure**: Retry with exponential backoff (1s, 2s, 4s)
+- **Render Error**: Use React Error Boundary, fallback to simple layout
+- **Performance Error**: Offer to disable animations (backdrop-filter, Framer Motion)
+
+### 8.13 EmptyState
+
+**Component:** Empty result screen
+
+**Scenarios:**
+1. **Search No Results** - Search query returns no matches
+2. **Filter Empty** - Applied filters result in no data
+3. **Drill-Down Empty** - Selected sector has no sub-levels
+
+**Visual Design:**
+```typescript
+interface EmptyStateProps {
+  scenario: 'search' | 'filter' | 'drill-down';
+  query?: string;
+  onClear?: () => void;
+  onGoBack?: () => void;
+}
+
+const EmptyState = ({ scenario, query, onClear, onGoBack }: EmptyStateProps) => {
+  const messages = {
+    search: {
+      title: '未找到匹配结果',
+      description: `没有找到与 "${query}" 相关的行业或股票`,
+      action: '清除搜索'
+    },
+    filter: {
+      title: '当前筛选条件下无数据',
+      description: '尝试调整筛选条件',
+      action: '清除筛选'
+    },
+    'drill-down': {
+      title: '该板块暂无子级数据',
+      description: '已到达最底层',
+      action: '返回上一级'
+    }
+  };
+
+  const msg = messages[scenario];
+
+  return (
+    <div className="flex flex-col items-center justify-center h-[580px] gap-6">
+      {/* Illustration */}
+      <Search size={64} className="text-gray-500" />
+
+      {/* Message */}
+      <div className="text-center">
+        <h3 className="text-xl font-semibold text-white mb-2">
+          {msg.title}
+        </h3>
+        <p className="text-sm text-white/60">
+          {msg.description}
+        </p>
+      </div>
+
+      {/* Action button */}
+      <button
+        onClick={scenario === 'drill-down' ? onGoBack : onClear}
+        className="px-6 py-2 bg-violet-600 hover:bg-violet-700 rounded-lg"
+      >
+        {msg.action}
+      </button>
+    </div>
+  );
+};
 ```
 
 ---
@@ -3191,6 +4490,243 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 - Text-to-background contrast ratio: **≥ 4.5:1** (WCAG 2.0 AA for normal text)
 - Tile color gradients maintain sufficient contrast in both themes
 
+### 9.4.2 Theme Switching Implementation
+
+**Theme Provider Setup:**
+
+```typescript
+// app/layout.tsx
+import { ThemeProvider } from 'next-themes';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="zh-CN" suppressHydrationWarning>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}  // Disable system theme detection
+          disableTransitionOnChange={false}  // Enable smooth transitions
+          themes={['light', 'dark']}
+        >
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+**Color Token Definitions:**
+
+```css
+/* globals.css */
+
+/* Base styles (shared) */
+:root {
+  /* Spacing */
+  --spacing-unit: 4px;
+
+  /* Border radius */
+  --radius-sm: 0.425rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 1.025rem;
+
+  /* Transitions */
+  --transition-base: 300ms ease-in-out;
+}
+
+/* Light theme */
+:root {
+  /* Background */
+  --background: oklch(98% 0 0);
+  --background-secondary: oklch(95% 0 0);
+
+  /* Text */
+  --text-primary: oklch(20% 0 0);
+  --text-secondary: oklch(40% 0 0);
+  --text-tertiary: oklch(60% 0 0);
+
+  /* Tile colors */
+  --tile-border: rgba(0, 0, 0, 0.1);
+  --tile-background: rgba(255, 255, 255, 0.6);
+  --tile-shadow: rgba(0, 0, 0, 0.15);
+
+  /* Chinese market colors (unchanged) */
+  --color-up-red: #D52CA2;
+  --color-down-green: #039160;
+
+  /* Glassmorphism */
+  --glass-background: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.4);
+}
+
+/* Dark theme */
+.dark {
+  /* Background */
+  --background: oklch(15% 0 0);
+  --background-secondary: oklch(20% 0 0);
+
+  /* Text */
+  --text-primary: oklch(95% 0 0);
+  --text-secondary: oklch(75% 0 0);
+  --text-tertiary: oklch(55% 0 0);
+
+  /* Tile colors */
+  --tile-border: rgba(255, 255, 255, 0.2);
+  --tile-background: rgba(0, 0, 0, 0.4);
+  --tile-shadow: rgba(0, 0, 0, 0.6);
+
+  /* Chinese market colors (unchanged) */
+  --color-up-red: #D52CA2;
+  --color-down-green: #039160;
+
+  /* Glassmorphism */
+  --glass-background: rgba(0, 0, 0, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+```
+
+**Using Theme Tokens in Components:**
+
+```typescript
+// HeatMapTile.tsx
+const HeatMapTile = ({ sector }: TileProps) => {
+  return (
+    <div
+      className="heatmap-tile"
+      style={{
+        backgroundColor: 'var(--glass-background)',
+        borderColor: 'var(--tile-border)',
+        boxShadow: `0 10px 20px var(--tile-shadow)`,
+        color: 'var(--text-primary)'
+      }}
+    >
+      {/* Content */}
+    </div>
+  );
+};
+```
+
+**Theme Toggle Component:**
+
+```typescript
+// components/ThemeToggle.tsx
+import { useTheme } from 'next-themes';
+import { Sun, Moon } from 'lucide-react';
+
+export const ThemeToggle = () => {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <button
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      className="p-2 rounded-lg bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+      aria-label={`切换到${theme === 'dark' ? '浅色' : '深色'}模式`}
+    >
+      {theme === 'dark' ? (
+        <Sun size={20} className="text-yellow-400" />
+      ) : (
+        <Moon size={20} className="text-blue-400" />
+      )}
+    </button>
+  );
+};
+```
+
+**Smooth Theme Transition:**
+
+```css
+/* Transition all color-related properties */
+*,
+*::before,
+*::after {
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+/* Exclude animations from theme transition */
+.heatmap-tile,
+.sparkline,
+.breathing-dot {
+  transition: none !important;
+}
+
+/* Re-enable specific transitions after theme change */
+.heatmap-tile {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+```
+
+**Prevent Flash of Unstyled Content (FOUC):**
+
+```typescript
+// app/layout.tsx - Add blocking script
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = localStorage.getItem('theme') || 'dark';
+                document.documentElement.classList.add(theme);
+              })();
+            `
+          }}
+        />
+      </head>
+      <body>
+        <ThemeProvider {...props}>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+**Theme-Aware Image/Icon Components:**
+
+```typescript
+// Conditional rendering based on theme
+const Logo = () => {
+  const { theme } = useTheme();
+
+  return (
+    <img
+      src={theme === 'dark' ? '/logo-dark.svg' : '/logo-light.svg'}
+      alt="Logo"
+    />
+  );
+};
+```
+
+**Accessibility Considerations:**
+
+```css
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Respect user's color scheme preference (if enableSystem = true) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Auto-apply dark theme */
+  }
+}
+```
+
 ---
 
 ## 10. Development Workflow
@@ -3263,6 +4799,212 @@ cp -r apps/preview/src/app/* apps/web/src/app/preview/
 **Step 4: Cleanup**
 - Remove `apps/preview` directory
 - Keep this design doc for reference
+
+### 10.4 Performance Metrics & Monitoring
+
+**Target Performance Metrics:**
+
+#### Core Web Vitals
+
+| Metric | Target | Threshold | Measurement |
+|--------|--------|-----------|-------------|
+| **FCP** (First Contentful Paint) | < 1.5s | < 2.0s | Time to first visible content |
+| **LCP** (Largest Contentful Paint) | < 2.5s | < 4.0s | Time to main content render |
+| **FID** (First Input Delay) | < 100ms | < 300ms | Input responsiveness |
+| **CLS** (Cumulative Layout Shift) | < 0.1 | < 0.25 | Visual stability |
+| **TTFB** (Time to First Byte) | < 600ms | < 1.0s | Server response time |
+
+#### Animation Performance
+
+| Animation | Target FPS | Min FPS | Duration | Notes |
+|-----------|-----------|---------|----------|-------|
+| Hover 3D effect | 60fps | 55fps | 400ms | Tile elevation + panel separation |
+| Drill-down | 60fps | 55fps | 800ms | Fade out + expand animation |
+| Stagger | 60fps | 58fps | 20ms/tile | Tile appearance sequence |
+| Sparkline reveal | 60fps | 55fps | 400ms | Opacity + SVG animation |
+| BreathingDot | 60fps | 58fps | 0.8-3s | Continuous pulse |
+
+**Frame Rate Requirements:**
+- **60fps** = 16.67ms per frame
+- If frame time exceeds 20ms (50fps), consider performance degradation
+- Animations must maintain consistent frame rate (no jank)
+
+#### Memory Usage
+
+| Stage | Heap Size | Delta | Threshold |
+|-------|-----------|-------|-----------|
+| Initial Load | < 50MB | - | < 80MB |
+| After Drill-Down (L2) | < 65MB | +15MB | < 100MB |
+| After Drill-Down (L3) | < 75MB | +10MB | < 120MB |
+| After Drill-Down (L4) | < 80MB | +5MB | < 150MB |
+
+**Memory Leak Detection:**
+- Heap size should stabilize after drill-up
+- No continuous growth over multiple drill-down/up cycles
+- Test: Perform 10 drill-down/up cycles, final heap size < initial + 10MB
+
+#### Bundle Size
+
+| Asset | Size (gzipped) | Threshold | Notes |
+|-------|----------------|-----------|-------|
+| JavaScript bundle | < 150KB | < 200KB | Next.js + React + Framer Motion |
+| CSS bundle | < 20KB | < 30KB | Tailwind + custom styles |
+| Fonts (optional) | < 50KB | < 80KB | If custom fonts used |
+| Icons | < 10KB | < 15KB | Lucide React tree-shaken |
+
+**Total Page Weight:** < 250KB (gzipped), < 400KB (uncompressed)
+
+---
+
+**Monitoring Implementation:**
+
+```typescript
+// Performance Observer for Core Web Vitals
+if (typeof window !== 'undefined') {
+  const observer = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      // Log to analytics
+      console.log(`[Performance] ${entry.name}:`, entry);
+
+      // Send to monitoring service (e.g., Vercel Analytics)
+      if (entry.entryType === 'largest-contentful-paint') {
+        analytics.track('LCP', { value: entry.renderTime });
+      }
+    }
+  });
+
+  observer.observe({
+    entryTypes: ['paint', 'largest-contentful-paint', 'layout-shift']
+  });
+}
+```
+
+**Frame Rate Monitoring:**
+```typescript
+let frameCount = 0;
+let lastTime = performance.now();
+
+function measureFPS() {
+  frameCount++;
+  const currentTime = performance.now();
+  const delta = currentTime - lastTime;
+
+  if (delta >= 1000) {
+    const fps = (frameCount * 1000) / delta;
+    console.log(`[FPS] ${fps.toFixed(1)} fps`);
+
+    if (fps < 55) {
+      console.warn('[Performance] Frame rate below threshold, consider disabling effects');
+    }
+
+    frameCount = 0;
+    lastTime = currentTime;
+  }
+
+  requestAnimationFrame(measureFPS);
+}
+
+measureFPS();
+```
+
+**Memory Profiling:**
+```typescript
+// Memory usage snapshot
+function checkMemoryUsage() {
+  if (performance.memory) {
+    const { usedJSHeapSize, jsHeapSizeLimit } = performance.memory;
+    const usageMB = (usedJSHeapSize / 1024 / 1024).toFixed(2);
+    const limitMB = (jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+
+    console.log(`[Memory] ${usageMB}MB / ${limitMB}MB`);
+
+    if (usedJSHeapSize > 150 * 1024 * 1024) {  // 150MB threshold
+      console.warn('[Memory] High memory usage detected');
+    }
+  }
+}
+
+// Check every 30 seconds
+setInterval(checkMemoryUsage, 30000);
+```
+
+**Performance Budget Enforcement:**
+
+```typescript
+// Webpack bundle analyzer
+module.exports = {
+  webpack: (config) => {
+    if (process.env.ANALYZE) {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+      config.plugins.push(
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'static',
+          openAnalyzer: true
+        })
+      );
+    }
+    return config;
+  }
+};
+```
+
+**Performance Degradation Fallbacks:**
+
+```typescript
+// Automatic performance adjustment
+const [effectsEnabled, setEffectsEnabled] = useState(true);
+
+useEffect(() => {
+  let lowFpsCount = 0;
+
+  const checkPerformance = () => {
+    const fps = measureCurrentFPS();
+
+    if (fps < 50) {
+      lowFpsCount++;
+
+      if (lowFpsCount > 5) {
+        // Consistent low FPS: disable effects
+        setEffectsEnabled(false);
+        console.warn('[Performance] Disabled backdrop-filter and animations');
+      }
+    } else {
+      lowFpsCount = 0;
+    }
+  };
+
+  const interval = setInterval(checkPerformance, 1000);
+  return () => clearInterval(interval);
+}, []);
+```
+
+**Lighthouse CI Integration:**
+
+```yaml
+# .github/workflows/lighthouse.yml
+name: Lighthouse CI
+on: [pull_request]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+```
+
+**Performance Testing Checklist:**
+- [ ] All animations run at 60fps on desktop
+- [ ] Drill-down completes in < 1 second
+- [ ] No memory leaks after 10 drill-down cycles
+- [ ] Bundle size < 250KB gzipped
+- [ ] LCP < 2.5s on 3G network
+- [ ] No layout shifts (CLS < 0.1)
 
 ---
 
