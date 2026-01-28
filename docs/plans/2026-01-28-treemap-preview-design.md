@@ -3319,112 +3319,409 @@ cp -r apps/preview/src/app/* apps/web/src/app/preview/
 76. ✅ Dot scale animation (0 → 1)
 77. ✅ Continuous breathing pulse (2s cycle)
 
-## Non-Goals
+---
 
-- ❌ Docker deployment (development only, no production docker needed)
-- ❌ User authentication
-- ❌ Data persistence
-- ❌ Real market data integration (mock only)
-- ❌ Mobile responsiveness (desktop-first)
-- ❌ Complex interactions (Phase 1)
-- ❌ **Reusing components from apps/web** (design independently)
-- ❌ **Matching apps/web style patterns** (fresh design approach)
-- ❌ **Grouping sectors into "Others" category** (all 31 must show individually)
-- ❌ **Excluding small market cap sectors** (all sectors required)
+## 12. Design Principles
 
-## Design Independence & Component Philosophy
+### 12.1 Complete Independence from apps/web
 
-### ⚠️ Critical: Complete Design Independence from apps/web
+**⚠️ Critical: The preview app components must be designed independently without being influenced by apps/web components.**
 
-**The preview app components must be designed independently without being influenced by apps/web components.**
+**Core Principles:**
 
-**Design Principles:**
 1. **No code sharing** with apps/web during Phase 1
+   - Zero imports from `apps/web/src/*`
+   - No dependency on web's component library
+   - Fresh implementation for all components
+
 2. **No style inheritance** from apps/web's Tailwind config
+   - Independent `tailwind.config.ts` in preview app
+   - Own color palette and design tokens
+   - Custom spacing and sizing scales
+
 3. **No component reuse** from apps/web/components
+   - Build all UI components from scratch
+   - No shared component dependencies
+   - Clean slate for component APIs
+
 4. **Clean slate** - design components from scratch based on Figma
+   - Pure implementation of Figma design specifications
+   - No legacy patterns or constraints
+   - Follow Figma specs exactly
+
 5. **Fresh perspective** - not constrained by existing patterns
+   - Explore new UI/UX patterns freely
+   - Experiment with advanced effects (glassmorphism, 3D)
+   - Innovate without breaking existing code
 
 **Rationale:**
-- Allows for innovative UI/UX without legacy constraints
-- Faster iteration without worrying about breaking web
-- Pure implementation of Figma design vision
-- Better component API design from ground up
-- Can be selectively integrated later (not wholesale copy)
 
-### Required Development Tools
+- **Innovation freedom**: Explore new UI/UX without legacy constraints
+- **Faster iteration**: No risk of breaking apps/web during experimentation
+- **Pure design vision**: Implement Figma design exactly as intended
+- **Better component APIs**: Design optimal interfaces from ground up
+- **Selective integration**: Cherry-pick best components for apps/web later (not wholesale copy)
+
+### 12.2 Required Development Tools
 
 **🎨 UI/UX Design Tool:**
+
 ```bash
 /ui-ux-pro-max
 ```
-- **Use when:** Building any component (HeatMap, Tile, BreathingDot)
-- **Purpose:** Professional UI/UX design with best practices
-- **Features:** 50 styles, 21 palettes, component patterns, accessibility
+
+**Purpose:** Professional UI/UX design with best practices and modern patterns
+
+**Use when:**
+- Building any component (HeatMap, HeatMapTile, BreathingDot, SearchBox, etc.)
+- Implementing glassmorphism effects
+- Creating 3D hover interactions
+- Applying animation systems
+
+**Features:**
+- 50 pre-built design styles (glassmorphism, neumorphism, minimalism, etc.)
+- 21 color palettes with accessibility compliance
+- 50 font pairings optimized for web
+- Component patterns (cards, buttons, modals, navigation)
+- Accessibility guidelines (WCAG 2.0 AA/AAA)
 
 **📐 Figma Integration Tool:**
+
 ```bash
-/figma or Figma MCP tools
+/figma
+# or use Figma MCP server tools directly
 ```
-- **Use when:** Extracting component specs from Figma design
-- **Purpose:** Get accurate measurements, colors, spacing from design
-- **Features:** Screenshot, design context, variable definitions
 
-### Component Development Workflow
+**Purpose:** Extract accurate design specifications from Figma
 
-1. **Extract from Figma** → Use Figma MCP tools to get exact specs
-2. **Design component** → Use `/ui-ux-pro-max` skill for implementation
-3. **Implement** → Build with React + Tailwind (independent config)
-4. **Iterate** → Refine based on visual comparison with Figma
-5. **No web imports** → Zero dependencies on apps/web
+**Use when:**
+- Extracting component dimensions and spacing
+- Getting exact color values and opacity
+- Understanding layout structure
+- Verifying typography specs
 
-## Technical Decisions
+**Features:**
+- Screenshot capture of Figma frames
+- Design context extraction (colors, fonts, spacing)
+- Variable definitions and design tokens
+- Metadata and component structure
 
-### Why Next.js instead of Vite?
+### 12.3 Component Development Workflow
 
-- **Consistency**: apps/web uses Next.js, same tech stack
-- **Easy integration**: Can directly copy code to apps/web later
-- **No rewrite needed**: Same framework = smooth migration
+**Step-by-step process for building each component:**
 
-### Why independent app instead of /preview page in apps/web?
+1. **Extract from Figma**
+   - Use Figma MCP tools to capture design specs
+   - Get exact measurements (width, height, padding, gaps)
+   - Extract color values, opacity, blur values
+   - Document typography (font family, size, weight, line-height)
 
-- **Isolation**: No risk of breaking existing web app
-- **Fast iteration**: Independent build/serve cycles
-- **Clean separation**: Clear boundary during development
-- **Easy cleanup**: Remove when integrated
-- **Design freedom**: Not constrained by web's component patterns
+2. **Design component**
+   - Invoke `/ui-ux-pro-max` skill for implementation
+   - Provide Figma specs as context
+   - Request specific style (glassmorphism, 3D effects, animations)
+   - Review generated component structure
 
-### Why Recharts for treemap?
+3. **Implement**
+   - Build with React 19 functional components
+   - Use Tailwind CSS v4 for styling
+   - Use independent Tailwind config (no apps/web imports)
+   - Apply TypeScript types for all props and state
 
-- **Already in stack**: No new dependencies
-- **React-first**: Native React component
-- **Flexible**: Custom rendering with Tile component
-- **Proven**: Used in existing dashboards
+4. **Iterate**
+   - Compare visual output with Figma design
+   - Refine spacing, colors, effects
+   - Test responsive behavior (if applicable)
+   - Validate accessibility (contrast, focus states)
 
-## Timeline Estimate
-
-Not provided - focus on implementation tasks, not time predictions.
-
-## Related Documentation
-
-- Figma Design: https://www.figma.com/design/O52eqHmOTyh0tzZwpC7sl9/landing-page?node-id=524-11
-- CLAUDE.md: Project guidelines and conventions
-- SW Industry Classification: 申万一级行业分类标准
+5. **Verify independence**
+   - Confirm zero imports from `apps/web`
+   - Verify no shared component dependencies
+   - Check Tailwind config has no references to web's config
+   - Ensure component works in isolation
 
 ---
 
-**Next Steps:**
-1. Set up git worktree for isolated development
-2. Create implementation plan with detailed tasks
-3. Set up preview Next.js application structure
-4. **Use Figma MCP tools** to extract detailed component specs
-5. Implement mock data (31 SW sectors)
-6. **Use `/ui-ux-pro-max` skill** to build HeatMapHeader component
-7. **Use `/ui-ux-pro-max` skill** to build SearchBox component
-8. **Use `/ui-ux-pro-max` skill** to build Breadcrumb component
-9. **Use `/ui-ux-pro-max` skill** to build HeatMap container component
-10. **Use `/ui-ux-pro-max` skill** to build Tile component
-11. **Use `/ui-ux-pro-max` skill** to build BreathingDot component
-12. Add light/dark theme support with next-themes
-13. Style refinement iterations (compare with Figma)
-14. Integration into apps/web (selective, not wholesale)
+## 13. Technical Decisions
+
+### 13.1 Why Next.js instead of Vite?
+
+**Decision:** Use Next.js 15 with static export for the preview app.
+
+**Rationale:**
+
+- **Consistency with main app**: `apps/web` uses Next.js, same tech stack ensures compatibility
+- **Easy integration path**: Can directly copy code to apps/web later without framework rewrite
+- **No migration overhead**: Same framework = smooth migration, just move files and adjust imports
+- **Static export support**: Next.js `output: 'export'` generates static HTML (no server needed)
+- **Familiar tooling**: Team already knows Next.js patterns and conventions
+
+**Trade-offs:**
+- Slightly heavier than Vite (larger framework)
+- But integration benefits outweigh initial setup cost
+
+### 13.2 Why Independent App?
+
+**Decision:** Build as standalone `apps/preview` instead of `/preview` page in apps/web.
+
+**Rationale:**
+
+- **Isolation**: Zero risk of breaking existing web app during development
+- **Fast iteration cycles**: Independent build/serve cycles (port 4300 vs 4200)
+- **Clean separation**: Clear boundary between production code and experimental UI
+- **Easy cleanup**: Remove entire `apps/preview` directory when done
+- **Design freedom**: Not constrained by web's component patterns, Tailwind config, or layout structure
+- **Parallel development**: Can work on preview without affecting web app team
+
+**Integration plan:**
+- Once design finalized, copy components to `apps/web/src/app/preview/`
+- Merge Tailwind configs selectively
+- Test in web's context
+- Delete `apps/preview` directory
+
+### 13.3 Why Recharts for Layout?
+
+**Decision:** Use Recharts `<Treemap>` component for treemap layout algorithm only.
+
+**Rationale:**
+
+- **Already in stack**: Recharts is used in existing dashboards (no new dependency)
+- **React-first**: Native React component, integrates seamlessly
+- **Proven algorithm**: Recharts uses squarified treemap algorithm (optimal aspect ratios)
+- **Flexible rendering**: Custom `content` prop allows complete control over tile rendering
+- **Layout only**: Use Recharts for positioning, render custom `HeatMapTile` component for visuals
+
+**Implementation pattern:**
+```tsx
+<Treemap
+  data={sectorData}
+  dataKey="value"
+  content={<HeatMapTile />}  {/* Custom tile component */}
+/>
+```
+
+**Why not d3-hierarchy directly?**
+- More boilerplate code
+- Need to implement layout algorithm manually
+- Recharts provides React-friendly API out of the box
+
+---
+
+## 14. Future Considerations
+
+### 14.1 Phase 2: API Integration
+
+**Current state (Phase 1):**
+- Pure frontend with static mock data
+- No backend calls
+- No real-time updates
+
+**Future implementation (Phase 2):**
+
+**Data source:** `market-data` FastAPI service
+
+**API endpoints needed:**
+```
+GET /api/sectors           # All 31 SW Level-1 sectors
+GET /api/sectors/:id       # Level-2 industries under sector
+GET /api/industries/:id    # Level-3 sub-industries
+GET /api/stocks/:id        # Level-4 individual stocks
+```
+
+**Real-time updates:**
+- WebSocket connection to `market-data` service
+- Subscribe to sector performance updates
+- Update tiles when market data changes
+- Breathing indicator syncs with real market pulse
+
+**Caching strategy:**
+- Redis cache for sector hierarchy (rarely changes)
+- Real-time data refreshed every 3-5 seconds
+- Optimistic UI updates for smooth UX
+
+### 14.2 Phase 2: Interactive Features
+
+**Planned interactive features:**
+
+**Navigation:**
+- ✅ Click tile to drill down (already designed, needs API)
+- ✅ Breadcrumb click to navigate up hierarchy (already designed)
+- Search box autocomplete with sector/stock suggestions
+- Keyboard navigation (arrow keys, Enter to drill)
+
+**Filtering:**
+- Filter by market cap range (small/mid/large cap)
+- Filter by performance (top gainers/losers)
+- Filter by capital flow (inflow/outflow)
+- Toggle between absolute and relative view
+
+**Export features:**
+- Export current view as PNG image
+- Export data as CSV
+- Share link with current state (URL params)
+
+**Responsive design:**
+- Mobile layout adaptation
+- Touch gestures (pinch to zoom)
+- Simplified tile layout for small screens
+
+### 14.3 Integration into apps/web
+
+**When to integrate:** After Phase 1 UI design is finalized and visually approved.
+
+**Integration steps:**
+
+**Step 1: Copy component code**
+```bash
+mkdir -p apps/web/src/app/preview
+cp -r apps/preview/src/app/* apps/web/src/app/preview/
+cp -r apps/preview/src/components apps/web/src/components/heatmap
+```
+
+**Step 2: Merge Tailwind configurations**
+- Compare `apps/preview/tailwind.config.ts` with `apps/web/tailwind.config.ts`
+- Add new color tokens to web's config
+- Add new spacing/sizing scales if needed
+- Preserve web's existing config (additive merge, not replacement)
+
+**Step 3: Adjust imports**
+- Update component imports to use web's path aliases
+- Replace duplicate UI components with shared ones (if any exist)
+- Update API paths to point to web's API routes
+
+**Step 4: Test integration**
+- Navigate to `http://localhost:4200/preview`
+- Verify all components render correctly
+- Test drill-down navigation
+- Verify theme toggle works with web's theme provider
+
+**Step 5: Cleanup**
+- Delete `apps/preview` directory
+- Remove preview from Nx workspace (`nx.json`, `package.json`)
+- Keep this design doc for reference (`docs/plans/2026-01-28-treemap-preview-design.md`)
+
+**What to keep:**
+- Design system specifications (colors, spacing, effects)
+- Component APIs and patterns (if successful)
+- Animation configurations
+
+**What to replace:**
+- Duplicate utility components (buttons, toggles, search boxes)
+- Duplicate layout components (if web has better versions)
+- Redundant hooks (if web has equivalent state management)
+
+---
+
+## 15. Non-Goals
+
+**Explicitly excluded from scope:**
+
+**Infrastructure:**
+- ❌ Docker deployment (development only, no production containers)
+- ❌ CI/CD pipeline setup
+- ❌ Production hosting configuration
+
+**Backend features:**
+- ❌ User authentication and authorization
+- ❌ Data persistence (database, file storage)
+- ❌ Real market data integration (mock data only in Phase 1)
+- ❌ WebSocket real-time updates (Phase 1)
+- ❌ API endpoints (pure frontend)
+
+**Responsive design:**
+- ❌ Mobile responsiveness (desktop-first, 920px minimum width)
+- ❌ Tablet optimization
+- ❌ Touch gesture support
+- ❌ Mobile-specific layouts
+
+**Interactive features (Phase 1):**
+- ❌ Complex interactions beyond drill-down (filters, sorting, export)
+- ❌ Search autocomplete with API
+- ❌ User preferences and saved views
+- ❌ Share/export functionality
+
+**Design constraints:**
+- ❌ **Reusing components from apps/web** (must design independently)
+- ❌ **Matching apps/web style patterns** (fresh design approach)
+- ❌ **Grouping sectors into "Others" category** (all 31 sectors must display individually)
+- ❌ **Excluding small market cap sectors** (all 31 sectors required)
+- ❌ **Using apps/web's Tailwind config** (independent config)
+
+**Testing:**
+- ❌ E2E tests (manual testing sufficient for Phase 1)
+- ❌ Performance benchmarking
+- ❌ Load testing
+
+**Documentation:**
+- ❌ End-user documentation (internal preview only)
+- ❌ API documentation (no API in Phase 1)
+
+---
+
+## 16. Appendices
+
+### Appendix A: Detailed Code Examples
+
+Complete code examples are embedded throughout this document in their relevant sections. For quick reference:
+
+**Hook implementations:**
+- **Section 5.3**: Custom hooks (`useDrillDown`, `useHeatMapLayout`, `useTileColor`)
+
+**Glassmorphism effects:**
+- **Section 6.2**: CSS backdrop-filter, transparency, borders, refraction
+
+**3D hover interactions:**
+- **Section 6.3**: Transform3D, perspective, panel separation, sparkline reveal
+
+**Animation configurations:**
+- **Section 6.4**: Framer Motion variants for drill-down, stagger, tile transitions
+
+**Implementation patterns:**
+- **Section 9.1**: Page setup and data usage
+- **Section 9.2**: Color calculation functions (performance → color mapping)
+- **Section 9.3**: Animation configuration (Framer Motion setup)
+- **Section 9.4**: Theme integration (light/dark mode)
+
+**Component specifications:**
+- **Section 8.1-8.10**: Complete specs for all components (HeatMap, Tile, Header, Sparkline, etc.)
+
+### Appendix B: Figma Design References
+
+**Primary Design File:**
+- **URL**: https://www.figma.com/design/O52eqHmOTyh0tzZwpC7sl9/landing-page?node-id=524-11
+- **Frame**: HeatMap component with tiles and header
+- **Access**: Use Figma MCP tools to extract specifications
+
+**Design Specifications:**
+- **Section 6.1**: Complete Figma specifications (colors, typography, spacing, effects)
+- **Section 7**: Layout and dimension specifications (container, tiles, header)
+- **Section 8**: Component-level specifications (all 10 components)
+
+**How to use Figma references:**
+
+1. **View design in Figma**:
+   - Open URL in browser
+   - Navigate to node-id=524-11 (HeatMap frame)
+   - Inspect component structure and properties
+
+2. **Extract specs with Figma MCP**:
+   ```bash
+   # Use Figma MCP tools
+   /figma  # Invoke skill, then provide URL
+
+   # Or use MCP tools directly:
+   # - mcp__figma-desktop__get_design_context
+   # - mcp__figma-desktop__get_screenshot
+   # - mcp__figma-desktop__get_variable_defs
+   ```
+
+3. **Cross-reference with document**:
+   - Compare extracted specs with Section 6.1 (Visual Design System)
+   - Verify dimensions match Section 7 (Layout & Dimensions)
+   - Confirm component specs in Section 8
+
+**Related Resources:**
+- **CLAUDE.md**: Project guidelines and coding conventions
+- **SW Industry Classification**: 申万一级行业分类标准 (31 Level-1 sectors)
+
+---
