@@ -24,23 +24,23 @@ The design shows a heatmap visualization with:
 ### System Flow
 
 ```
-Browser (localhost:4300 dev / localhost:4200/preview prod)
-    ↓ HTTP GET
+Browser (localhost:4300)
+    ↓
 apps/preview (Next.js + React)
-    ↓ HTTP GET /api/preview/sectors
-apps/api (Express.js :8201)
-    ↓ HTTP GET /sectors
-apps/market-data (FastAPI :8203)
-    ↓ Returns mock data
-31 SW Level-1 Sector Indices
+    ↓
+Mock Data (hardcoded in frontend)
+    ↓
+HeatMap Visualization (31 SW Level-1 Sectors)
 ```
 
 ### Data Flow
 
-1. **market-data service** generates mock data for 31 SW Level-1 sectors
-2. **Express API** proxies the request from preview to market-data
-3. **Preview app** fetches data and renders treemap visualization
+1. **Frontend mock data** hardcoded array of 31 SW Level-1 sectors
+2. **Preview app** uses mock data directly for rendering
+3. **No API calls** - pure frontend development for UI iteration
 4. Pure display mode - no user interactions in initial version
+
+**Note:** API integration will be added later. Focus is on UI design and styling first.
 
 ## Project Structure
 
@@ -56,8 +56,8 @@ apps/preview/
 │       │   └── BreathingDot.tsx # Breathing indicator component
 │       ├── types/
 │       │   └── sector.ts        # Sector data TypeScript types
-│       ├── api/
-│       │   └── sectors.ts       # API client with data transformation
+│       ├── data/
+│       │   └── mockSectors.ts   # Mock data for 31 SW sectors
 │       └── globals.css          # Tailwind CSS imports
 ├── tailwind.config.ts           # Independent Tailwind config
 ├── tsconfig.json                # TypeScript configuration
@@ -80,29 +80,269 @@ interface Sector {
 }
 ```
 
-### API Response (Python market-data)
+### Mock Data (Frontend)
 
-```python
-GET /sectors
-Response: {
-  "data": [
-    {
-      "code": "801010",
-      "name": "农林牧渔",
-      "market_cap": 12000.0,
-      "change_percent": 2.5,
-      "capital_flow": 450.0,      # Positive = inflow, negative = outflow
-      "attention_level": 75        # 0-100, higher = more attention needed
-    },
-    // ... 30 more sectors
-  ],
-  "timestamp": "2026-01-28T10:30:00Z"
-}
+**File:** `apps/preview/src/data/mockSectors.ts`
+
+```typescript
+export const mockSectors: Sector[] = [
+  {
+    code: "801010",
+    name: "农林牧渔",
+    marketCap: 12500.0,
+    changePercent: 1.85,
+    capitalFlow: 320.5,
+    attentionLevel: 45
+  },
+  {
+    code: "801020",
+    name: "煤炭",
+    marketCap: 18200.0,
+    changePercent: -2.15,
+    capitalFlow: -580.2,
+    attentionLevel: 88
+  },
+  {
+    code: "801030",
+    name: "有色金属",
+    marketCap: 22100.0,
+    changePercent: 0.95,
+    capitalFlow: 450.8,
+    attentionLevel: 62
+  },
+  {
+    code: "801040",
+    name: "钢铁",
+    marketCap: 14300.0,
+    changePercent: -1.45,
+    capitalFlow: -320.0,
+    attentionLevel: 55
+  },
+  {
+    code: "801050",
+    name: "基础化工",
+    marketCap: 25800.0,
+    changePercent: 2.35,
+    capitalFlow: 680.5,
+    attentionLevel: 72
+  },
+  {
+    code: "801080",
+    name: "建筑",
+    marketCap: 16500.0,
+    changePercent: 0.65,
+    capitalFlow: 210.3,
+    attentionLevel: 38
+  },
+  {
+    code: "801110",
+    name: "建材",
+    marketCap: 13200.0,
+    changePercent: -0.85,
+    capitalFlow: -180.5,
+    attentionLevel: 42
+  },
+  {
+    code: "801120",
+    name: "轻工制造",
+    marketCap: 11800.0,
+    changePercent: 1.25,
+    capitalFlow: 155.0,
+    attentionLevel: 35
+  },
+  {
+    code: "801140",
+    name: "机械",
+    marketCap: 19500.0,
+    changePercent: 1.75,
+    capitalFlow: 425.8,
+    attentionLevel: 58
+  },
+  {
+    code: "801150",
+    name: "电力设备",
+    marketCap: 28900.0,
+    changePercent: 3.25,
+    capitalFlow: 920.5,
+    attentionLevel: 91
+  },
+  {
+    code: "801160",
+    name: "国防军工",
+    marketCap: 15600.0,
+    changePercent: -1.95,
+    capitalFlow: -410.2,
+    attentionLevel: 76
+  },
+  {
+    code: "801170",
+    name: "汽车",
+    marketCap: 21500.0,
+    changePercent: 2.85,
+    capitalFlow: 650.0,
+    attentionLevel: 82
+  },
+  {
+    code: "801180",
+    name: "商贸零售",
+    marketCap: 12900.0,
+    changePercent: 0.45,
+    capitalFlow: 95.5,
+    attentionLevel: 28
+  },
+  {
+    code: "801200",
+    name: "消费者服务",
+    marketCap: 14800.0,
+    changePercent: 1.55,
+    capitalFlow: 280.0,
+    attentionLevel: 48
+  },
+  {
+    code: "801210",
+    name: "家电",
+    marketCap: 16200.0,
+    changePercent: -0.95,
+    capitalFlow: -220.5,
+    attentionLevel: 52
+  },
+  {
+    code: "801230",
+    name: "纺织服装",
+    marketCap: 9800.0,
+    changePercent: 0.35,
+    capitalFlow: 65.0,
+    attentionLevel: 22
+  },
+  {
+    code: "801710",
+    name: "医药",
+    marketCap: 32500.0,
+    changePercent: 1.95,
+    capitalFlow: 780.5,
+    attentionLevel: 68
+  },
+  {
+    code: "801720",
+    name: "食品饮料",
+    marketCap: 35800.0,
+    changePercent: 2.15,
+    capitalFlow: 850.0,
+    attentionLevel: 74
+  },
+  {
+    code: "801730",
+    name: "农业",
+    marketCap: 11200.0,
+    changePercent: -1.25,
+    capitalFlow: -195.0,
+    attentionLevel: 44
+  },
+  {
+    code: "801780",
+    name: "银行",
+    marketCap: 45200.0,
+    changePercent: 0.85,
+    capitalFlow: 520.0,
+    attentionLevel: 56
+  },
+  {
+    code: "801790",
+    name: "非银行金融",
+    marketCap: 28500.0,
+    changePercent: 1.45,
+    capitalFlow: 480.5,
+    attentionLevel: 64
+  },
+  {
+    code: "801880",
+    name: "房地产",
+    marketCap: 18900.0,
+    changePercent: -2.85,
+    capitalFlow: -720.0,
+    attentionLevel: 92
+  },
+  {
+    code: "801890",
+    name: "交通运输",
+    marketCap: 17200.0,
+    changePercent: 0.55,
+    capitalFlow: 135.5,
+    attentionLevel: 40
+  },
+  {
+    code: "801980",
+    name: "电子",
+    marketCap: 38500.0,
+    changePercent: 3.15,
+    capitalFlow: 1050.0,
+    attentionLevel: 95
+  },
+  {
+    code: "801990",
+    name: "通信",
+    marketCap: 14500.0,
+    changePercent: 1.05,
+    capitalFlow: 210.0,
+    attentionLevel: 50
+  },
+  {
+    code: "802010",
+    name: "计算机",
+    marketCap: 26800.0,
+    changePercent: 2.65,
+    capitalFlow: 720.5,
+    attentionLevel: 78
+  },
+  {
+    code: "802020",
+    name: "传媒",
+    marketCap: 12300.0,
+    changePercent: -0.65,
+    capitalFlow: -125.0,
+    attentionLevel: 36
+  },
+  {
+    code: "802030",
+    name: "电力及公用事业",
+    marketCap: 15800.0,
+    changePercent: 0.25,
+    capitalFlow: 58.0,
+    attentionLevel: 25
+  },
+  {
+    code: "802040",
+    name: "石油石化",
+    marketCap: 24500.0,
+    changePercent: -1.75,
+    capitalFlow: -520.5,
+    attentionLevel: 70
+  },
+  {
+    code: "802050",
+    name: "环保",
+    marketCap: 10500.0,
+    changePercent: 1.35,
+    capitalFlow: 165.0,
+    attentionLevel: 46
+  },
+  {
+    code: "802060",
+    name: "美容护理",
+    marketCap: 13800.0,
+    changePercent: 0.75,
+    capitalFlow: 125.5,
+    attentionLevel: 32
+  }
+];
 ```
 
-### SW Level-1 Sectors (31 total)
-
-农林牧渔、煤炭、有色金属、钢铁、基础化工、建筑、建材、轻工制造、机械、电力设备、国防军工、汽车、商贸零售、消费者服务、家电、纺织服装、医药、食品饮料、农业、银行、非银行金融、房地产、交通运输、电子、通信、计算机、传媒、电力及公用事业、石油石化、环保、美容护理
+**Data Characteristics:**
+- Total sectors: 31 (complete SW Level-1 classification)
+- Market cap range: ¥9,800亿 to ¥45,200亿
+- Change range: -2.85% to +3.25%
+- Capital flow range: -¥720亿 to +¥1,050亿
+- Attention level range: 22 to 95 (varied breathing frequencies)
 
 ## Component Design
 
@@ -244,23 +484,21 @@ module.exports = {
 
 ## Implementation Details
 
-### Data Fetching
+### Data Usage
 
 ```typescript
-// apps/preview/src/api/sectors.ts
-export async function fetchSectors(): Promise<Sector[]> {
-  const response = await fetch('/api/preview/sectors');
-  const data = await response.json();
+// apps/preview/src/app/page.tsx
+import { mockSectors } from '@/data/mockSectors';
 
-  // Transform Python snake_case to TypeScript camelCase
-  return data.data.map(sector => ({
-    code: sector.code,
-    name: sector.name,
-    marketCap: sector.market_cap,
-    changePercent: sector.change_percent,
-    capitalFlow: sector.capital_flow,
-    attentionLevel: sector.attention_level
-  }));
+export default function PreviewPage() {
+  // Use mock data directly - no API calls needed
+  const sectors = mockSectors;
+
+  return (
+    <main className="min-h-screen bg-gray-50 dark:bg-[#0a0f0d]">
+      <HeatMap data={sectors} />
+    </main>
+  );
 }
 ```
 
@@ -352,12 +590,14 @@ interface BreathingDotProps {
 npx nx run preview:serve
 # → Access at http://localhost:4300
 
-# Start dependencies
-npx nx run api:serve           # Port 8201
-npx nx run market-data:serve   # Port 8203
-
 # Build preview app
 npx nx run preview:build
+
+# Lint code
+npx nx run preview:lint
+
+# Type check
+npx nx run preview:type-check
 ```
 
 ### Development Ports
@@ -365,8 +605,8 @@ npx nx run preview:build
 | Service | Port | Purpose |
 |---------|------|---------|
 | preview (dev) | 4300 | Preview app development server |
-| api | 8201 | Express API gateway |
-| market-data | 8203 | Python FastAPI mock data |
+
+**Note:** No backend services required - pure frontend development with mock data.
 
 ## Future Integration into apps/web
 
@@ -396,70 +636,21 @@ cp -r apps/preview/src/app/* apps/web/src/app/preview/
 - Remove `apps/preview` directory
 - Keep this design doc for reference
 
-## API Implementation
+## Future: API Integration (Not in Phase 1)
 
-### 1. market-data Service (Python)
+**Phase 1 (Current):** Use frontend mock data only
+**Phase 2 (Future):** Add real-time data integration
 
-**File:** `apps/market-data/src/routes/sectors.py`
+### Future API Architecture
 
-```python
-from fastapi import APIRouter
-from datetime import datetime
+When ready to integrate real data:
 
-router = APIRouter()
+1. **market-data service** provides `/sectors` endpoint
+2. **Express API** proxies to market-data
+3. **Preview app** fetches from `/api/preview/sectors`
+4. **Mock data** replaced with live updates
 
-@router.get("/sectors")
-async def get_sectors():
-    # Mock data for 31 SW Level-1 sectors
-    sectors = [
-        {
-            "code": "801010",
-            "name": "农林牧渔",
-            "market_cap": 12000.0,
-            "change_percent": 2.5,
-            "capital_flow": 450.0,      # Positive = inflow
-            "attention_level": 75        # 0-100
-        },
-        {
-            "code": "801020",
-            "name": "煤炭",
-            "market_cap": 8500.0,
-            "change_percent": -1.2,
-            "capital_flow": -220.0,      # Negative = outflow
-            "attention_level": 85        # High attention
-        },
-        # ... 29 more sectors
-    ]
-
-    return {
-        "data": sectors,
-        "timestamp": datetime.utcnow().isoformat() + "Z"
-    }
-```
-
-### 2. Express API Proxy
-
-**File:** `apps/api/src/routes/preview.ts`
-
-```typescript
-import express from 'express';
-import axios from 'axios';
-
-const router = express.Router();
-
-router.get('/preview/sectors', async (req, res) => {
-  try {
-    const response = await axios.get(
-      `${process.env.MARKET_DATA_URL || 'http://localhost:8203'}/sectors`
-    );
-    res.json(response.data);
-  } catch (error) {
-    res.status(503).json({ error: 'Market data service unavailable' });
-  }
-});
-
-export default router;
-```
+This design document focuses on **Phase 1 UI development** with hardcoded mock data.
 
 ## Interaction Design
 
@@ -589,8 +780,10 @@ Not provided - focus on implementation tasks, not time predictions.
 **Next Steps:**
 1. Set up git worktree for isolated development
 2. Create implementation plan with detailed tasks
-3. Implement market-data endpoint
-4. Implement Express API proxy
-5. Build preview Next.js application
-6. Style refinement iterations
-7. Integration into apps/web
+3. Set up preview Next.js application structure
+4. Implement mock data (31 SW sectors)
+5. Build HeatMap and Tile components
+6. Implement breathing indicator animation
+7. Add light/dark theme support
+8. Style refinement iterations
+9. Integration into apps/web
