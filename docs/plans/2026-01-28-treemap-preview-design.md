@@ -1178,9 +1178,9 @@ apps/preview/
 └── project.json                 # Nx target configuration
 ```
 
-## Architecture Design
+## 5. Code Architecture
 
-### Single Responsibility Principle (SRP)
+### 5.1 Single Responsibility Principle
 
 **⚠️ Critical: Layout Calculation MUST be decoupled from UI Rendering**
 
@@ -1210,46 +1210,81 @@ const { tiles, totalHeight } = useTreeMap({
   containerWidth: 920,
   maxHeight: 580,
   minTileSize: 150,
-  gap: 4 // 4px gap between tiles
+  gap: 4
 });
 
 // Component: UI rendering (presentation)
 {tiles.map(tile => (
   <HeatMapTile
     key={tile.id}
-    x={tile.x}
-    y={tile.y}
-    width={tile.width}
-    height={tile.height}
+    x={tile.x} y={tile.y}
+    width={tile.width} height={tile.height}
     sector={tile.data}
   />
 ))}
 ```
 
-### 4-Level Drill-Down Architecture
+### 5.2 Component Hierarchy
 
-**Hierarchy:**
 ```
-Level 1: 一级行业 (31 sectors)
-    ↓
-Level 2: 二级行业 (varies by L1 sector)
-    ↓
-Level 3: 三级行业 (varies by L2 industry)
-    ↓
-Level 4: 股票 (individual stocks)
+App (layout.tsx + page.tsx)
+  └── HeatMap.tsx (container component)
+        ├── HeatMapHeader.tsx
+        │     ├── Breadcrumb.tsx
+        │     └── SearchBox.tsx
+        └── HeatMapTile.tsx × 31 (level 1) or more (levels 2-4)
+              ├── BreathingDot.tsx (top-right)
+              └── TileBottomPanel.tsx (bottom 1/3, on hover)
+                    └── Sparkline.tsx (trend line)
+                          └── BreathingDot.tsx (end point)
+
+Background Layers:
+  ├── DynamicBackground.tsx (animated color blocks)
+  └── SpotlightEffect.tsx (optional, mouse-following)
 ```
 
-**State Management:**
+### 5.3 Hooks & State Management
+
+**5.3.1 useTreeMap Hook**
+
+```typescript
+interface UseTreeMapOptions {
+  data: BaseEntity[];
+  containerWidth: number;
+  maxHeight: number;
+  minTileSize: number;
+  gap: number;
+}
+
+interface TreeMapLayout {
+  tiles: TileLayout[];
+  totalHeight: number;
+}
+
+function useTreeMap(options: UseTreeMapOptions): TreeMapLayout
+```
+
+**5.3.2 useDrillDown Hook**
+
 ```typescript
 interface DrillDownState {
   level: 1 | 2 | 3 | 4;
-  path: string[]; // e.g., ["电子", "光学光电子", null, null]
-  currentData: Sector[] | Industry[] | SubIndustry[] | Stock[];
-  breadcrumb: string[]; // ["一级行业", "电子", "光学光电子"]
+  path: (string | null)[];
+  currentData: BaseEntity[];
+  breadcrumb: string[];
 }
 
-const { state, drillDown, drillUp } = useDrillDown();
+interface UseDrillDownReturn {
+  state: DrillDownState;
+  drillDown: (entity: BaseEntity) => void;
+  drillUp: () => void;
+  reset: () => void;
+}
+
+function useDrillDown(): UseDrillDownReturn
 ```
+
+---
 
 ## Component Design
 
