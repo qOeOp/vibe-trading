@@ -3,6 +3,113 @@
 **Date:** 2026-01-28
 **Status:** Approved
 **Type:** New Feature - Independent Preview Application
+**Version:** 2.0 (Restructured)
+**Last Updated:** 2026-01-28
+
+---
+
+## 📑 Table of Contents
+
+### 1. [Overview](#1-overview)
+- 1.1 Purpose & Scope
+- 1.2 Design Source
+- 1.3 Key Features
+
+### 2. [System Architecture](#2-system-architecture)
+- 2.1 System Flow
+- 2.2 Data Flow
+- 2.3 Technology Stack
+
+### 3. [Project File Structure](#3-project-file-structure)
+- 3.1 Directory Layout
+- 3.2 Component Files
+- 3.3 Configuration Files
+
+### 4. [Data Model & Mock Data](#4-data-model--mock-data)
+- 4.1 Type Definitions
+- 4.2 Level 1: SW Industry Sectors (31 items)
+- 4.3 Level 2: Sub-Industries (8 items under 电子)
+- 4.4 Level 3: Tertiary Industries (7 items under 半导体)
+- 4.5 Level 4: Individual Stocks (15 items under 光学光电子)
+- 4.6 Sector Icon System (31 Lucide mappings)
+
+### 5. [Code Architecture](#5-code-architecture)
+- 5.1 Single Responsibility Principle
+- 5.2 Component Hierarchy
+- 5.3 Hooks & State Management
+
+### 6. [Visual Design System](#6-visual-design-system)
+- 6.1 Base Design (Figma Specifications)
+- 6.2 Glassmorphism Effects
+- 6.3 3D Hover Interaction
+- 6.4 Animation System
+
+### 7. [Layout & Dimensions](#7-layout--dimensions)
+- 7.1 Page Layout
+- 7.2 HeatMap Container Dimensions
+- 7.3 Tile Shape & Size Constraints
+- 7.4 Header Design & Scroll Effects
+
+### 8. [Component Specifications](#8-component-specifications)
+- 8.1 HeatMap
+- 8.2 HeatMapHeader
+- 8.3 HeatMapTile
+- 8.4 TileBottomPanel
+- 8.5 Sparkline
+- 8.6 BreathingDot
+- 8.7 Breadcrumb
+- 8.8 SearchBox
+- 8.9 DynamicBackground
+- 8.10 SpotlightEffect
+
+### 9. [Implementation Guide](#9-implementation-guide)
+- 9.1 Data Usage & Page Setup
+- 9.2 Color Calculation Functions
+- 9.3 Animation Configuration
+- 9.4 Theme Integration
+
+### 10. [Development Workflow](#10-development-workflow)
+- 10.1 Development Commands
+- 10.2 Port Assignments
+- 10.3 Build & Test Process
+
+### 11. [Success Criteria](#11-success-criteria)
+- 11.1 Functionality (1-4)
+- 11.2 Visual Design (5-8)
+- 11.3 Layout & Dimensions (9-16)
+- 11.4 Tile Shape & Size (17-21)
+- 11.5 Header Components (22-28)
+- 11.6 Architecture & Code Quality (29-32)
+- 11.7 Glassmorphism Effects (33-41)
+- 11.8 Animation System (42-46)
+- 11.9 Advanced Features (47-49)
+- 11.10 3D Hover Interaction (50-59)
+- 11.11 Sector Icons (60-65)
+- 11.12 Header Scroll Effects (66-71)
+- 11.13 Sparkline Animations (72-77)
+
+### 12. [Design Principles](#12-design-principles)
+- 12.1 Complete Independence from apps/web
+- 12.2 Required Development Tools
+- 12.3 Component Development Workflow
+
+### 13. [Technical Decisions](#13-technical-decisions)
+- 13.1 Why Next.js instead of Vite?
+- 13.2 Why Independent App?
+- 13.3 Why Recharts for Layout?
+
+### 14. [Future Considerations](#14-future-considerations)
+- 14.1 Phase 2: API Integration
+- 14.2 Phase 2: Interactive Features
+- 14.3 Integration into apps/web
+
+### 15. [Non-Goals](#15-non-goals)
+
+### 16. [Appendices](#16-appendices)
+- Appendix A: Detailed Code Examples
+- Appendix B: Figma Design References
+
+---
 
 ## Overview
 
