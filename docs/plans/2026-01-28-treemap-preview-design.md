@@ -11,12 +11,13 @@ Create an independent treemap visualization page for displaying 31 SW Level-1 se
 ## Design Source
 
 **Figma:** https://www.figma.com/design/O52eqHmOTyh0tzZwpC7sl9/landing-page?node-id=524-11
+![Treemap Preview](./images/treemap.png)
 
-The design shows a treemap visualization with:
-- Company/sector cards sized by market capitalization
+The design shows a heatmap visualization with:
+- Sector tiles sized by market capitalization
 - Color-coded by performance (green=up, red=down)
-- Card displays: name, market cap value, change percentage badge
-- Dark background with white borders between cards
+- Tile displays: sector name (top-left), breathing indicator (top-right), capital flow + change% (bottom-right)
+- Dark background with white borders between tiles
 
 ## Architecture
 
@@ -50,8 +51,9 @@ apps/preview/
 │       ├── layout.tsx           # Root layout with dark theme
 │       ├── page.tsx             # Main treemap page
 │       ├── components/
-│       │   ├── Treemap.tsx      # Treemap container component
-│       │   └── SectorCard.tsx   # Individual sector card
+│       │   ├── HeatMap.tsx      # HeatMap container component
+│       │   ├── Tile.tsx         # Individual sector tile
+│       │   └── BreathingDot.tsx # Breathing indicator component
 │       ├── types/
 │       │   └── sector.ts        # Sector data TypeScript types
 │       ├── api/
@@ -71,9 +73,10 @@ apps/preview/
 interface Sector {
   code: string;           // Sector code, e.g., "801010"
   name: string;           // Sector name, e.g., "农林牧渔"
-  marketCap: number;      // Market cap in 亿元 (determines card size)
+  marketCap: number;      // Market cap in 亿元 (determines tile size)
   changePercent: number;  // Change percentage (determines color)
-  changeAmount: number;   // Change amount in 亿元
+  capitalFlow: number;    // Capital flow in 亿元 (positive=inflow, negative=outflow)
+  attentionLevel: number; // Attention level 0-100 (determines breathing indicator frequency)
 }
 ```
 
@@ -88,7 +91,8 @@ Response: {
       "name": "农林牧渔",
       "market_cap": 12000.0,
       "change_percent": 2.5,
-      "change_amount": 300.0
+      "capital_flow": 450.0,      # Positive = inflow, negative = outflow
+      "attention_level": 75        # 0-100, higher = more attention needed
     },
     // ... 30 more sectors
   ],
@@ -106,22 +110,22 @@ Response: {
 
 ```
 App (layout.tsx + page.tsx)
-  └── Treemap.tsx (data fetching & layout calculation)
-        └── SectorCard.tsx × 31 (individual sector cards)
+  └── HeatMap.tsx (data fetching & layout calculation)
+        └── Tile.tsx × 31 (individual sector tiles)
               ├── Sector name (top-left)
-              ├── Market cap value (bottom-left)
-              ├── Change % badge (top-right)
+              ├── BreathingDot.tsx (top-right, frequency based on attentionLevel)
+              ├── Capital flow + Change % (bottom-right)
               └── Background color (gradient based on change%)
 ```
 
-### Treemap Implementation
+### HeatMap Implementation
 
-**Library:** Recharts `<Treemap>` component
+**Library:** Recharts `<Treemap>` component (used for treemap-style layout)
 
 **Configuration:**
 - `data`: Array of 31 sectors
-- `dataKey="marketCap"`: Determines card size
-- Custom `content`: Renders `SectorCard` component
+- `dataKey="marketCap"`: Determines tile size
+- Custom `content`: Renders `Tile` component
 - Responsive container with full viewport dimensions
 
 ### Visual Design (from Figma)
@@ -135,10 +139,15 @@ App (layout.tsx + page.tsx)
 - **Borders**: `#ffffff` (white), 2px
 - **Border Radius**: Small rounded corners
 
-**Card Layout:**
+**Tile Layout:**
 - **Top-left**: Sector name (white, 14-16px, font-weight: 600)
-- **Bottom-left**: Market cap value (white, 12px, format: "$XXX.XXB")
-- **Top-right**: Change % badge (small rounded rect, semi-transparent bg)
+- **Top-right**: Breathing indicator dot (animated, frequency based on attentionLevel)
+  - High attention (80-100): Fast pulse (0.8s cycle)
+  - Medium attention (40-79): Medium pulse (1.5s cycle)
+  - Low attention (0-39): Slow pulse (3s cycle)
+- **Bottom-right**:
+  - Capital flow (white, 12px, format: "±¥XXX亿" with arrow icon)
+  - Change percentage (white, 10px, format: "+2.5%")
 - **Padding**: 8-12px
 
 **Color Intensity Calculation:**
@@ -213,7 +222,8 @@ export async function fetchSectors(): Promise<Sector[]> {
     name: sector.name,
     marketCap: sector.market_cap,
     changePercent: sector.change_percent,
-    changeAmount: sector.change_amount
+    capitalFlow: sector.capital_flow,
+    attentionLevel: sector.attention_level
   }));
 }
 ```
@@ -235,9 +245,10 @@ function getSectorColor(changePercent: number): string {
 ### Data Formatting
 
 ```typescript
-// Format market cap: 12000.0 → "$1200.00B"
-function formatMarketCap(value: number): string {
-  return `$${(value / 10).toFixed(2)}B`;
+// Format capital flow: 450.0 → "+¥450亿" or -300.0 → "-¥300亿"
+function formatCapitalFlow(value: number): string {
+  const sign = value >= 0 ? '+' : '';
+  return `${sign}¥${Math.abs(value).toFixed(0)}亿`;
 }
 
 // Format change: 2.5 → "+2.5%"
@@ -245,7 +256,45 @@ function formatChangePercent(value: number): string {
   const sign = value >= 0 ? '+' : '';
   return `${sign}${value.toFixed(2)}%`;
 }
+
+// Calculate breathing animation duration based on attention level
+function getBreathingDuration(attentionLevel: number): number {
+  if (attentionLevel >= 80) return 0.8; // Fast
+  if (attentionLevel >= 40) return 1.5; // Medium
+  return 3.0; // Slow
+}
 ```
+
+### Breathing Indicator Animation
+
+**Component:** `BreathingDot.tsx`
+
+```typescript
+interface BreathingDotProps {
+  attentionLevel: number; // 0-100
+}
+
+// CSS animation with Tailwind
+<div
+  className="w-2 h-2 rounded-full bg-white/90"
+  style={{
+    animation: `breathing ${getBreathingDuration(attentionLevel)}s ease-in-out infinite`
+  }}
+/>
+
+// Tailwind animation keyframe (in globals.css)
+@keyframes breathing {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+```
+
+**Visual Design:**
+- Dot size: 8px × 8px
+- Color: white with 90% opacity
+- Position: Absolute top-right corner (8-12px from edges)
+- Animation: Fade + scale pulse effect
+- No glow/shadow (clean minimal design)
 
 ## Development Workflow
 
@@ -321,9 +370,18 @@ async def get_sectors():
             "name": "农林牧渔",
             "market_cap": 12000.0,
             "change_percent": 2.5,
-            "change_amount": 300.0
+            "capital_flow": 450.0,      # Positive = inflow
+            "attention_level": 75        # 0-100
         },
-        # ... 30 more sectors
+        {
+            "code": "801020",
+            "name": "煤炭",
+            "market_cap": 8500.0,
+            "change_percent": -1.2,
+            "capital_flow": -220.0,      # Negative = outflow
+            "attention_level": 85        # High attention
+        },
+        # ... 29 more sectors
     ]
 
     return {
