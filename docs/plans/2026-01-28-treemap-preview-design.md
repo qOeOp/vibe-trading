@@ -3584,93 +3584,218 @@ const panelVariants = {
 
 ### 8.5 Sparkline - 30-Day Trend Chart
 
-**Component:** SVG-based line chart displayed on tile hover in Lower Panel
+**Component:** Minimalist area chart with gradient fill
 
-**Layout Strategy:**
-- **Container:** Lower Panel (50% of tile height)
-- **Padding:** None - Sparkline fills entire panel
-- **Height Calculation:** Dynamic based on data points with 8px top/bottom margins
+**Design Reference:** Inspired by modern area charts with subtle gradients
 
-**Height Algorithm:**
+**Visual Specifications:**
+
+| Property | Value | Notes |
+|----------|-------|-------|
+| **Stroke Color** | `#3b82f6` (Tailwind blue-500) | Bright blue, visible on all backgrounds |
+| **Stroke Width** | 2px | Thin but visible line |
+| **Line Cap** | round | Smooth rounded endpoints |
+| **Line Join** | round | Smooth rounded corners |
+| **Fill Gradient** | White → Transparent | Vertical gradient, opacity 0.2 → 0 |
+
+**TypeScript + SVG Implementation:**
+
 ```typescript
-function calculateSparklineLayout(data: number[], panelHeight: number) {
+interface SparklineProps {
+  data: number[];
+  width: number;
+  height: number;
+  className?: string;
+}
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+export const Sparkline = ({ data, width, height, className }: SparklineProps) => {
+  const points = calculateSparklinePoints(data, width, height);
+  const pathData = generateSVGPath(points);
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      className={`overflow-visible ${className}`}
+      viewBox={`0 0 ${width} ${height}`}
+    >
+      {/* Gradient definition */}
+      <defs>
+        <linearGradient id="sparkline-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      {/* Fill area */}
+      <path
+        d={pathData.area}
+        fill="url(#sparkline-gradient)"
+        className="transition-all duration-300"
+      />
+
+      {/* Stroke line */}
+      <path
+        d={pathData.line}
+        fill="none"
+        stroke="#3b82f6"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="transition-all duration-300"
+        style={{
+          strokeDasharray: pathData.length,
+          strokeDashoffset: pathData.length,
+          animation: 'draw-line 0.4s ease-out forwards'
+        }}
+      />
+
+      {/* Breathing dot at endpoint */}
+      <foreignObject
+        x={points[points.length - 1].x - 3.5}
+        y={points[points.length - 1].y - 3.5}
+        width="7"
+        height="7"
+      >
+        <BreathingDot attentionLevel={80} />
+      </foreignObject>
+    </svg>
+  );
+};
+
+// Calculate points with 8px top/bottom margins
+function calculateSparklinePoints(
+  data: number[],
+  width: number,
+  height: number
+): Point[] {
   const minValue = Math.min(...data);
   const maxValue = Math.max(...data);
   const valueRange = maxValue - minValue;
+  const margin = 8;  // Top and bottom margin
 
-  // Reserve 8px margins top and bottom
-  const availableHeight = panelHeight - 16;  // 8px top + 8px bottom
+  return data.map((value, index) => {
+    const x = (index / (data.length - 1)) * width;
+    const normalizedY = (value - minValue) / valueRange;
+    const y = height - margin - (normalizedY * (height - 2 * margin));
 
-  // Scale points to fit within available height
-  const points = data.map((value, index) => {
-    const normalizedValue = (value - minValue) / valueRange;
-    const x = (index / (data.length - 1)) * panelWidth;
-    const y = panelHeight - 8 - (normalizedValue * availableHeight);  // 8px from bottom
     return { x, y };
   });
+}
 
-  return points;
+// Generate SVG path strings
+function generateSVGPath(points: Point[]): { line: string; area: string; length: number } {
+  if (points.length === 0) return { line: '', area: '', length: 0 };
+
+  // Line path (stroke)
+  const linePath = points.reduce((path, point, index) => {
+    if (index === 0) return `M ${point.x} ${point.y}`;
+    return `${path} L ${point.x} ${point.y}`;
+  }, '');
+
+  // Area path (fill) - extends to bottom
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${height} L ${points[0].x} ${height} Z`;
+
+  // Calculate path length for stroke animation
+  const tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  tempPath.setAttribute('d', linePath);
+  const length = tempPath.getTotalLength();
+
+  return {
+    line: linePath,
+    area: areaPath,
+    length
+  };
 }
 ```
 
-**Visual Constraints:**
-- **Lowest point:** 8px above panel bottom edge
-- **Highest point:** 8px below panel top edge
-- **All points:** Scaled proportionally between these bounds
+**CSS Animation (in globals.css):**
 
-**Color Specifications:**
-
-| Element | Color | Opacity | Notes |
-|---------|-------|---------|-------|
-| **Stroke (Line)** | `rgba(84, 148, 250, 1)` | 100% | Bright blue, highly visible |
-| **Fill (Area)** | Linear gradient | 60% → 0% | Cyan to transparent |
-| **BreathingDot** | `rgba(53, 185, 233, 0.9)` | 90% | Cyan, matches theme |
-
-**Stroke Properties:**
-- Width: 2px
-- Line cap: round
-- Line join: round
-- Stroke animation: `stroke-dasharray` (0.4s draw-in)
-
-**Fill Gradient:**
-```typescript
-<defs>
-  <linearGradient id="sparkline-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-    <stop offset="0%" stopColor="rgba(53, 185, 233, 0.6)" />
-    <stop offset="100%" stopColor="rgba(53, 185, 233, 0)" />
-  </linearGradient>
-</defs>
-
-<path
-  d={generatePath(points)}
-  fill="url(#sparkline-gradient)"
-  stroke="rgba(84, 148, 250, 1)"
-  strokeWidth="2"
-/>
+```css
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
 ```
 
-**BreathingDot Position:**
-- Location: **Last point of sparkline** (index = data.length - 1)
-- Horizontal: At sparkline endpoint X coordinate
-- Vertical: At sparkline endpoint Y coordinate
-- Visual effect: Dot appears **half inside panel, half outside**
-  - Left semicircle: Inside panel
-  - Right semicircle: Outside panel (extends beyond right edge)
-
-**Implementation:**
+**Tailwind Utilities:**
 ```typescript
-const lastPoint = points[points.length - 1];
-
-<BreathingDot
-  attentionLevel={attentionLevel}
-  style={{
-    position: 'absolute',
-    left: `${lastPoint.x}px`,
-    top: `${lastPoint.y}px`,
-    transform: 'translate(0, -50%)'  // Center vertically on line
-  }}
-/>
+// Responsive sparkline dimensions
+const sparklineDimensions = {
+  desktop: { width: panelWidth, height: panelHeight - 16 },
+  mobile: { width: panelWidth, height: panelHeight - 8 }
+};
 ```
+
+**Key Design Decisions:**
+
+1. **White gradient fill** (not cyan): Creates subtle depth without competing with blue stroke
+2. **Blue stroke** (`#3b82f6`): High contrast, visible on both red and green tile backgrounds
+3. **2px stroke width**: Thin but clear, professional appearance
+4. **Rounded caps/joins**: Smooth, modern aesthetic
+5. **No grid/labels/axes**: Pure data visualization, minimal distraction
+
+**Hover Animation:**
+```typescript
+// Panel transparency + sparkline reveal
+<motion.div
+  className="absolute inset-0 flex items-center justify-center"
+  initial={{ opacity: 0 }}
+  whileHover={{ opacity: 1 }}
+  transition={{ duration: 0.3 }}
+>
+  <Sparkline data={trendData} width={panelWidth} height={panelHeight - 16} />
+</motion.div>
+```
+
+**Tooltip (Optional Enhancement):**
+
+If you want interactive tooltips:
+
+```typescript
+import { Tooltip } from '@/components/ui/tooltip';
+
+<Tooltip>
+  <TooltipTrigger asChild>
+    <circle
+      cx={point.x}
+      cy={point.y}
+      r="3"
+      fill="#3b82f6"
+      className="cursor-pointer opacity-0 hover:opacity-100"
+    />
+  </TooltipTrigger>
+  <TooltipContent
+    className="bg-black/50 backdrop-blur-md border-0 text-white"
+  >
+    <p className="text-sm font-medium">{value}%</p>
+  </TooltipContent>
+</Tooltip>
+```
+
+**Performance Optimizations:**
+- Use `overflow-visible` on SVG to allow breathing dot to extend beyond bounds
+- `transition-all duration-300` for smooth hover transitions
+- Memoize path calculations with `useMemo`
+- GPU acceleration with CSS transforms
+
+**Design Philosophy:**
+
+This sparkline design follows the principle of **minimal visual noise**:
+- No grid lines (distracting)
+- No axis labels (context is implicit)
+- No toolbar or controls (pure data display)
+- White gradient fill provides subtle depth without competing with stroke
+- Blue stroke ensures visibility across all tile background colors (red/green/gray)
+- Yellow breathing dot creates focal point at trend endpoint
+
+**Inspiration:** Modern financial dashboard area charts with glassmorphism aesthetics.
 
 **Hover State Transition:**
 
@@ -3720,62 +3845,111 @@ Hover state:
 </motion.div>
 ```
 
-### 8.6 BreathingDot
+### 8.6 BreathingDot - Attention Indicator with Ripple Effect
 
-**Component:** Animated attention indicator
+**Component:** Pulsing yellow dot with expanding ripple animation
 
-**Default Color:** Cyan (`rgba(53, 185, 233, 0.9)`)
-*Changed from white - uses cyan to stand out against glassmorphism*
-
-**Color Behavior:**
-- **No color change** based on sector up/down performance
-- Always cyan regardless of tile color (red/green)
-- Ensures visibility on all backgrounds
+**Design Reference:** Inspired by modern area chart pulse indicators
 
 **Visual Properties:**
-- Size: 6px diameter (idle)
-- Scale animation: 6px → 8px → 6px
-- Opacity animation: 0.7 → 1.0 → 0.7
-- Color: `rgba(53, 185, 233, 0.9)` (cyan)
-- Border: None
-- Shadow: `0 0 8px rgba(53, 185, 233, 0.4)` (subtle glow)
+- **Core dot size:** 7px diameter
+- **Color:** `#facc15` (Tailwind yellow-400, similar to #ffff00 but more refined)
+- **Ripple effect:** Expanding circle via CSS pseudo-element
+- **Animation cycle:** 3s linear infinite
 
-**Animation Speed Based on Attention Level:**
-- High attention (80-100): Fast pulse (0.8s cycle)
-- Medium attention (40-79): Medium pulse (1.5s cycle)
-- Low attention (0-39): Slow pulse (3s cycle)
+**TypeScript + Tailwind Implementation:**
 
-**Implementation:**
 ```typescript
-const BreathingDot = ({ attentionLevel }: { attentionLevel: number }) => {
+import { motion } from 'framer-motion';
+
+interface BreathingDotProps {
+  attentionLevel: number;
+  className?: string;
+}
+
+export const BreathingDot = ({ attentionLevel, className }: BreathingDotProps) => {
   const duration = getPulseDuration(attentionLevel);
 
   return (
-    <motion.div
-      className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full"
-      style={{
-        backgroundColor: 'rgba(53, 185, 233, 0.9)',
-        boxShadow: '0 0 8px rgba(53, 185, 233, 0.4)'
-      }}
-      animate={{
-        scale: [1, 1.33, 1],
-        opacity: [0.7, 1, 0.7]
-      }}
-      transition={{
-        duration: duration,
-        repeat: Infinity,
-        ease: 'easeInOut'
-      }}
-    />
+    <div className={`relative ${className}`}>
+      {/* Core dot */}
+      <div
+        className="w-[7px] h-[7px] rounded-full bg-yellow-400"
+        style={{
+          boxShadow: '0 0 6px rgba(250, 204, 21, 0.6)'
+        }}
+      />
+
+      {/* Ripple effect (CSS-based for performance) */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          animation: `ripple ${duration}s linear infinite`,
+          border: '0.5px solid rgb(250, 204, 21)',
+          opacity: 0,
+          transform: 'scale(0)',
+          transformOrigin: 'center'
+        }}
+      />
+    </div>
   );
 };
 
+// Attention level to pulse duration mapping
 function getPulseDuration(attentionLevel: number): number {
-  if (attentionLevel >= 80) return 0.8; // Fast
-  if (attentionLevel >= 40) return 1.5; // Medium
-  return 3.0; // Slow
+  if (attentionLevel >= 80) return 1.2;  // Fast pulse (high attention)
+  if (attentionLevel >= 60) return 1.8;
+  if (attentionLevel >= 40) return 2.4;
+  if (attentionLevel >= 20) return 2.8;
+  return 3.0;  // Slow pulse (low attention)
 }
 ```
+
+**CSS Animation (in globals.css):**
+
+```css
+@keyframes ripple {
+  0% {
+    scale: 0;
+    opacity: 0.8;
+  }
+
+  70% {
+    scale: 0;
+    opacity: 0.8;
+  }
+
+  100% {
+    scale: 3;
+    opacity: 0;
+  }
+}
+```
+
+**Tailwind CSS Classes:**
+- `w-[7px] h-[7px]` - 7px diameter core dot
+- `rounded-full` - Perfect circle
+- `bg-yellow-400` - Yellow color (#facc15)
+- `relative` - Positioning context for ripple
+- `absolute inset-0` - Ripple overlay
+
+**Animation Behavior:**
+1. **0-70%**: Ripple stays invisible at scale 0 (build-up phase)
+2. **70-100%**: Ripple expands to 3× size while fading out
+3. **Result**: Subtle wave appears periodically, not constantly visible
+
+**Responsive Behavior:**
+```typescript
+// Mobile: Smaller dot
+const dotSize = isMobile ? 5 : 7;
+
+<div className={`w-[${dotSize}px] h-[${dotSize}px] rounded-full bg-yellow-400`} />
+```
+
+**Performance Note:**
+- CSS animation instead of Framer Motion for better performance
+- GPU-accelerated with `will-change: transform` (optional)
+- Single DOM element for ripple (no multiple layers)
 
 ### 8.7 Breadcrumb - Navigation Component
 
@@ -5104,6 +5278,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   /* Transitions */
   --transition-base: 300ms ease-in-out;
+
+  /* Sparkline colors */
+  --color-sparkline-stroke: #3b82f6;      /* Blue stroke */
+  --color-sparkline-fill-start: rgba(255, 255, 255, 0.2);
+  --color-sparkline-fill-end: rgba(255, 255, 255, 0);
+
+  /* Breathing dot colors */
+  --color-breathing-dot: #facc15;          /* Yellow */
+  --color-breathing-dot-glow: rgba(250, 204, 21, 0.6);
 }
 
 /* Light theme */
@@ -5154,6 +5337,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   /* Glassmorphism */
   --glass-background: rgba(0, 0, 0, 0.15);
   --glass-border: rgba(255, 255, 255, 0.2);
+
+  /* Sparkline and breathing dot (same colors work well in dark mode) */
+  --color-sparkline-stroke: #3b82f6;
+  --color-breathing-dot: #facc15;
 }
 ```
 
