@@ -59,8 +59,9 @@
 - 8.6 BreathingDot
 - 8.7 Breadcrumb
 - 8.8 SearchBox
-- 8.9 DynamicBackground
-- 8.10 SpotlightEffect
+- 8.9 LoadingState
+- 8.10 ErrorState
+- 8.11 EmptyState
 
 ### 9. [Implementation Guide](#9-implementation-guide)
 - 9.1 Data Usage & Page Setup
@@ -86,7 +87,7 @@
 - 11.10 3D Hover Interaction (50-59)
 - 11.11 Sector Icons (60-65)
 - 11.12 Header Scroll Effects (66-71)
-- 11.13 Sparkline Animations (72-77)
+- 11.13 Sparkline Animations (70-75)
 
 ### 12. [Design Principles](#12-design-principles)
 - 12.1 Complete Independence from apps/web
@@ -142,8 +143,8 @@ Create an independent HeatMap visualization page for displaying 31 SW Level-1 se
 - ✅ Glassmorphism (backdrop-filter blur, semi-transparent layers)
 - ✅ 3D hover interaction (tile elevation, panel separation, sparkline reveal)
 - ✅ Framer Motion animations (drill-down, stagger, transitions)
-- ✅ Dynamic background with animated color blocks
-- ✅ Optional spotlight effect (mouse-following)
+- ✅ Clean black/white/gray color scheme (finance-appropriate)
+- ✅ Red/green only for price change indication (Chinese market convention)
 
 **Interaction:**
 - ✅ 4-level drill-down navigation
@@ -243,9 +244,7 @@ app/components/
 ├── Sparkline.tsx                # Mini trend chart (2px stroke)
 ├── BreathingDot.tsx             # Animated attention indicator
 ├── Breadcrumb.tsx               # Navigation breadcrumb
-├── SearchBox.tsx                # Search input with icon
-├── DynamicBackground.tsx        # Blurred color blocks
-└── SpotlightEffect.tsx          # Mouse-following highlight
+└── SearchBox.tsx                # Search input with icon
 ```
 
 **Hooks:**
@@ -302,7 +301,8 @@ module.exports = {
 
 **tailwind.config.ts:**
 - Independent configuration (not inherited from apps/web)
-- Uses Violet Bloom theme colors
+- Conservative finance color scheme (black/white/gray tones)
+- Red/green only for price change indication (Chinese market convention)
 - Includes glassmorphism utilities
 - Supports dark mode via `next-themes`
 
@@ -4394,238 +4394,7 @@ function searchAcrossLevels(query: string, currentLevel: 1 | 2 | 3 | 4): SearchS
 - **Enter**: Select current suggestion and drill down
 - **Escape**: Close suggestions
 
-### 8.9 DynamicBackground - Animated Gradient Environment
-
-**Component:** CSS-based animated gradient blobs (方案A)
-
-**Implementation Strategy:** CSS Keyframes for best performance
-
-**Configuration Parameters:**
-
-| Blob | Color | Size | Position (Start) | Blur | Duration | Movement Pattern |
-|------|-------|------|-----------------|------|----------|-----------------|
-| Red (牛市情绪) | rgba(213,44,162,0.3) | 600px | top: -10%, left: 10% | 80px | 20s | Elliptical drift |
-| Green (熊市情绪) | rgba(3,145,96,0.3) | 500px | bottom: -10%, right: 15% | 100px | 25s | Elliptical drift |
-| Purple (中性基调) | rgba(110,63,243,0.2) | 700px | top: 40%, left: 50% | 90px | 30s | Circular + rotation |
-
-**Complete Implementation:**
-
-```typescript
-// Component
-export const DynamicBackground = () => {
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-gray-900 to-black">
-      {/* Blob 1 - Red */}
-      <div className="blob blob-red" />
-
-      {/* Blob 2 - Green */}
-      <div className="blob blob-green" />
-
-      {/* Blob 3 - Purple */}
-      <div className="blob blob-purple" />
-    </div>
-  );
-};
-```
-
-**CSS Styles:**
-```css
-/* Base blob styles */
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.3;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);  /* GPU acceleration */
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-/* Blob 1 - Red (Market Bull Sentiment) */
-.blob-red {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(213, 44, 162, 1) 0%, transparent 70%);
-  filter: blur(80px);
-  top: -10%;
-  left: 10%;
-  animation: float-red 20s;
-}
-
-/* Blob 2 - Green (Market Bear Sentiment) */
-.blob-green {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(3, 145, 96, 1) 0%, transparent 70%);
-  filter: blur(100px);
-  bottom: -10%;
-  right: 15%;
-  animation: float-green 25s;
-}
-
-/* Blob 3 - Purple (Neutral Tone) */
-.blob-purple {
-  width: 700px;
-  height: 700px;
-  background: radial-gradient(circle, rgba(110, 63, 243, 1) 0%, transparent 70%);
-  filter: blur(90px);
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: float-purple 30s;
-}
-
-/* Animation - Red Blob (Elliptical drift) */
-@keyframes float-red {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(150px, 100px) scale(1.1);
-  }
-}
-
-/* Animation - Green Blob (Elliptical drift, opposite direction) */
-@keyframes float-green {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(-120px, -80px) scale(1.15);
-  }
-}
-
-/* Animation - Purple Blob (Circular + rotation) */
-@keyframes float-purple {
-  0%, 100% {
-    transform: translate(-50%, -50%) scale(1) rotate(0deg);
-  }
-  50% {
-    transform: translate(calc(-50% - 100px), calc(-50% + 150px)) scale(0.9) rotate(180deg);
-  }
-}
-```
-
-**Performance Optimization:**
-```css
-.blob {
-  /* GPU Acceleration */
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-
-  /* Prevent text blur */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Disable on low-end devices */
-@media (prefers-reduced-motion: reduce) {
-  .blob {
-    animation: none;
-    opacity: 0.2;
-  }
-}
-```
-
-**Responsive Degradation:**
-
-```typescript
-// Optional: Device performance detection
-export const DynamicBackground = () => {
-  const [enableAnimation, setEnableAnimation] = useState(true);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isMobile = window.innerWidth < 768;
-      const isLowEnd = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
-
-      // Disable on mobile or low-end devices
-      if (isMobile || isLowEnd) {
-        setEnableAnimation(false);
-      }
-    }
-  }, []);
-
-  if (!enableAnimation) {
-    // Static gradient fallback
-    return (
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-gray-900 via-purple-900/20 to-black" />
-    );
-  }
-
-  // Animated version
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-gray-900 to-black">
-      <div className="blob blob-red" />
-      <div className="blob blob-green" />
-      <div className="blob blob-purple" />
-    </div>
-  );
-};
-```
-
-**Z-Index Layering:**
-```
-Background Layer (z-index: -10):
-  ├── Base gradient (gray-900 to black)
-  └── Animated blobs (3 elements)
-
-Foreground Layer (z-index: 0+):
-  └── HeatMap tiles with glassmorphism
-```
-
-**Browser Compatibility:**
-- Chrome/Edge: Full support
-- Firefox: Full support
-- Safari: Full support (with `-webkit-` prefixes)
-- Mobile browsers: Automatic fallback to static gradient
-
-### 8.10 SpotlightEffect
-
-**Component:** Mouse-following spotlight effect (optional, configurable)
-
-**Visual Properties:**
-- Radial gradient following mouse cursor
-- Soft edge falloff
-- Optional feature (can be disabled)
-- Adds depth and interactivity to glassmorphism
-
-**Implementation:**
-```typescript
-interface SpotlightEffectProps {
-  enabled?: boolean;
-  intensity?: number;  // 0-1
-}
-
-export function SpotlightEffect({ enabled = true, intensity = 0.5 }: SpotlightEffectProps) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [enabled]);
-
-  if (!enabled) return null;
-
-  return (
-    <div
-      className="pointer-events-none fixed inset-0 z-10"
-      style={{
-        background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 255, 255, ${intensity * 0.15}), transparent 40%)`
-      }}
-    />
-  );
-}
-```
-
-### 8.11 LoadingState
+### 8.9 LoadingState
 
 **Component:** Skeleton screen during initial data load
 
@@ -4691,7 +4460,7 @@ const LoadingState = () => {
 - If loading exceeds 2 seconds, show progress message
 - If loading exceeds 10 seconds, transition to ErrorState
 
-### 8.12 ErrorState
+### 8.10 ErrorState
 
 **Component:** Error screen with retry option
 
@@ -4758,7 +4527,7 @@ const ErrorState = ({ error, onRetry, onDisableEffects }: ErrorStateProps) => {
 - **Render Error**: Use React Error Boundary, fallback to simple layout
 - **Performance Error**: Offer to disable animations (backdrop-filter, Framer Motion)
 
-### 8.13 EmptyState
+### 8.11 EmptyState
 
 **Component:** Empty result screen
 
@@ -5825,62 +5594,60 @@ jobs:
 37. ✅ Inset box-shadow (surface texture)
 38. ✅ Drop shadow (0 10px 20px) for depth
 39. ✅ Text with shadow (floating above glass)
-40. ✅ Dynamic background (60-100px blur)
-41. ✅ Spotlight effect (optional, configurable)
 
 ### 11.8 Animation System (42-46)
 
-42. ✅ Framer Motion AnimatePresence integration
-43. ✅ Drill-down animation (expand from parent)
-44. ✅ Drill-up animation (reverse shrink)
-45. ✅ Performance optimization (disable backdrop-filter during animation)
-46. ✅ Stagger animation (20ms delay between tiles)
+40. ✅ Framer Motion AnimatePresence integration
+41. ✅ Drill-down animation (expand from parent)
+42. ✅ Drill-up animation (reverse shrink)
+43. ✅ Performance optimization (disable backdrop-filter during animation)
+44. ✅ Stagger animation (20ms delay between tiles)
 
 ### 11.9 Advanced Features (47-49)
 
-47. ✅ Adaptive content degradation (based on tile size)
-48. ✅ Variable speed linear mapping (color intensity)
-49. ✅ 4-level drill-down support (一级→二级→三级→股票)
+45. ✅ Adaptive content degradation (based on tile size)
+46. ✅ Variable speed linear mapping (color intensity)
+47. ✅ 4-level drill-down support (一级→二级→三级→股票)
 
 ### 11.10 3D Hover Interaction (50-59)
 
-50. ✅ Tile lifts on hover (-12px Y-axis)
-51. ✅ Enhanced shadow depth during hover
-52. ✅ Bottom 1/3 panel separates from tile
-53. ✅ Panel rotates along Z-axis (3deg right tilt)
-54. ✅ Panel becomes transparent glass (0.3 opacity)
-55. ✅ Original content fades out (capital flow + change%)
-56. ✅ Sparkline chart fades in (2px stroke)
-57. ✅ Breathing indicator dot at sparkline end (6px, 2s pulse)
-58. ✅ 30-day trend data for all sectors/stocks
-59. ✅ Smooth elastic transition (400ms cubic-bezier)
+48. ✅ Tile lifts on hover (-12px Y-axis)
+49. ✅ Enhanced shadow depth during hover
+50. ✅ Bottom 1/3 panel separates from tile
+51. ✅ Panel rotates along Z-axis (3deg right tilt)
+52. ✅ Panel becomes transparent glass (0.3 opacity)
+53. ✅ Original content fades out (capital flow + change%)
+54. ✅ Sparkline chart fades in (2px stroke)
+55. ✅ Breathing indicator dot at sparkline end (6px, 2s pulse)
+56. ✅ 30-day trend data for all sectors/stocks
+57. ✅ Smooth elastic transition (400ms cubic-bezier)
 
 ### 11.11 Sector Icons (60-65)
 
-60. ✅ Lucide icons for all 31 sectors (visual metaphors)
-61. ✅ Icon size: 16-18px, stroke-width: 2px
-62. ✅ Icon color: rgba(255, 255, 255, 0.9)
-63. ✅ Icon position: Left of sector name (6px gap)
-64. ✅ Adaptive icon display (hidden on smallest tiles)
-65. ✅ Icon identifier stored in mock data
+58. ✅ Lucide icons for all 31 sectors (visual metaphors)
+59. ✅ Icon size: 16-18px, stroke-width: 2px
+60. ✅ Icon color: rgba(255, 255, 255, 0.9)
+61. ✅ Icon position: Left of sector name (6px gap)
+62. ✅ Adaptive icon display (hidden on smallest tiles)
+63. ✅ Icon identifier stored in mock data
 
 ### 11.12 Header Scroll Effects (66-71)
 
-66. ✅ Header bottom edge gradient mask (80-100% fade)
-67. ✅ Tiles fade naturally when scrolling under header
-68. ✅ Background opacity transitions (0.2 → 0.6)
-69. ✅ Shadow enhances during scroll (subtle → deep)
-70. ✅ Smooth 300ms transition between states
-71. ✅ Scroll state tracked and applied correctly
+64. ✅ Header bottom edge gradient mask (80-100% fade)
+65. ✅ Tiles fade naturally when scrolling under header
+66. ✅ Background opacity transitions (0.2 → 0.6)
+67. ✅ Shadow enhances during scroll (subtle → deep)
+68. ✅ Smooth 300ms transition between states
+69. ✅ Scroll state tracked and applied correctly
 
-### 11.13 Sparkline Animations (72-77)
+### 11.13 Sparkline Animations (70-75)
 
-72. ✅ Area fill gradient (cyan → transparent)
-73. ✅ Stroke-dasharray animation (0.4s draw)
-74. ✅ Line draws from left to right
-75. ✅ Breathing dot appears after line (0.4s delay)
-76. ✅ Dot scale animation (0 → 1)
-77. ✅ Continuous breathing pulse (2s cycle)
+70. ✅ Area fill gradient (cyan → transparent)
+71. ✅ Stroke-dasharray animation (0.4s draw)
+72. ✅ Line draws from left to right
+73. ✅ Breathing dot appears after line (0.4s delay)
+74. ✅ Dot scale animation (0 → 1)
+75. ✅ Continuous breathing pulse (2s cycle)
 
 ---
 
