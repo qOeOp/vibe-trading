@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Treemap - Water Ripple Expansion v11</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            padding: 20px;
+        }
+        #container {
+            position: relative;
+            margin: 20px auto;
+            width: 1200px;
+            height: 1140px;
+            background: #111;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #333;
+        }
+        .tile {
+            position: absolute;
+            cursor: pointer;
+            transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(110, 63, 243, 0.3);
+        }
+        .tile:hover {
+            border-color: rgba(110, 63, 243, 0.8);
+            box-shadow: 0 0 20px rgba(110, 63, 243, 0.4);
+            z-index: 10;
+        }
+        .tile.large-tile:hover {
+            border-color: rgba(110, 63, 243, 0.9);
+            box-shadow: 0 0 30px rgba(110, 63, 243, 0.5);
+        }
+        .tile-content {
+            padding: 8px;
+            font-size: 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .tile-name { font-weight: 600; }
+        .tile-flow { font-size: 10px; color: #999; margin-top: 4px; }
+        .tile-sparkline {
+            margin-top: 8px;
+            flex: 1;
+            min-height: 40px;
+            display: none;
+        }
+        .tile.large-tile .tile-sparkline { display: block; }
+        .sparkline-canvas { width: 100%; height: 100%; }
+        .tile.size-small .tile-content,
+        .tile.size-tiny .tile-content {
+            justify-content: center;
+            align-items: center;
+        }
+        .tile.size-small .tile-name { font-size: 11px; text-align: center; }
+        .tile.size-tiny .tile-name { font-size: 10px; text-align: center; }
+        .tile.size-small .tile-flow,
+        .tile.size-tiny .tile-flow { display: none; }
+        #info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .size-btn {
+            padding: 8px 16px;
+            margin: 0 4px;
+            border: 1px solid #6e3ff3;
+            background: rgba(110, 63, 243, 0.1);
+            color: #6e3ff3;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .size-btn:hover { background: rgba(110, 63, 243, 0.2); }
+        .size-btn.active { background: #6e3ff3; color: white; }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2>Water Ripple Expansion v11 - Elastic Compression</h2>
+        <p style="font-size: 12px; color: #999; margin-top: 8px;">
+            Small tiles expand to W/4 x H/4 on hover. Large tiles compress elastically.
+        </p>
+    </div>
+    <div class="controls">
+        <button class="size-btn active" data-size="1200x1140">XL (1200x1140)</button>
+        <button class="size-btn" data-size="800x760">L (800x760)</button>
+        <button class="size-btn" data-size="600x570">M (600x570)</button>
+    </div>
+    <div id="info"></div>
+    <div id="container"></div>
+
+    <script>
+        const mockSectors = [
+            { name: '农林牧渔', capitalFlow: 12.5 },
+            { name: '采掘', capitalFlow: -8.3 },
+            { name: '化工', capitalFlow: 25.7 },
+            { name: '钢铁', capitalFlow: -15.2 },
+            { name: '有色金属', capitalFlow: 18.9 },
+            { name: '电子', capitalFlow: 145.8 },
+            { name: '家用电器', capitalFlow: 32.4 },
+            { name: '食品饮料', capitalFlow: 78.6 },
+            { name: '纺织服装', capitalFlow: -12.5 },
+            { name: '轻工制造', capitalFlow: 15.3 },
+            { name: '医药生物', capitalFlow: 95.2 },
+            { name: '公用事业', capitalFlow: 8.7 },
+            { name: '交通运输', capitalFlow: -18.9 },
+            { name: '房地产', capitalFlow: -45.6 },
+            { name: '商业贸易', capitalFlow: 12.8 },
+            { name: '休闲服务', capitalFlow: 22.3 },
+            { name: '综合', capitalFlow: 6.5 },
+            { name: '建筑材料', capitalFlow: -9.8 },
+            { name: '建筑装饰', capitalFlow: 7.2 },
+            { name: '电气设备', capitalFlow: 52.3 },
+            { name: '机械设备', capitalFlow: 28.9 },
+            { name: '国防军工', capitalFlow: 34.7 },
+            { name: '计算机', capitalFlow: 67.5 },
+            { name: '传媒', capitalFlow: -23.4 },
+            { name: '通信', capitalFlow: 41.2 },
+            { name: '银行', capitalFlow: 125.6 },
+            { name: '汽车', capitalFlow: 56.8 },
+            { name: '非银金融', capitalFlow: 89.3 },
+            { name: '煤炭', capitalFlow: -32.7 },
+            { name: '石油石化', capitalFlow: -27.5 },
+            { name: '新能源', capitalFlow: 102.3 },
+        ];
+
+        let W = 1200, H = 1140;
+        const MIN = 60;
+        const BORDER = 2;
+        let originalLayout = null;
+        let splitLineStructure = null;
+        let activeHoverIndex = -1;  // Lock: which tile is currently being expanded
+
+        function vW() { return W - 2 * BORDER; }
+        function vH() { return H - 2 * BORDER; }
+        function targetW() { return W / 4; }
+        function targetH() { return H / 4; }
+
+        function biasedSquarify(ratio) {
+            return (parent, x0, y0, x1, y1) => {
+                d3.treemapSquarify.ratio(ratio)(parent, x0, y0, x1, y1);
+            };
+        }
+
+        function buildSplitLineStructure(layout) {
+            const TOL = 2.5;
+            const vEdges = [];
+            const hEdges = [];
+
+            layout.forEach(tile => {
+                vEdges.push(tile.x, tile.x + tile.width);
+                hEdges.push(tile.y, tile.y + tile.height);
+            });
+
+            function groupEdges(edges) {
+                const sorted = [...new Set(edges)].sort((a, b) => a - b);
+                const groups = [];
+                let currentGroup = [sorted[0]];
+                for (let i = 1; i < sorted.length; i++) {
+                    if (sorted[i] - sorted[i - 1] <= TOL) {
+                        currentGroup.push(sorted[i]);
+                    } else {
+                        groups.push(currentGroup);
+                        currentGroup = [sorted[i]];
+                    }
+                }
+                if (currentGroup.length > 0) groups.push(currentGroup);
+                return groups.map(group => {
+                    const median = group[Math.floor(group.length / 2)];
+                    return { canonical: Math.round(median), values: group };
+                });
+            }
+
+            const vGroups = groupEdges(vEdges);
+            const hGroups = groupEdges(hEdges);
+
+            const vLineMap = new Map();
+            const hLineMap = new Map();
+
+            vGroups.forEach(group => {
+                group.values.forEach(val => vLineMap.set(val, group.canonical));
+            });
+            hGroups.forEach(group => {
+                group.values.forEach(val => hLineMap.set(val, group.canonical));
+            });
+
+            const structure = {
+                vLines: new Map(),
+                hLines: new Map(),
+                vLineMap,
+                hLineMap,
+                vCanonicals: vGroups.map(g => g.canonical).sort((a, b) => a - b),
+                hCanonicals: hGroups.map(g => g.canonical).sort((a, b) => a - b)
+            };
+
+            layout.forEach((tile, i) => {
+                const l = vLineMap.get(tile.x);
+                const r = vLineMap.get(tile.x + tile.width);
+                const t = hLineMap.get(tile.y);
+                const b = hLineMap.get(tile.y + tile.height);
+
+                if (!structure.vLines.has(l)) structure.vLines.set(l, []);
+                if (!structure.vLines.has(r)) structure.vLines.set(r, []);
+                if (!structure.hLines.has(t)) structure.hLines.set(t, []);
+                if (!structure.hLines.has(b)) structure.hLines.set(b, []);
+
+                structure.vLines.get(l).push({ idx: i, side: 'left' });
+                structure.vLines.get(r).push({ idx: i, side: 'right' });
+                structure.hLines.get(t).push({ idx: i, side: 'top' });
+                structure.hLines.get(b).push({ idx: i, side: 'bottom' });
+            });
+
+            return structure;
+        }
+
+        /**
+         * Core elastic compression: redistribute split lines on one axis.
+         *
+         * Key design decisions:
+         * 1. Edge-pinning: when the hovered tile touches a container edge,
+         *    pin that edge and grow inward only (prevents left/right gaps).
+         * 2. Capacity-aware directional expansion: before choosing how much
+         *    to expand in each direction, compute the compressible capacity
+         *    of each side. If one side has tiles already near MIN, limit
+         *    expansion in that direction and push more to the opposite side.
+         * 3. Gradient compression (progressive tax): large tiles absorb most
+         *    compression; tiles near MIN are exempt or lightly taxed.
+         * 4. Tile-level MIN enforcement: after redistribution, check every
+         *    tile's span on this axis and ensure it's >= MIN.
+         */
+        function elasticRedistribute(canonicals, hovLo, hovHi, targetSize, vbLo, vbHi, tileSpans) {
+            const n = canonicals.length;
+            const pos = new Map();
+
+            const idxLo = canonicals.indexOf(hovLo);
+            const idxHi = canonicals.indexOf(hovHi);
+
+            if (idxLo === -1 || idxHi === -1) {
+                canonicals.forEach(c => pos.set(c, c));
+                return pos;
+            }
+
+            // --- Helper: build interval analysis for a region ---
+            // Returns array of intervals with their gradient compression weights,
+            // plus the total compressible capacity of the region.
+            function analyzeRegionIntervals(regionIndices) {
+                const regionCans = regionIndices.map(i => canonicals[i]);
+                const intervals = [];
+                let totalWeight = 0;
+                let totalMinFootprint = 0;
+
+                for (let k = 0; k < regionCans.length - 1; k++) {
+                    const intLo = regionCans[k];
+                    const intHi = regionCans[k + 1];
+                    const intSize = intHi - intLo;
+                    if (intSize < 0.01) continue;
+
+                    // Find the smallest tile spanning this interval
+                    let bestTileSize = Infinity;
+                    for (const [tLo, tHi] of tileSpans) {
+                        if (tLo === hovLo && tHi === hovHi) continue;
+                        if (tLo <= intLo && tHi >= intHi) {
+                            const ts = tHi - tLo;
+                            if (ts < bestTileSize) bestTileSize = ts;
+                        }
+                    }
+                    if (bestTileSize === Infinity) bestTileSize = intSize;
+
+                    const compressible = Math.max(0, bestTileSize - MIN);
+                    let rate;
+                    if (compressible <= 5)        rate = 0;
+                    else if (compressible <= 15)  rate = 0.15;
+                    else if (compressible <= 40)  rate = 0.4;
+                    else if (compressible <= 80)  rate = 0.7;
+                    else                          rate = 1.0;
+
+                    const weight = intSize * rate;
+                    totalWeight += weight;
+
+                    // Minimum size: if tile is below MIN, interval can't compress at all
+                    // Otherwise, minimum is proportional to the tile's MIN share
+                    const minSize = (bestTileSize <= MIN) ? intSize : intSize * (MIN / bestTileSize);
+                    totalMinFootprint += minSize;
+
+                    intervals.push({
+                        lo: intLo, hi: intHi, size: intSize,
+                        compressible, rate, weight, minSize,
+                        bestTileSize
+                    });
+                }
+
+                const totalOrigRange = regionCans.length > 1
+                    ? regionCans[regionCans.length - 1] - regionCans[0] : 0;
+                // True compressible capacity: how much the region can actually shrink
+                const trueCapacity = Math.max(0, totalOrigRange - totalMinFootprint);
+
+                return { intervals, totalWeight, totalMinFootprint, totalOrigRange, trueCapacity };
+            }
+
+            // --- Edge-pinning + capacity-aware directional expansion ---
+            const pinnedLeft = (idxLo === 0);
+            const pinnedRight = (idxHi === n - 1);
+            const origSize = hovHi - hovLo;
+            const needExpand = targetSize - origSize;
+
+            let newHovLo, newHovHi;
+
+            if (pinnedLeft && pinnedRight) {
+                newHovLo = vbLo;
+                newHovHi = vbHi;
+            } else if (pinnedLeft) {
+                newHovLo = vbLo;
+                newHovHi = Math.min(vbLo + targetSize, vbHi);
+            } else if (pinnedRight) {
+                newHovHi = vbHi;
+                newHovLo = Math.max(vbHi - targetSize, vbLo);
+            } else {
+                // Build region indices
+                const beforeIndices = [];
+                for (let i = 0; i <= idxLo; i++) beforeIndices.push(i);
+                const afterIndices = [];
+                for (let i = idxHi; i < n; i++) afterIndices.push(i);
+
+                // Compute true compressible capacity on each side
+                const beforeAnalysis = analyzeRegionIntervals(beforeIndices);
+                const afterAnalysis = analyzeRegionIntervals(afterIndices);
+
+                const spaceBefore = hovLo - vbLo;
+                const spaceAfter = vbHi - hovHi;
+
+                // Use the MINIMUM of (raw space, true capacity) as effective
+                const effBefore = Math.min(spaceBefore, beforeAnalysis.trueCapacity);
+                const effAfter = Math.min(spaceAfter, afterAnalysis.trueCapacity);
+                const totalEffective = effBefore + effAfter;
+
+                let expandBefore, expandAfter;
+                if (totalEffective > 0.01) {
+                    expandBefore = needExpand * (effBefore / totalEffective);
+                    expandAfter = needExpand * (effAfter / totalEffective);
+                } else {
+                    // Fallback: use raw space ratio
+                    const totalSpace = spaceBefore + spaceAfter;
+                    if (totalSpace > 0.01) {
+                        expandBefore = needExpand * (spaceBefore / totalSpace);
+                        expandAfter = needExpand * (spaceAfter / totalSpace);
+                    } else {
+                        expandBefore = needExpand / 2;
+                        expandAfter = needExpand / 2;
+                    }
+                }
+
+                // Cap expansion per side to true capacity
+                if (expandBefore > effBefore && effBefore < spaceBefore) {
+                    const excess = expandBefore - effBefore;
+                    expandBefore = effBefore;
+                    expandAfter += excess;
+                }
+                if (expandAfter > effAfter && effAfter < spaceAfter) {
+                    const excess = expandAfter - effAfter;
+                    expandAfter = effAfter;
+                    expandBefore += excess;
+                }
+
+                // Still cap to raw space
+                if (expandBefore > spaceBefore) {
+                    expandAfter += (expandBefore - spaceBefore);
+                    expandBefore = spaceBefore;
+                }
+                if (expandAfter > spaceAfter) {
+                    expandBefore += (expandAfter - spaceAfter);
+                    expandAfter = spaceAfter;
+                }
+
+                newHovLo = hovLo - expandBefore;
+                newHovHi = hovHi + expandAfter;
+
+                // Safety clamp
+                if (newHovLo < vbLo) {
+                    newHovHi += (vbLo - newHovLo);
+                    newHovLo = vbLo;
+                }
+                if (newHovHi > vbHi) {
+                    newHovLo -= (newHovHi - vbHi);
+                    newHovHi = vbHi;
+                }
+                if (newHovLo < vbLo) newHovLo = vbLo;
+                if (newHovHi > vbHi) newHovHi = vbHi;
+            }
+
+            // --- Step 1: Gradient compression per region ---
+            // Instead of uniform linear scaling, distribute compression
+            // weighted by each tile's compressible capacity and gradient rate.
+
+            function gradientMapRegion(indices, origStart, origEnd, newStart, newEnd) {
+                if (indices.length === 0) return;
+                const origRange = origEnd - origStart;
+                const newRange = newEnd - newStart;
+
+                if (origRange < 0.01) {
+                    for (const idx of indices) pos.set(canonicals[idx], newStart);
+                    return;
+                }
+
+                // If new range >= original range (no compression needed), use linear
+                if (newRange >= origRange - 0.5) {
+                    for (const idx of indices) {
+                        const c = canonicals[idx];
+                        pos.set(c, newStart + ((c - origStart) / origRange) * newRange);
+                    }
+                    return;
+                }
+
+                // Compression needed. Build intervals with gradient weights.
+                const analysis = analyzeRegionIntervals(indices);
+                const totalCompression = origRange - newRange;
+
+                if (analysis.totalWeight < 0.01) {
+                    // No compressible capacity at all - fallback to uniform
+                    for (const idx of indices) {
+                        const c = canonicals[idx];
+                        pos.set(c, newStart + ((c - origStart) / origRange) * newRange);
+                    }
+                    return;
+                }
+
+                // Distribute compression across intervals proportionally to weight
+                const newSizes = [];
+                let totalNewSize = 0;
+                for (const iv of analysis.intervals) {
+                    let compressionShare;
+                    if (iv.weight > 0) {
+                        compressionShare = totalCompression * (iv.weight / analysis.totalWeight);
+                    } else {
+                        compressionShare = 0;
+                    }
+                    // Don't compress below minSize for this interval
+                    const maxCompression = Math.max(0, iv.size - iv.minSize);
+                    compressionShare = Math.min(compressionShare, maxCompression);
+                    const ns = iv.size - compressionShare;
+                    newSizes.push(ns);
+                    totalNewSize += ns;
+                }
+
+                // Adjust if total doesn't match (floating point or capping)
+                if (Math.abs(totalNewSize - newRange) > 0.5 && totalNewSize > 0.01) {
+                    const scale = newRange / totalNewSize;
+                    for (let k = 0; k < newSizes.length; k++) {
+                        newSizes[k] *= scale;
+                    }
+                }
+
+                // Place canonicals based on cumulative new sizes
+                const regionCanonicals = indices.map(i => canonicals[i]);
+                let cursor = newStart;
+                pos.set(regionCanonicals[0], newStart);
+                for (let k = 0; k < analysis.intervals.length; k++) {
+                    cursor += newSizes[k];
+                    pos.set(analysis.intervals[k].hi, cursor);
+                }
+                // Ensure last canonical lands at newEnd
+                pos.set(regionCanonicals[regionCanonicals.length - 1], newEnd);
+            }
+
+            const leftIndices = [], insideIndices = [], rightIndices = [];
+            for (let i = 0; i <= idxLo; i++) leftIndices.push(i);
+            for (let i = idxLo; i <= idxHi; i++) insideIndices.push(i);
+            for (let i = idxHi; i < n; i++) rightIndices.push(i);
+
+            gradientMapRegion(leftIndices, canonicals[0], hovLo, vbLo, newHovLo);
+
+            // Inside region: just linear scale (hovered tile itself)
+            {
+                const origRange = hovHi - hovLo;
+                const newRange = newHovHi - newHovLo;
+                for (const idx of insideIndices) {
+                    const c = canonicals[idx];
+                    if (origRange < 0.01) {
+                        pos.set(c, newHovLo);
+                    } else {
+                        pos.set(c, newHovLo + ((c - hovLo) / origRange) * newRange);
+                    }
+                }
+            }
+
+            gradientMapRegion(rightIndices, hovHi, canonicals[n - 1], newHovHi, vbHi);
+
+            // Lock hovered tile boundaries
+            pos.set(hovLo, newHovLo);
+            pos.set(hovHi, newHovHi);
+
+            // --- Step 2: Tile-level MIN enforcement ---
+            // Use adaptive MIN: if a tile was already below MIN in the original
+            // layout, use its original size (we can't create space that doesn't exist).
+            // This prevents two already-tiny tiles from fighting over shared space.
+            const lockedCanonicals = new Set([hovLo, hovHi]);
+
+            for (let iter = 0; iter < 50; iter++) {
+                let anyFixed = false;
+
+                for (const [tLo, tHi] of tileSpans) {
+                    const curLo = pos.get(tLo);
+                    const curHi = pos.get(tHi);
+                    if (curLo === undefined || curHi === undefined) continue;
+
+                    const origSpan = tHi - tLo;
+                    const effectiveMin = Math.min(MIN, origSpan);
+                    const span = curHi - curLo;
+                    if (span >= effectiveMin - 0.5) continue;
+
+                    const midpoint = (curLo + curHi) / 2;
+                    let desiredLo = midpoint - effectiveMin / 2;
+                    let desiredHi = midpoint + effectiveMin / 2;
+
+                    if (desiredLo < vbLo) { desiredLo = vbLo; desiredHi = vbLo + effectiveMin; }
+                    if (desiredHi > vbHi) { desiredHi = vbHi; desiredLo = vbHi - effectiveMin; }
+
+                    if (lockedCanonicals.has(tLo) && lockedCanonicals.has(tHi)) continue;
+                    if (lockedCanonicals.has(tLo)) {
+                        desiredLo = curLo;
+                        desiredHi = curLo + effectiveMin;
+                        if (desiredHi > vbHi) desiredHi = vbHi;
+                    }
+                    if (lockedCanonicals.has(tHi)) {
+                        desiredHi = curHi;
+                        desiredLo = curHi - effectiveMin;
+                        if (desiredLo < vbLo) desiredLo = vbLo;
+                    }
+
+                    if (!lockedCanonicals.has(tLo) && Math.abs(pos.get(tLo) - desiredLo) > 0.5) {
+                        pos.set(tLo, desiredLo);
+                        anyFixed = true;
+                    }
+                    if (!lockedCanonicals.has(tHi) && Math.abs(pos.get(tHi) - desiredHi) > 0.5) {
+                        pos.set(tHi, desiredHi);
+                        anyFixed = true;
+                    }
+                }
+
+                if (!anyFixed) break;
+            }
+
+            // --- Step 3: Ensure monotonicity ---
+            const sortedPositions = canonicals.map(c => pos.get(c));
+            for (let i = 1; i < sortedPositions.length; i++) {
+                if (sortedPositions[i] < sortedPositions[i - 1]) {
+                    if (!lockedCanonicals.has(canonicals[i])) {
+                        sortedPositions[i] = sortedPositions[i - 1];
+                        pos.set(canonicals[i], sortedPositions[i]);
+                    }
+                }
+            }
+
+            return pos;
+        }
+
+        /**
+         * Build array of [loCanonical, hiCanonical] for each tile on a given axis.
+         * Used by elasticRedistribute for tile-level MIN enforcement.
+         */
+        function buildTileSpans(axis) {
+            const spans = [];
+            for (const tile of originalLayout) {
+                let lo, hi;
+                if (axis === 'v') {
+                    lo = splitLineStructure.vLineMap.get(tile.x);
+                    hi = splitLineStructure.vLineMap.get(tile.x + tile.width);
+                } else {
+                    lo = splitLineStructure.hLineMap.get(tile.y);
+                    hi = splitLineStructure.hLineMap.get(tile.y + tile.height);
+                }
+                if (lo !== undefined && hi !== undefined) {
+                    spans.push([lo, hi]);
+                }
+            }
+            return spans;
+        }
+
+        function calculateRippleLayout(hoveredIndex) {
+            const hoveredTile = originalLayout[hoveredIndex];
+            const tW = targetW();
+            const tH = targetH();
+            const minDim = Math.min(hoveredTile.width, hoveredTile.height);
+
+            // Only expand small tiles
+            if (minDim >= Math.min(tW, tH)) {
+                return originalLayout;
+            }
+
+            // Get canonical boundaries of hovered tile
+            const hovL = splitLineStructure.vLineMap.get(hoveredTile.x);
+            const hovR = splitLineStructure.vLineMap.get(hoveredTile.x + hoveredTile.width);
+            const hovT = splitLineStructure.hLineMap.get(hoveredTile.y);
+            const hovB = splitLineStructure.hLineMap.get(hoveredTile.y + hoveredTile.height);
+
+            const VB_L = BORDER;
+            const VB_R = W - BORDER;
+            const VB_T = BORDER;
+            const VB_B = H - BORDER;
+
+            // Build tile span arrays for each axis (for MIN enforcement)
+            const vTileSpans = buildTileSpans('v');
+            const hTileSpans = buildTileSpans('h');
+
+            // Elastic redistribute on each axis independently
+            const vLinePos = elasticRedistribute(
+                splitLineStructure.vCanonicals,
+                hovL, hovR, tW, VB_L, VB_R, vTileSpans
+            );
+
+            const hLinePos = elasticRedistribute(
+                splitLineStructure.hCanonicals,
+                hovT, hovB, tH, VB_T, VB_B, hTileSpans
+            );
+
+            // Build new layout from adjusted split lines
+            const newLayout = originalLayout.map((tile, i) => {
+                const tileL = splitLineStructure.vLineMap.get(tile.x);
+                const tileR = splitLineStructure.vLineMap.get(tile.x + tile.width);
+                const tileT = splitLineStructure.hLineMap.get(tile.y);
+                const tileB = splitLineStructure.hLineMap.get(tile.y + tile.height);
+
+                const nL = vLinePos.get(tileL);
+                const nR = vLinePos.get(tileR);
+                const nT = hLinePos.get(tileT);
+                const nB = hLinePos.get(tileB);
+
+                return {
+                    ...tile,
+                    x: nL,
+                    y: nT,
+                    width: nR - nL,
+                    height: nB - nT
+                };
+            });
+
+            // Log result
+            const hovNew = newLayout[hoveredIndex];
+            console.log(`Expansion: ${hoveredTile.data.name} ${Math.round(hoveredTile.width)}x${Math.round(hoveredTile.height)} -> ${Math.round(hovNew.width)}x${Math.round(hovNew.height)} (target ${Math.round(tW)}x${Math.round(tH)})`);
+
+            return newLayout;
+        }
+
+        function applyLayout(layout) {
+            d3.selectAll('.tile').each(function(d, i) {
+                const tile = d3.select(this);
+                const l = layout[i];
+                tile.style('left', l.x + 'px')
+                    .style('top', l.y + 'px')
+                    .style('width', l.width + 'px')
+                    .style('height', l.height + 'px');
+            });
+        }
+
+        function drawSparkline(canvas, data, color) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.clearRect(0, 0, width, height);
+            if (data.length < 2) return;
+            const max = Math.max(...data);
+            const min = Math.min(...data);
+            const range = max - min || 1;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            data.forEach((value, i) => {
+                const x = (i / (data.length - 1)) * width;
+                const y = height - ((value - min) / range) * height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
+        function render() {
+            const container = d3.select('#container');
+            container.html('');
+
+            const dataWithValues = mockSectors.map(s => ({
+                ...s,
+                value: Math.pow(Math.abs(s.capitalFlow), 0.8)
+            }));
+
+            const root = d3.hierarchy({ children: dataWithValues })
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+
+            // Layout inside virtual boundary
+            d3.treemap()
+                .size([vW(), vH()])
+                .padding(2)
+                .tile(biasedSquarify(1.2))(root);
+
+            // Offset by border
+            originalLayout = root.leaves().map(d => ({
+                data: d.data,
+                x: d.x0 + BORDER,
+                y: d.y0 + BORDER,
+                width: d.x1 - d.x0,
+                height: d.y1 - d.y0
+            }));
+
+            splitLineStructure = buildSplitLineStructure(originalLayout);
+
+            document.getElementById('info').textContent =
+                `Container: ${W}x${H} | Target: ${Math.round(targetW())}x${Math.round(targetH())} | Split lines: ${splitLineStructure.vLines.size}V, ${splitLineStructure.hLines.size}H`;
+
+            const threshold = Math.min(targetW(), targetH());
+
+            container.selectAll('.tile')
+                .data(originalLayout)
+                .enter()
+                .append('div')
+                .attr('class', d => {
+                    const minDim = Math.min(d.width, d.height);
+                    let sizeClass = '';
+                    if (minDim >= threshold) sizeClass = 'large-tile';
+                    else if (minDim < 60) sizeClass = 'size-tiny';
+                    else if (minDim < 80) sizeClass = 'size-small';
+                    return `tile ${sizeClass}`;
+                })
+                .style('left', d => d.x + 'px')
+                .style('top', d => d.y + 'px')
+                .style('width', d => d.width + 'px')
+                .style('height', d => d.height + 'px')
+                .html(d => {
+                    const minDim = Math.min(d.width, d.height);
+                    const sparklineHTML = minDim >= threshold
+                        ? '<div class="tile-sparkline"><canvas class="sparkline-canvas"></canvas></div>'
+                        : '';
+                    return `
+                        <div class="tile-content">
+                            <div class="tile-name">${d.data.name}</div>
+                            <div class="tile-flow">${d.data.capitalFlow > 0 ? '+' : ''}${d.data.capitalFlow}亿</div>
+                            ${sparklineHTML}
+                        </div>
+                    `;
+                })
+                .each(function(d) {
+                    const minDim = Math.min(d.width, d.height);
+                    if (minDim >= threshold) {
+                        const canvas = this.querySelector('.sparkline-canvas');
+                        if (canvas) {
+                            const rect = canvas.getBoundingClientRect();
+                            canvas.width = rect.width * 2;
+                            canvas.height = rect.height * 2;
+                            canvas.style.width = rect.width + 'px';
+                            canvas.style.height = rect.height + 'px';
+                            const mockData = Array.from({ length: 20 }, () => Math.random() * 100);
+                            const color = d.data.capitalFlow > 0 ? '#35b9e9' : '#df3674';
+                            drawSparkline(canvas, mockData, color);
+                        }
+                    }
+                })
+                .each(function(d, i) {
+                    const tileIndex = i;
+                    const el = this;
+
+                    d3.select(this).on('mouseenter', function() {
+                        // If another tile is already locked, ignore this enter event.
+                        // This prevents "drift" when tiles slide under the cursor.
+                        if (activeHoverIndex >= 0 && activeHoverIndex !== tileIndex) {
+                            return;
+                        }
+
+                        const t = originalLayout[tileIndex];
+                        const minDim = Math.min(t.width, t.height);
+                        if (minDim < Math.min(targetW(), targetH())) {
+                            activeHoverIndex = tileIndex;
+                            const newLayout = calculateRippleLayout(tileIndex);
+                            applyLayout(newLayout);
+                        }
+                    });
+
+                    d3.select(this).on('mouseleave', function() {
+                        // Only reset if this tile is the one that's locked
+                        if (activeHoverIndex === tileIndex) {
+                            activeHoverIndex = -1;
+                            applyLayout(originalLayout);
+                        }
+                    });
+                });
+        }
+
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const [width, height] = this.dataset.size.split('x').map(Number);
+                W = width;
+                H = height;
+                const container = document.getElementById('container');
+                container.style.width = W + 'px';
+                container.style.height = H + 'px';
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                render();
+            });
+        });
+
+        render();
+    </script>
+</body>
+</html>

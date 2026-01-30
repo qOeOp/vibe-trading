@@ -179,107 +179,304 @@ if (hovL < BOUNDARY_MARGIN + offset) {
 
 #### Phase 4: Gradient Compression & Constraint Solving
 
-**Core Principle**: "Progressive tax" - large tiles contribute most compression capacity, tiny tiles contribute zero.
+**Core Principle**: "Progressive tax" — large tiles contribute most compression, tiny tiles contribute zero.
+
+**Architecture**: The algorithm processes V-axis and H-axis **independently**. Each axis calls `elasticRedistribute()` which is a 3-step pipeline:
+1. Gradient compression via `gradientMapRegion()` → redistribute split-line positions
+2. Tile-level MIN enforcement loop (max 50 iterations)
+3. Monotonicity enforcement
+
+```
+calculateRippleLayout(hoveredIndex)
+├── buildTileSpans('v')  →  vTileSpans: [[loCanonical, hiCanonical], ...]
+├── buildTileSpans('h')  →  hTileSpans: [[loCanonical, hiCanonical], ...]
+├── elasticRedistribute(vCanonicals, hovL, hovR, targetW, VB_L, VB_R, vTileSpans)  →  vLinePos
+├── elasticRedistribute(hCanonicals, hovT, hovB, targetH, VB_T, VB_B, hTileSpans)  →  hLinePos
+└── Build newLayout by mapping each tile's canonical edges through vLinePos/hLinePos
+```
 
 ##### 4.1 Edge-Pinning for Boundary Tiles
 
 ```javascript
-// Tiles at container edges expand inward only
-const pinnedLeft = (hovIdx === firstColumnIndex);
-const pinnedTop = (hovIdx === firstRowIndex);
+// Detect if hovered tile is at container edge
+const pinnedLeft = (idxLo === 0);        // First canonical = container left
+const pinnedRight = (idxHi === n - 1);   // Last canonical = container right
 
-if (pinnedLeft) {
-    newHovLo = vbLo;  // Pin left edge
-    newHovHi = vbLo + targetSize;  // Grow rightward only
+if (pinnedLeft && pinnedRight) {
+    newHovLo = vbLo; newHovHi = vbHi;    // Fill entire axis
+} else if (pinnedLeft) {
+    newHovLo = vbLo;                      // Pin left edge
+    newHovHi = Math.min(vbLo + targetSize, vbHi);  // Grow rightward only
 } else if (pinnedRight) {
-    newHovHi = vbHi;  // Pin right edge
-    newHovLo = vbHi - targetSize;  // Grow leftward only
+    newHovHi = vbHi;                      // Pin right edge
+    newHovLo = Math.max(vbHi - targetSize, vbLo);  // Grow leftward only
 }
 ```
 
 **Result**: Eliminates left/top gaps when hovering edge tiles.
 
-##### 4.2 Capacity-Aware Directional Expansion
+##### 4.2 `analyzeRegionIntervals` — Interval Analysis with 5-Tier Gradient
+
+This function is the core intelligence. For a set of canonical indices, it analyzes each interval between consecutive canonicals and computes:
+- Which tile spans this interval (smallest tile wins)
+- How much that tile can compress (compressible = tileSize - MIN)
+- A **gradient rate** based on compressible headroom
+- A **weight** = intervalSize × rate (determines compression share)
+- A **minSize** = intervalSize × (MIN / tileSize) (floor for this interval)
 
 ```javascript
-function analyzeRegionIntervals(idxLo, idxHi, linePositions, tiles) {
-    let totalOrigRange = 0;
+function analyzeRegionIntervals(regionIndices) {
+    const regionCans = regionIndices.map(i => canonicals[i]);
+    const intervals = [];
+    let totalWeight = 0;
     let totalMinFootprint = 0;
 
-    for (let idx = idxLo; idx < idxHi; idx++) {
-        const origSpan = tiles[idx].originalEnd - tiles[idx].originalStart;
-        const effectiveMin = Math.min(MIN, origSpan);  // Adaptive MIN
+    for (let k = 0; k < regionCans.length - 1; k++) {
+        const intLo = regionCans[k];
+        const intHi = regionCans[k + 1];
+        const intSize = intHi - intLo;
+        if (intSize < 0.01) continue;
 
-        totalOrigRange += origSpan;
-        totalMinFootprint += effectiveMin;
+        // Find the SMALLEST tile that spans this interval
+        let bestTileSize = Infinity;
+        for (const [tLo, tHi] of tileSpans) {
+            if (tLo === hovLo && tHi === hovHi) continue;  // Skip hovered tile
+            if (tLo <= intLo && tHi >= intHi) {
+                const ts = tHi - tLo;
+                if (ts < bestTileSize) bestTileSize = ts;
+            }
+        }
+        if (bestTileSize === Infinity) bestTileSize = intSize;
+
+        // 5-tier gradient rate based on compressible headroom
+        const compressible = Math.max(0, bestTileSize - MIN);
+        let rate;
+        if (compressible <= 5)        rate = 0;      // Tiny: exempt
+        else if (compressible <= 15)  rate = 0.15;   // Very small: minimal
+        else if (compressible <= 40)  rate = 0.4;    // Small: moderate
+        else if (compressible <= 80)  rate = 0.7;    // Medium: substantial
+        else                          rate = 1.0;    // Large: full contribution
+
+        const weight = intSize * rate;
+        totalWeight += weight;
+
+        // Minimum size: tiles already ≤MIN can't compress at all
+        const minSize = (bestTileSize <= MIN)
+            ? intSize                            // Floor = full original size
+            : intSize * (MIN / bestTileSize);    // Floor = proportional MIN
+        totalMinFootprint += minSize;
+
+        intervals.push({
+            lo: intLo, hi: intHi, size: intSize,
+            compressible, rate, weight, minSize, bestTileSize
+        });
     }
 
-    return {
-        trueCapacity: totalOrigRange - totalMinFootprint  // Actual compressible space
-    };
+    const totalOrigRange = regionCans.length > 1
+        ? regionCans[regionCans.length - 1] - regionCans[0] : 0;
+    const trueCapacity = Math.max(0, totalOrigRange - totalMinFootprint);
+
+    return { intervals, totalWeight, totalMinFootprint, totalOrigRange, trueCapacity };
 }
-
-// Smart directional expansion based on true capacity
-const beforeAnalysis = analyzeRegionIntervals(0, hovIdx, vLinePos, tiles);
-const afterAnalysis = analyzeRegionIntervals(hovIdx + 1, tiles.length, vLinePos, tiles);
-
-const effBefore = Math.min(spaceBefore, beforeAnalysis.trueCapacity);
-const effAfter = Math.min(spaceAfter, afterAnalysis.trueCapacity);
-const totalEff = effBefore + effAfter;
-
-// Distribute expansion proportionally to true capacity
-const expandBefore = needExpansion * (effBefore / totalEff);
-const expandAfter = needExpansion * (effAfter / totalEff);
 ```
 
-**Key Insight**: Tiles already ≤MIN have zero compressible capacity. Algorithm expands toward regions with actual compression headroom.
+**Key**: `trueCapacity` = how much the region can actually shrink. Used to decide expansion direction.
 
-**Result**: Hovering "公用事业" (86% space above) expands upward, compressing "电子"/"银行", while preserving "建筑装饰"/"综合".
+##### 4.3 Capacity-Aware Directional Expansion
 
-##### 4.3 Gradient Compression (Redistribution)
+For non-edge tiles, compute true capacity on each side and distribute expansion proportionally:
 
 ```javascript
-function elasticRedistribute(idxLo, idxHi, availSpace, desiredSpace, linePositions, tiles) {
-    if (desiredSpace <= availSpace) return;  // No compression needed
+// Build region indices
+const beforeIndices = [];  // [0, 1, ..., idxLo]
+for (let i = 0; i <= idxLo; i++) beforeIndices.push(i);
+const afterIndices = [];   // [idxHi, idxHi+1, ..., n-1]
+for (let i = idxHi; i < n; i++) afterIndices.push(i);
 
-    const deficit = desiredSpace - availSpace;
+const beforeAnalysis = analyzeRegionIntervals(beforeIndices);
+const afterAnalysis = analyzeRegionIntervals(afterIndices);
 
-    // Calculate per-tile compression capacity with gradient
-    const tileCapacities = [];
-    for (let idx = idxLo; idx < idxHi; idx++) {
-        const origSpan = tiles[idx].originalEnd - tiles[idx].originalStart;
-        const currentSpan = linePositions.get(tiles[idx].end) - linePositions.get(tiles[idx].start);
-        const effectiveMin = Math.min(MIN, origSpan);  // Adaptive MIN
-        const compressible = Math.max(0, currentSpan - effectiveMin);
+const spaceBefore = hovLo - vbLo;  // Raw pixel space before hovered tile
+const spaceAfter = vbHi - hovHi;   // Raw pixel space after hovered tile
 
-        tileCapacities.push({ idx, origSpan, compressible });
+// Effective capacity = min(raw space, true compressible capacity)
+const effBefore = Math.min(spaceBefore, beforeAnalysis.trueCapacity);
+const effAfter = Math.min(spaceAfter, afterAnalysis.trueCapacity);
+const totalEffective = effBefore + effAfter;
+
+let expandBefore, expandAfter;
+if (totalEffective > 0.01) {
+    expandBefore = needExpand * (effBefore / totalEffective);
+    expandAfter = needExpand * (effAfter / totalEffective);
+} else {
+    // Fallback: raw space ratio
+    expandBefore = needExpand * (spaceBefore / (spaceBefore + spaceAfter));
+    expandAfter = needExpand * (spaceAfter / (spaceBefore + spaceAfter));
+}
+
+// Cap each side to its true capacity, overflow to opposite side
+if (expandBefore > effBefore && effBefore < spaceBefore) {
+    expandAfter += (expandBefore - effBefore);
+    expandBefore = effBefore;
+}
+if (expandAfter > effAfter && effAfter < spaceAfter) {
+    expandBefore += (expandAfter - effAfter);
+    expandAfter = effAfter;
+}
+
+// Final cap to raw space + safety clamp to virtual boundary
+expandBefore = Math.min(expandBefore, spaceBefore);
+expandAfter = Math.min(expandAfter, spaceAfter);
+
+newHovLo = hovLo - expandBefore;
+newHovHi = hovHi + expandAfter;
+// Safety clamp: if newHovLo < vbLo, shift right; if newHovHi > vbHi, shift left
+```
+
+**Result**: Hovering "公用事业" (86% capacity above) expands mostly upward, compressing "电子"/"银行" while preserving "建筑装饰"/"综合".
+
+##### 4.4 `gradientMapRegion` — Core Compression Function
+
+This is the function that actually repositions split lines within a compressed region. Called separately for the "before" region (left of hovered tile) and "after" region (right of hovered tile).
+
+```javascript
+function gradientMapRegion(indices, origStart, origEnd, newStart, newEnd) {
+    const origRange = origEnd - origStart;
+    const newRange = newEnd - newStart;
+
+    // No compression needed — use linear mapping
+    if (newRange >= origRange - 0.5) {
+        for (const idx of indices) {
+            const c = canonicals[idx];
+            pos.set(c, newStart + ((c - origStart) / origRange) * newRange);
+        }
+        return;
     }
 
-    const totalCapacity = tileCapacities.reduce((sum, t) => sum + t.compressible, 0);
+    // Compression needed. Use interval analysis for weighted distribution.
+    const analysis = analyzeRegionIntervals(indices);
+    const totalCompression = origRange - newRange;
 
-    // Distribute deficit proportionally to compressible capacity
-    tileCapacities.forEach(tc => {
-        if (tc.compressible > 0) {
-            const compressionShare = (tc.compressible / totalCapacity) * deficit;
-            const currentSpan = linePositions.get(tiles[tc.idx].end) - linePositions.get(tiles[tc.idx].start);
-            const newSpan = currentSpan - compressionShare;
-
-            // Redistribute space: shrink tile proportionally
-            const shrinkRatio = newSpan / currentSpan;
-            applyProportionalShrink(tc.idx, shrinkRatio, linePositions);
+    if (analysis.totalWeight < 0.01) {
+        // No compressible capacity — fallback to uniform linear
+        for (const idx of indices) {
+            const c = canonicals[idx];
+            pos.set(c, newStart + ((c - origStart) / origRange) * newRange);
         }
-    });
+        return;
+    }
+
+    // Distribute compression across intervals proportionally to weight
+    const newSizes = [];
+    let totalNewSize = 0;
+    for (const iv of analysis.intervals) {
+        let compressionShare = (iv.weight > 0)
+            ? totalCompression * (iv.weight / analysis.totalWeight)
+            : 0;
+
+        // Cap: never compress below interval's minSize
+        const maxCompression = Math.max(0, iv.size - iv.minSize);
+        compressionShare = Math.min(compressionShare, maxCompression);
+
+        const ns = iv.size - compressionShare;
+        newSizes.push(ns);
+        totalNewSize += ns;
+    }
+
+    // Floating-point adjustment: scale if total doesn't match target
+    if (Math.abs(totalNewSize - newRange) > 0.5 && totalNewSize > 0.01) {
+        const scale = newRange / totalNewSize;
+        for (let k = 0; k < newSizes.length; k++) newSizes[k] *= scale;
+    }
+
+    // Place canonicals based on cumulative new sizes
+    const regionCanonicals = indices.map(i => canonicals[i]);
+    let cursor = newStart;
+    pos.set(regionCanonicals[0], newStart);
+    for (let k = 0; k < analysis.intervals.length; k++) {
+        cursor += newSizes[k];
+        pos.set(analysis.intervals[k].hi, cursor);
+    }
+    pos.set(regionCanonicals[regionCanonicals.length - 1], newEnd);
 }
 ```
 
-**Compression Gradient**:
-- Tiles with 100px compressible space → contribute 100px
-- Tiles with 10px compressible space → contribute 10px
-- Tiles already at originalSize → contribute 0px
+**Region splitting**: The canonicals are divided into 3 groups:
+- `leftIndices` = [0 ... idxLo] → compressed via `gradientMapRegion`
+- `insideIndices` = [idxLo ... idxHi] → linear scale (the hovered tile itself)
+- `rightIndices` = [idxHi ... n-1] → compressed via `gradientMapRegion`
 
-**Result**: Large tiles (电子, 银行) absorb compression, tiny tiles (建筑装饰: 34px, 综合: 31px) remain visible.
+##### 4.5 Tile-Level MIN Enforcement (Iterative, max 50 iterations)
 
-##### 4.4 Adaptive MIN Enforcement
+After gradient compression, some tiles may have been squeezed below their effective MIN. This step iteratively fixes them:
+
+```javascript
+const lockedCanonicals = new Set([hovLo, hovHi]);  // Never move hovered tile edges
+
+for (let iter = 0; iter < 50; iter++) {
+    let anyFixed = false;
+
+    for (const [tLo, tHi] of tileSpans) {
+        const curLo = pos.get(tLo);
+        const curHi = pos.get(tHi);
+        if (curLo === undefined || curHi === undefined) continue;
+
+        const origSpan = tHi - tLo;
+        const effectiveMin = Math.min(MIN, origSpan);  // Adaptive MIN
+        const span = curHi - curLo;
+        if (span >= effectiveMin - 0.5) continue;      // Already OK
+
+        // Expand from midpoint
+        const midpoint = (curLo + curHi) / 2;
+        let desiredLo = midpoint - effectiveMin / 2;
+        let desiredHi = midpoint + effectiveMin / 2;
+
+        // Clamp to virtual boundary
+        if (desiredLo < vbLo) { desiredLo = vbLo; desiredHi = vbLo + effectiveMin; }
+        if (desiredHi > vbHi) { desiredHi = vbHi; desiredLo = vbHi - effectiveMin; }
+
+        // Respect locked canonicals
+        if (lockedCanonicals.has(tLo) && lockedCanonicals.has(tHi)) continue;
+        if (lockedCanonicals.has(tLo)) {
+            desiredLo = curLo; desiredHi = curLo + effectiveMin;
+            if (desiredHi > vbHi) desiredHi = vbHi;
+        }
+        if (lockedCanonicals.has(tHi)) {
+            desiredHi = curHi; desiredLo = curHi - effectiveMin;
+            if (desiredLo < vbLo) desiredLo = vbLo;
+        }
+
+        if (!lockedCanonicals.has(tLo) && Math.abs(pos.get(tLo) - desiredLo) > 0.5) {
+            pos.set(tLo, desiredLo); anyFixed = true;
+        }
+        if (!lockedCanonicals.has(tHi) && Math.abs(pos.get(tHi) - desiredHi) > 0.5) {
+            pos.set(tHi, desiredHi); anyFixed = true;
+        }
+    }
+
+    if (!anyFixed) break;
+}
+```
+
+**Key**: `buildTileSpans(axis)` returns `[[loCanonical, hiCanonical], ...]` for each tile, using `splitLineStructure.vLineMap` / `hLineMap` to map raw edge positions to canonical positions.
+
+##### 4.6 Monotonicity Enforcement
+
+After MIN enforcement may push canonicals out of order. Final pass ensures positions are monotonically increasing:
+
+```javascript
+const sortedPositions = canonicals.map(c => pos.get(c));
+for (let i = 1; i < sortedPositions.length; i++) {
+    if (sortedPositions[i] < sortedPositions[i - 1]) {
+        if (!lockedCanonicals.has(canonicals[i])) {
+            sortedPositions[i] = sortedPositions[i - 1];
+            pos.set(canonicals[i], sortedPositions[i]);
+        }
+    }
+}
+```
+
+##### 4.7 Adaptive MIN Enforcement
 
 ```javascript
 // ❌ WRONG: Force all tiles ≥ 60px
@@ -287,31 +484,28 @@ const MIN = 60;
 if (tileSpan < MIN) expandTile(MIN - tileSpan);
 
 // ✅ CORRECT: Respect tiles already smaller than MIN
-const origSpan = tile.originalEnd - tile.originalStart;
+const origSpan = tHi - tLo;  // Original canonical span
 const effectiveMin = Math.min(MIN, origSpan);
-if (tileSpan < effectiveMin) expandTile(effectiveMin - tileSpan);
+// Tiles naturally 36px → effectiveMin = 36px, not 60px
 ```
 
-**Result**: Tiles naturally small (建筑装饰: 36px original) not forced to 60px during compression.
+**Used in**: `analyzeRegionIntervals` (minSize calculation) and tile-level MIN enforcement loop.
 
-##### 4.5 Hover Lock Mechanism
+##### 4.8 Hover Lock Mechanism
 
 ```javascript
 let activeHoverIndex = -1;
 
 tileElement.addEventListener('mouseenter', (e) => {
     const tileIndex = getTileIndex(e.target);
-
     // Lock: ignore if another tile is expanding
     if (activeHoverIndex >= 0 && activeHoverIndex !== tileIndex) return;
-
     activeHoverIndex = tileIndex;
     expandTile(tileIndex);
 });
 
 tileElement.addEventListener('mouseleave', (e) => {
     const tileIndex = getTileIndex(e.target);
-
     // Unlock only on same tile's leave
     if (activeHoverIndex === tileIndex) {
         activeHoverIndex = -1;
@@ -320,92 +514,54 @@ tileElement.addEventListener('mouseleave', (e) => {
 });
 ```
 
-**Result**: Prevents cursor drift during 400ms CSS transitions. Hovering "建筑装饰" from below no longer slips to "公用事业".
+**Result**: Prevents cursor drift during 400ms CSS transitions.
 
-##### 4.6 Tile-Level MIN Enforcement
-
-```javascript
-// ❌ WRONG: Check consecutive canonical pairs only
-for (let i = 0; i < canonicals.length - 1; i++) {
-    const span = linePos.get(canonicals[i+1]) - linePos.get(canonicals[i]);
-    if (span < MIN) expandPair(i, MIN - span);
-}
-
-// ✅ CORRECT: Check each tile's full span (lo to hi)
-function buildTileSpans(tiles, linePositions) {
-    return tiles.map(tile => ({
-        lo: tile.loCanonical,
-        hi: tile.hiCanonical,
-        span: linePositions.get(tile.hiCanonical) - linePositions.get(tile.loCanonical)
-    }));
-}
-
-tileSpans.forEach(ts => {
-    if (ts.span < effectiveMin) {
-        const expand = (effectiveMin - ts.span) / 2;
-        linePos.set(ts.lo, linePos.get(ts.lo) - expand);
-        linePos.set(ts.hi, linePos.get(ts.hi) + expand);
-    }
-});
-```
-
-**Result**: Fixes M size overlaps where tile spans multiple canonical intervals.
-
-##### 4.7 Map Iteration Safety
+##### 4.9 Map Iteration Safety
 
 ```javascript
 // ❌ DANGEROUS: Modifying Map during forEach
-hLinePos.forEach((v, k) => {
-    hLinePos.set(k, v - shift);  // Causes key loss, undefined values
-});
+hLinePos.forEach((v, k) => { hLinePos.set(k, v - shift); });
 
 // ✅ SAFE: Collect updates first, then apply
 const updates = [];
-hLinePos.forEach((v, k) => {
-    updates.push([k, v - shift]);
-});
-updates.forEach(([k, v]) => {
-    hLinePos.set(k, v);
-});
+hLinePos.forEach((v, k) => updates.push([k, v - shift]));
+updates.forEach(([k, v]) => hLinePos.set(k, v));
 ```
 
-**Result**: Eliminates NaN bugs from lost Map keys during iteration.
+##### Summary: `elasticRedistribute` Full Pipeline
 
-##### 4.8 Iterative Constraint Loop
+```
+Input: canonicals[], hovLo, hovHi, targetSize, vbLo, vbHi, tileSpans[]
 
-```javascript
-const MAX_ITER = 50;
+Step 0: Edge-pinning → compute newHovLo, newHovHi
+        (if pinnedLeft: pin left, grow right; if pinnedRight: pin right, grow left)
 
-for (let iter = 0; iter < MAX_ITER; iter++) {
-    let adjusted = false;
+Step 0b: Capacity-aware directional expansion (non-edge tiles only)
+         → analyzeRegionIntervals(beforeIndices) → trueCapacity before
+         → analyzeRegionIntervals(afterIndices) → trueCapacity after
+         → distribute needExpand proportionally to effective capacity
+         → cap per side, overflow to opposite, safety clamp
 
-    // Priority 1: Hovered tile reaches target (≥95%)
-    if (hoveredTileWidth < targetW * 0.95) {
-        applyEdgePinningExpansion();
-        adjusted = true;
-    }
+Step 1: Gradient compression
+        → gradientMapRegion(leftIndices, origStart=canonicals[0], origEnd=hovLo,
+                            newStart=vbLo, newEnd=newHovLo)
+        → Linear scale for insideIndices (hovered tile)
+        → gradientMapRegion(rightIndices, origStart=hovHi, origEnd=canonicals[n-1],
+                            newStart=newHovHi, newEnd=vbHi)
+        → Lock hovered tile boundaries: pos.set(hovLo, newHovLo); pos.set(hovHi, newHovHi)
 
-    // Priority 2: Tile-level MIN enforcement with adaptive MIN
-    tileSpans.forEach(ts => {
-        const effectiveMin = Math.min(MIN, ts.originalSpan);
-        if (ts.currentSpan < effectiveMin) {
-            expandTile(ts);
-            adjusted = true;
-        }
-    });
+Step 2: Tile-level MIN enforcement (max 50 iterations)
+        → For each tileSpan [tLo, tHi]: if span < effectiveMin, expand from midpoint
+        → Respect locked canonicals (hovered tile edges)
+        → Early termination when no adjustments needed
 
-    // Priority 3: Boundary overflow prevention with gradient compression
-    if (maxX > virtualW || maxY > virtualH) {
-        const overflow = maxX - virtualW;
-        elasticRedistribute(overflow);
-        adjusted = true;
-    }
+Step 3: Monotonicity enforcement
+        → Ensure pos values are non-decreasing along canonicals[]
 
-    if (!adjusted) break;
-}
+Output: Map<canonical, newPosition>
 ```
 
-**Convergence**: Typically converges in 5-10 iterations for XL/L, 15-25 for M size.
+**Convergence**: XL/L: 5-10 iterations, M: 15-25 iterations.
 
 **Result**:
 - Hovered tile: ≥95% of W/4 × H/4
@@ -583,16 +739,30 @@ export function HeatMap({ entities }: HeatMapProps) {
 
 ### Reference Implementation
 
-Complete working implementation: `/tmp/treemap-test/treemap-v11-fixed.html` (818 lines)
+Prototype: `docs/treemap-preview/reference/treemap-v11-fixed.html` (818 lines, standalone HTML+JS with D3.js)
 
-**Key Functions**:
-- `buildSplitLineStructure()` - Split-line grouping with TOL=2.5
-- `analyzeRegionIntervals()` - Capacity-aware region analysis
-- `elasticRedistribute()` - Gradient compression algorithm
-- `buildTileSpans()` - Tile-level MIN enforcement
-- `calculateRippleLayout()` - Main expansion orchestration
+**Function Signatures & Responsibilities**:
 
-**Test Coverage**: 87 test scenarios (29 small tiles × 3 container sizes)
+| Function | Signature | Purpose |
+|----------|-----------|---------|
+| `buildSplitLineStructure(layout)` | `layout: {x,y,width,height}[]` → `{vLines, hLines, vLineMap, hLineMap, vCanonicals, hCanonicals}` | Groups tile edges within TOL=2.5 into canonical split lines. Reduces ~64 raw edges to ~36 canonicals. |
+| `buildTileSpans(axis)` | `axis: 'v'\|'h'` → `[loCanonical, hiCanonical][]` | Maps each tile to its canonical lo/hi boundaries on the given axis using `splitLineStructure.*LineMap`. |
+| `elasticRedistribute(canonicals, hovLo, hovHi, targetSize, vbLo, vbHi, tileSpans)` | Returns `Map<canonical, newPosition>` | Main 1-axis compression: edge-pinning → capacity-aware expansion → gradient compression → MIN enforcement → monotonicity. |
+| `analyzeRegionIntervals(regionIndices)` | Nested inside `elasticRedistribute`. Uses closure over `canonicals`, `tileSpans`, `hovLo`, `hovHi`. Returns `{intervals, totalWeight, totalMinFootprint, totalOrigRange, trueCapacity}` | Analyzes compressibility of each interval between consecutive canonicals. 5-tier gradient rate. |
+| `gradientMapRegion(indices, origStart, origEnd, newStart, newEnd)` | Nested inside `elasticRedistribute`. Writes to `pos` Map. | Redistributes split-line positions within a compressed region, weighted by gradient rates. |
+| `calculateRippleLayout(hoveredIndex)` | `hoveredIndex: number` → `layout[]` (same shape as `originalLayout`) | Orchestrates expansion: builds tile spans, calls `elasticRedistribute` on V and H axes independently, maps results to new tile positions. |
+
+**Constants**:
+- `MIN = 60` — minimum tile dimension (px), adaptive: `effectiveMin = Math.min(MIN, origSpan)`
+- `BORDER = 2` — virtual boundary offset from container edge
+- `TOL = 2.5` — split-line grouping tolerance
+- Target size: `W/4 × H/4`
+
+**Mock Data**: 31 sectors with `capitalFlow` values, weights via `Math.pow(Math.abs(capitalFlow), 0.8)`
+
+**D3 Treemap Config**: `d3.treemapSquarify.ratio(1.2)`, `padding(2)`, layout inside virtual boundary `(W-4) × (H-4)`
+
+**Test Coverage**: 87 test scenarios (29 small tiles × 3 container sizes), all passing
 
 ---
 
