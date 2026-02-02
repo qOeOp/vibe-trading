@@ -1,75 +1,79 @@
 # Task: Adaptive Content Scaling & Water Ripple Expansion
 
-Content size and visibility adjustments based on tile dimensions, combined with water ripple expansion for small tiles to provide sufficient space for full content display.
+Content size and visibility adjustments based on tile dimensions, combined with water ripple expansion for small tiles. Centralized `applyAdaptiveStyles()` function recomputes all adaptive properties on initial render and during hover layout changes.
 
 ---
 
 ## Design
 
 ### Purpose
-Ensure text, icons, and metrics remain readable across variable tile sizes through:
-1. **Content adaptive scaling** - Font sizes, icon sizes, visibility rules
-2. **Water ripple expansion** - Small tiles expand to W/4 × H/4 on hover, pushing surrounding tiles away
+Ensure text and metrics remain readable across variable tile sizes through:
+1. **Continuous adaptive scaling** — Font sizes, padding, badge prominence scale with `sqrt(area)`
+2. **Visibility rules** — Content hidden/shown based on min dimension thresholds
+3. **Vertical text modes** — Tall tiles and narrow tiles use `writing-mode: vertical-rl`
+4. **Compact value** — Drop "亿" unit when vertical value would overlap badge
+5. **Water ripple expansion** — Small tiles expand to W/4 × H/4 on hover
+6. **Hover adaptive refresh** — ALL tiles recompute adaptive styles when layout changes during hover
 
 ### Layout Constraints
-- **Maximum tile size**: No tile can exceed **1/4 container width** × **1/4 container height**
-- **Rationale**: Prevents single tile dominance, ensures balanced visual hierarchy
-- **Implementation**: Applied in D3 treemap layout algorithm via size clamping
+- **Horizontal bias**: Virtual container height stretched by S=1.35, Y scaled back → ≥80% tiles have width > height
+- **D3 config**: `treemapSquarify.ratio(1)`, `padding(2)`
+- **No initial max tile clamping** — D3 squarify naturally balances tiles; W/4 × H/4 is hover expansion target only
 
-### Size Thresholds
+### Continuous Scaling (replaces discrete size categories)
 
-| Tile Size | Min Dimension | Icon Size | Font Size (Name) | Font Size (Metrics) | Notes |
-|-----------|---------------|-----------|------------------|---------------------|-------|
-| **Large** | ≥ 200px | 16px | 14px (sm) | 12px (xs) | Full detail, sparkline visible |
-| **Medium** | 120-200px | 14px | 13px | 11px | Name + capital flow, sparkline on hover |
-| **Small** | 60-120px | - | 11px | - | Name only, **water ripple expansion on hover** |
-| **Tiny** | < 60px | - | 10px | - | Minimal display |
+All properties interpolate based on `t = normalized sqrt(area)` where t ∈ [0, 1]:
 
-**Note**: Power scaling (x^0.8) + aspect ratio bias typically produces tiles in 60-250px range.
+| Property | t=0 (smallest) | t=1 (largest) |
+|----------|----------------|---------------|
+| Name font-size | 9px | 28px |
+| Name font-weight | 400 | 700 |
+| Value font-size | 8px | 13px |
+| Badge font-size | 7px | 12px |
+| Content padding | 4px | 16px |
+| Badge bg alpha | 0.03 | 0.15 |
+| Badge border alpha | 0.06 | 0.25 |
+| Badge shadow alpha | 0.05 | 0.3 |
+| Badge pad (V/H) | 2px / 4px | 4.5px / 6px |
 
-### Adaptive Rules
+### Visibility Rules
 
-**Size Category Detection:**
 ```typescript
-const minDimension = Math.min(width, height);
-if (minDimension >= 200) category = 'large';
-else if (minDimension >= 120) category = 'medium';
-else if (minDimension >= 60) category = 'small';
-else category = 'tiny';
+const minDim = Math.min(width, height);
+const threshold = Math.min(containerW / 4, containerH / 4);
+
+hideValue:     minDim < 50
+hideBadge:     minDim < 50
+showSparkline: minDim >= threshold
+verticalText:  height > width * 1.2
+verticalValue: !verticalText && headerDoesntFitHorizontally
 ```
 
-**Content Visibility:**
+### Name Width Constraint
 
 ```typescript
-// Large tiles (≥ 200px)
-{
-  iconSize: 16,
-  nameFontSize: 'text-sm' (14px),
-  showCapitalFlow: true,
-  showChange: true,
-  showSparkline: true,
-  metrics: 'text-xs' (12px)
-}
+const maxNameSize = (0.5 * textFlowDim) / Math.max(charCount, 1);
+nameSize = Math.min(nameSize, Math.max(9, maxNameSize));
+```
 
-// Medium tiles (120-200px)
-{
-  iconSize: 14,
-  nameFontSize: '13px',
-  showCapitalFlow: true,
-  showChange: false,
-  showSparkline: isHovered,
-  metrics: '11px'
-}
+### Compact Value (Auto-Drop Unit)
 
-// Small tiles (60-120px)
-{
-  iconSize: null,
-  nameFontSize: '11px',
-  showCapitalFlow: false,
-  showChange: false,
-  showSparkline: false,
-  waterRippleExpansion: true  // Expands to W/4 × H/4 on hover
-}
+```typescript
+const needCompact = isValueVertical && valueCharH > spaceForValue;
+valueEl.textContent = needCompact ? shortValueText : fullValueText;
+// "+125.5亿" → "+125.5"
+```
+
+### Centralized `applyAdaptiveStyles()`
+
+Single module-scope function called on initial render AND during hover layout changes:
+
+```
+D3 Render Chain:
+.each() → tile style + corner radius
+.html() → generates DOM
+.each() → applyAdaptiveStyles() + sparkline  ← MUST be after .html()
+.each() → hover event handlers
 ```
 
 ---
@@ -621,125 +625,96 @@ function calculateTarget() {
 
 ## Implementation
 
-### Utility Function
+### `applyAdaptiveStyles()` — Complete Function
 
 ```typescript
-// apps/preview/src/app/utils/tileUtils.ts
+function applyAdaptiveStyles(el: HTMLElement, data: TileData, w: number, h: number) {
+  const t = getTileScale(w, h);  // 0..1 normalized sqrt(area)
+  const minDim = Math.min(w, h);
+  const threshold = Math.min(targetW(), targetH());
 
-type TileSize = 'large' | 'medium' | 'small' | 'tiny';
+  // --- Name sizing with width constraint ---
+  let nameSize = lerp(9, 28, t);
+  const charCount = data.name.length;
+  const isVertical = h > w * 1.2;
+  const pad = lerp(4, 16, t);
+  const textFlowDim = isVertical ? h - 2 * pad : w - 2 * pad;
+  const maxNameSize = (0.5 * textFlowDim) / Math.max(charCount, 1);
+  nameSize = Math.min(nameSize, Math.max(9, maxNameSize));
 
-interface ContentScaleConfig {
-  sizeCategory: TileSize;
-  iconSize: number | null;
-  nameFontSize: string;
-  metricsFontSize: string;
-  showIcon: boolean;
-  showCapitalFlow: boolean;
-  showChange: boolean;
-  showSparkline: boolean;
-  enableWaterRipple: boolean;
-}
+  const nameWeight = Math.round(lerp(400, 700, t));
+  const valueSize = lerp(8, 13, t);
+  const badgeSize = lerp(7, 12, t);
 
-export function getContentScale(
-  width: number,
-  height: number,
-  isHovered: boolean
-): ContentScaleConfig {
-  const minDimension = Math.min(width, height);
+  // --- Set CSS variables ---
+  el.style.setProperty('--tile-name-size', nameSize + 'px');
+  el.style.setProperty('--tile-name-weight', nameWeight);
+  el.style.setProperty('--tile-value-size', valueSize + 'px');
+  el.style.setProperty('--tile-badge-size', badgeSize + 'px');
+  el.style.setProperty('--tile-pad', pad + 'px');
 
-  if (minDimension >= 200) {
-    return {
-      sizeCategory: 'large',
-      iconSize: 16,
-      nameFontSize: 'text-sm',
-      metricsFontSize: 'text-xs',
-      showIcon: true,
-      showCapitalFlow: true,
-      showChange: true,
-      showSparkline: true,
-      enableWaterRipple: false,
-    };
-  }
+  // --- Badge prominence gradient ---
+  const badgePadV = lerp(2, 4.5, t);
+  const badgePadH = lerp(4, 6, t);
+  el.style.setProperty('--badge-bg-alpha', lerp(0.03, 0.15, t));
+  el.style.setProperty('--badge-border-alpha', lerp(0.06, 0.25, t));
+  el.style.setProperty('--badge-shadow-alpha', lerp(0.05, 0.3, t));
+  el.style.setProperty('--badge-pad', `${badgePadV}px ${badgePadH}px`);
+  el.style.setProperty('--badge-pad-h', badgePadH + 'px');
 
-  if (minDimension >= 120) {
-    return {
-      sizeCategory: 'medium',
-      iconSize: 14,
-      nameFontSize: '13px',
-      metricsFontSize: '11px',
-      showIcon: true,
-      showCapitalFlow: true,
-      showChange: isHovered,
-      showSparkline: isHovered,
-      enableWaterRipple: false,
-    };
-  }
+  // --- Layout classes ---
+  el.classList.toggle('show-sparkline', minDim >= threshold);
+  el.classList.toggle('vertical-text', isVertical);
 
-  // Small tiles: water ripple expansion on hover
-  return {
-    sizeCategory: 'small',
-    iconSize: null,
-    nameFontSize: '11px',
-    metricsFontSize: 'text-xs',
-    showIcon: false,
-    showCapitalFlow: false,
-    showChange: false,
-    showSparkline: false,
-    enableWaterRipple: true,  // Triggers expansion to W/4 × H/4
-  };
+  // --- Horizontal fit check → vertical-value ---
+  const availW = w - 2 * pad;
+  const nameW = data.name.length * nameSize * 0.85;
+  const fullValueW = fullValueText.length * valueSize * 0.6;
+  const headerFitsH = (nameW + 6 + fullValueW) <= availW;
+  const needVerticalValue = !isVertical && !headerFitsH;
+
+  // --- Compact value: drop "亿" if vertical value overlaps badge ---
+  const badgeH = badgeSize * 1.3 + 2 * badgePadV;
+  const valueCharH = fullValueText.length * valueSize;
+  const spaceForValue = (h - 2 * pad) - (needVerticalValue ? badgeH + 4 : 0);
+  const needCompact = (needVerticalValue || isVertical) && valueCharH > spaceForValue;
+
+  const valueEl = el.querySelector('.tile-value');
+  if (valueEl) valueEl.textContent = needCompact ? shortValueText : fullValueText;
+
+  // --- Visibility ---
+  el.classList.toggle('hide-value', minDim < 50);
+  el.classList.toggle('hide-badge', minDim < 50);
+  el.classList.toggle('hide-sparkline', minDim < threshold);
+  el.classList.toggle('vertical-value', needVerticalValue);
 }
 ```
 
-### Water Ripple Integration
+### `applyLayout()` — Hover Refresh
+
+Called when hover triggers water ripple expansion. Recomputes EVERYTHING for all tiles:
 
 ```typescript
-// apps/preview/src/app/components/HeatMap.tsx
+function applyLayout(layout) {
+  d3.selectAll('.tile').each(function(d, i) {
+    const l = layout[i];
+    this.style.left = l.x + 'px';
+    this.style.top = l.y + 'px';
+    this.style.width = l.width + 'px';
+    this.style.height = l.height + 'px';
 
-export function HeatMap({ entities }: HeatMapProps) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [expandedLayout, setExpandedLayout] = useState(originalLayout);
+    // Recompute corner radius for new position
+    // ... (Binance-style edge detection)
 
-  const handleTileHover = (index: number) => {
-    const tile = originalLayout[index];
-    const contentScale = getContentScale(tile.width, tile.height, true);
-
-    if (contentScale.enableWaterRipple) {
-      // Calculate water ripple expansion
-      const newLayout = calculateRippleLayout(index, originalLayout);
-      setExpandedLayout(newLayout);
-    }
-
-    setHoveredIndex(index);
-  };
-
-  const handleTileLeave = () => {
-    setExpandedLayout(originalLayout);
-    setHoveredIndex(null);
-  };
-
-  return (
-    <div className="relative">
-      {expandedLayout.map((tile, index) => (
-        <HeatMapTile
-          key={tile.id}
-          entity={tile.data}
-          x={tile.x}
-          y={tile.y}
-          width={tile.width}
-          height={tile.height}
-          isHovered={hoveredIndex === index}
-          onMouseEnter={() => handleTileHover(index)}
-          onMouseLeave={handleTileLeave}
-        />
-      ))}
-    </div>
-  );
+    // Recompute ALL adaptive styles for new dimensions
+    applyAdaptiveStyles(this, l.data, l.width, l.height);
+  });
 }
 ```
 
 ### Reference Implementation
 
-Prototype: `docs/treemap-preview/reference/treemap-v11-fixed.html` (818 lines, standalone HTML+JS with D3.js)
+Prototype: `docs/treemap-preview/reference/treemap-preview.html` — Standalone HTML+JS+D3 with header row layout, badge prominence gradient, vertical text modes, compact value, water ripple expansion, hover adaptive refresh, 60-day candlestick sparkline.
 
 **Function Signatures & Responsibilities**:
 
@@ -760,7 +735,25 @@ Prototype: `docs/treemap-preview/reference/treemap-v11-fixed.html` (818 lines, s
 
 **Mock Data**: 31 sectors with `capitalFlow` values, weights via `Math.pow(Math.abs(capitalFlow), 0.8)`
 
-**D3 Treemap Config**: `d3.treemapSquarify.ratio(1.2)`, `padding(2)`, layout inside virtual boundary `(W-4) × (H-4)`
+**D3 Treemap Config**: `d3.treemapSquarify.ratio(1)`, `padding(2)`, layout inside virtual boundary `(W-4) × (H-4)`, horizontal bias via S=1.35 virtual height stretch
+
+**Horizontal Bias Layout**:
+```javascript
+const S = 1.35;
+d3.treemap()
+    .size([vW(), vH() * S])
+    .padding(2)
+    .tile(d3.treemapSquarify.ratio(1))(root);
+
+// Scale Y back — tiles biased toward horizontal (width > height)
+originalLayout = root.leaves().map(d => ({
+    data: d.data,
+    x: d.x0 + BORDER,
+    y: (d.y0 / S) + BORDER,
+    width: d.x1 - d.x0,
+    height: (d.y1 - d.y0) / S
+}));
+```
 
 **Test Coverage**: 87 test scenarios (29 small tiles × 3 container sizes), all passing
 
@@ -768,11 +761,14 @@ Prototype: `docs/treemap-preview/reference/treemap-v11-fixed.html` (818 lines, s
 
 ## Acceptance Criteria
 
-✅ **Content Adaptive Scaling:**
-- [ ] Correctly categorizes tiles as large/medium/small based on min dimension
-- [ ] Font sizes adapt to tile size
-- [ ] Icon visibility follows size thresholds
-- [ ] Content visibility rules applied correctly
+✅ **Continuous Adaptive Scaling:**
+- [ ] Font sizes scale continuously via sqrt(area) normalization
+- [ ] Name width constraint prevents overflow on long names
+- [ ] Badge prominence gradient scales with tile area
+- [ ] Vertical text activates when h > w × 1.2
+- [ ] Vertical value activates when horizontal header doesn't fit
+- [ ] Compact value drops "亿" when vertical value would overlap badge
+- [ ] `applyAdaptiveStyles()` runs AFTER `.html()` in D3 render chain
 
 ✅ **Water Ripple Expansion (Small Tiles < 200px):**
 - [ ] **CRITICAL**: Expands to **exact W/4 × H/4 rectangle** on hover (≥95% of target)
@@ -810,15 +806,24 @@ Prototype: `docs/treemap-preview/reference/treemap-v11-fixed.html` (818 lines, s
 - [ ] All content visible
 
 ✅ **Layout Constraints:**
-- [ ] No tile exceeds W/4 × H/4 in initial layout
-- [ ] Maximum tile constraint applied correctly across all container sizes
+- [ ] ≥80% of tiles have width > height (horizontal bias via S=1.35 stretch)
+- [ ] No non-padding gaps between tiles (tiles fill container fully)
 - [ ] Balanced visual hierarchy maintained
+- [ ] D3 config: `treemapSquarify.ratio(1)` with virtual height stretch S=1.35
 
 ✅ **Multi-Size Support:**
 - [ ] XL (1200×1140): 300×285px target, all 29 small tiles expand correctly
 - [ ] L (800×760): 200×190px target, all 29 small tiles expand correctly
 - [ ] M (600×570): 150×142px target, all 29 small tiles expand correctly
 - [ ] Total: 87 test scenarios pass
+
+✅ **Container & Visual:**
+- [ ] Symmetric 2px gap between tiles and container edge on all four sides
+- [ ] Container border uses `box-shadow` (not CSS `border`) to avoid layout space consumption
+- [ ] Container `overflow: visible` — hover glow not clipped on any edge
+- [ ] Hover glow fully visible on right-edge tiles (e.g., rightmost column)
+- [ ] Hover glow fully visible on bottom-edge tiles (e.g., bottom row, right + bottom corners)
+- [ ] Container border-radius (12px) preserved visually
 
 ✅ **Performance:**
 - [ ] Hover expansion completes in <50ms
@@ -945,6 +950,49 @@ Expected:
 - Expands 86% upward, 14% downward
 - Compresses "电子"/"银行" above, preserves "建筑装饰"/"综合" below
 
+### Automated Static Tests (Added 2026-02-02)
+
+These tests run without hover interaction and validate initial layout quality:
+
+**Test 5: Horizontal Rate ≥80%**
+
+```javascript
+// For each container size (XL/L/M), compute layout and check horizontal rate
+const layout = computeLayoutForSize(W, H);
+const horizontal = layout.filter(t => (t.x1 - t.x0) > (t.y1 - t.y0)).length;
+const rate = horizontal / layout.length;
+assert(rate >= 0.80, `Horizontal rate ${(rate*100).toFixed(0)}% < 80%`);
+```
+
+Expected: ≥80% tiles have width > height across all 3 container sizes.
+
+**Test 6: No Non-Padding Gaps Between Tiles**
+
+```javascript
+// For each tile, check that at least one neighbor is within padding distance
+const layout = computeLayoutForSize(W, H);
+layout.forEach(tile => {
+    const hasRightNeighbor = layout.some(other =>
+        Math.abs(tile.x1 - other.x0) <= 3 && overlap1D(tile.y0, tile.y1, other.y0, other.y1)
+    );
+    // ... check all 4 directions
+    // Edge tiles exempt from the direction facing the container edge
+});
+```
+
+Expected: No gaps wider than padding(2) + tolerance between adjacent tiles.
+
+**Test 7: 7-Stop Color Ramp Validation**
+
+```javascript
+// Verify color mapping covers all 7 stops
+const colors = ['#0B8C5F','#2EBD85','#58CEAA','#76808E','#E8626F','#F6465D','#CF304A'];
+const thresholds = [-5, -2, -0.5, 0.5, 2, 5]; // % change boundaries
+// Verify each sector maps to correct color based on its changePercent
+```
+
+Expected: All 31 sectors assigned correct color from 7-stop ramp.
+
 ---
 
 ## References
@@ -983,46 +1031,33 @@ const minDimension = Math.min(width, height);
 
 ### Content Priority (Most to Least Critical)
 
-1. **Name** (sector name) - Always visible
-2. **Capital Flow** (资金流向) - Visible on medium+, or small after expansion
-3. **Change%** (涨跌幅) - Visible on large, or medium+ on hover
-4. **Icon** - Visible on medium+
-5. **Sparkline** - Visible on large, or medium on hover, or small after expansion
+1. **Name** (sector name) - Always visible, scales 9-28px
+2. **Capital Flow** (资金流向) - Hidden when minDim < 50px, compact mode drops unit
+3. **Change%** (涨跌幅) - Hidden when minDim < 50px, prominence scales with area
+4. **Sparkline** - Visible when minDim ≥ threshold, or after hover expansion
 
-### Border Preservation Strategy
+### Container CSS Strategy
 
-**Problem**: Edge tiles' 2px borders get clipped by container `overflow: hidden` during expansion.
+**Problem 1**: Edge tiles' hover glow (`box-shadow`) clipped by container `overflow: hidden`.
 
-**Solution**: Virtual boundary approach
-- Define virtual container: `(W - 4px) × (H - 4px)`
-- All tiles positioned with 2px offset from container edge
-- Expansion algorithm uses virtual dimensions
-- 2px borders always fully visible
+**Solution**: `overflow: visible`. The virtual boundary (BORDER=2) already constrains tiles within bounds, so `overflow: hidden` is unnecessary. Removing it allows hover glow to extend beyond the container edge naturally.
 
-**Alternative Considered**: `box-shadow: inset 0 0 0 2px` instead of `border`
-- Pros: Shadow doesn't occupy layout space, never clipped
-- Cons: Requires careful handling for rounded corners
-- Decision: Use virtual boundary for cleaner implementation
+**Problem 2**: Container `border: 2px` with `box-sizing: border-box` shrinks the content area by 4px total, causing asymmetric tile gaps — 2px on top/left but 0px on right/bottom (tiles overflow the content area).
 
-### Layout Constraint Implementation
+**Solution**: Replace CSS `border` with `box-shadow: 0 0 0 2px #333`. Visually identical, follows `border-radius`, but doesn't consume layout space. Content area remains exactly W × H.
 
-**Constraint**: Max tile size ≤ **W/4 × H/4**
-
-**Implementation Approach**:
-```javascript
-// After D3 treemap layout, clamp oversized tiles
-layout.forEach(tile => {
-    const maxW = W / 4;
-    const maxH = H / 4;
-
-    if (tile.width > maxW || tile.height > maxH) {
-        // Redistribute excess area to neighboring tiles
-        // Maintain aspect ratio where possible
-    }
-});
+```css
+#container {
+    overflow: visible;                /* Glow not clipped */
+    box-shadow: 0 0 0 2px #333;      /* Border without layout impact */
+    /* NOT: border: 2px solid #333;   ← consumes layout space */
+}
 ```
 
-**Rationale**: Prevents single sector from dominating visual space, ensures balanced hierarchy even with extreme market cap differences.
+**Virtual Boundary**: BORDER=2 creates symmetric 2px padding on all four sides.
+- D3 layout size: `(W - 2*BORDER) × (H - 2*BORDER)` = `(W-4) × (H-4)`
+- Tile offset: `x = d.x0 + BORDER`, `y = d.y0 + BORDER`
+- Result: 2px gap on all four sides between tiles and container edge
 
 ### Critical Bug Fixes
 
@@ -1091,6 +1126,22 @@ updates.forEach(([k, v]) => hLinePos.set(k, v));
 **Root Cause**: Uniform compression doesn't account for tiles already below MIN threshold.
 
 **Fix**: Adaptive MIN - tiles naturally small (≤60px original) use original size as minimum, zero compressible capacity.
+
+#### Bug 8: Hover Glow Clipped on Right/Bottom Edge Tiles
+
+**Problem**: Hovering tiles at the right or bottom edge of the container — their `box-shadow` glow is clipped by `overflow: hidden`.
+
+**Root Cause**: Container uses `overflow: hidden` (originally for rounded-corner clipping). The virtual boundary ensures tiles don't overflow, making `overflow: hidden` unnecessary.
+
+**Fix**: Set `overflow: visible` on container. Glow now renders fully on all edges.
+
+#### Bug 9: Asymmetric Tile Gaps (Top/Left vs Right/Bottom)
+
+**Problem**: Tiles have 2px gap from the top and left container edges, but touch/overflow the right and bottom edges — visually asymmetric.
+
+**Root Cause**: Container `border: 2px` with `box-sizing: border-box` shrinks content area by 4px, but D3 layout fills the full `W - 2*BORDER` and tiles are offset by `+BORDER`. Right/bottom tiles overflow the shrunken content area by 2px.
+
+**Fix**: Replace CSS `border` with `box-shadow: 0 0 0 2px #333` — visually identical, follows `border-radius`, but doesn't consume layout space. Content area stays W × H, and the BORDER=2 offset creates symmetric 2px gaps on all four sides.
 
 ### Why Gradient Compression?
 

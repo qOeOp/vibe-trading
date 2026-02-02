@@ -39,8 +39,7 @@ HeatMapContainer
   │   └─ SearchBox (query, onChange)
   └─ TileGrid
       └─ HeatMapTile[] (entity, x, y, width, height, onDrillDown)
-          ├─ BreathingDot (attentionLevel)
-          └─ Sparkline (data, width, height, attentionLevel)
+          └─ Sparkline (data, width, height)
 ```
 
 **Shallow:** Max 2-3 levels deep

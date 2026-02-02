@@ -8,8 +8,7 @@ Comprehensive animation timing and easing catalog.
 
 All animations detailed in component-specific tasks:
 
-- **BreathingDot:** [Section 5 → BreathingDot → Tasks 02, 03](../../../../5-components/threads/breathing-dot/index.md)
-- **Sparkline Draw:** [Section 5 → Sparkline → Task 04](../../../../5-components/threads/sparkline/tasks/04-draw-animation.md)
+- **Sparkline Bar Reveal:** [Section 5 → Sparkline → Task 04](../../../../5-components/threads/sparkline/tasks/04-draw-animation.md)
 - **Tile Hover:** [Section 5 → HeatMapTile → Task 01](../../../../5-components/threads/heatmap-tile/tasks/01-tile-shell.md)
 - **Loading Spinner:** [Section 5 → LoadingState → Task 02](../../../../5-components/threads/loading-state/tasks/02-spinner-animation.md)
 

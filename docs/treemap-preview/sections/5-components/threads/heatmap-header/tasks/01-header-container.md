@@ -1,13 +1,13 @@
 # Task: Header Container & Layout
 
-Fixed-height header bar with horizontal flex layout for left/right content sections and glassmorphism background styling.
+Fixed-height header bar with horizontal flex layout for left/right content sections and solid background styling with backdrop blur.
 
 ---
 
 ## Design
 
 ### Purpose
-Create structural container for header content with proper spacing, alignment, and visual styling that matches the application's glassmorphism design language.
+Create structural container for header content with proper spacing, alignment, and visual styling.
 
 ### Dimensions
 
@@ -70,7 +70,7 @@ gap: 8px                       // Space between search and toggle
 **Background:**
 ```css
 background: rgba(17, 24, 39, 0.9);  /* gray-900 with 90% opacity */
-backdrop-filter: blur(8px);          /* Glassmorphism blur */
+backdrop-filter: blur(8px);          /* Subtle blur */
 ```
 
 **Border:**
@@ -204,7 +204,7 @@ export function HeatMapHeader({
 - [ ] Background color: `rgba(17, 24, 39, 0.9)` (gray-900 with 90% opacity)
 - [ ] Backdrop filter: `blur(8px)` applied
 - [ ] Border bottom: 1px solid white with 10% opacity
-- [ ] Glassmorphism effect visible (can see content behind header)
+- [ ] Backdrop blur effect visible (can see content behind header)
 
 ✅ **Positioning:**
 - [ ] Position: `sticky`
@@ -213,7 +213,7 @@ export function HeatMapHeader({
 - [ ] Header stays at top when scrolling
 
 ✅ **Visual Quality:**
-- [ ] Glassmorphism blur renders correctly
+- [ ] Backdrop blur renders correctly
 - [ ] Border is subtle but visible
 - [ ] Background semi-transparent (90% opacity)
 - [ ] No layout shift when sticky positioning activates
@@ -225,7 +225,7 @@ export function HeatMapHeader({
 - **Breadcrumb Area:** [Task 02: Title & Breadcrumb Integration](./02-breadcrumb-area.md)
 - **Controls Area:** [Task 03: Search & Toggle Controls](./03-controls-area.md)
 - **Sticky Behavior:** [Task 04: Scroll Behavior & Sticky Positioning](./04-sticky-behavior.md)
-- **Glassmorphism:** [Section 6 → Visual Design → Glassmorphism](../../../../6-visual-design/threads/glassmorphism/index.md)
+- **Visual Design:** Section 6 → Visual Design
 
 ---
 
@@ -342,7 +342,7 @@ Alternative heights considered:
 /* Header height calculation more complex */
 ```
 
-**Glassmorphism backdrop blur intensity:**
+**Backdrop blur intensity:**
 
 ```
 Blur values tested:

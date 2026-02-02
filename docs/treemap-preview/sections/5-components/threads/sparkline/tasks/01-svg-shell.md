@@ -1,148 +1,104 @@
 # Task: SVG Shell & Dimensions
 
-Responsive SVG container with dynamic viewBox that adapts to tile width while maintaining fixed 40px height.
+Responsive SVG container that fills the flex middle frame of the tile, adapting to available space between header and badge.
 
 ---
 
 ## Design
 
 ### Purpose
-Create SVG canvas that scales width based on tile size while preserving aspect ratio and coordinate system for consistent path rendering.
+Create SVG canvas that dynamically sizes to fill the sparkline frame, providing the coordinate system for candlestick bar rendering.
 
 ### Dimensions
 
 **Width:**
-- Dynamic: Equals `width` prop (tile width - 16px)
-- Typical range: 134px-284px (for 150px-300px tiles)
-- Must adapt to container size changes
+- Dynamic: Fills tile width edge-to-edge
+- Container uses `margin: 4px calc(-1 * var(--tile-pad)) 4px` to cancel parent padding
+- Effective width = full tile width
 
 **Height:**
-- Fixed: 40px (always, regardless of tile size)
-- Chosen for optimal trend visibility in lower panel gap
-- Enough vertical space for variation without dominating tile
+- Dynamic: `flex: 1` takes remaining space in tile flex column
+- Minimum height: 0 (via `min-height: 0`)
+- Actual height depends on tile size minus header and badge
 
 **ViewBox:**
 ```
 viewBox="0 0 {width} {height}"
 ```
-- Coordinate system matches pixel dimensions
+- Coordinate system matches measured pixel dimensions
 - (0,0) at top-left corner
 - X-axis: 0 → width (left to right)
-- Y-axis: 0 → height (top to bottom)
+- Y-axis: 0 → height (top to bottom, with 8% padding)
 
 ### Container Structure
 
-```tsx
-<div className="sparkline-container">
-  <svg
-    width={width}
-    height={height}
-    viewBox={`0 0 ${width} ${height}`}
-  >
-    {/* Path will be added in Task 02 */}
-    {/* BreathingDot will be added in Task 03 */}
+```html
+<!-- Inside tile-content flex column -->
+<div class="tile-sparkline">
+  <svg class="sparkline-svg"
+       viewBox="0 0 {width} {height}"
+       preserveAspectRatio="none"
+       aria-hidden="true">
+    <!-- 60 <rect> bars rendered here -->
   </svg>
 </div>
+```
+
+### Flex Layout Context
+
+```
+tile-content (flex-direction: column)
+├── tile-header  { flex-shrink: 0 }     ← fixed height
+├── tile-sparkline { flex: 1; min-height: 0 }  ← fills remaining space
+└── tile-badge   { flex-shrink: 0; margin-top: auto; align-self: flex-end }
 ```
 
 ---
 
 ## Implementation
 
-### Component Base
-
-```typescript
-// apps/preview/src/app/components/Sparkline.tsx
-
-interface SparklineProps {
-  /** 30 price data points */
-  data: number[];
-
-  /** Chart width in pixels */
-  width: number;
-
-  /** Chart height in pixels (default: 40) */
-  height?: number;
-
-  /** Attention level for endpoint dot */
-  attentionLevel: number;
-
-  /** Additional CSS classes */
-  className?: string;
-}
-
-export function Sparkline({
-  data,
-  width,
-  height = 40,
-  attentionLevel,
-  className = '',
-}: SparklineProps) {
-  return (
-    <div className={`sparkline-container ${className}`}>
-      <svg
-        width={width}
-        height={height}
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="none"
-        className="overflow-visible"
-        aria-hidden="true"
-      >
-        {/* Path rendering: Task 02 */}
-        {/* BreathingDot: Task 03 */}
-        {/* Animation: Task 04 */}
-      </svg>
-    </div>
-  );
-}
-```
-
-### Base Styles
+### CSS
 
 ```css
-/* apps/preview/src/app/styles.css */
+.tile-sparkline {
+  flex: 1;
+  min-height: 0;
+  display: none;
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+  margin: 4px calc(-1 * var(--tile-pad, 16px)) 4px;
+}
 
-.sparkline-container {
-  position: relative;
+.tile.show-sparkline .tile-sparkline { display: block; }
+.tile.show-sparkline .tile-sparkline.visible { opacity: 1; }
+
+.sparkline-svg {
   display: block;
   width: 100%;
-  height: 40px;
-}
-
-.sparkline-container svg {
-  display: block;
-  overflow: visible;
-  /* Allows BreathingDot to render beyond SVG bounds if needed */
+  height: 100%;
+  overflow: hidden;
 }
 ```
 
-### Coordinate System
+### Rendering (SVG creation)
 
-**Horizontal (X-axis):**
-```
-0px                  width/2                  width
-├─────────────────────┼──────────────────────┤
-Day 0               Day 15                Day 30
-```
-
-**Vertical (Y-axis):**
-```
-0px ─────  Maximum price (top)
-  │
-  │
-20px ───── Middle (average price)
-  │
-  │
-40px ─────  Minimum price (bottom)
-```
-
-**Data Point Spacing:**
 ```typescript
-// 30 data points across width
-const xStep = width / (data.length - 1);
+const svgNS = 'http://www.w3.org/2000/svg';
+const svg = document.createElementNS(svgNS, 'svg');
+svg.setAttribute('class', 'sparkline-svg');
+svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+svg.setAttribute('preserveAspectRatio', 'none');
+svg.setAttribute('aria-hidden', 'true');
+```
 
-// Example at width=200px:
-// xStep = 200 / 29 ≈ 6.9px between points
+### Size Measurement
+
+```typescript
+// Measure container after show-sparkline class is applied
+const rect = sparklineEl.getBoundingClientRect();
+if (rect.width > 0 && rect.height > 0) {
+  renderSparklineSVG(sparklineEl, candles, rect.width, rect.height);
+}
 ```
 
 ---
@@ -150,140 +106,31 @@ const xStep = width / (data.length - 1);
 ## Acceptance Criteria
 
 ✅ **SVG Rendering:**
-- [ ] SVG element renders with correct width and height
-- [ ] ViewBox attribute matches width and height dimensions
-- [ ] `preserveAspectRatio="none"` allows non-uniform scaling
-- [ ] SVG coordinate system: (0,0) at top-left, Y-axis increases downward
+- [x] SVG element renders with measured width and height
+- [x] ViewBox attribute matches measured dimensions
+- [x] `preserveAspectRatio="none"` allows non-uniform scaling
+- [x] SVG coordinate system: (0,0) at top-left
 
-✅ **Responsive Sizing:**
-- [ ] Width changes when `width` prop changes
-- [ ] Height remains fixed at 40px (default)
-- [ ] ViewBox updates when dimensions change
-- [ ] No layout shift when SVG renders
+✅ **Flex Sizing:**
+- [x] Container uses `flex: 1` to fill available space
+- [x] `min-height: 0` prevents flex overflow
+- [x] Edge-to-edge horizontal via negative margin
+- [x] 4px vertical margin provides breathing room
 
-✅ **Container:**
-- [ ] Container div wraps SVG properly
-- [ ] Container height matches SVG height (40px)
-- [ ] `className` prop applied to container div
-- [ ] SVG overflow visible for BreathingDot rendering
+✅ **Visibility Control:**
+- [x] Hidden by default (`display: none`)
+- [x] Shown via `.show-sparkline` class on parent tile
+- [x] Fade-in via `.visible` class and opacity transition
+- [x] Cleanup: innerHTML cleared and classes removed on mouseleave
 
 ✅ **Accessibility:**
-- [ ] `aria-hidden="true"` on SVG (decorative chart)
-- [ ] No interactive elements (not keyboard focusable)
-- [ ] Screen readers ignore sparkline
-
-✅ **Edge Cases:**
-- [ ] Handles very narrow widths (min 120px per spec)
-- [ ] Handles very wide widths (max 284px for 300px tiles)
-- [ ] Works at custom heights (if `height` prop overridden)
-- [ ] Renders correctly with empty data array (edge case)
+- [x] `aria-hidden="true"` on SVG (decorative chart)
+- [x] No interactive elements (not keyboard focusable)
 
 ---
 
 ## References
 
-- **Path Generation:** [Task 02: Path Generation & Styling](./02-path-generation.md)
-- **BreathingDot:** [Task 03: Endpoint BreathingDot Integration](./03-endpoint-dot.md)
+- **Bar Rendering:** [Task 02: Candlestick Bar Generation & Styling](./02-path-generation.md)
+- **Animation:** [Task 04: Staggered Bar Animation](./04-draw-animation.md)
 - **HeatMapTile Usage:** [Section 5 → HeatMapTile → Task 06](../../heatmap-tile/tasks/06-sparkline-integration.md)
-
----
-
-## Technical Notes
-
-**Why preserveAspectRatio="none"?**
-
-```svg
-<!-- ✅ With preserveAspectRatio="none" -->
-<svg viewBox="0 0 200 40" width="200" height="40" preserveAspectRatio="none">
-  <!-- ViewBox coordinates map exactly to pixel coordinates -->
-  <!-- (100, 20) in viewBox = center of 200×40 canvas -->
-</svg>
-
-<!-- ❌ Without (default "xMidYMid meet") -->
-<svg viewBox="0 0 200 40" width="150" height="40">
-  <!-- ViewBox gets letterboxed, coordinates don't align -->
-  <!-- Chart appears squashed or stretched -->
-</svg>
-```
-
-**Why overflow: visible?**
-
-```css
-.sparkline-container svg {
-  overflow: visible;
-  /* Allows BreathingDot (6px diameter) to extend beyond SVG bounds */
-  /* Example: If last point is at Y=0, dot center at Y=3 would be cut off */
-  /* overflow:visible ensures dot renders fully */
-}
-```
-
-**ViewBox coordinate math:**
-
-```typescript
-// For 30 data points at width=200px:
-const points = 30;
-const width = 200;
-
-// Point 0: X = 0px (leftmost)
-const x0 = 0 * (width / (points - 1)); // 0px
-
-// Point 15: X = 103.4px (middle)
-const x15 = 15 * (width / (points - 1)); // ~103px
-
-// Point 29: X = 200px (rightmost)
-const x29 = 29 * (width / (points - 1)); // 200px
-```
-
-**Height fixation rationale:**
-
-```
-Variable height problems:
-- Inconsistent visual weight across tiles
-- Breaks lower panel layout (bottom-12 positioning)
-- Complicates Y-axis scaling (data range changes per tile)
-
-Fixed 40px benefits:
-- Uniform appearance across all tiles
-- Predictable layout spacing
-- Simpler Y-axis normalization (min/max always fit 0-40px)
-```
-
-**Container wrapper purpose:**
-
-```tsx
-// ❌ Without container
-<svg className={className} />
-// Problem: className applied to SVG, not wrapper
-// Can't use flex/positioning classes on SVG directly
-
-// ✅ With container
-<div className={className}>
-  <svg />
-</div>
-// Allows: className="absolute bottom-12 left-2 right-2"
-// SVG stays presentational, container handles layout
-```
-
-**aria-hidden justification:**
-
-```
-Sparkline is decorative enhancement, not critical information:
-- Primary data: Capital Flow + Change% (always visible text)
-- Sparkline: Visual supplement showing historical trend
-- Missing sparkline doesn't affect understanding (accessible)
-- Screen readers focus on text metrics (essential info)
-```
-
-**Performance note:**
-
-```typescript
-// SVG element creation cost: ~0.01ms
-// ViewBox calculation: negligible (string concatenation)
-// 31 sparklines (all sectors): ~0.3ms total initialization
-
-// SVG is more efficient than Canvas for small charts:
-// - No context creation overhead
-// - Browser handles rendering optimization
-// - Built-in scaling via viewBox
-// - No manual redraw on resize
-```

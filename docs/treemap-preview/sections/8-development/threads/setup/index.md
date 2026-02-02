@@ -8,10 +8,9 @@ Development environment setup instructions.
 
 **Steps:**
 1. Clone repository
-2. Install dependencies (npm install)
-3. Configure environment
-4. Run dev server (npm run dev)
-5. Open http://localhost:4200/preview
+2. Install dependencies (`npm install`)
+3. Start dev server (`npx nx serve preview`)
+4. Open http://localhost:4300
 
 ---
 
@@ -27,6 +26,6 @@ Development environment setup instructions.
 
 ```bash
 npm install
-npm run dev
-# Open http://localhost:4200/preview
+npx nx serve preview
+# Open http://localhost:4300
 ```

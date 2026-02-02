@@ -1,64 +1,78 @@
-# Task: Upper Panel Layout
+# Task: Header Row Layout
 
-Top 50% of tile height with horizontal flex layout: Icon (8px left) + Name (4px gap) + BreathingDot (auto right).
-
+Header row with sector name (left) and capital flow value (right), with continuous font scaling and adaptive vertical modes.
 ---
 
 ## Design
 
 ### Purpose
-Display sector identification with visual icon, Chinese name, and attention indicator in a clean, centered horizontal layout occupying the upper half of the tile.
+Display sector name and capital flow as a header row, with font size proportional to tile area for natural visual hierarchy — largest tiles catch the eye first.
 
 ### Layout Structure
 
+**Normal (horizontal):**
 ```
 ┌──────────────────────────────────────┐
-│ Upper Panel (50% of tile height)    │
-│ ┌──────────────────────────────────┐│
-│ │8px│[Icon]│4px│Name...│  [Dot]│8px││ ← Horizontal flex, center aligned
-│ └──────────────────────────────────┘│
-│          (Flexible space)            │
+│ ┌──────────────────────────────────┐ │
+│ │ 板块名称          +125.5亿       │ │ ← flex row, space-between
+│ └──────────────────────────────────┘ │
+│          (sparkline + badge below)   │
 └──────────────────────────────────────┘
 ```
 
-### Spacing Specifications
-
-**Container:**
-- Padding: `px-2 py-2` (8px all sides)
-- Alignment: `flex items-center justify-center`
-- Gap: `gap-1` (4px between children, but Icon/Name use explicit margins)
-
-**Icon:**
-- Position: 8px from left edge (explicit `marginLeft: '8px'`)
-- Size: 16-18px (adaptive based on tile width/height)
-- Flex: `flex-shrink-0` (never shrinks)
-- Source: Lucide React icons mapped by sector code
-
-**Name:**
-- Gap from Icon: 4px (explicit `marginLeft: '4px'`)
-- Font: 14-16px, weight 600 (semibold)
-- Color: White `#ffffff`
-- Overflow: `truncate` (ellipsis if too long)
-- Max content: Single line only
-
-**BreathingDot:**
-- Position: Auto right-aligned (`ml-auto`)
-- Size: 7px diameter
-- Color: Yellow `#facc15`
-- Animation: See [BreathingDot thread](../../breathing-dot/index.md)
-
-### Height Calculation
-
-```typescript
-// Upper Panel is always 50% of tile height
-const upperPanelHeight = tileHeight * 0.5;
-
-// Exception: If tile is very short (< 200px), ensure minimum for content
-const minContentHeight = 32; // Icon + padding
-if (upperPanelHeight < minContentHeight) {
-  // Handled by parent tile constraints (min 150×150px enforced)
-}
+**Vertical value (narrow tile, horizontal):**
 ```
+┌─────────────┐
+│ 板块名  +125│ ← name left, value vertical-rl right
+│         .5亿│
+│              │
+│       +2.35% │ ← badge bottom-right
+└─────────────┘
+```
+
+**Vertical text (tall tile, h > w × 1.2):**
+```
+┌──────┐
+│ 板  +│ ← both name and value vertical-rl
+│ 块  1│
+│ 名  2│
+│ 称  5│
+│    .5│
+│    亿│
+│      │
+│+2.35%│ ← badge bottom-right
+└──────┘
+```
+
+### Typography (Continuous Scaling)
+
+Font properties interpolate based on `sqrt(tileArea)`:
+
+| Property | Smallest tile | Largest tile |
+|----------|--------------|--------------|
+| Name font-size | 9px | 28px |
+| Name font-weight | 400 (regular) | 700 (bold) |
+| Value font-size | 8px | 13px |
+| Value font-weight | 400 | 400 |
+| Content padding | 4px | 16px |
+
+**Name width constraint:** `maxNameSize = (0.5 × textFlowDim) / charCount` with 9px floor. Prevents long names from overflowing.
+
+### No Icon
+
+Icons removed from tile names. Rationale:
+- Icons at small tile sizes were disproportionate and visually noisy
+- Sector names in Chinese are self-explanatory (电子, 银行, 食品饮料)
+- Simplifies layout and improves text readability
+- Matches Binance heatmap reference (text-only tiles)
+
+### Capital Flow Value
+
+- Format: `+125.5亿` or `-45.2亿` (always show sign)
+- Color: `rgba(255, 255, 255, 0.7)` (secondary white)
+- Positioned right side of header, flex-shrink: 0
+- **Compact mode**: When vertical value would overlap badge, drops "亿" unit → `+125.5`
+- **Rationale**: Users already know the unit from larger tiles
 
 ---
 
@@ -67,155 +81,127 @@ if (upperPanelHeight < minContentHeight) {
 ### Component Structure
 
 ```typescript
-// apps/preview/src/app/components/HeatMapTile.tsx
-
-import { iconMapping } from '../data/iconMapping';
-import { BreathingDot } from './BreathingDot';
-
 export function HeatMapTile({ entity, x, y, width, height }: HeatMapTileProps) {
-  // Determine icon size based on tile dimensions
-  const iconSize = Math.min(width, height) > 180 ? 18 : 16;
+  const t = getTileScale(width, height);  // 0..1 based on sqrt(area)
+  const nameSize = lerp(9, 28, t);
+  const nameWeight = Math.round(lerp(400, 700, t));
+  const valueSize = lerp(8, 13, t);
+  const pad = lerp(4, 16, t);
 
-  // Get Lucide icon component
-  const Icon = iconMapping[entity.code];
+  const flowSign = entity.capitalFlow > 0 ? '+' : '';
 
   return (
-    <div className="absolute ...">
-      <div className="gradient-border ...">
-        <div className="glass-content ...">
-          {/* Upper Panel: 50% height */}
-          <div className="flex items-center justify-center gap-1 px-2 py-2">
-            {/* Icon - 8px from left */}
-            {Icon && (
-              <Icon
-                size={iconSize}
-                className="flex-shrink-0 text-white/90"
-                style={{ marginLeft: '8px' }}
-              />
-            )}
-
-            {/* Name - 4px from Icon */}
-            <span
-              className="font-semibold text-white text-sm truncate"
-              style={{ marginLeft: '4px' }}
-            >
-              {entity.name}
-            </span>
-
-            {/* BreathingDot - auto right */}
-            <BreathingDot
-              attentionLevel={entity.attentionLevel}
-              className="ml-auto"
-            />
+    <div className="tile" style={{ /* tile shell */ }}>
+      <div className="tile-content" style={{ padding: pad }}>
+        {/* Header: name (left) + value (right) */}
+        <div className="tile-header">
+          <div className="tile-name" style={{
+            fontSize: nameSize,
+            fontWeight: nameWeight,
+            color: 'rgba(255, 255, 255, 0.95)',
+          }}>
+            {entity.name}
           </div>
-
-          {/* Lower Panel: See Task 04 */}
+          <span className="tile-value" style={{
+            fontSize: valueSize,
+            color: 'rgba(255, 255, 255, 0.7)',
+          }}>
+            {flowSign}{entity.capitalFlow}亿
+          </span>
         </div>
+
+        {/* Sparkline (conditional) */}
+        {/* Badge (absolute positioned, see Task 04) */}
       </div>
     </div>
   );
 }
 ```
 
-### Icon Size Logic
+### CSS
 
-```typescript
-// apps/preview/src/app/utils/tileUtils.ts
-
-export function getIconSize(width: number, height: number): number {
-  const minDimension = Math.min(width, height);
-
-  if (minDimension >= 180) return 18;  // Large tiles
-  if (minDimension >= 150) return 16;  // Medium tiles
-  return 14;  // Small tiles (edge case)
+```css
+.tile-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
-```
 
-### Icon Mapping Reference
+.tile-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
+}
 
-```typescript
-// apps/preview/src/app/data/iconMapping.ts
-// See: Section 3 → Data Model → Icon Mapping thread
+.tile-value {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
-import { Cpu, Landmark, Droplets /* ... */ } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+/* Vertical value: when horizontal header doesn't fit */
+.tile.vertical-value .tile-value {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+.tile.vertical-value .tile-header {
+  align-items: flex-start;  /* Top-aligned to save space */
+}
 
-export const iconMapping: Record<string, LucideIcon> = {
-  '801980': Cpu,        // 电子
-  '801780': Landmark,   // 银行
-  '802040': Droplets,   // 石油石化
-  // ... (all 31 sectors)
-};
+/* Vertical text: tall tiles (h > w × 1.2) */
+.tile.vertical-text .tile-header {
+  align-items: flex-start;
+  flex: 1;
+}
+.tile.vertical-text .tile-name {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  max-height: 100%;
+}
+.tile.vertical-text .tile-value {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  max-height: 100%;
+}
 ```
 
 ---
 
 ## Acceptance Criteria
 
-✅ **Layout Correctness:**
-- [ ] Icon is exactly 8px from left edge of container
-- [ ] Name has exactly 4px gap from Icon
-- [ ] BreathingDot auto-aligns to right edge with 8px padding
-- [ ] All elements vertically centered in container
-- [ ] Container occupies exactly 50% of tile height
-
-✅ **Icon Rendering:**
-- [ ] Correct Lucide icon displays for each sector (31 unique icons)
-- [ ] Icon size is 16px for tiles 150-180px, 18px for tiles > 180px
-- [ ] Icon never shrinks (flex-shrink-0 applied)
-- [ ] Icon color is white with 90% opacity
-
 ✅ **Name Display:**
 - [ ] Chinese characters render correctly (e.g., 电子, 银行, 石油石化)
-- [ ] Font weight is 600 (semibold)
-- [ ] Font size is 14-16px (adaptive)
-- [ ] Long names truncate with ellipsis (...)
-- [ ] No line wrapping (single line only)
+- [ ] Font size scales continuously: 9px (smallest) → 28px (largest)
+- [ ] Font weight scales continuously: 400 (smallest) → 700 (largest)
+- [ ] Color: `rgba(255, 255, 255, 0.95)` (white)
+- [ ] Long names truncate with ellipsis (single line)
+- [ ] Width constraint: `maxNameSize = (0.5 × textFlowDim) / charCount`
 
-✅ **BreathingDot Integration:**
-- [ ] Dot displays on all tiles
-- [ ] Dot animates based on attentionLevel (see BreathingDot thread)
-- [ ] Dot never overlaps with Name text
-- [ ] Auto-positioning pushes dot to right edge correctly
+✅ **Value Display:**
+- [ ] Format: `+125.5亿` or `-45.2亿` (1 decimal, always sign)
+- [ ] Font size: 8px (smallest) → 13px (largest)
+- [ ] Color: `rgba(255, 255, 255, 0.7)` (secondary white)
+- [ ] Right-aligned in header
+- [ ] Compact mode: drops "亿" when vertical value would overlap badge
 
-✅ **Responsive Behavior:**
-- [ ] On very narrow tiles (width < 120px), icon may be hidden to save space
-- [ ] Name still displays even on smallest allowed tiles (150×150px)
-- [ ] BreathingDot always visible (critical attention indicator)
+✅ **Vertical Modes:**
+- [ ] `vertical-value`: value goes `writing-mode: vertical-rl` when horizontal doesn't fit
+- [ ] `vertical-text`: both name and value go vertical when `h > w × 1.2`
+- [ ] Both modes: top-aligned (`align-items: flex-start`)
+- [ ] Value always to the RIGHT of name (never below)
+
+✅ **No Icon:**
+- [ ] No Lucide icon rendered
+- [ ] No Lucide CDN dependency
+- [ ] Layout is text-only
 
 ---
 
 ## References
 
-- **Icon Mapping:** [Section 3 → Data Model → Icon Mapping](../../../3-data-model/threads/icon-mapping/index.md)
-- **BreathingDot Specs:** [Section 5 → Components → BreathingDot](../../breathing-dot/index.md)
-- **Lower Panel:** [Task 04: Lower Panel Layout](./04-lower-panel.md)
-- **Typography:** [Section 6 → Visual Design → Color System](../../../6-visual-design/threads/color-system/index.md)
-
----
-
-## Technical Notes
-
-**Why explicit marginLeft instead of gap?**
-
-```tsx
-// ❌ Using gap alone - Icon not precisely positioned
-<div className="flex gap-1">
-  <Icon />  {/* Gap from container edge varies */}
-  <Name />
-</div>
-
-// ✅ Using explicit margin - Icon exactly 8px from left
-<div className="flex gap-1">
-  <Icon style={{ marginLeft: '8px' }} />  {/* Precise control */}
-  <Name style={{ marginLeft: '4px' }} />  {/* Overrides gap for precision */}
-</div>
-```
-
-**Why ml-auto for BreathingDot?**
-
-```tsx
-// Pushes dot to rightmost position within flex container
-// Auto margin consumes all available space, forcing dot to right edge
-<BreathingDot className="ml-auto" />
-```
+- **Font Scale Config:** [Section 7 → Theme → Task 01](../../../7-implementation/threads/theme/tasks/01-theme-config.md)
+- **Badge (涨跌幅):** [Task 04: Badge Layout](./04-lower-panel.md)
+- **Color System:** [Task 05: Dynamic Color System](./05-dynamic-color.md)

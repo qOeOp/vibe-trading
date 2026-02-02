@@ -43,7 +43,7 @@ apps/preview/src/app/components/LoadingState.tsx
 ## Task Breakdown
 
 ### [Task 01: Loading Container & Layout](./tasks/01-loading-container.md)
-- Full container dimensions (1200×1200px)
+- Full container dimensions (100% of parent)
 - Centered flexbox layout
 - Semi-transparent background
 

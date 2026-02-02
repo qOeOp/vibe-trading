@@ -7,13 +7,13 @@ React hooks, utility functions, theme configuration, and performance optimizatio
 ## Threads
 
 ### [Hooks](./threads/hooks/index.md)
-useTreeMap (Recharts layout calculation), useDrillDown (4-level navigation state).
+useTreeMap (D3 squarified layout), useDrillDown (4-level navigation, planned), useScrollTop, useDebouncedValue.
 
 ### [Utils](./threads/utils/index.md)
 Color calculation functions (getTileBackgroundColor), formatters (formatCapitalFlow, formatChangePercent), sparkline point calculation.
 
 ### [Theme](./threads/theme/index.md)
-Tailwind configuration, CSS custom properties, dark mode setup, color variables.
+Design tokens (white background, 7-stop color ramp, continuous font scaling, Chinese market colors). See [Theme Config task](./threads/theme/tasks/01-theme-config.md) for canonical values.
 
 ### [Performance](./threads/performance/index.md)
 GPU acceleration (will-change, transform3d), reduced motion support, responsive degradation, React.memo optimization.

@@ -22,7 +22,7 @@ export interface Entity {
   /** Price change percentage (e.g., 2.35 for +2.35%, -1.87 for -1.87%) */
   changePercent: number;
 
-  /** Attention level (0-100) - controls BreathingDot animation speed */
+  /** Attention level (0-100) - reserved for future use */
   attentionLevel: number;
 
   /** Hierarchy level (0=sector, 1=industry, 2=sub-industry, 3=stock) */

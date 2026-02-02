@@ -31,7 +31,7 @@ apps/preview/src/app/components/SearchBox.tsx
 
 ### [Task 01: Search Input Container](./tasks/01-input-container.md)
 - 200px width, 32px height
-- Rounded border, glassmorphism background
+- Rounded border, solid background
 - Search icon (Lucide Search)
 
 ### [Task 02: Input Styling & States](./tasks/02-input-styling.md)

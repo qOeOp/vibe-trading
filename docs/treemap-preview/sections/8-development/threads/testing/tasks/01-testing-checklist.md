@@ -11,16 +11,13 @@ Manual testing checklist for Phase 1.
 - [ ] Header displays "申万一级板块热力图"
 - [ ] 31 sector tiles render in treemap layout
 - [ ] All tiles have visible content (icon, name, metrics)
-- [ ] Colors vary based on changePercent (red/green/gray)
-- [ ] Breathing dots animate at different speeds
+- [ ] Colors vary based on changePercent (7-stop ramp: red/green/gray)
 
 ### Hover Interactions
 - [ ] Tile lifts 2px on hover
 - [ ] Z-index elevates (tile appears above others)
 - [ ] Sparkline appears on tiles >120×80px
 - [ ] Sparkline animates (draw-line effect)
-- [ ] Breathing dot continues animating
-
 ### Drill-Down (L1→L2)
 - [ ] Click "电子" sector tile
 - [ ] Loading spinner appears
@@ -71,13 +68,13 @@ Manual testing checklist for Phase 1.
 
 ## Visual Regression
 
-- [ ] Glassmorphism effect visible
-- [ ] Gradient borders preserved with border-radius
-- [ ] Colors match design (3-zone system)
+- [ ] Solid opaque tile backgrounds visible
+- [ ] Border (1px white 18%) and drop shadow correct
+- [ ] Colors match design (7-stop ramp)
 - [ ] Typography readable (min 12px)
 - [ ] Icons display correctly (all 31 unique)
 - [ ] Sparkline path draws smoothly
-- [ ] Breathing dots pulse correctly
+- [ ] Water ripple expansion works on hover
 
 ---
 

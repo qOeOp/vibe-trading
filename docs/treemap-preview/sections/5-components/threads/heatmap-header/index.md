@@ -40,7 +40,7 @@ apps/preview/src/app/components/HeatMapHeader.tsx
 - Fixed 60px height bar
 - Horizontal flex layout
 - Left/right alignment groups
-- Background styling (glassmorphism)
+- Background styling (solid background with backdrop blur)
 
 ### [Task 02: Title & Breadcrumb Integration](./tasks/02-breadcrumb-area.md)
 - "申万一级板块热力图" title
@@ -108,7 +108,7 @@ interface BreadcrumbItem {
 
 **Styling:**
 - Background: `rgba(17, 24, 39, 0.9)` (gray-900 with 90% opacity)
-- Backdrop filter: `blur(8px)` (glassmorphism)
+- Backdrop filter: `blur(8px)`
 - Border bottom: `1px solid rgba(255, 255, 255, 0.1)`
 
 **Scroll Enhancement:**
@@ -178,8 +178,7 @@ const [searchQuery, setSearchQuery] = useState('');
 </div>
 ```
 
-**Glassmorphism for header:**
+**Backdrop blur for header:**
 - Background transparency allows seeing treemap below
 - Backdrop blur creates depth separation
 - Maintains readability without full opacity
-- Consistent with tile glassmorphism aesthetic

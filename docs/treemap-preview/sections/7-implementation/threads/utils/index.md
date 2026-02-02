@@ -11,7 +11,7 @@ Centralize pure functions for reusable calculations and transformations.
 ## Task: [Utility Functions](./tasks/01-utility-functions.md)
 
 Core utilities:
-- **Color:** getTileBackgroundColor, getBreathingDuration
+- **Color:** getTileBackgroundColor (7-stop ramp)
 - **Sparkline:** generateSparklinePath, getSparklineEndpoint
 - **Format:** formatCapitalFlow, formatChangePercent
 - **Content:** getContentScale (adaptive sizing)
@@ -21,8 +21,7 @@ Core utilities:
 ## Utility Categories
 
 ### Color Utils
-- `getTileBackgroundColor(changePercent)`: 3-zone dynamic color
-- `getBreathingDuration(attentionLevel)`: Animation timing
+- `getTileBackgroundColor(changePercent)`: 7-stop solid color ramp
 
 ### Sparkline Utils
 - `generateSparklinePath(data, width, height)`: SVG path string

@@ -29,7 +29,7 @@ interface Entity {
   name: string;           // Display name (Chinese)
   capitalFlow: number;    // 资金流入 (positive) or 流出 (negative) in 亿元
   changePercent: number;  // 涨跌幅 (e.g., 2.35 for +2.35%)
-  attentionLevel: number; // 关注度 (0-100, controls BreathingDot animation)
+  attentionLevel: number; // 关注度 (0-100, reserved for future use)
   level: number;          // Hierarchy level (0=sector, 1=industry, 2=sub, 3=stock)
   parentCode?: string;    // Parent entity code (undefined for L1)
   children?: Entity[];    // Child entities (undefined for L4)

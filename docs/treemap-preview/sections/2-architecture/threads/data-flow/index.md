@@ -26,7 +26,7 @@ TileLayout[] (x, y, width, height)
     ↓
 HeatMapTile[] components
     ↓
-BreathingDot, Sparkline children
+Sparkline children
 ```
 
 ---

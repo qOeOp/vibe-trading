@@ -23,23 +23,25 @@ export interface TileLayout {
 
 export function useTreeMap(entities: Entity[], width: number, height: number): TileLayout[] {
   return useMemo(() => {
+    const S = 1.35; // Virtual height stretch for horizontal bias (≥80% tiles width > height)
+
     const root = hierarchy({ children: entities })
-      .sum(d => Math.log(Math.abs(d.capitalFlow) + 10))
+      .sum(d => Math.pow(Math.abs(d.capitalFlow), 0.8))  // Power scaling x^0.8
       .sort((a, b) => (b.value || 0) - (a.value || 0));
 
-    const treemapLayout = treemap<Entity>()
-      .size([width, height])
+    treemap<Entity>()
+      .size([width, height * S])       // Stretch virtual height
       .padding(2)
-      .tile(treemapSquarify);
+      .tile(treemapSquarify.ratio(1))  // ratio(1) for squarest tiles
+      (root);
 
-    treemapLayout(root);
-
+    // Scale Y coordinates back to real container height
     return root.leaves().map(node => ({
       entity: node.data,
       x: node.x0,
-      y: node.y0,
+      y: node.y0 / S,
       width: node.x1 - node.x0,
-      height: node.y1 - node.y0,
+      height: (node.y1 - node.y0) / S,
     }));
   }, [entities, width, height]);
 }
@@ -90,42 +92,26 @@ export function useDebouncedValue<T>(value: T, delay: number): T {
 
 ## Technical Notes
 
-### Logarithmic Weight Scaling
+### Layout Algorithm: Power Scaling + Horizontal Bias
 
-**Why `Math.log(Math.abs(d.capitalFlow) + 10)` instead of linear weights?**
+See [Task 07: Adaptive Scaling](../../../5-components/threads/heatmap-tile/tasks/07-adaptive-scaling.md) for the canonical layout algorithm spec. Key parameters:
 
-The capitalFlow data has extreme variance: 电子 (145.8亿) vs 综合 (6.5亿) = **22× difference**.
-
-**Linear weights** (`Math.abs(d.capitalFlow)`) produce:
-- ❌ Avg aspect ratio: 7.10:1 (too elongated)
-- ❌ Sparkline coverage: 16% (5/31 tiles)
-- ❌ 25/31 tiles with aspect ratio >4:1
-- ❌ Poor visual balance (giant tiles + tiny unreadable tiles)
-
-**Logarithmic weights** (`Math.log(Math.abs(d.capitalFlow) + 10)`) produce:
-- ✅ Avg aspect ratio: 1.70:1 (nearly square)
-- ✅ Sparkline coverage: 100% (31/31 tiles)
-- ✅ 29/31 tiles with aspect ratio ≤2:1 (excellent)
-- ✅ Balanced visual hierarchy (all tiles readable, min 116px)
-
-**The math:**
-- Linear: 145.8 / 6.5 = 22.4× size difference
-- Logarithmic: log(155.8) / log(16.5) = 5.05 / 2.80 = 1.8× size difference
-
-**Result:** Log scaling compresses extreme values while preserving relative relationships, creating optimal tile shapes for content display.
+- **Weight**: `Math.pow(Math.abs(capitalFlow), 0.8)` — balances visual hierarchy vs layout quality
+- **Ratio**: `treemapSquarify.ratio(1)` — produces squarest possible tiles
+- **Horizontal bias**: Virtual height stretched by S=1.35, Y scaled back → ≥80% tiles width > height
+- **Padding**: `padding(2)` — 2px gaps between tiles
 
 ---
 
 ## Acceptance Criteria
 
 ✅ **useTreeMap:**
-- [ ] Uses d3-hierarchy squarified algorithm
-- [ ] Uses logarithmic weight scaling for balanced layout
+- [ ] Uses d3-hierarchy `treemapSquarify.ratio(1)` with S=1.35 virtual height stretch
+- [ ] Uses power scaling (x^0.8) for visual hierarchy preservation
 - [ ] Returns TileLayout[] with positions
 - [ ] Memoized for performance
 - [ ] 2px padding between tiles
-- [ ] All tiles ≥116px min dimension (sparkline compatible)
-- [ ] 90%+ tiles have aspect ratio ≤2:1
+- [ ] ≥80% tiles are horizontal (width > height)
 
 ✅ **useScrollTop:**
 - [ ] Detects scroll position

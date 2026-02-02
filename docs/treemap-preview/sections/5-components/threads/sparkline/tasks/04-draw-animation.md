@@ -1,6 +1,6 @@
-# Task: Draw-Line Animation
+# Task: Staggered Bar Animation
 
-Stroke-dasharray reveal animation that "draws" the sparkline path from left to right when component appears on hover.
+Per-bar fade-in animation with staggered delay, creating a left-to-right reveal effect across the 60 candlestick bars.
 
 ---
 
@@ -11,279 +11,93 @@ Create engaging entrance animation that draws attention to the sparkline while p
 
 ### Animation Technique
 
-**Stroke Dasharray Method:**
+**Staggered Fade-In Method:**
 
 ```css
-/* Initial state: Entire path is gap (invisible) */
-stroke-dasharray: pathLength pathLength;
-stroke-dashoffset: pathLength;
+/* Each bar starts invisible */
+.sparkline-bar {
+  opacity: 0;
+  animation: bar-fade-in 60ms ease-out forwards;
+}
 
-/* Final state: Entire path is solid (fully visible) */
-stroke-dashoffset: 0;
+/* Bars appear left-to-right with 25ms delay between each */
+/* Bar 0: delay 0ms, Bar 1: delay 25ms, ... Bar 59: delay 1475ms */
 ```
 
 **How it works:**
-1. Set dash pattern to full path length (one dash = entire line)
-2. Offset by path length (pushes dash completely out of view)
-3. Animate offset to 0 (reveals dash from start to end)
+1. All 60 bars start at opacity: 0
+2. Each bar has `animation-delay: (index * 25)ms` set via JS
+3. CSS `@keyframes bar-fade-in` transitions opacity 0→1 over 60ms
+4. Result: bars appear in a wave from left to right
 
 ### Animation Parameters
 
-**Duration:** 400ms
-**Easing:** `ease-out` (fast start, slow end)
-**Delay:** 0ms (starts immediately on mount)
-**Fill mode:** `forwards` (stays at final state)
+**Duration per bar:** 60ms
+**Easing:** `ease-out`
+**Delay between bars:** 25ms
+**Total reveal time:** ~1.5s (60 bars × 25ms)
+**Fill mode:** `forwards` (stays at final opacity)
 
 ### Timing Coordination
 
-**Sparkline appearance (HeatMapTile hover):**
+**Sparkline appearance (tile hover):**
 ```
-0ms:    Tile hover starts
-0ms:    Sparkline container fades in (opacity: 0 → 1, 300ms)
-0ms:    Path draw animation starts (stroke-dashoffset, 400ms)
-300ms:  Container fade complete
-400ms:  Path draw complete
+0ms:      Tile hover starts, expansion begins (400ms transition)
+420ms:    Expansion complete, sparkline container shown
+420ms:    Container opacity transition starts (300ms)
+420ms:    Bars begin staggered fade-in (25ms × 60 bars)
+720ms:    Container fully opaque
+~1900ms:  All 60 bars visible
 ```
-
-Both animations run concurrently for fluid transition.
 
 ---
 
 ## Implementation
 
-### Path Length Calculation
+### JavaScript (animation delay assignment)
 
 ```typescript
-// apps/preview/src/app/components/Sparkline.tsx
+candles.forEach((c, i) => {
+  const rect = document.createElementNS(svgNS, 'rect');
+  rect.setAttribute('class', 'sparkline-bar');
+  // ... other attributes ...
 
-import { useEffect, useRef } from 'react';
-
-export function Sparkline({
-  data,
-  width,
-  height = 40,
-  attentionLevel,
-  className = '',
-}: SparklineProps) {
-  const pathRef = useRef<SVGPathElement>(null);
-
-  // Calculate path length on mount for animation
-  useEffect(() => {
-    if (pathRef.current) {
-      const length = pathRef.current.getTotalLength();
-
-      // Set initial state (hidden)
-      pathRef.current.style.strokeDasharray = `${length} ${length}`;
-      pathRef.current.style.strokeDashoffset = `${length}`;
-
-      // Trigger animation on next frame
-      requestAnimationFrame(() => {
-        if (pathRef.current) {
-          pathRef.current.style.transition = 'stroke-dashoffset 400ms ease-out';
-          pathRef.current.style.strokeDashoffset = '0';
-        }
-      });
-    }
-  }, [data, width, height]);
-
-  // ... rest of component
-}
-```
-
-### Alternative: CSS Animation
-
-```typescript
-// apps/preview/src/app/components/Sparkline.tsx
-
-export function Sparkline({ /* props */ }: SparklineProps) {
-  const pathRef = useRef<SVGPathElement>(null);
-  const [pathLength, setPathLength] = useState(0);
-
-  // Measure path length on mount
-  useEffect(() => {
-    if (pathRef.current) {
-      const length = pathRef.current.getTotalLength();
-      setPathLength(length);
-    }
-  }, [data, width, height]);
-
-  const pathData = generateSparklinePath(data, width, height);
-  const endpoint = getSparklineEndpoint(data, width, height);
-
-  const dotSize = 6;
-  const dotX = endpoint.x - dotSize / 2;
-  const dotY = endpoint.y - dotSize / 2;
-
-  return (
-    <div className={`sparkline-container ${className}`}>
-      <svg
-        width={width}
-        height={height}
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        {/* Animated sparkline path */}
-        <path
-          ref={pathRef}
-          d={pathData}
-          fill="none"
-          stroke="#ffffff"
-          strokeWidth="1.5"
-          strokeOpacity="0.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-          style={{
-            strokeDasharray: pathLength ? `${pathLength} ${pathLength}` : 'none',
-            strokeDashoffset: pathLength || 0,
-            animation: pathLength ? 'draw-sparkline 400ms ease-out forwards' : 'none',
-          }}
-        />
-
-        {/* BreathingDot at endpoint */}
-        <foreignObject x={dotX} y={dotY} width={dotSize} height={dotSize}>
-          <BreathingDot attentionLevel={attentionLevel} size={dotSize} />
-        </foreignObject>
-      </svg>
-    </div>
-  );
-}
+  // Staggered animation delay
+  rect.style.animationDelay = (i * 25) + 'ms';
+  svg.appendChild(rect);
+});
 ```
 
 ### CSS Keyframes
 
 ```css
-/* apps/preview/src/app/styles.css */
-
-@keyframes draw-sparkline {
-  from {
-    stroke-dashoffset: var(--path-length);
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
+.sparkline-bar {
+  opacity: 0;
+  animation: bar-fade-in 60ms ease-out forwards;
 }
 
-/* Sparkline container fade-in (from HeatMapTile Task 06) */
-.sparkline-container {
-  animation: fade-in-sparkline 300ms ease-out forwards;
-}
-
-@keyframes fade-in-sparkline {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+@keyframes bar-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 ```
 
-### Complete Component
-
-```typescript
-// apps/preview/src/app/components/Sparkline.tsx
-
-import { useEffect, useRef, useState } from 'react';
-import { generateSparklinePath, getSparklineEndpoint } from '../utils/sparklineUtils';
-import { BreathingDot } from './BreathingDot';
-
-interface SparklineProps {
-  data: number[];
-  width: number;
-  height?: number;
-  attentionLevel: number;
-  className?: string;
-}
-
-export function Sparkline({
-  data,
-  width,
-  height = 40,
-  attentionLevel,
-  className = '',
-}: SparklineProps) {
-  const pathRef = useRef<SVGPathElement>(null);
-  const [pathLength, setPathLength] = useState(0);
-
-  // Measure path length for animation
-  useEffect(() => {
-    if (pathRef.current) {
-      const length = pathRef.current.getTotalLength();
-      setPathLength(length);
-    }
-  }, [data, width, height]);
-
-  const pathData = generateSparklinePath(data, width, height);
-  const endpoint = getSparklineEndpoint(data, width, height);
-
-  const dotSize = 6;
-  const dotX = endpoint.x - dotSize / 2;
-  const dotY = endpoint.y - dotSize / 2;
-
-  return (
-    <div className={`sparkline-container ${className}`}>
-      <svg
-        width={width}
-        height={height}
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        {/* Animated sparkline path */}
-        <path
-          ref={pathRef}
-          d={pathData}
-          fill="none"
-          stroke="#ffffff"
-          strokeWidth="1.5"
-          strokeOpacity="0.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-          className="sparkline-path"
-          style={{
-            strokeDasharray: pathLength ? `${pathLength} ${pathLength}` : 'none',
-            strokeDashoffset: pathLength || 0,
-          }}
-        />
-
-        {/* BreathingDot at endpoint */}
-        <foreignObject x={dotX} y={dotY} width={dotSize} height={dotSize}>
-          <BreathingDot attentionLevel={attentionLevel} size={dotSize} />
-        </foreignObject>
-      </svg>
-    </div>
-  );
-}
-```
+### Container Fade-In
 
 ```css
-/* apps/preview/src/app/styles.css */
-
-.sparkline-container {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 40px;
-  animation: fade-in-sparkline 300ms ease-out forwards;
+.tile-sparkline {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
 }
 
-.sparkline-path {
-  animation: draw-sparkline 400ms ease-out forwards;
+.tile-sparkline.visible {
+  opacity: 1;
 }
+```
 
-@keyframes draw-sparkline {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes fade-in-sparkline {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+```typescript
+// After SVG is appended to container:
+requestAnimationFrame(() => container.classList.add('visible'));
 ```
 
 ---
@@ -291,238 +105,79 @@ export function Sparkline({
 ## Acceptance Criteria
 
 ✅ **Animation Behavior:**
-- [ ] Path draws from left to right
-- [ ] Animation duration is 400ms
-- [ ] Easing is ease-out (fast start, slow end)
-- [ ] Animation completes at fully visible state
-- [ ] No flickering or jumping during animation
+- [x] Bars fade in from left to right
+- [x] 25ms delay between consecutive bars
+- [x] Each bar fade duration is 60ms
+- [x] Animation completes with all bars at target opacity
+- [x] No flickering or jumping during animation
 
-✅ **Path Length Calculation:**
-- [ ] `getTotalLength()` called on mount
-- [ ] Path length stored in state or ref
-- [ ] `stroke-dasharray` set to `pathLength pathLength`
-- [ ] Initial `stroke-dashoffset` equals `pathLength`
-- [ ] Final `stroke-dashoffset` is 0
-
-✅ **Timing Coordination:**
-- [ ] Animation starts immediately when sparkline appears
-- [ ] Runs concurrently with container fade-in (300ms)
-- [ ] Both animations complete smoothly
-- [ ] No jarring transitions or delays
+✅ **Timing:**
+- [x] Animation starts after tile expansion completes (~420ms)
+- [x] Container fade and bar stagger run concurrently
+- [x] Total reveal time ~1.5s for all 60 bars
+- [x] Smooth visual flow, no jarring transitions
 
 ✅ **Visual Quality:**
-- [ ] Draw animation appears smooth (60fps)
-- [ ] Line stroke remains consistent during animation
-- [ ] No gaps or disconnections while drawing
-- [ ] BreathingDot appears at endpoint (does not animate in)
+- [x] Wave effect visible across bar chart
+- [x] Individual bar fade is smooth (60fps)
+- [x] Final state: up bars at 0.7 opacity, down bars at 0.35 opacity
+- [x] No residual animation artifacts
 
 ✅ **Performance:**
-- [ ] `getTotalLength()` called only once per render
-- [ ] No forced reflows during animation
-- [ ] GPU-accelerated animation (transform-based)
-- [ ] Multiple sparklines animate independently
-
-✅ **Edge Cases:**
-- [ ] Works with short paths (small data range)
-- [ ] Works with long paths (large data range)
-- [ ] Animation skipped if pathLength is 0 or NaN
-- [ ] Re-animates correctly if data changes
+- [x] CSS animation only (no JS animation loop)
+- [x] GPU-accelerated (opacity is compositing-only property)
+- [x] 60 concurrent animations handled efficiently
+- [x] No forced reflows during animation
 
 ---
 
 ## References
 
-- **Path Generation:** [Task 02: Path Generation & Styling](./02-path-generation.md)
-- **Endpoint Dot:** [Task 03: Endpoint BreathingDot Integration](./03-endpoint-dot.md)
+- **Bar Generation:** [Task 02: Candlestick Bar Generation & Styling](./02-path-generation.md)
 - **HeatMapTile Hover:** [Section 5 → HeatMapTile → Task 06](../../heatmap-tile/tasks/06-sparkline-integration.md)
 
 ---
 
 ## Technical Notes
 
-**Why stroke-dasharray instead of clip-path?**
+**Why staggered fade-in instead of stroke-dasharray?**
+
+The original plan used stroke-dasharray draw-line animation for a single SVG `<path>`. With the switch to candlestick bars (60 individual `<rect>` elements), stroke-dasharray is not applicable. Staggered per-element fade-in creates an analogous left-to-right reveal effect that matches the bar chart rendering model.
+
+**Why 25ms delay?**
+
+```
+10ms:  Too fast — all bars appear nearly simultaneously, no wave visible
+25ms:  Sweet spot — visible wave effect, completes in ~1.5s
+50ms:  Too slow — full reveal takes 3s, feels sluggish
+```
+
+**Why 60ms per-bar duration?**
+
+```
+30ms:  Too snappy — feels like a jump-cut
+60ms:  Smooth but quick — each bar pops in naturally
+150ms: Too slow — overlapping fades create muddy appearance
+```
+
+**animation-delay via JS vs CSS nth-child:**
 
 ```css
-/* ❌ clip-path approach */
-@keyframes draw-clip {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
-}
-/* Problems:
-  - Less browser support
-  - Can't animate stroke properties
-  - Harder to control timing
-*/
+/* ❌ CSS nth-child: verbose, hard to maintain for 60 bars */
+.sparkline-bar:nth-child(1) { animation-delay: 0ms; }
+.sparkline-bar:nth-child(2) { animation-delay: 25ms; }
+/* ... 58 more rules ... */
 
-/* ✅ stroke-dasharray approach */
-@keyframes draw-dash {
-  to { stroke-dashoffset: 0; }
-}
-/* Benefits:
-  - Perfect browser support
-  - Smooth animation
-  - Standard SVG technique
-  - Works with any path shape
-*/
+/* ✅ JS inline style: dynamic, concise */
+rect.style.animationDelay = (i * 25) + 'ms';
 ```
 
-**getTotalLength() explanation:**
+**Cleanup on mouseleave:**
 
 ```typescript
-// SVG path element has built-in method to calculate arc length
-const path = document.querySelector('path');
-const length = path.getTotalLength();  // Returns total pixel length
-
-// For sparkline with 30 points across 200px:
-// Approximate length: 200-250px (depending on vertical variation)
-```
-
-**Why ease-out instead of linear?**
-
-```
-Linear:     ═══════════════════════  (constant speed)
-Ease-out:   ═══════════╗            (fast start, slow end)
-            ↑          ╚═══════     (emphasizes completion)
-
-Ease-out creates more natural "drawing" feeling
-Matches human hand-drawing behavior
-Final slowdown emphasizes line completion
-```
-
-**Animation fill-mode:**
-
-```css
-animation: draw-sparkline 400ms ease-out forwards;
-                                        ↑
-                              Stays at final state
-
-/* Without forwards:
-  - Animation resets to initial state after completion
-  - Path would disappear (stroke-dashoffset back to pathLength)
-*/
-
-/* With forwards:
-  - Path stays fully visible (stroke-dashoffset: 0)
-  - Preserves completed animation state
-*/
-```
-
-**Coordination with container fade:**
-
-```css
-/* Container fades in over 300ms */
-.sparkline-container {
-  animation: fade-in-sparkline 300ms ease-out forwards;
+function clearSparkline(container) {
+  container.classList.remove('visible');
+  container.innerHTML = '';
 }
-
-/* Path draws over 400ms */
-.sparkline-path {
-  animation: draw-sparkline 400ms ease-out forwards;
-}
-
-/* Timeline:
-  0ms:   Both start
-  300ms: Container fully visible, path still drawing
-  400ms: Path fully drawn
-
-  Result: Path becomes visible as it draws (optimal)
-*/
-```
-
-**Why requestAnimationFrame in JS approach?**
-
-```typescript
-// Set initial state
-pathRef.current.style.strokeDashoffset = `${length}`;
-
-// ❌ Immediate transition (won't animate)
-pathRef.current.style.strokeDashoffset = '0';
-
-// ✅ Defer to next frame (triggers transition)
-requestAnimationFrame(() => {
-  pathRef.current.style.strokeDashoffset = '0';
-});
-
-// Browser needs one frame to recognize initial state
-// before applying transition to final state
-```
-
-**Performance optimization:**
-
-```typescript
-// ❌ Expensive: Re-measure on every render
-useEffect(() => {
-  const length = pathRef.current?.getTotalLength();
-}, []);  // No dependencies, runs every render
-
-// ✅ Efficient: Only re-measure when path changes
-useEffect(() => {
-  const length = pathRef.current?.getTotalLength();
-}, [data, width, height]);  // Dependencies ensure only when path updates
-```
-
-**Alternative: CSS custom property:**
-
-```tsx
-// Set path length as CSS variable
-<path
-  ref={pathRef}
-  d={pathData}
-  style={{ '--path-length': pathLength } as React.CSSProperties}
-/>
-```
-
-```css
-@keyframes draw-sparkline {
-  from {
-    stroke-dashoffset: var(--path-length);
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-```
-
-**Testing animation:**
-
-```typescript
-import { render, screen } from '@testing-library/react';
-import { Sparkline } from './Sparkline';
-
-describe('Sparkline animation', () => {
-  test('sets stroke-dasharray on mount', () => {
-    const { container } = render(
-      <Sparkline data={[100, 110]} width={200} height={40} attentionLevel={50} />
-    );
-
-    const path = container.querySelector('path');
-    expect(path).toHaveStyle({ strokeDasharray: expect.stringMatching(/\d+/) });
-  });
-
-  test('animates stroke-dashoffset to 0', async () => {
-    const { container } = render(
-      <Sparkline data={[100, 110]} width={200} height={40} attentionLevel={50} />
-    );
-
-    const path = container.querySelector('path');
-
-    // Wait for animation to complete
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const computedStyle = window.getComputedStyle(path!);
-    expect(parseFloat(computedStyle.strokeDashoffset)).toBe(0);
-  });
-});
-```
-
-**Browser compatibility:**
-
-```
-getTotalLength():
-  ✅ Chrome, Firefox, Safari, Edge (all versions)
-  ✅ Mobile browsers (iOS Safari, Chrome Android)
-
-stroke-dasharray animation:
-  ✅ CSS transitions/animations fully supported
-  ✅ SVG 1.1 standard (universal support)
+// Called in mouseleave handler — removes all bars and resets opacity
 ```

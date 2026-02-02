@@ -8,9 +8,7 @@
 
 ## Overview
 
-Independent Next.js application for visualizing 31 SW Level-1 sector indices with glassmorphism effects, 4-level drill-down navigation, and Chinese market color conventions (red=up, green=down).
-
-**Design Source:** [Figma - Landing Page](https://www.figma.com/design/O52eqHmOTyh0tzZwpC7sl9/landing-page?node-id=524-11)
+Independent Next.js application for visualizing 31 SW Level-1 sector indices with 7-stop color ramp, 4-level drill-down navigation, water ripple expansion, and Chinese market color conventions (red=up, green=down).
 
 ---
 
@@ -32,7 +30,7 @@ Page layout structure, container dimensions, tile constraints, and responsive st
 Detailed specifications for all UI components (HeatMap, Tile, Sparkline, etc.).
 
 ### 6. [Visual Design](./sections/6-visual-design/index.md)
-Color system, glassmorphism effects, 3D hover interactions, and animation specifications.
+Color system, tile styling, 3D hover interactions, and animation specifications.
 
 ### 7. [Implementation](./sections/7-implementation/index.md)
 React hooks, utility functions, theme configuration, and performance optimizations.
@@ -74,7 +72,7 @@ This documentation follows a hierarchical structure:
 **Section** → **Thread** → **Task**
 
 - **Section**: Major functional area (e.g., Components, Visual Design)
-- **Thread**: Specific topic within a section (e.g., HeatMapTile, Glassmorphism)
+- **Thread**: Specific topic within a section (e.g., HeatMapTile, Color System)
 - **Task**: Smallest executable unit with Design + Implementation + Acceptance Criteria
 
 Each level has an `index.md` with references to child items.

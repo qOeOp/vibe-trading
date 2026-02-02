@@ -23,7 +23,6 @@ HeatMapContainer (root)
 │   └── SearchBox
 ├── TileGrid (conditional)
 │   └── HeatMapTile[] (31 tiles)
-│       ├── BreathingDot
 │       └── Sparkline (on hover)
 ├── LoadingState (conditional)
 ├── ErrorState (conditional)

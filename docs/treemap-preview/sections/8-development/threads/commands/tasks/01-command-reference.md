@@ -8,16 +8,12 @@ Complete list of npm scripts.
 
 ```bash
 # Start development server
-npm run dev
-# → Starts Next.js dev server on http://localhost:4200
+npx nx serve preview
+# → Starts Next.js dev server on http://localhost:4300
 
 # Build for production
-npm run build
-# → Creates optimized static export in dist/apps/web/.next
-
-# Preview production build
-npm run preview
-# → Serves the production build locally
+npx nx build preview
+# → Creates optimized static export in dist/apps/preview/.next
 ```
 
 ---
@@ -26,20 +22,12 @@ npm run preview
 
 ```bash
 # Run ESLint
-npm run lint
+npx nx run preview:lint
 # → Checks TypeScript and React code for errors
 
-# Fix linting issues
-npm run lint:fix
-# → Auto-fixes fixable linting errors
-
 # Format code
-npm run format
+npx nx format:write
 # → Runs Prettier on all files
-
-# Type check
-npm run type-check
-# → Runs TypeScript compiler without emitting files
 ```
 
 ---

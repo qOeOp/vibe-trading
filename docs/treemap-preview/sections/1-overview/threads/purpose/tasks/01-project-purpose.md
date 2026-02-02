@@ -19,10 +19,9 @@ Traditional table views make hierarchy hard to understand and capital flow patte
 ## Solution
 
 Interactive treemap visualization:
-- **Size:** Tiles proportional to capital flow magnitude
-- **Color:** Dynamic 3-zone system based on price change
-- **Interaction:** Click to drill-down, hover for details
-- **Animation:** Breathing dots show attention level
+- **Size:** Tiles proportional to capital flow magnitude (power scaling x^0.8)
+- **Color:** 7-stop solid color ramp based on price change (Binance-style)
+- **Interaction:** Click to drill-down, hover for sparkline and water ripple expansion
 - **Search:** Find any entity across levels
 
 ---

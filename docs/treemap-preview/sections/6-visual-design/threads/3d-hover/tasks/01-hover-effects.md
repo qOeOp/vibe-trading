@@ -14,7 +14,7 @@ See complete implementation in:
 .heatmap-tile {
   transform: translateY(0);
   z-index: 0;
-  transition: transform 300ms ease-out, z-index 0ms;
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .heatmap-tile:hover {
@@ -45,7 +45,7 @@ const [isHovered, setIsHovered] = useState(false);
 
 ✅ **Visual Effect:**
 - [ ] Tile lifts 2px on hover
-- [ ] Smooth 300ms transition
+- [ ] Smooth 400ms cubic-bezier transition
 - [ ] Z-index elevates above neighbors
 - [ ] Sparkline appears on qualifying tiles
 

@@ -1,257 +1,143 @@
-# Task: Lower Panel Layout
+# Task: Badge (涨跌幅) Layout
 
-Bottom 50% of tile height with Capital Flow + Change% + Arrow, right-bottom aligned with 8px padding.
-
+Change percentage badge absolutely positioned at bottom-right corner of tile, with area-scaled visual prominence.
 ---
 
 ## Design
 
 ### Purpose
-Display financial metrics (capital inflow/outflow and price change percentage) in the lower half of the tile, positioned at bottom-right corner with clear visual hierarchy.
+Display change percentage as a badge element at the tile's bottom-right corner. Visual prominence scales with tile area — large tiles have strong badge styling, small tiles have subtle styling.
 
-### Layout Structure
+### Layout
 
 ```
 ┌──────────────────────────────────────┐
-│ Lower Panel (50% of tile height)    │
+│ tile-header (name + value)           │
 │                                      │
-│                 ┌──────────────────┐ │
-│                 │   +125.5亿      │ │ ← Capital Flow
-│                 │      ↓ 4px gap   │ │
-│                 │   [↑] +2.5%    │ │ ← Arrow + Change%
-│                 └──────────────────┘ │
-│                         ↑            │
-│                    8px from right    │
-│                    8px from bottom   │
+│ sparkline (if visible)               │
+│                                      │
+│                        ┌───────────┐ │
+│                        │  +2.35%   │ │ ← absolute bottom-right
+│                        └───────────┘ │
 └──────────────────────────────────────┘
 ```
 
-### Spacing Specifications
-
-**Container:**
-- Position: `absolute bottom-0 right-0`
-- Padding: `p-2` (8px all sides)
-- Alignment: `flex justify-end items-end`
-
-**Content Stack:**
-- Direction: Vertical `flex-col`
-- Alignment: Right-aligned `items-end`
-- Gap: `gap-1` (4px between Capital Flow and Change%)
-
-**Capital Flow:**
-- Font: 12px (`text-xs`), weight 400 (normal)
-- Color: White 80% opacity (`text-white/80`)
-- Format: `+125.5亿` or `-45.2亿`
-- Sign: Always show + or -
-
-**Change Percent:**
-- Container: Horizontal flex `flex items-center gap-1`
-- Arrow: 14px Lucide icon (ArrowUp/ArrowDown)
-- Text: 12px (`text-xs`), weight 600 (semibold), white
-- Format: `+2.5%` or `-1.8%`
-- Sign: Always show + or -
-
-**Arrow Color Convention (Chinese Market):**
-- 🔴 Red `text-red-600`: Positive change (up, 涨)
-- 🟢 Green `text-green-600`: Negative change (down, 跌)
-- Drop shadow: `filter: drop-shadow(0 0 2px rgba(255,255,255,0.9))` for anti-fusion
-
-### Arrow Anti-Fusion Problem
-
-**Issue:** Red arrow on red background (or green on green) becomes invisible.
-
-**Solution:** White drop-shadow creates contrast regardless of background color.
+### Badge Styling
 
 ```css
-/* Creates white glow around arrow */
-filter: drop-shadow(0 0 2px rgba(255,255,255,0.9));
+.tile-badge {
+  position: absolute;
+  bottom: var(--tile-pad);
+  right: calc(var(--tile-pad) - var(--badge-pad-h));  /* Text right-aligns with value above */
+
+  padding: var(--badge-pad);           /* 2-4.5px vertical, 4-6px horizontal */
+  border-radius: 6px;
+  background: rgba(255, 255, 255, var(--badge-bg-alpha));
+  border: 0.5px solid rgba(255, 255, 255, var(--badge-border-alpha));
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, var(--badge-shadow-alpha));
+
+  font-weight: 600;
+  font-size: var(--tile-badge-size);   /* 7-12px */
+  color: rgba(255, 255, 255, 0.95);
+}
 ```
+
+### Prominence Gradient (Area-Scaled)
+
+All CSS variables interpolate via `sqrt(area)` normalization (t = 0..1):
+
+| CSS Variable | Smallest tile (t=0) | Largest tile (t=1) | Effect |
+|-------------|---------------------|-------------------|--------|
+| `--badge-bg-alpha` | 0.03 | 0.15 | Background visibility |
+| `--badge-border-alpha` | 0.06 | 0.25 | Border visibility |
+| `--badge-shadow-alpha` | 0.05 | 0.3 | Shadow depth |
+| `--badge-pad` (vertical) | 2px | 4.5px | Internal spacing |
+| `--badge-pad-h` (horizontal) | 4px | 6px | Internal spacing |
+| `--tile-badge-size` | 7px | 12px | Font size |
+
+**Result**: Large tiles have prominent, clearly visible badges. Small tiles have nearly invisible badges that don't compete for attention.
+
+### Right-Alignment with Value
+
+The badge `right` position uses `calc(var(--tile-pad) - var(--badge-pad-h))` to offset by the badge's own horizontal padding. This makes the badge **text** right edge align with the value **text** right edge in the header above — not the badge box edge.
+
+### No Arrows
+
+Lucide arrows (ArrowUp/ArrowDown) were removed:
+- Sign in the percentage text already indicates direction (+2.35% vs -1.87%)
+- Arrow anti-fusion (drop-shadow on colored backgrounds) is no longer needed
+- Simplifies DOM and removes CDN dependency
+
+### Chinese Market Convention
+
+- Positive change: Red hue tile background (涨)
+- Negative change: Green hue tile background (跌)
+- Badge text is always white — color convention is expressed through tile background, not badge text
 
 ---
 
 ## Implementation
 
-### Component Structure
-
 ```typescript
-// apps/preview/src/app/components/HeatMapTile.tsx
+// Badge prominence in applyAdaptiveStyles()
+const t = getTileScale(w, h);
+const badgeSize = lerp(7, 12, t);
+const badgeBgAlpha = lerp(0.03, 0.15, t);
+const badgeBorderAlpha = lerp(0.06, 0.25, t);
+const badgeShadowAlpha = lerp(0.05, 0.3, t);
+const badgePadV = lerp(2, 4.5, t);
+const badgePadH = lerp(4, 6, t);
 
-import { ArrowUp, ArrowDown } from 'lucide-react';
-import { formatCapitalFlow, formatChangePercent } from '../utils/colorUtils';
-
-export function HeatMapTile({ entity, x, y, width, height }: HeatMapTileProps) {
-  return (
-    <div className="absolute ...">
-      <div className="gradient-border ...">
-        <div className="glass-content ...">
-          {/* Upper Panel: See Task 03 */}
-
-          {/* Lower Panel: 50% height, bottom-right positioned */}
-          <div className="absolute bottom-0 right-0 p-2">
-            <div className="flex flex-col gap-1 items-end">
-              {/* Capital Flow */}
-              <div className="text-xs font-normal text-white/80">
-                {formatCapitalFlow(entity.capitalFlow)}
-              </div>
-
-              {/* Change% with Arrow */}
-              <div className="flex items-center gap-1">
-                {entity.changePercent > 0 ? (
-                  <ArrowUp
-                    size={14}
-                    className="text-red-600"
-                    style={{
-                      filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))'
-                    }}
-                  />
-                ) : (
-                  <ArrowDown
-                    size={14}
-                    className="text-green-600"
-                    style={{
-                      filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.9))'
-                    }}
-                  />
-                )}
-                <span className="text-xs font-semibold text-white">
-                  {formatChangePercent(entity.changePercent)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Sparkline: See Task 06 (conditional on hover) */}
-        </div>
-      </div>
-    </div>
-  );
-}
+el.style.setProperty('--tile-badge-size', badgeSize + 'px');
+el.style.setProperty('--badge-bg-alpha', badgeBgAlpha);
+el.style.setProperty('--badge-border-alpha', badgeBorderAlpha);
+el.style.setProperty('--badge-shadow-alpha', badgeShadowAlpha);
+el.style.setProperty('--badge-pad', `${badgePadV}px ${badgePadH}px`);
+el.style.setProperty('--badge-pad-h', badgePadH + 'px');
 ```
 
-### Utility Functions
+### HTML Template
 
-```typescript
-// apps/preview/src/app/utils/colorUtils.ts
-
-/**
- * Format capital flow with Chinese unit (亿元)
- * Always show sign (+ or -)
- */
-export function formatCapitalFlow(value: number): string {
-  const sign = value >= 0 ? '+' : '';
-  return `${sign}${value.toFixed(1)}亿`;
-}
-
-/**
- * Format change percentage
- * Always show sign (+ or -)
- */
-export function formatChangePercent(value: number): string {
-  const sign = value >= 0 ? '+' : '';
-  return `${sign}${value.toFixed(2)}%`;
-}
+```html
+<span class="tile-badge">+2.35%</span>
 ```
 
-### Examples
+### Visibility
 
-```typescript
-// Positive change (涨)
-capitalFlow: 125.5
-changePercent: 2.35
-
-// Renders:
-// +125.5亿
-// ↑ +2.35%  (red arrow, white text)
-
-// Negative change (跌)
-capitalFlow: -45.2
-changePercent: -1.87
-
-// Renders:
-// -45.2亿
-// ↓ -1.87%  (green arrow, white text)
-```
+- Badge hidden when `minDim < 50px` (class `hide-badge`)
+- Badge always visible otherwise, with scaled prominence
 
 ---
 
 ## Acceptance Criteria
 
-✅ **Layout Correctness:**
-- [ ] Content positioned at bottom-right corner of tile
-- [ ] Exactly 8px padding from right edge
-- [ ] Exactly 8px padding from bottom edge
-- [ ] Capital Flow and Change% have 4px vertical gap
-- [ ] Content never overlaps with Upper Panel (50/50 split enforced)
+✅ **Position:**
+- [ ] Absolutely positioned at bottom-right of tile
+- [ ] `bottom: var(--tile-pad)`, `right: calc(var(--tile-pad) - var(--badge-pad-h))`
+- [ ] Badge text right edge aligns with value text right edge above
 
-✅ **Capital Flow Display:**
-- [ ] Format: `+125.5亿` (1 decimal place, Chinese unit)
-- [ ] Always shows sign (+ for positive, - for negative)
-- [ ] Font size 12px, weight 400 (normal)
-- [ ] Color: White with 80% opacity
-- [ ] Right-aligned text
+✅ **Prominence Gradient:**
+- [ ] Background alpha: 0.03 (small) → 0.15 (large)
+- [ ] Border alpha: 0.06 (small) → 0.25 (large)
+- [ ] Shadow alpha: 0.05 (small) → 0.3 (large)
+- [ ] Padding: 2-4.5px vertical, 4-6px horizontal
+- [ ] Font size: 7px (small) → 12px (large)
+- [ ] Visual: large tiles have prominent badge, small tiles have subtle badge
 
-✅ **Change Percent Display:**
-- [ ] Format: `+2.35%` (2 decimal places, always with sign)
-- [ ] Font size 12px, weight 600 (semibold)
-- [ ] Color: Pure white `#ffffff`
-- [ ] Right-aligned with arrow
-- [ ] Arrow and text have 4px gap
+✅ **Format:**
+- [ ] `+2.35%` or `-1.87%` (2 decimal places, always sign)
+- [ ] Font weight: 600
+- [ ] Color: `rgba(255, 255, 255, 0.95)` (white)
+- [ ] Border radius: 6px
 
-✅ **Arrow Rendering:**
-- [ ] ArrowUp for positive change, ArrowDown for negative
-- [ ] Size exactly 14px
-- [ ] Red color (#dc2626) for positive (Chinese market: 涨)
-- [ ] Green color (#16a34a) for negative (Chinese market: 跌)
-- [ ] White drop-shadow visible on all background colors
-- [ ] Arrow never appears blurry or pixelated
-
-✅ **Chinese Market Convention:**
-- [ ] Verified: Red = Up (positive) ✅
-- [ ] Verified: Green = Down (negative) ✅
-- [ ] No Western convention (green=up, red=down) used anywhere
-
-✅ **Anti-Fusion Drop Shadow:**
-- [ ] Red arrow visible on red backgrounds (0.2-3% positive tiles)
-- [ ] Green arrow visible on green backgrounds (0.2-3% negative tiles)
-- [ ] White glow has 2px radius blur
-- [ ] Glow opacity is 0.9 (90%)
+✅ **Visibility:**
+- [ ] Hidden when tile min dimension < 50px
+- [ ] No arrow icons (removed)
 
 ---
 
 ## References
 
-- **Upper Panel:** [Task 03: Upper Panel Layout](./03-upper-panel.md)
-- **Sparkline:** [Task 06: Sparkline Integration](./06-sparkline-integration.md)
-- **Color Utils:** [Section 7 → Implementation → Utils](../../../7-implementation/threads/utils/index.md)
-- **Chinese Market Colors:** [Section 1 → Overview → Design Source](../../../1-overview/threads/design-source/index.md)
-
----
-
-## Technical Notes
-
-**Why absolute positioning for Lower Panel?**
-
-```tsx
-// ❌ WRONG: Using flex on parent causes overlap issues
-<div className="flex flex-col h-full">
-  <div className="flex-1">Upper Panel</div>
-  <div className="flex-1">Lower Panel</div>  {/* Hard to position bottom-right */}
-</div>
-
-// ✅ CORRECT: Absolute positioning gives precise control
-<div className="relative h-full">
-  <div className="top-section">Upper Panel</div>
-  <div className="absolute bottom-0 right-0 p-2">
-    Lower Panel  {/* Perfect bottom-right alignment */}
-  </div>
-</div>
-```
-
-**Chinese Market vs Western Market:**
-
-| Market | Up (Positive) | Down (Negative) |
-|--------|--------------|-----------------|
-| **Chinese** 🇨🇳 | 🔴 Red | 🟢 Green |
-| **Western** 🇺🇸 | 🟢 Green | 🔴 Red |
-
-Our app uses Chinese convention exclusively.
+- **Header Row:** [Task 03: Header Row Layout](./03-upper-panel.md)
+- **Tile Styling:** Section 6 → Visual Design
+- **Theme Config:** [Section 7 → Theme → Task 01](../../../7-implementation/threads/theme/tasks/01-theme-config.md)

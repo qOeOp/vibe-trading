@@ -25,7 +25,7 @@ gap: 16px  // Space between spinner and text
 
 ### Styling
 - Background: `rgba(17, 24, 39, 0.6)` (gray-900 with 60% opacity)
-- Backdrop filter: `blur(4px)` (light glassmorphism)
+- Backdrop filter: `blur(4px)`
 
 ---
 

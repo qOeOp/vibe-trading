@@ -9,6 +9,19 @@
 5. **User Experience First:** Every decision should prioritize user experience
 6. **Non-Interactive & CI-Aware:** Prefer non-interactive commands. Use `CI=true` for watch-mode tools (tests, linters) to ensure single execution.
 
+## ClickUp Integration
+
+Task status, priority, and assignment are managed in ClickUp (source of truth).
+Technical specifications remain in ClickUp Docs and local markdown (source of truth for requirements).
+See [ClickUp Workflow Specification](./clickup-workflow.md) for the full project management workflow.
+
+Key changes to the workflow below:
+- **Step 1** "Select Task": query ClickUp for Ready tasks (replaces reading plan.md)
+- **Steps 2, 10** "Mark status": update ClickUp task status via MCP (replaces plan.md checkbox editing)
+- All other steps (TDD, quality gates, git notes, checkpoints) remain unchanged.
+
+---
+
 ## Task Workflow
 
 All tasks follow a strict lifecycle:

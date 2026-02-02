@@ -1,35 +1,42 @@
 # Thread: Color System
 
-Conservative finance color palette with 3-zone dynamic coloring for price changes.
+7-stop solid color ramp with Chinese market convention (red=涨, green=跌).
 
 ---
 
 ## Purpose
 
-Define unified color system emphasizing professionalism and data clarity, with dynamic coloring based on changePercent magnitude.
+Define unified color system emphasizing professionalism and data clarity, with discrete color stops based on changePercent magnitude.
 
 ## Task: [Color Specifications](./tasks/01-color-specs.md)
 
 Single comprehensive task documenting:
-- Base palette (black/white/gray)
+- Base palette (white background, white text on tiles)
 - Chinese market convention (red=up, green=down)
-- 3-zone dynamic system (dead/active/extreme)
-- Color calculation algorithm
+- 7-stop solid color ramp
+- Color-to-changePercent mapping
 
 ---
 
 ## Color Philosophy
 
 **Conservative Finance Palette:**
-- Primary background: #111827 (gray-900)
-- Text: White/Gray scale
+- Page background: #ffffff (white)
+- Text on tiles: White scale (95%/70%/60% opacity)
 - Accents: Red/Green only for price data
 - No decorative colors
 
-**3-Zone Dynamic System:**
-1. **Dead Zone (±0.2%):** Gray rgba(107, 114, 128, 0.15) - minimal change
-2. **Active Zone (0.2-3%):** Red/Green gradient with linear alpha 0.1-0.3
-3. **Extreme Protection (>3%):** Capped at 0.25 alpha - prevents visual overwhelm
+**7-Stop Solid Color Ramp:**
+
+| changePercent | Hex | Visual |
+|--------------|-----|--------|
+| < -5% | `#0B8C5F` | Deep Green |
+| -2% ~ -5% | `#2EBD85` | Medium Green |
+| -0.5% ~ -2% | `#58CEAA` | Light Green |
+| ±0.5% | `#76808E` | Gray |
+| +0.5% ~ +2% | `#E8626F` | Light Red |
+| +2% ~ +5% | `#F6465D` | Medium Red |
+| > +5% | `#CF304A` | Deep Red |
 
 ---
 

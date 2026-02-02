@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Treemap Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            padding: 20px;
+        }
+        #treemap-wrapper {
+            margin: 20px auto;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        #container {
+            position: relative;
+            width: 1200px;
+            height: 1140px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        /* ========================================
+           Tile: Solid opaque (7-stop Binance-style)
+           ======================================== */
+        .tile {
+            position: absolute;
+            cursor: pointer;
+            transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .tile:hover { z-index: 10; }
+
+        /* ========================================
+           Tile content layout
+           ======================================== */
+        .tile-content {
+            padding: var(--tile-pad, 16px);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header row: name (left) + value (right) */
+        .tile-header {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            min-height: 0;
+        }
+
+        .tile-name {
+            font-weight: var(--tile-name-weight, 600);
+            font-size: var(--tile-name-size, 12px);
+            line-height: 1.3;
+            color: rgba(255, 255, 255, 0.95);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        .tile-value {
+            font-weight: 400;
+            font-size: var(--tile-value-size, 10px);
+            line-height: 1.3;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* Sparkline frame (middle area, edge-to-edge horizontal) */
+        .tile-sparkline {
+            flex: 1;
+            min-height: 0;
+            display: none;
+            opacity: 0;
+            transition: opacity 300ms ease-out;
+            /* Edge-to-edge horizontally, breathing room vertically */
+            margin: 4px calc(-1 * var(--tile-pad, 16px)) 4px;
+        }
+        .tile.show-sparkline .tile-sparkline { display: block; }
+        .tile.show-sparkline .tile-sparkline.visible { opacity: 1; }
+        .sparkline-svg { display: block; width: 100%; height: 100%; overflow: hidden; }
+        .sparkline-bar {
+            opacity: 0;
+            animation: bar-fade-in 60ms ease-out forwards;
+        }
+        @keyframes bar-fade-in {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* Badge: bottom-right in flex flow
+           margin-top:auto pushes badge to bottom when sparkline is hidden */
+        .tile-badge {
+            flex-shrink: 0;
+            align-self: flex-end;
+            margin-top: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--badge-pad, 4.5px 10.5px);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, var(--badge-bg-alpha, 0.15));
+            border: 0.5px solid rgba(255, 255, 255, var(--badge-border-alpha, 0.25));
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, var(--badge-shadow-alpha, 0.3));
+            font-weight: 600;
+            font-size: var(--tile-badge-size, 11px);
+            line-height: 1.3;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* ========================================
+           Adaptive layout states
+           ======================================== */
+        .tile.hide-value .tile-value { display: none; }
+        .tile.hide-badge .tile-badge { display: none; }
+        .tile.hide-sparkline .tile-sparkline { display: none; }
+
+        .tile.vertical-value .tile-value {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tile.vertical-value .tile-header {
+            align-items: flex-start;
+        }
+
+        .tile.vertical-text .tile-header {
+            align-items: flex-start;
+            flex: 1;
+            min-height: 0;
+        }
+        .tile.vertical-text .tile-name {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 100%;
+        }
+        .tile.vertical-text .tile-value {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 100%;
+        }
+
+        /* ========================================
+           Controls
+           ======================================== */
+        #info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .size-btn {
+            padding: 8px 16px;
+            margin: 0 4px;
+            border: 1px solid #ddd;
+            background: rgba(0, 0, 0, 0.02);
+            color: #666;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .size-btn:hover { background: rgba(0, 0, 0, 0.05); color: #333; }
+        .size-btn.active { background: rgba(0, 0, 0, 0.08); color: #111; border-color: #999; }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 48px;
+            height: 26px;
+            border-radius: 13px;
+            border: 1px solid #ccc;
+            background: #e5e5e5;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s;
+            z-index: 100;
+            padding: 0;
+        }
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        .theme-toggle .icon { position: absolute; top: 4px; font-size: 14px; line-height: 1; pointer-events: none; }
+        .theme-toggle .icon-sun { left: 5px; }
+        .theme-toggle .icon-moon { right: 5px; }
+
+        /* ========================================
+           HeatMap Header
+           ======================================== */
+        .heatmap-header {
+            height: 60px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            background: rgba(17, 24, 39, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: backdrop-filter 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
+            box-sizing: border-box;
+        }
+        .heatmap-header.scrolled {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border-bottom-color: rgba(255, 255, 255, 0.15);
+        }
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-search {
+            position: relative;
+            width: 200px;
+            height: 32px;
+        }
+        .header-search svg {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+        }
+        .header-search input {
+            width: 100%;
+            height: 100%;
+            padding: 0 10px 0 28px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 200ms ease-out;
+        }
+        .header-search input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+        .header-search input:focus {
+            border-color: #6366f1;
+        }
+        .view-toggle {
+            display: flex;
+        }
+        .view-toggle-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            padding: 0;
+            transition: all 150ms ease-out;
+        }
+        .view-toggle-btn:first-child {
+            border-radius: 6px 0 0 6px;
+            border-right: none;
+        }
+        .view-toggle-btn:last-child {
+            border-radius: 0 6px 6px 0;
+        }
+        .view-toggle-btn:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .view-toggle-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+        .view-toggle-btn.active + .view-toggle-btn {
+            border-left-color: #6366f1;
+        }
+        .view-toggle-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Dark mode styles */
+        body.dark { background: #111827; color: #e5e7eb; }
+        body.dark #container { background: #111827; }
+        body.dark #info { color: #6b7280; }
+        body.dark .size-btn { border-color: #374151; background: rgba(255,255,255,0.04); color: #9ca3af; }
+        body.dark .size-btn:hover { background: rgba(255,255,255,0.08); color: #d1d5db; }
+        body.dark .size-btn.active { background: rgba(255,255,255,0.12); color: #f3f4f6; border-color: #6b7280; }
+        body.dark .theme-toggle { background: #374151; border-color: #4b5563; }
+        body.dark .theme-toggle::after { transform: translateX(22px); background: #1f2937; }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+        <span class="icon icon-sun">☀</span>
+        <span class="icon icon-moon">☾</span>
+    </button>
+    <div style="text-align: center; margin-bottom: 16px;">
+        <h2 class="page-title" style="color: rgba(0,0,0,0.85);">Treemap Preview</h2>
+        <p class="page-subtitle" style="font-size: 12px; color: #999; margin-top: 6px;">
+            Figma 设计稿 · 红涨绿跌 · 悬停扩展
+        </p>
+    </div>
+    <div class="controls">
+        <button class="size-btn active" data-size="1200x1140">XL (1200x1140)</button>
+        <button class="size-btn" data-size="800x760">L (800x760)</button>
+        <button class="size-btn" data-size="600x570">M (600x570)</button>
+    </div>
+    <div id="info"></div>
+    <div id="treemap-wrapper">
+        <header class="heatmap-header" id="heatmapHeader">
+            <span class="header-title">申万一级板块热力图</span>
+            <div class="header-right">
+                <div class="header-search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="搜索板块…" />
+                </div>
+                <div class="view-toggle">
+                    <button class="view-toggle-btn active" id="gridToggle" title="Grid view">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    </button>
+                    <button class="view-toggle-btn" id="listToggle" title="List view">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <div id="container"></div>
+    </div>
+
+    <script>
+        // --- Mock Data (31 sectors) ---
+        const mockSectors = [
+            { name: '农林牧渔', icon: 'wheat', capitalFlow: 12.5, changePercent: 0.85 },
+            { name: '采掘', icon: 'pickaxe', capitalFlow: -8.3, changePercent: -0.62 },
+            { name: '化工', icon: 'flask-conical', capitalFlow: 25.7, changePercent: 1.73 },
+            { name: '钢铁', icon: 'factory', capitalFlow: -15.2, changePercent: -1.25 },
+            { name: '有色金属', icon: 'gem', capitalFlow: 18.9, changePercent: 1.42 },
+            { name: '电子', icon: 'cpu', capitalFlow: 145.8, changePercent: 3.85 },
+            { name: '家用电器', icon: 'refrigerator', capitalFlow: 32.4, changePercent: 2.15 },
+            { name: '食品饮料', icon: 'coffee', capitalFlow: 78.6, changePercent: 2.68 },
+            { name: '纺织服装', icon: 'shirt', capitalFlow: -12.5, changePercent: -0.95 },
+            { name: '轻工制造', icon: 'package', capitalFlow: 15.3, changePercent: 0.12 },
+            { name: '医药生物', icon: 'pill', capitalFlow: 95.2, changePercent: 2.92 },
+            { name: '公用事业', icon: 'zap', capitalFlow: 8.7, changePercent: 0.15 },
+            { name: '交通运输', icon: 'truck', capitalFlow: -18.9, changePercent: -1.58 },
+            { name: '房地产', icon: 'home', capitalFlow: -45.6, changePercent: -3.42 },
+            { name: '商业贸易', icon: 'shopping-cart', capitalFlow: 12.8, changePercent: 0.78 },
+            { name: '休闲服务', icon: 'palmtree', capitalFlow: 22.3, changePercent: 1.65 },
+            { name: '综合', icon: 'grid-3x3', capitalFlow: 6.5, changePercent: -0.08 },
+            { name: '建筑材料', icon: 'hammer', capitalFlow: -9.8, changePercent: -0.73 },
+            { name: '建筑装饰', icon: 'paint-bucket', capitalFlow: 7.2, changePercent: 0.45 },
+            { name: '电气设备', icon: 'lightbulb', capitalFlow: 52.3, changePercent: 2.35 },
+            { name: '机械设备', icon: 'cog', capitalFlow: 28.9, changePercent: 1.88 },
+            { name: '国防军工', icon: 'shield', capitalFlow: 34.7, changePercent: 2.05 },
+            { name: '计算机', icon: 'monitor', capitalFlow: 67.5, changePercent: 2.78 },
+            { name: '传媒', icon: 'radio', capitalFlow: -23.4, changePercent: -2.15 },
+            { name: '通信', icon: 'smartphone', capitalFlow: 41.2, changePercent: 1.95 },
+            { name: '银行', icon: 'landmark', capitalFlow: 125.6, changePercent: 3.52 },
+            { name: '汽车', icon: 'car', capitalFlow: 56.8, changePercent: 2.45 },
+            { name: '非银金融', icon: 'credit-card', capitalFlow: 89.3, changePercent: 2.85 },
+            { name: '煤炭', icon: 'fuel', capitalFlow: -32.7, changePercent: -2.68 },
+            { name: '石油石化', icon: 'droplets', capitalFlow: -27.5, changePercent: -1.92 },
+            { name: '新能源', icon: 'battery-charging', capitalFlow: 102.3, changePercent: 4.15 },
+        ];
+
+        // --- 7-stop solid color ramp (Binance-style) ---
+        // Chinese convention: Red = 涨 (positive), Green = 跌 (negative)
+        const COLOR_RAMP = [
+            { bg: '#0B8C5F', badge: '#2EBD85' },   // 0: deep green (< -5%)
+            { bg: '#2EBD85', badge: '#2EBD85' },   // 1: medium green (-2% ~ -5%)
+            { bg: '#58CEAA', badge: '#2EBD85' },   // 2: light green (-0.5% ~ -2%)
+            { bg: '#76808E', badge: 'rgba(255,255,255,0.6)' }, // 3: gray (±0.5%)
+            { bg: '#E8626F', badge: '#F6465D' },   // 4: light red (+0.5% ~ +2%)
+            { bg: '#F6465D', badge: '#F6465D' },   // 5: medium red (+2% ~ +5%)
+            { bg: '#CF304A', badge: '#F6465D' },   // 6: deep red (> +5%)
+        ];
+
+        function getColorIndex(changePercent) {
+            const cp = changePercent;
+            if (cp <= -5)   return 0;
+            if (cp <= -2)   return 1;
+            if (cp <= -0.5) return 2;
+            if (cp < 0.5)   return 3;
+            if (cp < 2)     return 4;
+            if (cp < 5)     return 5;
+            return 6;
+        }
+
+        function applyTileStyle(el, changePercent) {
+            const idx = getColorIndex(changePercent);
+            el.style.background = COLOR_RAMP[idx].bg;
+            el.style.boxShadow = '0px 8px 32px rgba(0, 0, 0, 0.37)';
+        }
+
+        // Mock open/close candlestick data (continuous: open[i] = close[i-1])
+        function generateMockCandles(changePercent, days = 60) {
+            const basePrice = 50 + Math.random() * 150;
+            const dailyDrift = changePercent / days / 100;
+            const volatility = 0.015 + Math.random() * 0.01;
+            const candles = [];
+            let price = basePrice;
+            for (let i = 0; i < days; i++) {
+                const open = price;
+                const noise = (Math.random() - 0.5) * 2;
+                const dailyReturn = dailyDrift + volatility * noise;
+                price = open * (1 + dailyReturn);
+                candles.push({ open, close: price });
+            }
+            // Nudge last close toward target
+            const target = basePrice * (1 + changePercent / 100);
+            candles[days - 1].close += (target - candles[days - 1].close) * 0.5;
+            return candles;
+        }
+
+        // Render mini-candlestick bar chart
+        function renderSparklineSVG(container, candles, width, height) {
+            if (candles.length < 2) return;
+
+            // Find price range across all candles
+            let lo = Infinity, hi = -Infinity;
+            for (const c of candles) {
+                lo = Math.min(lo, c.open, c.close);
+                hi = Math.max(hi, c.open, c.close);
+            }
+            const range = hi - lo || 1;
+
+            // Y mapping with 8% padding
+            const padY = height * 0.08;
+            const drawH = height - 2 * padY;
+            function priceToY(p) { return padY + drawH - ((p - lo) / range) * drawH; }
+
+            const n = candles.length;
+            const barW = width / n;       // each bar fills its slot
+            const gap = barW * 0.15;      // 15% gap between bars
+            const bodyW = barW - gap;
+
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('class', 'sparkline-svg');
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.setAttribute('preserveAspectRatio', 'none');
+            svg.setAttribute('aria-hidden', 'true');
+
+            candles.forEach((c, i) => {
+                const yOpen = priceToY(c.open);
+                const yClose = priceToY(c.close);
+                const yTop = Math.min(yOpen, yClose);
+                const barH = Math.max(1, Math.abs(yClose - yOpen)); // min 1px
+                const x = i * barW + gap / 2;
+
+                const rect = document.createElementNS(svgNS, 'rect');
+                rect.setAttribute('class', 'sparkline-bar');
+                rect.setAttribute('x', x.toFixed(1));
+                rect.setAttribute('y', yTop.toFixed(1));
+                rect.setAttribute('width', bodyW.toFixed(1));
+                rect.setAttribute('height', barH.toFixed(1));
+                rect.setAttribute('rx', '0.5');
+                // White bars, up slightly brighter
+                const isUp = c.close >= c.open;
+                rect.setAttribute('fill', '#ffffff');
+                rect.setAttribute('fill-opacity', isUp ? '0.7' : '0.35');
+                // Staggered animation: each bar fades in left-to-right
+                rect.style.animationDelay = (i * 25) + 'ms';
+                svg.appendChild(rect);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(svg);
+            requestAnimationFrame(() => container.classList.add('visible'));
+        }
+
+        function clearSparkline(container) {
+            container.innerHTML = '';
+            container.classList.remove('visible');
+        }
+
+        // --- Constants ---
+        let W = 1200, H = 1140;
+        const MIN = 60;
+        const BORDER = 2;
+        const TOL = 2.5;
+
+        let originalLayout = null;
+        let splitLineStructure = null;
+        let activeHoverIndex = -1;
+        let maxArea = 0, minArea = 0;
+
+        function lerp(a, b, t) { return a + (b - a) * t; }
+
+        function getTileScale(w, h) {
+            const area = w * h;
+            const t = maxArea > minArea
+                ? (Math.sqrt(area) - Math.sqrt(minArea)) / (Math.sqrt(maxArea) - Math.sqrt(minArea))
+                : 0.5;
+            return Math.max(0, Math.min(1, t));
+        }
+
+        // Continuous adaptive styles (sqrt area normalization)
+        function applyAdaptiveStyles(el, data, w, h) {
+            const t = getTileScale(w, h);
+            const minDim = Math.min(w, h);
+            const threshold = Math.min(targetW(), targetH());
+
+            let nameSize = lerp(9, 28, t);
+            const charCount = data.name.length;
+            const isVertical = h > w * 1.2;
+            const pad = lerp(4, 16, t);
+            const textFlowDim = isVertical ? h - 2 * pad : w - 2 * pad;
+            const maxNameSize = (0.5 * textFlowDim) / Math.max(charCount, 1);
+            nameSize = Math.min(nameSize, Math.max(9, maxNameSize));
+
+            const nameWeight = Math.round(lerp(400, 700, t));
+            const valueSize = lerp(8, 13, t);
+            const badgeSize = lerp(7, 12, t);
+
+            el.style.setProperty('--tile-name-size', nameSize.toFixed(1) + 'px');
+            el.style.setProperty('--tile-name-weight', nameWeight);
+            el.style.setProperty('--tile-value-size', valueSize.toFixed(1) + 'px');
+            el.style.setProperty('--tile-badge-size', badgeSize.toFixed(1) + 'px');
+            el.style.setProperty('--tile-pad', pad.toFixed(1) + 'px');
+
+            const badgeBgAlpha = lerp(0.03, 0.15, t);
+            const badgeBorderAlpha = lerp(0.06, 0.25, t);
+            const badgeShadowAlpha = lerp(0.05, 0.3, t);
+            const badgePadV = lerp(2, 4.5, t);
+            const badgePadH = lerp(4, 6, t);
+            el.style.setProperty('--badge-bg-alpha', badgeBgAlpha.toFixed(3));
+            el.style.setProperty('--badge-border-alpha', badgeBorderAlpha.toFixed(3));
+            el.style.setProperty('--badge-shadow-alpha', badgeShadowAlpha.toFixed(3));
+            el.style.setProperty('--badge-pad', `${badgePadV.toFixed(1)}px ${badgePadH.toFixed(1)}px`);
+            el.style.setProperty('--badge-pad-h', badgePadH.toFixed(1) + 'px');
+
+            // show-sparkline is controlled exclusively by hover handlers, not here
+            el.classList.toggle('vertical-text', isVertical);
+
+            const availW = w - 2 * pad;
+            const availH = h - 2 * pad;
+            const flowSign = data.capitalFlow > 0 ? '+' : '';
+            const fullValueText = `${flowSign}${data.capitalFlow}亿`;
+            const shortValueText = `${flowSign}${data.capitalFlow}`;
+            const avgCharW = 0.6;
+            const nameW = data.name.length * nameSize * 0.85;
+            const fullValueW = fullValueText.length * valueSize * avgCharW;
+            const headerGap = 6;
+            const headerFitsH = (nameW + headerGap + fullValueW) <= availW;
+
+            const needVerticalValue = !isVertical && !headerFitsH;
+
+            const badgeH = badgeSize * 1.3 + 2 * badgePadV;
+            const isValueVertical = needVerticalValue || isVertical;
+            const valueCharH = fullValueText.length * valueSize;
+            const spaceForValue = availH - (isValueVertical ? badgeH + 4 : 0);
+            const needCompact = isValueVertical && valueCharH > spaceForValue;
+
+            const valueEl = el.querySelector('.tile-value');
+            if (valueEl) {
+                valueEl.textContent = needCompact ? shortValueText : fullValueText;
+            }
+
+            const hideValue = minDim < 50;
+            const hideBadge = minDim < 50;
+
+            el.classList.toggle('hide-value', hideValue);
+            el.classList.toggle('hide-badge', hideBadge);
+            // hide-sparkline is controlled exclusively by hover handlers, not here
+            el.classList.toggle('vertical-value', needVerticalValue);
+        }
+
+        function vW() { return W - 2 * BORDER; }
+        function vH() { return H - 2 * BORDER; }
+        function targetW() { return W / 4; }
+        function targetH() { return H / 4; }
+
+        // --- Split Line Grouping ---
+        function buildSplitLineStructure(layout) {
+            const vEdges = [];
+            const hEdges = [];
+
+            layout.forEach(tile => {
+                vEdges.push(tile.x, tile.x + tile.width);
+                hEdges.push(tile.y, tile.y + tile.height);
+            });
+
+            function groupEdges(edges) {
+                const sorted = [...new Set(edges)].sort((a, b) => a - b);
+                const groups = [];
+                let currentGroup = [sorted[0]];
+                for (let i = 1; i < sorted.length; i++) {
+                    if (sorted[i] - sorted[i - 1] <= TOL) {
+                        currentGroup.push(sorted[i]);
+                    } else {
+                        groups.push(currentGroup);
+                        currentGroup = [sorted[i]];
+                    }
+                }
+                if (currentGroup.length > 0) groups.push(currentGroup);
+                return groups.map(group => {
+                    const median = group[Math.floor(group.length / 2)];
+                    return { canonical: Math.round(median), values: group };
+                });
+            }
+
+            const vGroups = groupEdges(vEdges);
+            const hGroups = groupEdges(hEdges);
+
+            const vLineMap = new Map();
+            const hLineMap = new Map();
+
+            vGroups.forEach(g => g.values.forEach(v => vLineMap.set(v, g.canonical)));
+            hGroups.forEach(g => g.values.forEach(v => hLineMap.set(v, g.canonical)));
+
+            const structure = {
+                vLines: new Map(),
+                hLines: new Map(),
+                vLineMap,
+                hLineMap,
+                vCanonicals: vGroups.map(g => g.canonical).sort((a, b) => a - b),
+                hCanonicals: hGroups.map(g => g.canonical).sort((a, b) => a - b)
+            };
+
+            layout.forEach((tile, i) => {
+                const l = vLineMap.get(tile.x);
+                const r = vLineMap.get(tile.x + tile.width);
+                const t = hLineMap.get(tile.y);
+                const b = hLineMap.get(tile.y + tile.height);
+
+                if (!structure.vLines.has(l)) structure.vLines.set(l, []);
+                if (!structure.vLines.has(r)) structure.vLines.set(r, []);
+                if (!structure.hLines.has(t)) structure.hLines.set(t, []);
+                if (!structure.hLines.has(b)) structure.hLines.set(b, []);
+
+                structure.vLines.get(l).push({ idx: i, side: 'left' });
+                structure.vLines.get(r).push({ idx: i, side: 'right' });
+                structure.hLines.get(t).push({ idx: i, side: 'top' });
+                structure.hLines.get(b).push({ idx: i, side: 'bottom' });
+            });
+
+            return structure;
+        }
+
+        function buildTileSpans(axis) {
+            const spans = [];
+            for (const tile of originalLayout) {
+                let lo, hi;
+                if (axis === 'v') {
+                    lo = splitLineStructure.vLineMap.get(tile.x);
+                    hi = splitLineStructure.vLineMap.get(tile.x + tile.width);
+                } else {
+                    lo = splitLineStructure.hLineMap.get(tile.y);
+                    hi = splitLineStructure.hLineMap.get(tile.y + tile.height);
+                }
+                if (lo !== undefined && hi !== undefined) {
+                    spans.push([lo, hi]);
+                }
+            }
+            return spans;
+        }
+
+        // --- Elastic Redistribute (Water Ripple) ---
+        function elasticRedistribute(canonicals, hovLo, hovHi, targetSize, vbLo, vbHi, tileSpans) {
+            const n = canonicals.length;
+            const pos = new Map();
+
+            const idxLo = canonicals.indexOf(hovLo);
+            const idxHi = canonicals.indexOf(hovHi);
+
+            if (idxLo === -1 || idxHi === -1) {
+                canonicals.forEach(c => pos.set(c, c));
+                return pos;
+            }
+
+            function analyzeRegionIntervals(regionIndices) {
+                const regionCans = regionIndices.map(i => canonicals[i]);
+                const intervals = [];
+                let totalWeight = 0;
+                let totalMinFootprint = 0;
+
+                for (let k = 0; k < regionCans.length - 1; k++) {
+                    const intLo = regionCans[k];
+                    const intHi = regionCans[k + 1];
+                    const intSize = intHi - intLo;
+                    if (intSize < 0.01) continue;
+
+                    let bestTileSize = Infinity;
+                    for (const [tLo, tHi] of tileSpans) {
+                        if (tLo === hovLo && tHi === hovHi) continue;
+                        if (tLo <= intLo && tHi >= intHi) {
+                            const ts = tHi - tLo;
+                            if (ts < bestTileSize) bestTileSize = ts;
+                        }
+                    }
+                    if (bestTileSize === Infinity) bestTileSize = intSize;
+
+                    const compressible = Math.max(0, bestTileSize - MIN);
+                    let rate;
+                    if (compressible <= 5)        rate = 0;
+                    else if (compressible <= 15)  rate = 0.15;
+                    else if (compressible <= 40)  rate = 0.4;
+                    else if (compressible <= 80)  rate = 0.7;
+                    else                          rate = 1.0;
+
+                    const weight = intSize * rate;
+                    totalWeight += weight;
+
+                    const minSize = (bestTileSize <= MIN)
+                        ? intSize
+                        : intSize * (MIN / bestTileSize);
+                    totalMinFootprint += minSize;
+
+                    intervals.push({
+                        lo: intLo, hi: intHi, size: intSize,
+                        compressible, rate, weight, minSize, bestTileSize
+                    });
+                }
+
+                const totalOrigRange = regionCans.length > 1
+                    ? regionCans[regionCans.length - 1] - regionCans[0] : 0;
+                const trueCapacity = Math.max(0, totalOrigRange - totalMinFootprint);
+
+                return { intervals, totalWeight, totalMinFootprint, totalOrigRange, trueCapacity };
+            }
+
+            const pinnedLeft = (idxLo === 0);
+            const pinnedRight = (idxHi === n - 1);
+            const origSize = hovHi - hovLo;
+            const needExpand = targetSize - origSize;
+
+            let newHovLo, newHovHi;
+
+            if (pinnedLeft && pinnedRight) {
+                newHovLo = vbLo;
+                newHovHi = vbHi;
+            } else if (pinnedLeft) {
+                newHovLo = vbLo;
+                newHovHi = Math.min(vbLo + targetSize, vbHi);
+            } else if (pinnedRight) {
+                newHovHi = vbHi;
+                newHovLo = Math.max(vbHi - targetSize, vbLo);
+            } else {
+                const beforeIndices = [];
+                for (let i = 0; i <= idxLo; i++) beforeIndices.push(i);
+                const afterIndices = [];
+                for (let i = idxHi; i < n; i++) afterIndices.push(i);
+
+                const beforeAnalysis = analyzeRegionIntervals(beforeIndices);
+                const afterAnalysis = analyzeRegionIntervals(afterIndices);
+
+                const spaceBefore = hovLo - vbLo;
+                const spaceAfter = vbHi - hovHi;
+
+                const effBefore = Math.min(spaceBefore, beforeAnalysis.trueCapacity);
+                const effAfter = Math.min(spaceAfter, afterAnalysis.trueCapacity);
+                const totalEffective = effBefore + effAfter;
+
+                let expandBefore, expandAfter;
+                if (totalEffective > 0.01) {
+                    expandBefore = needExpand * (effBefore / totalEffective);
+                    expandAfter = needExpand * (effAfter / totalEffective);
+                } else {
+                    const totalSpace = spaceBefore + spaceAfter;
+                    if (totalSpace > 0.01) {
+                        expandBefore = needExpand * (spaceBefore / totalSpace);
+                        expandAfter = needExpand * (spaceAfter / totalSpace);
+                    } else {
+                        expandBefore = needExpand / 2;
+                        expandAfter = needExpand / 2;
+                    }
+                }
+
+                if (expandBefore > effBefore && effBefore < spaceBefore) {
+                    const excess = expandBefore - effBefore;
+                    expandBefore = effBefore;
+                    expandAfter += excess;
+                }
+                if (expandAfter > effAfter && effAfter < spaceAfter) {
+                    const excess = expandAfter - effAfter;
+                    expandAfter = effAfter;
+                    expandBefore += excess;
+                }
+
+                if (expandBefore > spaceBefore) {
+                    expandAfter += (expandBefore - spaceBefore);
+                    expandBefore = spaceBefore;
+                }
+                if (expandAfter > spaceAfter) {
+                    expandBefore += (expandAfter - spaceAfter);
+                    expandAfter = spaceAfter;
+                }
+
+                newHovLo = hovLo - expandBefore;
+                newHovHi = hovHi + expandAfter;
+
+                if (newHovLo < vbLo) {
+                    newHovHi += (vbLo - newHovLo);
+                    newHovLo = vbLo;
+                }
+                if (newHovHi > vbHi) {
+                    newHovLo -= (newHovHi - vbHi);
+                    newHovHi = vbHi;
+                }
+                if (newHovLo < vbLo) newHovLo = vbLo;
+                if (newHovHi > vbHi) newHovHi = vbHi;
+            }
+
+            function gradientMapRegion(indices, origStart, origEnd, newStart, newEnd) {
+                if (indices.length === 0) return;
+                const origRange = origEnd - origStart;
+                const newRange = newEnd - newStart;
+
+                if (origRange < 0.01) {
+                    for (const idx of indices) pos.set(canonicals[idx], newStart);
+                    return;
+                }
+
+                if (newRange >= origRange - 0.5) {
+                    for (const idx of indices) {
+                        const c = canonicals[idx];
+                        pos.set(c, newStart + ((c - origStart) / origRange) * newRange);
+                    }
+                    return;
+                }
+
+                const analysis = analyzeRegionIntervals(indices);
+                const totalCompression = origRange - newRange;
+
+                if (analysis.totalWeight < 0.01) {
+                    for (const idx of indices) {
+                        const c = canonicals[idx];
+                        pos.set(c, newStart + ((c - origStart) / origRange) * newRange);
+                    }
+                    return;
+                }
+
+                const newSizes = [];
+                let totalNewSize = 0;
+                for (const iv of analysis.intervals) {
+                    let compressionShare = (iv.weight > 0)
+                        ? totalCompression * (iv.weight / analysis.totalWeight)
+                        : 0;
+
+                    const maxCompression = Math.max(0, iv.size - iv.minSize);
+                    compressionShare = Math.min(compressionShare, maxCompression);
+
+                    const ns = iv.size - compressionShare;
+                    newSizes.push(ns);
+                    totalNewSize += ns;
+                }
+
+                if (Math.abs(totalNewSize - newRange) > 0.5 && totalNewSize > 0.01) {
+                    const scale = newRange / totalNewSize;
+                    for (let k = 0; k < newSizes.length; k++) newSizes[k] *= scale;
+                }
+
+                const regionCanonicals = indices.map(i => canonicals[i]);
+                let cursor = newStart;
+                pos.set(regionCanonicals[0], newStart);
+                for (let k = 0; k < analysis.intervals.length; k++) {
+                    cursor += newSizes[k];
+                    pos.set(analysis.intervals[k].hi, cursor);
+                }
+                pos.set(regionCanonicals[regionCanonicals.length - 1], newEnd);
+            }
+
+            const leftIndices = [], insideIndices = [], rightIndices = [];
+            for (let i = 0; i <= idxLo; i++) leftIndices.push(i);
+            for (let i = idxLo; i <= idxHi; i++) insideIndices.push(i);
+            for (let i = idxHi; i < n; i++) rightIndices.push(i);
+
+            gradientMapRegion(leftIndices, canonicals[0], hovLo, vbLo, newHovLo);
+
+            {
+                const origRange = hovHi - hovLo;
+                const newRange = newHovHi - newHovLo;
+                for (const idx of insideIndices) {
+                    const c = canonicals[idx];
+                    if (origRange < 0.01) {
+                        pos.set(c, newHovLo);
+                    } else {
+                        pos.set(c, newHovLo + ((c - hovLo) / origRange) * newRange);
+                    }
+                }
+            }
+
+            gradientMapRegion(rightIndices, hovHi, canonicals[n - 1], newHovHi, vbHi);
+
+            pos.set(hovLo, newHovLo);
+            pos.set(hovHi, newHovHi);
+
+            const lockedCanonicals = new Set([hovLo, hovHi]);
+
+            for (let iter = 0; iter < 50; iter++) {
+                let anyFixed = false;
+
+                for (const [tLo, tHi] of tileSpans) {
+                    const curLo = pos.get(tLo);
+                    const curHi = pos.get(tHi);
+                    if (curLo === undefined || curHi === undefined) continue;
+
+                    const origSpan = tHi - tLo;
+                    const effectiveMin = Math.min(MIN, origSpan);
+                    const span = curHi - curLo;
+                    if (span >= effectiveMin - 0.5) continue;
+
+                    const midpoint = (curLo + curHi) / 2;
+                    let desiredLo = midpoint - effectiveMin / 2;
+                    let desiredHi = midpoint + effectiveMin / 2;
+
+                    if (desiredLo < vbLo) { desiredLo = vbLo; desiredHi = vbLo + effectiveMin; }
+                    if (desiredHi > vbHi) { desiredHi = vbHi; desiredLo = vbHi - effectiveMin; }
+
+                    if (lockedCanonicals.has(tLo) && lockedCanonicals.has(tHi)) continue;
+                    if (lockedCanonicals.has(tLo)) {
+                        desiredLo = curLo;
+                        desiredHi = curLo + effectiveMin;
+                        if (desiredHi > vbHi) desiredHi = vbHi;
+                    }
+                    if (lockedCanonicals.has(tHi)) {
+                        desiredHi = curHi;
+                        desiredLo = curHi - effectiveMin;
+                        if (desiredLo < vbLo) desiredLo = vbLo;
+                    }
+
+                    if (!lockedCanonicals.has(tLo) && Math.abs(pos.get(tLo) - desiredLo) > 0.5) {
+                        pos.set(tLo, desiredLo);
+                        anyFixed = true;
+                    }
+                    if (!lockedCanonicals.has(tHi) && Math.abs(pos.get(tHi) - desiredHi) > 0.5) {
+                        pos.set(tHi, desiredHi);
+                        anyFixed = true;
+                    }
+                }
+
+                if (!anyFixed) break;
+            }
+
+            const sortedPositions = canonicals.map(c => pos.get(c));
+            for (let i = 1; i < sortedPositions.length; i++) {
+                if (sortedPositions[i] < sortedPositions[i - 1]) {
+                    if (!lockedCanonicals.has(canonicals[i])) {
+                        sortedPositions[i] = sortedPositions[i - 1];
+                        pos.set(canonicals[i], sortedPositions[i]);
+                    }
+                }
+            }
+
+            return pos;
+        }
+
+        // --- Calculate Ripple Layout ---
+        function calculateRippleLayout(hoveredIndex) {
+            const hoveredTile = originalLayout[hoveredIndex];
+            const tW = targetW();
+            const tH = targetH();
+            const minDim = Math.min(hoveredTile.width, hoveredTile.height);
+
+            if (minDim >= Math.min(tW, tH)) {
+                return originalLayout;
+            }
+
+            const hovL = splitLineStructure.vLineMap.get(hoveredTile.x);
+            const hovR = splitLineStructure.vLineMap.get(hoveredTile.x + hoveredTile.width);
+            const hovT = splitLineStructure.hLineMap.get(hoveredTile.y);
+            const hovB = splitLineStructure.hLineMap.get(hoveredTile.y + hoveredTile.height);
+
+            const VB_L = BORDER;
+            const VB_R = W - BORDER;
+            const VB_T = BORDER;
+            const VB_B = H - BORDER;
+
+            const vTileSpans = buildTileSpans('v');
+            const hTileSpans = buildTileSpans('h');
+
+            const vLinePos = elasticRedistribute(
+                splitLineStructure.vCanonicals,
+                hovL, hovR, tW, VB_L, VB_R, vTileSpans
+            );
+
+            const hLinePos = elasticRedistribute(
+                splitLineStructure.hCanonicals,
+                hovT, hovB, tH, VB_T, VB_B, hTileSpans
+            );
+
+            const newLayout = originalLayout.map((tile, i) => {
+                const tileL = splitLineStructure.vLineMap.get(tile.x);
+                const tileR = splitLineStructure.vLineMap.get(tile.x + tile.width);
+                const tileT = splitLineStructure.hLineMap.get(tile.y);
+                const tileB = splitLineStructure.hLineMap.get(tile.y + tile.height);
+
+                const nL = vLinePos.get(tileL);
+                const nR = vLinePos.get(tileR);
+                const nT = hLinePos.get(tileT);
+                const nB = hLinePos.get(tileB);
+
+                return {
+                    ...tile,
+                    x: nL,
+                    y: nT,
+                    width: nR - nL,
+                    height: nB - nT
+                };
+            });
+
+            return newLayout;
+        }
+
+        // --- Rendering ---
+        function applyLayout(layout) {
+            d3.selectAll('.tile').each(function(d, i) {
+                const l = layout[i];
+                this.style.left = l.x + 'px';
+                this.style.top = l.y + 'px';
+                this.style.width = l.width + 'px';
+                this.style.height = l.height + 'px';
+
+                const R = 16, tol = 3;
+                const touchLeft   = l.x - BORDER < tol;
+                const touchRight  = (l.x + l.width) > (W - BORDER - tol);
+                const touchBottom = (l.y + l.height) > (H - BORDER - tol);
+                const rbl = (touchLeft && touchBottom)   ? R + 'px' : '0';
+                const rbr = (touchRight && touchBottom)  ? R + 'px' : '0';
+                this.style.borderRadius = `0 0 ${rbr} ${rbl}`;
+
+                applyAdaptiveStyles(this, l.data, l.width, l.height);
+            });
+        }
+
+        function render() {
+            const container = d3.select('#container');
+            container.html('');
+
+            const dataWithValues = mockSectors.map(s => ({
+                ...s,
+                value: Math.pow(Math.abs(s.capitalFlow), 0.8)
+            }));
+
+            const root = d3.hierarchy({ children: dataWithValues })
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+
+            // Stretch virtual height to bias tiles toward horizontal (width > height)
+            const S = 1.35;
+            d3.treemap()
+                .size([vW(), vH() * S])
+                .padding(2)
+                .tile(d3.treemapSquarify.ratio(1))(root);
+
+            // Scale Y back (no tile size clamping — W/4×H/4 is the hover expansion target, not an initial layout constraint)
+            originalLayout = root.leaves().map(d => ({
+                data: d.data,
+                x: d.x0 + BORDER,
+                y: (d.y0 / S) + BORDER,
+                width: d.x1 - d.x0,
+                height: (d.y1 - d.y0) / S
+            }));
+
+            splitLineStructure = buildSplitLineStructure(originalLayout);
+
+            document.getElementById('info').textContent =
+                `Container: ${W}x${H} | Target: ${Math.round(targetW())}x${Math.round(targetH())} | Split lines: ${splitLineStructure.vLines.size}V, ${splitLineStructure.hLines.size}H`;
+
+            const areas = originalLayout.map(d => d.width * d.height);
+            maxArea = Math.max(...areas);
+            minArea = Math.min(...areas);
+
+            container.selectAll('.tile')
+                .data(originalLayout)
+                .enter()
+                .append('div')
+                .attr('class', 'tile')
+                .style('left', d => d.x + 'px')
+                .style('top', d => d.y + 'px')
+                .style('width', d => d.width + 'px')
+                .style('height', d => d.height + 'px')
+                .each(function(d) {
+                    applyTileStyle(this, d.data.changePercent);
+
+                    const R = 16;
+                    const tol = 3;
+                    const touchLeft   = d.x - BORDER < tol;
+                    const touchRight  = (d.x + d.width) > (W - BORDER - tol);
+                    const touchBottom = (d.y + d.height) > (H - BORDER - tol);
+                    const bl = (touchLeft && touchBottom)   ? R + 'px' : '0';
+                    const br = (touchRight && touchBottom)  ? R + 'px' : '0';
+                    this.style.borderRadius = `0 0 ${br} ${bl}`;
+                })
+                .html(d => {
+                    const sparklineHTML = '<div class="tile-sparkline"></div>';
+                    const changeSign = d.data.changePercent > 0 ? '+' : '';
+                    const flowSign = d.data.capitalFlow > 0 ? '+' : '';
+                    return `
+                        <div class="tile-content">
+                            <div class="tile-header">
+                                <div class="tile-name">${d.data.name}</div>
+                                <span class="tile-value">${flowSign}${d.data.capitalFlow}亿</span>
+                            </div>
+                            ${sparklineHTML}
+                            <span class="tile-badge">${changeSign}${d.data.changePercent}%</span>
+                        </div>
+                    `;
+                })
+                .each(function(d) {
+                    applyAdaptiveStyles(this, d.data, d.width, d.height);
+                    // Pre-generate mock candlestick data per tile (60 trading days)
+                    d.sparklineData = generateMockCandles(d.data.changePercent, 60);
+                })
+                .each(function(d, i) {
+                    const tileIndex = i;
+                    const tileEl = this;
+                    let sparklineRendered = false;
+                    let sparklineTimer = null;
+
+                    d3.select(this).on('mouseenter', function() {
+                        // Block if another tile is actively expanded
+                        if (activeHoverIndex >= 0 && activeHoverIndex !== tileIndex) {
+                            return;
+                        }
+
+                        const t = originalLayout[tileIndex];
+                        const minDim = Math.min(t.width, t.height);
+                        const needsExpand = minDim < Math.min(targetW(), targetH());
+
+                        if (needsExpand) {
+                            activeHoverIndex = tileIndex;
+                            const newLayout = calculateRippleLayout(tileIndex);
+                            applyLayout(newLayout);
+                        }
+
+                        // Only render sparkline for THIS hovered tile, only once
+                        sparklineRendered = false;
+                        function drawOnce() {
+                            if (sparklineRendered) return;
+                            sparklineRendered = true;
+                            // Force show-sparkline on THIS tile only
+                            tileEl.classList.add('show-sparkline');
+                            tileEl.classList.remove('hide-sparkline');
+                            const sparklineEl = tileEl.querySelector('.tile-sparkline');
+                            if (sparklineEl) {
+                                const rect = sparklineEl.getBoundingClientRect();
+                                if (rect.width > 0 && rect.height > 0) {
+                                    renderSparklineSVG(sparklineEl, d.sparklineData, rect.width, rect.height);
+                                }
+                            }
+                        }
+
+                        if (needsExpand) {
+                            // Single timeout after transition settles (420ms > 400ms transition)
+                            sparklineTimer = setTimeout(drawOnce, 420);
+                        } else {
+                            // Tile already at target size
+                            requestAnimationFrame(drawOnce);
+                        }
+                    });
+
+                    d3.select(this).on('mouseleave', function() {
+                        // Cancel pending render
+                        if (sparklineTimer) { clearTimeout(sparklineTimer); sparklineTimer = null; }
+                        sparklineRendered = false;
+
+                        // Clear sparkline
+                        const sparklineEl = tileEl.querySelector('.tile-sparkline');
+                        if (sparklineEl) clearSparkline(sparklineEl);
+                        tileEl.classList.remove('show-sparkline');
+                        tileEl.classList.add('hide-sparkline');
+
+                        if (activeHoverIndex === tileIndex) {
+                            activeHoverIndex = -1;
+                            applyLayout(originalLayout);
+                        }
+                    });
+                });
+        }
+
+        // --- Size Controls ---
+        function updateWrapperSize() {
+            const wrapper = document.getElementById('treemap-wrapper');
+            wrapper.style.width = W + 'px';
+        }
+
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const [width, height] = this.dataset.size.split('x').map(Number);
+                W = width;
+                H = height;
+                const container = document.getElementById('container');
+                container.style.width = W + 'px';
+                container.style.height = H + 'px';
+                updateWrapperSize();
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                activeHoverIndex = -1;
+                render();
+            });
+        });
+
+        updateWrapperSize();
+        render();
+
+        // --- View Toggle ---
+        document.getElementById('gridToggle').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('listToggle').classList.remove('active');
+        });
+        document.getElementById('listToggle').addEventListener('click', function() {
+            this.classList.add('active');
+            document.getElementById('gridToggle').classList.remove('active');
+        });
+
+        // --- Dark Mode Toggle ---
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            document.querySelector('.page-title').style.color = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.85)';
+            document.querySelector('.page-subtitle').style.color = isDark ? '#6b7280' : '#999';
+        });
+    </script>
+</body>
+</html>

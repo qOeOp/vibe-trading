@@ -13,13 +13,10 @@ Main container component managing layout calculation, dimension measurement, and
 Fixed header with title, breadcrumb navigation, search box, and toggle controls.
 
 ### [HeatMap Tile](./threads/heatmap-tile/index.md)
-Glassmorphism tile with dual backgrounds, 50/50 panel split, dynamic coloring (3 zones), and 3D hover lift.
+Solid-color tile with header row layout, 7-stop coloring, adaptive content scaling, and water ripple expansion.
 
 ### [Sparkline](./threads/sparkline/index.md)
-Mini trend chart (30-day data) with 2px blue stroke, white gradient fill, and draw-line animation.
-
-### [Breathing Dot](./threads/breathing-dot/index.md)
-7px yellow dot with ripple animation (scale 0→3), attention level-based pulse duration (1.2-3.0s).
+Mini trend chart (30-day data) with draw-line animation on hover. See [Sparkline thread](./threads/sparkline/index.md) for stroke/sizing specs.
 
 ### [Breadcrumb](./threads/breadcrumb/index.md)
 Navigation path display (一级 > 二级 > 三级 > 股票) with click-to-navigate and hover states.
@@ -28,7 +25,7 @@ Navigation path display (一级 > 二级 > 三级 > 股票) with click-to-naviga
 Cross-level search input with icon, focus states, and result suggestions.
 
 ### [Loading State](./threads/loading-state/index.md)
-Skeleton screen with 31 placeholder tiles, shimmer animation, and timeout behavior.
+Centered spinner with "加载中..." text animation and semi-transparent overlay.
 
 ### [Error State](./threads/error-state/index.md)
 Error display with retry button, error type categorization, and performance degradation handling.
@@ -46,12 +43,9 @@ HeatMap (Container)
   │     ├── Breadcrumb
   │     └── SearchBox
   └── HeatMapTile × 31
-        ├── Upper Panel
-        │     ├── Icon (Lucide)
-        │     ├── Name
-        │     └── BreathingDot
-        └── Lower Panel
-              ├── Sparkline (on hover, if tile > 120×80)
-              ├── Capital Flow
-              └── Change% + Arrow
+        ├── Header Row
+        │     ├── Name (left)
+        │     └── Capital Flow (right)
+        ├── Sparkline (hover / large tiles)
+        └── Badge (涨跌幅, absolute bottom-right)
 ```

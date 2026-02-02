@@ -51,7 +51,6 @@ vite.config.*.timestamp*
 .idea
 .vscode
 conductor
-docs
 
 # Python
 __pycache__/

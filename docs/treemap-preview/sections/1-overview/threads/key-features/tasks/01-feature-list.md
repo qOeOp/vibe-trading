@@ -13,11 +13,11 @@ Complete catalog of implemented features.
 - [x] State management (currentLevel, breadcrumbPath)
 
 ### Visualization
-- [x] Squarified treemap layout (d3-hierarchy)
-- [x] Dynamic tile sizing based on capitalFlow magnitude
-- [x] 3-zone dynamic coloring (±0.2%, 0.2-3%, >3%)
-- [x] Glassmorphism with dual backgrounds
-- [x] Gradient borders with preserved border-radius
+- [x] Squarified treemap layout (d3-hierarchy, ratio(1), S=1.35 horizontal bias)
+- [x] Dynamic tile sizing based on capitalFlow magnitude (power scaling x^0.8)
+- [x] 7-stop solid color ramp (Binance-style, red=涨 green=跌)
+- [x] Solid opaque tiles with box-shadow hover glow
+- [x] Corner-aware border radius (only container-corner tiles get 16px radius)
 
 ### Interactions
 - [x] Tile hover: -2px lift + z-index elevation
@@ -27,18 +27,16 @@ Complete catalog of implemented features.
 - [x] Header sticky positioning with scroll effects
 
 ### Animations
-- [x] Breathing dot pulse (1-3s based on attention)
-- [x] Ripple rings (synchronized with pulse, 200ms delay)
 - [x] Sparkline draw-line (400ms stroke-dasharray)
 - [x] Loading spinner (1s rotation)
 - [x] Smooth transitions (200-300ms ease-out)
+- [x] Water ripple expansion (400ms, small tiles expand to W/4×H/4 on hover)
 
 ### Data Display
 - [x] Capital Flow (format: "+125.5亿")
 - [x] Change Percent (format: "+2.35%")
-- [x] Attention Level (0-100 driving dot speed)
 - [x] Sector icons (31 unique Lucide icons)
-- [x] Adaptive content scaling (icon 14-18px, font 12-16px)
+- [x] Adaptive content scaling (continuous sqrt(area) normalization, 9-28px name, 8-13px value)
 
 ### State Management
 - [x] Loading state with spinner

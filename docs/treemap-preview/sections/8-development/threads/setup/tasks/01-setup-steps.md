@@ -43,14 +43,12 @@ pnpm install
 ### 3. Run Development Server
 
 ```bash
-npm run dev
-# or
-pnpm dev
+npx nx serve preview
 ```
 
 ### 4. Access Application
 
-Open browser: **http://localhost:4200/preview**
+Open browser: **http://localhost:4300**
 
 ---
 
@@ -67,9 +65,9 @@ Open browser: **http://localhost:4200/preview**
 
 ## Troubleshooting
 
-**Port 4200 in use:**
+**Port 4300 in use:**
 ```bash
-PORT=3000 npm run dev
+npx nx serve preview --port=3000
 ```
 
 **Dependencies won't install:**

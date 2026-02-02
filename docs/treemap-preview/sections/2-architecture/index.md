@@ -27,9 +27,9 @@ Next.js 15 App (Static Export)
 Mock Data (TypeScript arrays)
     ↓
 HeatMap Visualization
-    ├─ useTreeMap Hook → Layout Calculation (Recharts)
-    ├─ HeatMapTile × 31 → UI Rendering (Custom SVG)
-    └─ useDrillDown Hook → Navigation State
+    ├─ useTreeMap Hook → Layout Calculation (D3 squarified)
+    ├─ HeatMapTile × 31 → UI Rendering
+    └─ useDrillDown Hook → Navigation State (planned)
 ```
 
 **Key Principle:** Single Responsibility - Layout calculation decoupled from UI rendering.

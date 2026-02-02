@@ -19,7 +19,7 @@ Minimum tile size (150×150px), aspect ratio limits (1:1 to 1:1.618), 4px gap sp
 Header shrinking behavior on scroll, breadcrumb visibility toggle, search box animations.
 
 ### [Responsive Strategy](./threads/responsive-strategy/index.md)
-Mobile degradation (no sparkline/breathing dot), tablet adjustments, desktop optimizations.
+Mobile degradation (no sparkline), tablet adjustments, desktop optimizations.
 
 ---
 

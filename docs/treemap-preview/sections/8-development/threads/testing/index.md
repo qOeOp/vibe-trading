@@ -13,7 +13,6 @@ Testing strategy and manual verification checklist.
 - [ ] Breadcrumb navigation works
 - [ ] Search filters correctly
 - [ ] Sparkline appears on hover
-- [ ] Breathing dots animate
 - [ ] 60fps maintained
 
 ---

@@ -1,6 +1,6 @@
 # Thread: Sparkline Component
 
-Compact 30-day price trend line chart that appears on tile hover, showing historical price movement with endpoint BreathingDot.
+Compact 60-day mini-candlestick bar chart that appears on tile hover, showing historical price movement as vertical open/close bars.
 
 ---
 
@@ -8,171 +8,154 @@ Compact 30-day price trend line chart that appears on tile hover, showing histor
 
 Reveal historical price context when user hovers over a tile, providing visual confirmation of trend direction without cluttering the default view.
 
-## Component Location
-
-```
-apps/preview/src/app/components/Sparkline.tsx
-```
-
 ## Usage Context
 
-**Exclusively in HeatMapTile Lower Panel:**
-- Conditional render: Only shows when tile is hovered AND tile size > 120×80px
-- Positioned 48px from bottom (above Capital Flow + Change%)
+**Exclusively in HeatMapTile middle frame (flex column):**
+- Conditional render: Only shows when tile is hovered
+- Positioned in dedicated flex middle frame between header and badge
+- Edge-to-edge horizontally (cancels parent padding)
 - See [HeatMapTile Task 06: Sparkline Integration](../heatmap-tile/tasks/06-sparkline-integration.md)
 
 ## Component Anatomy
 
 ```
 ┌──────────────────────────────────────┐
-│ Sparkline (40px height)              │
-│     /\      /\                   ●   │ ← BreathingDot at endpoint
-│    /  \    /  \     ___/             │
-│   /    \  /    \___/                 │
-│  /      \/                           │
-│ ←────── 30 data points ──────→       │
+│ Sparkline (flex: 1, min-height: 0)   │
+│ ┃┃ ┃┃┃ ┃┃┃┃ ┃┃ ┃┃┃┃ ┃┃┃ ┃┃ ┃┃┃   │ ← 60 candlestick bars
+│ ┃┃ ┃┃┃ ┃┃┃┃ ┃┃ ┃┃┃┃ ┃┃┃ ┃┃ ┃┃┃   │   white, up=0.7 / down=0.35 opacity
+│ ┃┃ ┃┃┃ ┃┃┃┃ ┃┃ ┃┃┃┃ ┃┃┃ ┃┃ ┃┃┃   │
+│ ←─────── 60 trading days ──────→     │
 └──────────────────────────────────────┘
 ```
 
 ## Task Breakdown
 
 ### [Task 01: SVG Shell & Dimensions](./tasks/01-svg-shell.md)
-- Responsive SVG container
-- ViewBox calculation for dynamic width
-- Fixed 40px height
+- Responsive SVG container (flex: 1)
+- ViewBox calculation for dynamic width/height
 - Coordinate system setup
 
-### [Task 02: Path Generation & Styling](./tasks/02-path-generation.md)
-- Convert 30 data points to SVG path
-- Line-to commands with proper scaling
-- Stroke color (white with opacity)
-- Smooth curves vs sharp angles
+### [Task 02: Candlestick Bar Generation & Styling](./tasks/02-path-generation.md)
+- Generate 60 open/close candlestick pairs via geometric Brownian motion
+- Render as SVG `<rect>` elements with gap and rounded corners
+- White fill, differential opacity for up/down bars
 
-### [Task 03: Endpoint BreathingDot Integration](./tasks/03-endpoint-dot.md)
-- Position BreathingDot at final data point
-- foreignObject for React component in SVG
-- Coordinate transformation
-- Size adjustment (6px instead of 7px)
+### ~~[Task 03: Endpoint Dot](./tasks/03-endpoint-dot.md)~~
+- **REMOVED** — Endpoint dot was removed during implementation (not visually appealing with bar chart)
 
-### [Task 04: Draw-Line Animation](./tasks/04-draw-animation.md)
-- Stroke-dasharray reveal animation
-- 400ms duration with ease-out
-- Triggered on component mount
-- Synchronized with fade-in
-
----
-
-## Props Interface
-
-```typescript
-interface SparklineProps {
-  /** 30 price data points */
-  data: number[];
-
-  /** Chart width in pixels */
-  width: number;
-
-  /** Chart height in pixels (fixed 40px recommended) */
-  height: number;
-
-  /** Attention level for endpoint dot */
-  attentionLevel: number;
-
-  /** Additional CSS classes */
-  className?: string;
-}
-```
-
-## Design Principles
-
-**Minimalism:** Single-line chart, no axes/labels/grid
-**Context:** Shows trend direction, not precise values
-**Subtlety:** White line with low opacity, blends with glassmorphism
-**Performance:** SVG path rendering, GPU-accelerated animation
+### [Task 04: Staggered Bar Animation](./tasks/04-draw-animation.md)
+- Per-bar fade-in with staggered delay (25ms per bar, left-to-right)
+- 60ms ease-out per bar
+- CSS `@keyframes bar-fade-in`
 
 ---
 
 ## Data Format
 
-**Input:** Array of 30 numbers representing daily closing prices
+**Input:** Array of 60 candlestick objects with open/close prices
 
 ```typescript
-// Example: 30-day price data
-const sparklineData = [
-  100.5, 102.3, 101.8, 103.2, 105.1,  // Days 1-5
-  104.7, 106.2, 108.5, 107.9, 109.3,  // Days 6-10
-  // ... 20 more data points
-];
+interface Candle {
+  open: number;
+  close: number;
+}
+
+// Generated via geometric Brownian motion
+const sparklineData: Candle[] = generateMockCandles(changePercent, 60);
 ```
 
 **Mock Data Generation:**
 ```typescript
-// Temporary mock until real data available
-const mockData = Array.from({ length: 30 }, (_, i) =>
-  100 + Math.sin(i / 5) * 10 + Math.random() * 5
-);
+function generateMockCandles(changePercent: number, days = 60): Candle[] {
+  const basePrice = 50 + Math.random() * 150;
+  const dailyDrift = changePercent / days / 100;
+  const volatility = 0.015 + Math.random() * 0.01;
+  const candles: Candle[] = [];
+  let price = basePrice;
+  for (let i = 0; i < days; i++) {
+    const open = price;
+    const noise = (Math.random() - 0.5) * 2;
+    price = open * (1 + dailyDrift + volatility * noise);
+    candles.push({ open, close: price });
+  }
+  // End correction: nudge last close toward target
+  const target = basePrice * (1 + changePercent / 100);
+  candles[days - 1].close += (target - candles[days - 1].close) * 0.5;
+  return candles;
+}
 ```
+
+**Key Properties:**
+- Continuous: `open[i] = close[i-1]` (each bar starts where previous ended)
+- Realistic volatility: 1.5-2.5% daily
+- Trend correction: last close nudged toward sector's changePercent
 
 ---
 
 ## Visual Specifications
 
-**Line:**
-- Stroke: White `#ffffff`
-- Opacity: 60% (`stroke-opacity="0.6"`)
-- Width: 1.5px (`stroke-width="1.5"`)
-- Cap: Round (`stroke-linecap="round"`)
-- Join: Round (`stroke-linejoin="round"`)
-
-**BreathingDot:**
-- Size: 6px (slightly smaller than tile dot)
-- Color: Yellow `#facc15`
-- Animation: Based on `attentionLevel` prop
-- Position: End of line (last data point)
+**Bar:**
+- Fill: White `#ffffff`
+- Up bar opacity: 70% (`fill-opacity="0.7"`)
+- Down bar opacity: 35% (`fill-opacity="0.35"`)
+- Width: `(containerWidth / 60) * 0.85` (15% gap between bars)
+- Corner radius: `rx="0.5"`
+- Minimum height: 1px
 
 **Container:**
-- Width: Tile width - 16px (8px margin each side)
-- Height: Fixed 40px
-- Position: `absolute bottom-12 left-2 right-2`
-- Fade-in: 300ms opacity transition
+- CSS: `flex: 1; min-height: 0;`
+- Horizontal: edge-to-edge via `margin: 4px calc(-1 * var(--tile-pad)) 4px`
+- Y bounds: 8% padding top/bottom
+- Fade-in: opacity 0→1 via `.visible` class
+
+**Animation:**
+- Per-bar staggered fade-in: `animation-delay: (i * 25)ms`
+- Duration: 60ms ease-out per bar
+- CSS class: `.sparkline-bar`
+
+---
+
+## Design Principles
+
+**Minimalism:** Thin vertical bars, no axes/labels/grid
+**Context:** Shows trend direction and volatility, not precise values
+**Subtlety:** White bars with differential opacity, blends with solid tile background
+**Angular aesthetics:** Candlestick bars give sharp, financial-data appearance vs wavy curves
+**Performance:** SVG rect rendering, CSS animation (no JS animation loop)
 
 ---
 
 ## References
 
 - **HeatMapTile Integration:** [Section 5 → HeatMapTile → Task 06](../heatmap-tile/tasks/06-sparkline-integration.md)
-- **BreathingDot:** [Section 5 → Components → BreathingDot](../breathing-dot/index.md)
 - **Lower Panel:** [Section 5 → HeatMapTile → Task 04](../heatmap-tile/tasks/04-lower-panel.md)
 
 ---
 
 ## Technical Notes
 
-**Why 30 data points?**
-- Represents 1 month of trading days (~22 business days)
-- Balances detail vs visual clarity
-- Small enough for fast rendering
-- Large enough to show meaningful trends
+**Why 60 data points?**
+- Represents ~3 months of trading days
+- Dense enough for fine-grained trend visualization
+- 60 thin bars create a cohesive trend line appearance
+- Small enough for fast rendering (60 SVG rects ≈ negligible)
 
-**Why fixed 40px height?**
-- Consistent visual weight across all tiles
-- Fits in lower panel gap (48px from bottom)
-- Tall enough to show trend variations
-- Short enough to avoid dominating tile
+**Why candlestick bars instead of line chart?**
+- Sharp angular appearance looks more professional/financial
+- Open/close pairs show intraday direction per bar
+- Differential opacity (up=0.7, down=0.35) adds depth
+- No smoothing artifacts (Catmull-Rom curves looked "弯弯扭扭")
+- Matches common financial charting conventions
 
-**Why white stroke instead of red/green?**
+**Why white fill instead of red/green?**
 - Sparkline shows historical trend (not current direction)
-- Current direction already shown by Change% arrow color
-- White blends with glassmorphism aesthetic
+- Current direction already shown by Change% badge color
+- White blends with solid tile background
 - Neutral color avoids confusion with up/down indicators
 
 **SVG vs Canvas:**
 - SVG chosen for:
-  - Declarative API (easier path generation)
+  - Declarative API (easy rect generation)
   - Built-in scaling (viewBox handles responsiveness)
-  - Easy integration with React components
-  - Better animation support (stroke-dasharray)
-- Canvas alternative:
-  - Slightly faster for 100+ charts
-  - Overkill for 31 sectors max
-  - Harder to integrate BreathingDot
+  - Per-element CSS animation (staggered delay)
+  - No manual redraw on resize

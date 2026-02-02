@@ -245,7 +245,7 @@ export function HeatMapHeader({ scrollContainerRef, ...props }: HeatMapHeaderPro
 ## References
 
 - **Header Container:** [Task 01: Header Container & Layout](./01-header-container.md)
-- **Glassmorphism:** [Section 6 → Visual Design → Glassmorphism](../../../../6-visual-design/threads/glassmorphism/index.md)
+- **Visual Design:** Section 6 → Visual Design
 - **Layout Specs:** [Section 4 → Layout → Header Scroll Effects](../../../../4-layout/threads/header-scroll-effects/index.md)
 
 ---

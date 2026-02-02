@@ -1,13 +1,13 @@
-# Task: Endpoint BreathingDot Integration
+# Task: Endpoint Dot
 
-Position BreathingDot component at the final data point of the sparkline using SVG foreignObject for React component embedding.
+Position a static endpoint dot at the final data point of the sparkline using an SVG circle element.
 
 ---
 
 ## Design
 
 ### Purpose
-Add visual emphasis to the sparkline's endpoint, showing current attention level and creating continuity with tile-level BreathingDot.
+Add visual emphasis to the sparkline's endpoint with a simple static dot.
 
 ### Positioning Strategy
 
@@ -26,7 +26,7 @@ const lastY = height - normalizedY * height;
 
 **Centering Adjustment:**
 ```typescript
-// BreathingDot size: 6px (smaller than tile dot)
+// Endpoint dot size: 6px
 const dotSize = 6;
 
 // Center dot on endpoint coordinate
@@ -34,28 +34,19 @@ const dotX = lastX - dotSize / 2;  // Offset left by radius
 const dotY = lastY - dotSize / 2;  // Offset up by radius
 ```
 
-### foreignObject Integration
-
-**Why foreignObject?**
-- Allows embedding React components inside SVG
-- BreathingDot is a React component with hooks/state
-- Native SVG elements can't render React components directly
+### SVG Circle Element
 
 **Syntax:**
 ```svg
-<foreignObject x={dotX} y={dotY} width={dotSize} height={dotSize}>
-  <BreathingDot attentionLevel={attentionLevel} size={dotSize} />
-</foreignObject>
+<circle cx={lastX} cy={lastY} r={3} fill="#facc15" />
 ```
 
-### Size Adjustment
+### Size
 
-**Tile BreathingDot:** 7px diameter
-**Sparkline BreathingDot:** 6px diameter
+**Endpoint dot:** 6px diameter (3px radius)
 
 **Rationale:**
-- Smaller size for subtler sparkline context
-- Avoids visual dominance over main tile dot
+- Small size for subtle sparkline context
 - Still clearly visible at 6px scale
 
 ---
@@ -68,7 +59,7 @@ const dotY = lastY - dotSize / 2;  // Offset up by radius
 // apps/preview/src/app/utils/sparklineUtils.ts
 
 /**
- * Calculate last data point coordinates for BreathingDot positioning
+ * Calculate last data point coordinates for endpoint dot positioning
  *
  * @param data - Array of 30 price values
  * @param width - Chart width in pixels
@@ -104,19 +95,17 @@ export function getSparklineEndpoint(
 }
 ```
 
-### Component with BreathingDot
+### Component with Endpoint Dot
 
 ```typescript
 // apps/preview/src/app/components/Sparkline.tsx
 
 import { generateSparklinePath, getSparklineEndpoint } from '../utils/sparklineUtils';
-import { BreathingDot } from './BreathingDot';
 
 interface SparklineProps {
   data: number[];
   width: number;
   height?: number;
-  attentionLevel: number;
   className?: string;
 }
 
@@ -124,21 +113,16 @@ export function Sparkline({
   data,
   width,
   height = 40,
-  attentionLevel,
   className = '',
 }: SparklineProps) {
   // Generate path
   const pathData = generateSparklinePath(data, width, height);
 
-  // Calculate endpoint for BreathingDot
+  // Calculate endpoint for dot positioning
   const endpoint = getSparklineEndpoint(data, width, height);
 
-  // BreathingDot size
-  const dotSize = 6;
-
-  // Center dot on endpoint
-  const dotX = endpoint.x - dotSize / 2;
-  const dotY = endpoint.y - dotSize / 2;
+  // Dot radius
+  const dotRadius = 3;
 
   return (
     <div className={`sparkline-container ${className}`}>
@@ -161,10 +145,8 @@ export function Sparkline({
           vectorEffect="non-scaling-stroke"
         />
 
-        {/* BreathingDot at endpoint */}
-        <foreignObject x={dotX} y={dotY} width={dotSize} height={dotSize}>
-          <BreathingDot attentionLevel={attentionLevel} size={dotSize} />
-        </foreignObject>
+        {/* Endpoint dot */}
+        <circle cx={endpoint.x} cy={endpoint.y} r={dotRadius} fill="#facc15" />
 
         {/* Animation will be added in Task 04 */}
       </svg>
@@ -198,33 +180,22 @@ Dot center offset: (200 - 3, 0 - 3) = (197, -3)
 ## Acceptance Criteria
 
 ✅ **Positioning:**
-- [ ] BreathingDot centered on last data point's coordinates
-- [ ] Dot X position: `endpoint.x - dotSize/2`
-- [ ] Dot Y position: `endpoint.y - dotSize/2`
+- [ ] Endpoint dot centered on last data point's coordinates
+- [ ] Dot centered at `(endpoint.x, endpoint.y)`
 - [ ] No offset errors (dot visually aligned with line endpoint)
 
 ✅ **Size:**
-- [ ] BreathingDot size is 6px (not default 7px)
-- [ ] `size={6}` prop passed to BreathingDot component
+- [ ] Dot diameter is 6px (radius 3px)
 - [ ] Dot maintains 6px size at all chart widths
-- [ ] Ripple rings scale proportionally to 6px base
 
-✅ **foreignObject Integration:**
-- [ ] foreignObject width and height match dotSize (6px)
-- [ ] BreathingDot renders inside foreignObject
-- [ ] No React component rendering errors
-- [ ] foreignObject supports overflow for ripple rings
-
-✅ **Animation:**
-- [ ] BreathingDot animates based on `attentionLevel` prop
-- [ ] Breathing pulse animation runs correctly
-- [ ] Ripple rings expand and fade
-- [ ] Animation synchronized with tile-level BreathingDot
+✅ **SVG Integration:**
+- [ ] Circle element renders correctly inside SVG
+- [ ] No rendering errors
 
 ✅ **Visual Quality:**
 - [ ] Dot appears on top of sparkline path
-- [ ] Dot color (yellow) contrasts with white line
-- [ ] No clipping or cutoff of dot/ripples
+- [ ] Dot color (yellow `#facc15`) contrasts with white line
+- [ ] No clipping or cutoff
 - [ ] Smooth rendering at all data ranges
 
 ✅ **Edge Cases:**
@@ -237,7 +208,6 @@ Dot center offset: (200 - 3, 0 - 3) = (197, -3)
 
 ## References
 
-- **BreathingDot Component:** [Section 5 → Components → BreathingDot](../../breathing-dot/index.md)
 - **Path Generation:** [Task 02: Path Generation & Styling](./02-path-generation.md)
 - **SVG Shell:** [Task 01: SVG Shell & Dimensions](./01-svg-shell.md)
 
@@ -245,61 +215,11 @@ Dot center offset: (200 - 3, 0 - 3) = (197, -3)
 
 ## Technical Notes
 
-**foreignObject browser support:**
+**SVG circle simplicity:**
 
-```
-✅ Supported: All modern browsers (Chrome, Firefox, Safari, Edge)
-✅ React components work inside foreignObject
-✅ CSS animations/transitions function correctly
-⚠️ Legacy IE11: Limited support (not a concern for modern app)
-```
+Using a native SVG `<circle>` element is the simplest and most performant approach for a static endpoint dot. No foreignObject or React component embedding needed.
 
-**Why foreignObject instead of native SVG circle?**
-
-```svg
-<!-- ❌ Native SVG circle - can't animate with React hooks -->
-<circle cx={lastX} cy={lastY} r="3" fill="#facc15">
-  <animate attributeName="r" values="3;3.6;3" dur="2s" repeatCount="indefinite" />
-</circle>
-<!-- Problems:
-  - No ripple rings (would need separate circles)
-  - Can't use React state/hooks
-  - Hard to sync with attention level
-  - Duplicates animation logic
--->
-
-<!-- ✅ foreignObject with React component -->
-<foreignObject x={dotX} y={dotY} width="6" height="6">
-  <BreathingDot attentionLevel={attentionLevel} size={6} />
-</foreignObject>
-<!-- Benefits:
-  - Reuses existing BreathingDot component
-  - Automatic breathing + ripple animations
-  - Attention level integration built-in
-  - Single source of truth for dot behavior
--->
-```
-
-**Centering offset math:**
-
-```typescript
-// Dot size: 6×6px
-// Endpoint coordinate: (200, 10)
-
-// ❌ No offset
-<foreignObject x={200} y={10} width={6} height={6}>
-  {/* Dot top-left corner at (200, 10) */}
-  {/* Dot center at (203, 13) - WRONG! */}
-</foreignObject>
-
-// ✅ With offset
-<foreignObject x={197} y={7} width={6} height={6}>
-  {/* Dot top-left at (197, 7) */}
-  {/* Dot center at (200, 10) - CORRECT! */}
-</foreignObject>
-```
-
-**Overflow handling for ripple rings:**
+**Overflow handling:**
 
 ```css
 /* Sparkline SVG needs overflow:visible */
@@ -308,45 +228,19 @@ Dot center offset: (200 - 3, 0 - 3) = (197, -3)
 }
 
 /* Why?
-  - Ripple ring 2 expands to 2.5× dot size = 15px diameter
-  - At 6px dot, ring reaches 7.5px radius from center
+  - At 6px dot, radius is 3px from center
   - Could extend beyond SVG bounds if endpoint near edge
-  - overflow:visible ensures rings render fully
+  - overflow:visible ensures dot renders fully
 */
-```
-
-**Alternative positioning approaches:**
-
-```tsx
-// Approach 1: foreignObject (chosen)
-<foreignObject x={dotX} y={dotY} width={dotSize} height={dotSize}>
-  <BreathingDot />
-</foreignObject>
-// ✅ Works perfectly with React components
-
-// Approach 2: Portal to HTML overlay
-<div className="absolute" style={{ left: dotX, top: dotY }}>
-  <BreathingDot />
-</div>
-// ❌ Requires coordinate transformation SVG → HTML
-// ❌ Breaks semantic grouping (dot separate from chart)
-// ❌ Z-index layering complexity
-
-// Approach 3: Duplicate native SVG version
-<circle cx={lastX} cy={lastY} r="3" className="custom-animate" />
-// ❌ Duplicates BreathingDot logic
-// ❌ Maintains two animation implementations
-// ❌ Hard to keep in sync
 ```
 
 **Performance impact:**
 
 ```
-foreignObject rendering cost:
-- Creates HTML rendering context inside SVG
-- Minimal overhead for single 6×6px region
-- 31 sparklines × 1 foreignObject = 31 total
-- Performance: <0.1ms additional per sparkline
+SVG circle rendering cost:
+- Native SVG element, minimal overhead
+- 31 sparklines × 1 circle = 31 total
+- Performance: negligible
 
 Measured FPS: 60fps maintained with all 31 sparklines
 ```
