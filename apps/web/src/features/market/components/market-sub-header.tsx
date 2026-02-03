@@ -21,12 +21,12 @@ function IndexChip({
       <span className="text-xs text-muted-foreground font-medium">
         {shortName}
       </span>
-      <span className="text-sm font-semibold text-foreground">
+      <span className="text-sm font-semibold text-foreground tabular-nums">
         {formatNumber(value)}
       </span>
       <span
         className={cn(
-          "text-xs font-medium",
+          "text-xs font-medium tabular-nums",
           isUp && "text-market-up-medium",
           isDown && "text-market-down-medium",
           !isUp && !isDown && "text-market-flat"
@@ -54,16 +54,16 @@ export function MarketSubHeader() {
         ))}
       </div>
       <div className="flex items-center gap-3 text-xs">
-        <span className="text-market-up-medium font-medium">
+        <span className="text-market-up-medium font-medium tabular-nums">
           涨 {b.advancers}
         </span>
-        <span className="text-market-down-medium font-medium">
+        <span className="text-market-down-medium font-medium tabular-nums">
           跌 {b.decliners}
         </span>
-        <span className="text-market-flat font-medium">平 {b.unchanged}</span>
+        <span className="text-market-flat font-medium tabular-nums">平 {b.unchanged}</span>
         <span className="text-muted-foreground">|</span>
-        <span className="text-market-up-medium">涨停 {b.limitUp}</span>
-        <span className="text-market-down-medium">跌停 {b.limitDown}</span>
+        <span className="text-market-up-medium tabular-nums">涨停 {b.limitUp}</span>
+        <span className="text-market-down-medium tabular-nums">跌停 {b.limitDown}</span>
       </div>
     </div>
   );

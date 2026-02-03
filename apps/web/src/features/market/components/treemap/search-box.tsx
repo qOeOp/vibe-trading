@@ -108,7 +108,7 @@ export const SearchBox = memo(function SearchBox({
       {/* Search Icon */}
       <div className="flex-shrink-0">
         {isLoading ? (
-          <div className="w-4 h-4 border-2 border-mine-muted border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-mine-muted border-t-transparent rounded-full animate-spin motion-reduce:animate-none" />
         ) : (
           <Search className="w-4 h-4 text-mine-muted" />
         )}
@@ -117,7 +117,9 @@ export const SearchBox = memo(function SearchBox({
       {/* Input */}
       <input
         ref={inputRef}
-        type="text"
+        type="search"
+        name="treemap-search"
+        autoComplete="off"
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}

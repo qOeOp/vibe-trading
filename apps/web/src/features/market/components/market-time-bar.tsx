@@ -71,7 +71,7 @@ export function MarketTimeBar() {
         {TIME_MARKS.map((t) => (
           <span
             key={t.label}
-            className="absolute text-[10px] text-mine-muted -translate-x-1/2"
+            className="absolute text-[10px] text-mine-muted -translate-x-1/2 tabular-nums"
             style={{ left: `${t.pos}%` }}
           >
             {t.label}

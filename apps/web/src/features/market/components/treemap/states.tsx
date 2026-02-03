@@ -20,7 +20,7 @@ export const LoadingState = memo(function LoadingState({
       role="status"
       aria-live="polite"
     >
-      <Loader2 className="w-8 h-8 text-mine-muted animate-spin" />
+      <Loader2 className="w-8 h-8 text-mine-muted animate-spin motion-reduce:animate-none" />
       <span className="text-sm text-mine-muted">{message}</span>
     </div>
   );
@@ -175,6 +175,7 @@ export const SkeletonGrid = memo(function SkeletonGrid({
             rounded-lg
             bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200
             animate-pulse
+            motion-reduce:animate-none
           "
           style={{
             animationDelay: `${i * 100}ms`,

@@ -55,6 +55,9 @@ export const CandlestickSparkline = memo(function CandlestickSparkline({
       return;
     }
 
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     // Find price range across all candles
     let lo = Infinity;
     let hi = -Infinity;
@@ -104,10 +107,14 @@ export const CandlestickSparkline = memo(function CandlestickSparkline({
       rect.setAttribute("fill", "#ffffff");
       rect.setAttribute("fill-opacity", isUp ? "0.7" : "0.35");
 
-      // Staggered animation
-      rect.style.opacity = "0";
-      rect.style.animation = `bar-fade-in 60ms ease-out forwards`;
-      rect.style.animationDelay = `${i * 25}ms`;
+      // Staggered animation (skip if reduced motion preferred)
+      if (prefersReducedMotion) {
+        rect.style.opacity = "1";
+      } else {
+        rect.style.opacity = "0";
+        rect.style.animation = `bar-fade-in 60ms ease-out forwards`;
+        rect.style.animationDelay = `${i * 25}ms`;
+      }
 
       svg.appendChild(rect);
     });

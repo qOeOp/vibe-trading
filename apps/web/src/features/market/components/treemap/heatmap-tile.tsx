@@ -190,7 +190,7 @@ export const SkeletonTile = memo(function SkeletonTile({
 }: SkeletonTileProps) {
   return (
     <div
-      className="absolute rounded bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite]"
+      className="absolute rounded bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-[length:200%_100%] animate-[shimmer_1.5s_infinite] motion-reduce:animate-none"
       style={{ left: x, top: y, width, height }}
     />
   );
