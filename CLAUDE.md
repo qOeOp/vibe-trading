@@ -138,6 +138,269 @@ apps/<service>/
    --radius-xl:  1.025rem  (16.4px)
    ```
 
+## UI Design System (CRITICAL - Must Follow)
+
+This section defines the visual design patterns used throughout the application. **All new components MUST follow these patterns exactly.**
+
+### Theme Context
+
+The application uses a **light theme with "Mine" color palette**. The root layout applies `dark` class but the actual visual appearance is a warm, light beige theme (not a typical dark theme).
+
+### Color System
+
+#### Primary Colors (Mine Theme)
+```css
+/* Backgrounds */
+--color-mine-page-bg: oklch(0.92 0.01 85)   /* Page background - warm light gray */
+--color-mine-bg: #f5f3ef                    /* Panel/section background - light beige */
+--color-mine-card: #ffffff                  /* Card background - white */
+
+/* Text */
+--color-mine-text: #1a1a1a                  /* Primary text - near black */
+--color-mine-muted: #8a8a8a                 /* Secondary text - medium gray */
+
+/* Borders & Grids */
+--color-mine-border: #e0ddd8                /* Primary border - warm light gray */
+--color-mine-grid: #e8ede6                  /* Grid lines - light sage */
+--color-mine-grid-dark: #d5dbd0             /* Darker grid lines */
+
+/* Navigation */
+--color-mine-nav-active: #2d2d2d            /* Active nav background - dark gray */
+
+/* Accents */
+--color-mine-accent-green: #4caf50          /* Success/positive accent */
+--color-mine-section-green: #3d7a42         /* Section headers */
+--color-mine-accent-yellow: #f5a623         /* Warning/neutral accent */
+--color-mine-accent-red: #e74c3c            /* Error/negative accent */
+--color-mine-accent-teal: #26a69a           /* Interactive accent (chat, links) */
+```
+
+#### Market Colors (Chinese Convention: Red=Up, Green=Down)
+```css
+/* Up/Positive (Red tones) */
+--market-up: #CF304A                        /* Strong up */
+--market-up-medium: #F6465D                 /* Medium up (primary) */
+--market-up-light: #E8626F                  /* Light up */
+
+/* Neutral */
+--market-flat: #76808E                      /* Flat/unchanged */
+
+/* Down/Negative (Green tones) */
+--market-down-light: #58CEAA                /* Light down */
+--market-down-medium: #2EBD85               /* Medium down (primary) */
+--market-down: #0B8C5F                      /* Strong down */
+```
+
+### Component Patterns
+
+#### Cards & Panels (Standard Pattern)
+**Use this for ALL card-like containers:**
+```tsx
+// Standard card
+className="bg-white shadow-sm border border-mine-border rounded-xl"
+
+// Card header
+className="flex items-center justify-between px-4 py-3 border-b border-mine-border/50"
+
+// Card content
+className="px-4 py-4"  // or "p-4"
+```
+
+#### ❌ DO NOT use glassmorphism (`bg-white/5 backdrop-blur-xl`) for cards
+The glassmorphism pattern is ONLY used for:
+- Left icon sidebar container
+- Top navigation pill container
+- Market ticker container
+
+#### Navigation Elements
+```tsx
+// Icon sidebar wrapper (ONLY place for heavy glassmorphism)
+className="bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full"
+
+// Nav button - active state
+className="bg-mine-nav-active text-white shadow-sm rounded-full"
+
+// Nav button - inactive state
+className="text-mine-text hover:bg-white/80 rounded-full"
+
+// Top nav pills container
+className="bg-white/60 backdrop-blur-sm rounded-full"
+```
+
+#### Buttons
+```tsx
+// Primary action button
+className="bg-mine-nav-active text-white hover:bg-mine-nav-active/90 rounded-lg px-4 py-2"
+
+// Secondary/ghost button
+className="text-mine-text hover:bg-mine-bg rounded-lg px-4 py-2"
+
+// Teal accent button (chat, actions)
+className="bg-mine-accent-teal text-white hover:bg-mine-accent-teal/90 rounded-lg"
+
+// Period/toggle buttons
+className="px-2 py-1 text-xs font-medium rounded-md transition-all"
+// Active: "bg-mine-nav-active text-white"
+// Inactive: "text-mine-muted hover:text-mine-text"
+```
+
+#### Text Styling
+```tsx
+// Section headers
+className="text-xs font-medium text-mine-muted uppercase tracking-wide"
+
+// Card titles
+className="text-sm font-semibold text-mine-text"
+
+// Body text
+className="text-sm text-mine-text"
+
+// Secondary/muted text
+className="text-xs text-mine-muted"
+
+// Numeric values (use tabular figures)
+className="font-mono tabular-nums"
+```
+
+#### Market Data Display
+```tsx
+// Up value
+className="text-market-up-medium"  // #F6465D
+
+// Down value
+className="text-market-down-medium"  // #2EBD85
+
+// Flat value
+className="text-market-flat"  // #76808E
+
+// Concept tags (up)
+className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-market-up-medium/5 border border-market-up-medium/20 text-market-up-medium"
+
+// Concept tags (down)
+className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-market-down-medium/5 border border-market-down-medium/20 text-market-down-medium"
+```
+
+### Chart Styling (Recharts)
+
+**CRITICAL: Charts use dark internal styling regardless of page theme**
+
+```tsx
+// Axis styling
+tick={{ fill: "#1a1a1a", fontSize: 11 }}  // Use mine-text color
+axisLine={{ stroke: "#e0ddd8" }}          // Use mine-border color
+
+// Grid
+<CartesianGrid strokeDasharray="3 3" stroke="#e0ddd8" />
+
+// Tooltip (dark background for contrast)
+contentStyle={{
+  backgroundColor: "rgba(30, 30, 30, 0.95)",
+  border: "1px solid rgba(255,255,255,0.2)",
+  borderRadius: "8px",
+  color: "#fff",
+}}
+
+// Legend
+wrapperStyle={{ color: "#1a1a1a" }}
+```
+
+#### Chart Color Palettes
+```tsx
+// For quantile/ranked data (worst to best)
+const QUANTILE_COLORS = [
+  "#CF304A",  // Q1 - worst (red)
+  "#E8626F",  // Q2
+  "#76808E",  // Q3 - neutral (gray)
+  "#58CEAA",  // Q4
+  "#0B8C5F",  // Q5 - best (green)
+];
+
+// For categorical data
+const CATEGORY_COLORS = {
+  primary: "#6366f1",    // Indigo
+  secondary: "#8b5cf6",  // Purple
+  tertiary: "#a78bfa",   // Light purple
+  accent: "#f59e0b",     // Amber
+};
+```
+
+### Layout Patterns
+
+#### Three-Panel Layout (Market, Factor pages)
+```tsx
+// Container
+className="flex-1 flex gap-4 overflow-hidden"
+
+// Left panel (optional, hidden on smaller screens)
+className="w-[280px] shrink-0 hidden xl:flex flex-col"
+
+// Center content (always visible, grows)
+className="flex-1 min-w-0 flex flex-col"
+
+// Right panel (optional, hidden on smaller screens)
+className="w-[260px] shrink-0 hidden lg:flex flex-col"
+```
+
+#### Panel Heights
+```tsx
+// Fixed height cards
+className="h-[280px]"  // Small chart cards
+className="h-[320px]"  // Medium chart cards
+className="h-[400px]"  // Large chart cards
+
+// Scrollable content
+className="flex-1 overflow-y-auto"
+```
+
+### Animation Patterns
+
+#### Page Entrance (use AnimateIn component)
+```tsx
+// From left
+<AnimateIn delay={0} from="left">
+
+// From right
+<AnimateIn delay={1} from="right">
+
+// Heavy components (charts, complex UI)
+<AnimateHeavy delay={0.15}>
+```
+
+#### Transitions
+```tsx
+// Standard transition
+className="transition-all"  // or "transition-colors"
+
+// Duration (default is 150ms, use 300ms for more noticeable)
+className="transition-all duration-300"
+```
+
+### Spacing Standards
+
+```tsx
+// Gap between panels
+gap-4  // 16px (primary)
+
+// Padding inside cards
+p-4    // 16px (standard)
+px-4 py-3  // Header padding
+
+// Gap between card sections
+gap-3  // 12px
+gap-2  // 8px (tight)
+```
+
+### Common Mistakes to Avoid
+
+1. ❌ Using `bg-white/5 backdrop-blur-xl` for cards (only for nav elements)
+2. ❌ Using dark theme text colors (`text-white/70`) in cards
+3. ❌ Missing `rounded-xl` on card containers
+4. ❌ Missing `border border-mine-border` on cards
+5. ❌ Using wrong market colors (remember: red=up, green=down in Chinese markets)
+6. ❌ Missing `shadow-sm` on elevated cards
+7. ❌ Using raw hex colors instead of semantic variables
+8. ❌ Forgetting `tabular-nums` on numeric displays
+
 ### Import Conventions
 
 1. **Import Order**

@@ -47,31 +47,10 @@ const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 function useSidebar() {
   const context = React.useContext(SidebarContext)
   if (!context) {
-    const errorMessage = "useSidebar must be used within a SidebarProvider. Check that your component is wrapped with <SidebarProvider>."
-
-    console.error(errorMessage, {
-      stack: new Error().stack, // Helpful for debugging where this was called
-      component: 'useSidebar'
-    })
-
-    // In development, throw to help developers catch this early
-    if (process.env.NODE_ENV === 'development') {
-      throw new Error(errorMessage)
-    }
-
-    // In production, return a safe default to prevent complete app failure
-    // Log to error tracking service in production
-    return {
-      state: "expanded" as const,
-      open: false,
-      setOpen: () => console.warn('Sidebar not initialized'),
-      openMobile: false,
-      setOpenMobile: () => console.warn('Sidebar not initialized'),
-      isMobile: false,
-      toggleSidebar: () => console.warn('Sidebar not initialized'),
-    }
+    throw new Error(
+      "useSidebar must be used within a SidebarProvider."
+    )
   }
-
   return context
 }
 
@@ -104,32 +83,8 @@ function SidebarProvider({
         _setOpen(openState)
       }
 
-      // Persist sidebar state to cookie with error handling
-      try {
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
-
-        // Verify the cookie was actually set
-        const cookies = document.cookie.split(';')
-        const wasCookieSet = cookies.some(c => c.trim().startsWith(`${SIDEBAR_COOKIE_NAME}=`))
-
-        if (!wasCookieSet) {
-          console.warn('Failed to persist sidebar preference: Cookie write was blocked')
-          // Fall back to localStorage if available
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(SIDEBAR_COOKIE_NAME, String(openState))
-          }
-        }
-      } catch (error) {
-        console.error('Failed to persist sidebar preference:', error)
-        // Fall back to localStorage if available
-        try {
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(SIDEBAR_COOKIE_NAME, String(openState))
-          }
-        } catch (storageError) {
-          console.warn('Both cookie and localStorage failed:', storageError)
-        }
-      }
+      // Persist sidebar state to cookie
+      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open]
   )
@@ -443,18 +398,29 @@ function SidebarGroupLabel({
   className,
   asChild = false,
   ...props
-}: React.ComponentProps<"div"> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "div"
+}: Omit<React.ComponentProps<"div">, "ref"> & { asChild?: boolean }) {
+  const baseClassName = cn(
+    "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+    "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
+    className
+  )
+
+  if (asChild) {
+    return (
+      <Slot
+        data-slot="sidebar-group-label"
+        data-sidebar="group-label"
+        className={baseClassName}
+        {...(props as React.ComponentPropsWithoutRef<typeof Slot>)}
+      />
+    )
+  }
 
   return (
-    <Comp
+    <div
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
-      className={cn(
-        "text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
-        className
-      )}
+      className={baseClassName}
       {...props}
     />
   )
@@ -464,20 +430,31 @@ function SidebarGroupAction({
   className,
   asChild = false,
   ...props
-}: React.ComponentProps<"button"> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "button"
+}: Omit<React.ComponentProps<"button">, "ref"> & { asChild?: boolean }) {
+  const baseClassName = cn(
+    "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+    // Increases the hit area of the button on mobile.
+    "after:absolute after:-inset-2 md:after:hidden",
+    "group-data-[collapsible=icon]:hidden",
+    className
+  )
+
+  if (asChild) {
+    return (
+      <Slot
+        data-slot="sidebar-group-action"
+        data-sidebar="group-action"
+        className={baseClassName}
+        {...(props as React.ComponentPropsWithoutRef<typeof Slot>)}
+      />
+    )
+  }
 
   return (
-    <Comp
+    <button
       data-slot="sidebar-group-action"
       data-sidebar="group-action"
-      className={cn(
-        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
-        "after:absolute after:-inset-2 md:after:hidden",
-        "group-data-[collapsible=icon]:hidden",
-        className
-      )}
+      className={baseClassName}
       {...props}
     />
   )
@@ -549,21 +526,30 @@ function SidebarMenuButton({
   tooltip,
   className,
   ...props
-}: React.ComponentProps<"button"> & {
+}: Omit<React.ComponentProps<"button">, "ref"> & {
   asChild?: boolean
   isActive?: boolean
   tooltip?: string | React.ComponentProps<typeof TooltipContent>
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
-  const Comp = asChild ? Slot : "button"
   const { isMobile, state } = useSidebar()
+  const baseClassName = cn(sidebarMenuButtonVariants({ variant, size }), className)
 
-  const button = (
-    <Comp
+  const button = asChild ? (
+    <Slot
       data-slot="sidebar-menu-button"
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
-      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+      className={baseClassName}
+      {...(props as React.ComponentPropsWithoutRef<typeof Slot>)}
+    />
+  ) : (
+    <button
+      data-slot="sidebar-menu-button"
+      data-sidebar="menu-button"
+      data-size={size}
+      data-active={isActive}
+      className={baseClassName}
       {...props}
     />
   )
@@ -596,28 +582,39 @@ function SidebarMenuAction({
   asChild = false,
   showOnHover = false,
   ...props
-}: React.ComponentProps<"button"> & {
+}: Omit<React.ComponentProps<"button">, "ref"> & {
   asChild?: boolean
   showOnHover?: boolean
 }) {
-  const Comp = asChild ? Slot : "button"
+  const baseClassName = cn(
+    "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+    // Increases the hit area of the button on mobile.
+    "after:absolute after:-inset-2 md:after:hidden",
+    "peer-data-[size=sm]/menu-button:top-1",
+    "peer-data-[size=default]/menu-button:top-1.5",
+    "peer-data-[size=lg]/menu-button:top-2.5",
+    "group-data-[collapsible=icon]:hidden",
+    showOnHover &&
+      "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
+    className
+  )
+
+  if (asChild) {
+    return (
+      <Slot
+        data-slot="sidebar-menu-action"
+        data-sidebar="menu-action"
+        className={baseClassName}
+        {...(props as React.ComponentPropsWithoutRef<typeof Slot>)}
+      />
+    )
+  }
 
   return (
-    <Comp
+    <button
       data-slot="sidebar-menu-action"
       data-sidebar="menu-action"
-      className={cn(
-        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
-        "after:absolute after:-inset-2 md:after:hidden",
-        "peer-data-[size=sm]/menu-button:top-1",
-        "peer-data-[size=default]/menu-button:top-1.5",
-        "peer-data-[size=lg]/menu-button:top-2.5",
-        "group-data-[collapsible=icon]:hidden",
-        showOnHover &&
-          "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
-        className
-      )}
+      className={baseClassName}
       {...props}
     />
   )
@@ -718,27 +715,40 @@ function SidebarMenuSubButton({
   isActive = false,
   className,
   ...props
-}: React.ComponentProps<"a"> & {
+}: Omit<React.ComponentProps<"a">, "ref"> & {
   asChild?: boolean
   size?: "sm" | "md"
   isActive?: boolean
 }) {
-  const Comp = asChild ? Slot : "a"
+  const baseClassName = cn(
+    "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+    "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+    size === "sm" && "text-xs",
+    size === "md" && "text-sm",
+    "group-data-[collapsible=icon]:hidden",
+    className
+  )
+
+  if (asChild) {
+    return (
+      <Slot
+        data-slot="sidebar-menu-sub-button"
+        data-sidebar="menu-sub-button"
+        data-size={size}
+        data-active={isActive}
+        className={baseClassName}
+        {...(props as React.ComponentPropsWithoutRef<typeof Slot>)}
+      />
+    )
+  }
 
   return (
-    <Comp
+    <a
       data-slot="sidebar-menu-sub-button"
       data-sidebar="menu-sub-button"
       data-size={size}
       data-active={isActive}
-      className={cn(
-        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
-        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-        size === "sm" && "text-xs",
-        size === "md" && "text-sm",
-        "group-data-[collapsible=icon]:hidden",
-        className
-      )}
+      className={baseClassName}
       {...props}
     />
   )
