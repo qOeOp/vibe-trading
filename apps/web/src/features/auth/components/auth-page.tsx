@@ -10,8 +10,9 @@ import {
 import { AtSignIcon, ChevronLeftIcon } from "lucide-react";
 import type React from "react";
 import { FloatingPaths } from "@/components/shared/floating-paths";
+import { ErrorBoundary, FeatureErrorFallback } from "@/components/error-boundary";
 
-export function AuthPage() {
+function AuthPageContent() {
 	return (
 		<main className="relative md:h-screen md:overflow-hidden lg:grid lg:grid-cols-2">
 			<div className="relative hidden h-full flex-col border-r bg-secondary p-10 lg:flex dark:bg-secondary/20">
@@ -166,3 +167,21 @@ const GithubIcon = (props: React.ComponentProps<"svg">) => (
 		/>
 	</svg>
 );
+
+export function AuthPage() {
+	return (
+		<ErrorBoundary
+			fallback={(error) => (
+				<div className="flex min-h-screen items-center justify-center">
+					<FeatureErrorFallback
+						error={error}
+						featureName="Authentication"
+						onRetry={() => window.location.reload()}
+					/>
+				</div>
+			)}
+		>
+			<AuthPageContent />
+		</ErrorBoundary>
+	);
+}
