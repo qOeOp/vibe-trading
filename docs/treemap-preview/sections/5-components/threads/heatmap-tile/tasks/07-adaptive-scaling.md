@@ -12,13 +12,13 @@ Ensure text and metrics remain readable across variable tile sizes through:
 2. **Visibility rules** — Content hidden/shown based on min dimension thresholds
 3. **Vertical text modes** — Tall tiles and narrow tiles use `writing-mode: vertical-rl`
 4. **Compact value** — Drop "亿" unit when vertical value would overlap badge
-5. **Water ripple expansion** — Small tiles expand to W/4 × H/4 on hover
+5. **Water ripple expansion** — Small tiles expand to W/d × H/d on hover (d = min(4, √n), n = tile count)
 6. **Hover adaptive refresh** — ALL tiles recompute adaptive styles when layout changes during hover
 
 ### Layout Constraints
 - **Horizontal bias**: Virtual container height stretched by S=1.35, Y scaled back → ≥80% tiles have width > height
 - **D3 config**: `treemapSquarify.ratio(1)`, `padding(2)`
-- **No initial max tile clamping** — D3 squarify naturally balances tiles; W/4 × H/4 is hover expansion target only
+- **No initial max tile clamping** — D3 squarify naturally balances tiles; W/d × H/d is hover expansion target only (d = min(4, √n))
 
 ### Continuous Scaling (replaces discrete size categories)
 
@@ -82,7 +82,7 @@ D3 Render Chain:
 
 ### When to Apply
 - **Trigger**: Small tiles (min dimension < 200px) on hover
-- **Target**: Expand to fixed **W/4 × H/4** rectangle (e.g., 300×285px for 1200×1140 container)
+- **Target**: Expand to **W/d × H/d** rectangle where d = min(4, √n), n = tile count (e.g., 300×285px for 31 tiles at 1200×1140; 347×330px for 12 tiles)
 - **Effect**: Surrounding tiles pushed away like water ripples
 - **Constraints**:
   - Zero overlaps
@@ -596,30 +596,27 @@ if (widthRatio < 0.95 || heightRatio < 0.95) {
 
 **Result**: Failed expansions logged, providing diagnostic info for edge cases.
 
-### Fixed Expansion Target
+### Adaptive Expansion Target
 
-All tiles expand to a **fixed 1/4 container size** rectangle for consistent interaction:
+Tiles expand to a **W/d × H/d** rectangle where **d = min(4, √n)** and n is the current tile count. This adapts the hover target to the number of visible tiles — fewer tiles get proportionally larger expansion targets:
 
 ```javascript
-function calculateTarget() {
-    // Fixed target: 1/4 of container dimensions
-    return {
-        width: W / 4,
-        height: H / 4
-    };
-}
+function tileDivisor() { return Math.min(4, Math.sqrt(currentEntities.length)); }
+function targetW() { return W / tileDivisor(); }
+function targetH() { return H / tileDivisor(); }
 ```
 
-| Container Size | Expansion Target | Notes |
-|---------------|------------------|-------|
-| 1200×1140 (XL) | 300×285px | Standard large screen |
-| 800×760 (L) | 200×190px | Medium screen |
-| 600×570 (M) | 150×142px | Minimum supported |
+| Tiles (n) | Divisor d | Target at XL (1200×1140) | Target at L (800×760) |
+|-----------|-----------|--------------------------|----------------------|
+| 31 (L1) | 4 (capped) | 300×285px | 200×190px |
+| 12 (L2) | 3.46 | 347×330px | 231×220px |
+| 8 (L2) | 2.83 | 424×403px | 283×269px |
+| 5 (L2) | 2.24 | 536×509px | 357×339px |
 
-**Rationale**: Fixed ratio ensures:
-- Consistent user experience across all tile sizes
-- Predictable sparkline display area
-- Simpler algorithm (no adaptive calculation)
+**Rationale**: Adaptive ratio ensures:
+- Consistent user experience: hover target scales with tile density
+- Fewer tiles → larger expansion (avoids tiny targets in drilled-down views)
+- Capped at 4 for ≥16 tiles (preserves original behavior for L1)
 
 ---
 
@@ -731,7 +728,7 @@ Prototype: `docs/treemap-preview/reference/treemap-preview.html` — Standalone 
 - `MIN = 60` — minimum tile dimension (px), adaptive: `effectiveMin = Math.min(MIN, origSpan)`
 - `BORDER = 2` — virtual boundary offset from container edge
 - `TOL = 2.5` — split-line grouping tolerance
-- Target size: `W/4 × H/4`
+- Target size: `W/d × H/d` where `d = min(4, √n)`, n = tile count
 
 **Mock Data**: 31 sectors with `capitalFlow` values, weights via `Math.pow(Math.abs(capitalFlow), 0.8)`
 

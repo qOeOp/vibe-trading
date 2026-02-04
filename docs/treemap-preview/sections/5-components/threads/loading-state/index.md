@@ -105,7 +105,7 @@ interface LoadingStateProps {
 ## Technical Notes
 
 **Why semi-transparent background?**
-- Shows underlying structure (header, layout)
+- Shows underlying structure (layout)
 - Prevents jarring blank screen
 - Maintains spatial context
 - Common pattern in modern UIs

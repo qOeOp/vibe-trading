@@ -16,7 +16,7 @@ apps/preview/src/app/components/Breadcrumb.tsx
 
 ## Usage Context
 
-**Displayed in:** HeatMapHeader left section (when currentLevel > 0)
+**Displayed in:** HeatMapContainer (when currentLevel > 0)
 **Replaces:** Static title "申万一级板块热力图" at L2-L4
 
 ## Component Anatomy
@@ -83,7 +83,7 @@ interface BreadcrumbProps {
 
 ## References
 
-- **HeatMapHeader Integration:** [Section 5 → HeatMapHeader → Task 02](../heatmap-header/tasks/02-breadcrumb-area.md)
+- **HeatMapContainer Integration:** [Section 5 → HeatMapContainer](../heatmap-container/index.md)
 - **Hierarchy Levels:** [Section 3 → Data Model → Type Definitions](../../../../3-data-model/threads/type-definitions/index.md)
 
 ---

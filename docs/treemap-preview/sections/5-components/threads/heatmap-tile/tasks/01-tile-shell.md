@@ -61,7 +61,7 @@ const fontSize = lerp(9, 28, t);
 
 ### Visibility Rules
 - `minDim < 50px`: Hide value + hide badge
-- `minDim ≥ threshold`: Show sparkline (threshold = min(containerW/4, containerH/4))
+- `minDim ≥ threshold`: Show sparkline (threshold = min(targetW(), targetH()), where target = container/min(4, √n))
 
 ### Hover Adaptive Refresh
 

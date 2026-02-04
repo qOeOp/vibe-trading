@@ -1,6 +1,6 @@
 # Task: Custom Hooks
 
-Complete implementations of useTreeMap, useScrollTop, and useDebouncedValue.
+Complete implementations of useTreeMap and useDebouncedValue.
 
 ---
 
@@ -47,29 +47,6 @@ export function useTreeMap(entities: Entity[], width: number, height: number): T
 }
 ```
 
-### useScrollTop
-
-```typescript
-// apps/preview/src/app/hooks/useScrollTop.ts
-import { useEffect, useState } from 'react';
-
-export function useScrollTop(ref: React.RefObject<HTMLElement>): number {
-  const [scrollTop, setScrollTop] = useState(0);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const handleScroll = () => setScrollTop(element.scrollTop);
-    element.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => element.removeEventListener('scroll', handleScroll);
-  }, [ref]);
-
-  return scrollTop;
-}
-```
-
 ### useDebouncedValue
 
 ```typescript
@@ -112,11 +89,6 @@ See [Task 07: Adaptive Scaling](../../../5-components/threads/heatmap-tile/tasks
 - [ ] Memoized for performance
 - [ ] 2px padding between tiles
 - [ ] ≥80% tiles are horizontal (width > height)
-
-✅ **useScrollTop:**
-- [ ] Detects scroll position
-- [ ] Passive event listener
-- [ ] Cleanup on unmount
 
 ✅ **useDebouncedValue:**
 - [ ] Debounces value changes

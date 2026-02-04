@@ -34,9 +34,8 @@ import { mockStocksL4 } from '../data/mockStocksL4';
 
 ```
 HeatMapContainer
-  ├─ HeatMapHeader
-  │   ├─ Breadcrumb (path, onNavigate)
-  │   └─ SearchBox (query, onChange)
+  ├─ Breadcrumb (path, onNavigate)
+  ├─ SearchBox (query, onChange)
   └─ TileGrid
       └─ HeatMapTile[] (entity, x, y, width, height, onDrillDown)
           └─ Sparkline (data, width, height)

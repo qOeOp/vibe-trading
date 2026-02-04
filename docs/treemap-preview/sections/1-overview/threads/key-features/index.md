@@ -11,7 +11,7 @@ Core functionality and unique features of the application.
 2. Squarified treemap layout (ratio(1), S=1.35 horizontal bias)
 3. 7-stop solid color ramp (Binance-style)
 4. Sparkline on hover
-5. Water ripple expansion (small tiles → W/4×H/4)
+5. Water ripple expansion (small tiles → W/d×H/d, d=min(4,√n))
 6. Cross-level search
 7. Breadcrumb navigation
 
@@ -24,7 +24,7 @@ Core functionality and unique features of the application.
 - **3D Hover:** -2px lift with shadow enhancement
 - **7-Stop Colors:** Discrete stops from deep green to deep red
 - **Sparklines:** 30-day price trend on hover (draw animation)
-- **Water Ripple:** Small tiles expand to W/4×H/4 on hover
+- **Water Ripple:** Small tiles expand to W/d×H/d, d=min(4,√n) on hover
 
 ### Interaction Features
 - **Drill-Down:** Click tile → load children → animate

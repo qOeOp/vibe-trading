@@ -24,8 +24,7 @@ Complete page layout specification with centered 1200×1200px container.
 │     │  HeatMapContainer         │      │
 │     │  (1200×1200px, centered)  │      │
 │     │                           │      │
-│     │  [Header (sticky 60px)]  │      │
-│     │  [Tile Grid (1140px)]    │      │
+│     │  [Tile Grid (1200px)]    │      │
 │     │                           │      │
 │     └───────────────────────────┘      │
 │                                         │

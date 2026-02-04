@@ -1,6 +1,6 @@
 # Thread: HeatMapContainer Component
 
-Top-level container component that orchestrates the entire HeatMap visualization including header, tiles, and state management.
+Top-level container component that orchestrates the entire HeatMap visualization including tiles and state management.
 
 ---
 
@@ -18,9 +18,6 @@ apps/preview/src/app/components/HeatMapContainer.tsx
 
 ```
 HeatMapContainer (root)
-├── HeatMapHeader
-│   ├── Breadcrumb
-│   └── SearchBox
 ├── TileGrid (conditional)
 │   └── HeatMapTile[] (31 tiles)
 │       └── Sparkline (on hover)
@@ -99,8 +96,7 @@ interface Entity {
 - Pattern: Optional subtle grid or gradient
 
 **Layout:**
-- Header: 60px height (sticky at top)
-- Content: Remaining height (1140px)
+- Content: Full height (1200px)
 
 ---
 
@@ -138,7 +134,6 @@ Search:
 
 ## References
 
-- **HeatMapHeader:** [Section 5 → Components → HeatMapHeader](../heatmap-header/index.md)
 - **HeatMapTile:** [Section 5 → Components → HeatMapTile](../heatmap-tile/index.md)
 - **State Components:** [LoadingState](../loading-state/index.md), [ErrorState](../error-state/index.md), [EmptyState](../empty-state/index.md)
 - **Treemap Algorithm:** [Section 7 → Implementation → Hooks → useTreeMap](../../../../7-implementation/threads/hooks/index.md)

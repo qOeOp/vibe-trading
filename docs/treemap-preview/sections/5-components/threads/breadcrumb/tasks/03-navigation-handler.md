@@ -7,7 +7,7 @@ Click handler that calls onNavigate with target level for parent navigation.
 ## Implementation
 
 ```typescript
-// In parent component (HeatMapHeader)
+// In parent component (HeatMapContainer)
 const handleNavigate = (level: number) => {
   // Truncate path to selected level
   const newPath = breadcrumbPath.slice(0, level + 1);

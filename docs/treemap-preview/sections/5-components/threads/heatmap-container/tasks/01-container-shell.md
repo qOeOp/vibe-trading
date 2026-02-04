@@ -37,7 +37,6 @@ export function HeatMapContainer({ initialData, apiEndpoint, className }: HeatMa
         position: 'relative',
       }}
     >
-      {/* HeatMapHeader: Task 05 */}
       {/* Content: Task 04 */}
     </div>
   );

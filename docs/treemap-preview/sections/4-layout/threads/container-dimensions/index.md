@@ -6,10 +6,8 @@ HeatMapContainer fixed dimensions and internal spacing.
 
 ## Task: [Container Specs](./tasks/01-container-specs.md)
 
-**Container:** 1200×1200px fixed  
-**Header:** 60px height (sticky)  
-**Content Area:** 1140px height (1200 - 60)  
-**Tile Grid:** Fills content area
+**Container:** 1200×1200px fixed
+**Tile Grid:** Fills container
 
 ---
 

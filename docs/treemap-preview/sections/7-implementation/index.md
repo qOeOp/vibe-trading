@@ -7,7 +7,7 @@ React hooks, utility functions, theme configuration, and performance optimizatio
 ## Threads
 
 ### [Hooks](./threads/hooks/index.md)
-useTreeMap (D3 squarified layout), useDrillDown (4-level navigation, planned), useScrollTop, useDebouncedValue.
+useTreeMap (D3 squarified layout), useDrillDown (4-level navigation, planned), useDebouncedValue.
 
 ### [Utils](./threads/utils/index.md)
 Color calculation functions (getTileBackgroundColor), formatters (formatCapitalFlow, formatChangePercent), sparkline point calculation.

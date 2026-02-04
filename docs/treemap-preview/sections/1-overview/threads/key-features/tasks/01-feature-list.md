@@ -24,13 +24,13 @@ Complete catalog of implemented features.
 - [x] Sparkline reveal on hover (if tile >120×80px)
 - [x] Click to drill-down with loading state
 - [x] Search with 300ms debounce
-- [x] Header sticky positioning with scroll effects
+
 
 ### Animations
 - [x] Sparkline draw-line (400ms stroke-dasharray)
 - [x] Loading spinner (1s rotation)
 - [x] Smooth transitions (200-300ms ease-out)
-- [x] Water ripple expansion (400ms, small tiles expand to W/4×H/4 on hover)
+- [x] Water ripple expansion (400ms, small tiles expand to W/d×H/d on hover, d=min(4,√n))
 
 ### Data Display
 - [x] Capital Flow (format: "+125.5亿")

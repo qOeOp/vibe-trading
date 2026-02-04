@@ -13,18 +13,6 @@ export function HeatMapContainer(props: HeatMapContainerProps) {
 
   return (
     <div ref={containerRef} className="heatmap-container">
-      {/* Header: Always visible (sticky) */}
-      <HeatMapHeader
-        currentLevel={currentLevel}
-        breadcrumbPath={breadcrumbPath}
-        searchQuery={searchQuery}
-        onSearchChange={handleSearchChange}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        onNavigate={handleNavigate}
-        scrollContainerRef={containerRef}
-      />
-
       {/* Content: Conditional rendering */}
       <div className="heatmap-content">
         {isLoading ? (

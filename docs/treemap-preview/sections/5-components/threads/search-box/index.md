@@ -16,7 +16,7 @@ apps/preview/src/app/components/SearchBox.tsx
 
 ## Usage Context
 
-**Displayed in:** HeatMapHeader right section
+**Displayed in:** HeatMapContainer
 **Functionality:** Real-time filtering as user types, cross-level search
 
 ## Component Anatomy
@@ -85,7 +85,7 @@ interface SearchBoxProps {
 
 ## References
 
-- **HeatMapHeader Integration:** [Section 5 → HeatMapHeader → Task 03](../heatmap-header/tasks/03-controls-area.md)
+- **HeatMapContainer Integration:** [Section 5 → HeatMapContainer](../heatmap-container/index.md)
 
 ---
 

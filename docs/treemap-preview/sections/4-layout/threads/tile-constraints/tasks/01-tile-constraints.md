@@ -19,7 +19,7 @@ Minimum tile size, treemap algorithm configuration, and horizontal bias.
 - `padding(2)` — 2px gap between tiles
 - Virtual height stretch S=1.35 — biases tiles toward horizontal (width > height)
 - Power scaling `x^0.8` for capitalFlow → area mapping
-- No initial max tile clamping — W/4 × H/4 is hover expansion target only
+- No initial max tile clamping — W/d × H/d is hover expansion target only (d = min(4, √n), n = tile count)
 
 ---
 

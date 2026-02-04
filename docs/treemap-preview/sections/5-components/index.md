@@ -9,9 +9,6 @@ Detailed specifications for all UI components, including props, layout, interact
 ### [HeatMap Container](./threads/heatmap-container/index.md)
 Main container component managing layout calculation, dimension measurement, and tile rendering.
 
-### [HeatMap Header](./threads/heatmap-header/index.md)
-Fixed header with title, breadcrumb navigation, search box, and toggle controls.
-
 ### [HeatMap Tile](./threads/heatmap-tile/index.md)
 Solid-color tile with header row layout, 7-stop coloring, adaptive content scaling, and water ripple expansion.
 
@@ -39,9 +36,6 @@ Empty data placeholder with icon, message, and action button.
 
 ```
 HeatMap (Container)
-  ├── HeatMapHeader
-  │     ├── Breadcrumb
-  │     └── SearchBox
   └── HeatMapTile × 31
         ├── Header Row
         │     ├── Name (left)

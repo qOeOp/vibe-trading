@@ -20,14 +20,13 @@ Key metrics:
 - GPU-accelerated transforms
 - useMemo for treemap calculations
 - Debounced search (300ms)
-- Passive scroll listeners
 
 ---
 
 ## Performance Targets
 
 **Frame Rate:** 60fps (16.67ms per frame)  
-**Initial Render:** <100ms (31 tiles + header)  
+**Initial Render:** <100ms (31 tiles)  
 **Hover Response:** <50ms (tile lift + sparkline)  
 **Search Filter:** <200ms (debounced)
 

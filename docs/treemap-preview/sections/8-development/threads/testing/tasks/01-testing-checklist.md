@@ -8,7 +8,6 @@ Manual testing checklist for Phase 1.
 
 ### Initial Render
 - [ ] Page loads without errors
-- [ ] Header displays "申万一级板块热力图"
 - [ ] 31 sector tiles render in treemap layout
 - [ ] All tiles have visible content (icon, name, metrics)
 - [ ] Colors vary based on changePercent (7-stop ramp: red/green/gray)

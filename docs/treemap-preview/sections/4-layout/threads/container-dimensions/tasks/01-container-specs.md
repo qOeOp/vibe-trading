@@ -6,9 +6,8 @@ Fixed dimensions for HeatMapContainer and internal layout.
 
 ## Dimensions
 
-**Total Container:** 1200×1200px  
-**Header:** 1200×60px (sticky top)  
-**Content Area:** 1200×1140px (scroll region)
+**Total Container:** 1200×1200px
+**Tile Grid:** 1200×1200px
 
 **Why 1200px?**
 - Fits modern displays (1920×1080+)
