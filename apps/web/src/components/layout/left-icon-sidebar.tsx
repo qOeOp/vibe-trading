@@ -15,18 +15,19 @@ import {
   Settings,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 interface SidebarItem {
   icon: LucideIcon;
   label: string;
-  active?: boolean;
+  href?: string;
 }
 
 const icons: SidebarItem[] = [
-  { icon: LayoutGrid, label: "Dashboard" },
-  { icon: TrendingUp, label: "Market", active: true },
-  { icon: BarChart3, label: "Analytics" },
+  { icon: LayoutGrid, label: "Dashboard", href: "/" },
+  { icon: TrendingUp, label: "Market", href: "/market" },
+  { icon: BarChart3, label: "Analysis", href: "/analysis" },
   { icon: Gauge, label: "Indicators" },
   { icon: Gem, label: "Watchlist" },
   { icon: Wallet, label: "Portfolio" },
@@ -39,18 +40,28 @@ const icons: SidebarItem[] = [
 ];
 
 export function LeftIconSidebar() {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const isActive = (href?: string) => {
+    if (!href) return false;
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
+
   return (
     <div className="flex flex-col w-[52px] h-full items-center justify-center">
-      {/* 毛玻璃容器 - 圆角贴合首尾tab */}
       <div className="flex flex-col items-center gap-1 py-1 px-1.5 rounded-full bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
-        {icons.map(({ icon: Icon, label, active }) => (
+        {icons.map(({ icon: Icon, label, href }) => (
           <button
             key={label}
+            onClick={() => href && router.push(href)}
             className={cn(
               "flex items-center justify-center w-10 h-10 rounded-full transition-all",
-              active
+              isActive(href)
                 ? "bg-mine-nav-active text-white shadow-sm"
-                : "text-mine-text hover:bg-white/80"
+                : "text-mine-text hover:bg-white/80",
+              href && "cursor-pointer"
             )}
             title={label}
             aria-label={label}

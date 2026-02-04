@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "Vibe Trading",
@@ -20,12 +21,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Dark mode is hardcoded for now. The 'dark' class enables Tailwind dark mode utilities.
-    // The color-scheme CSS property ensures native browser UI elements (scrollbars, form controls) match the dark theme.
     // 'lang="en"' is critical for accessibility to allow screen readers to correctly pronounce content.
-    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
+    // suppressHydrationWarning is required by next-themes to prevent hydration mismatch warnings.
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -64,3 +64,9 @@ dist/
 build/
 .next
 out
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Screenshots (local testing)
+screenshots/

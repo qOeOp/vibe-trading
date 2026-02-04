@@ -11,7 +11,6 @@ import {
   Newspaper,
   MessageCircle,
   Zap,
-  FileText,
   Megaphone,
   BookOpen,
 } from "lucide-react";

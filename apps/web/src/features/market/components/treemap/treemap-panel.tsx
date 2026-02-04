@@ -11,6 +11,7 @@ import type { TreemapNode } from "../../types";
 /**
  * Build hierarchical treemap data with all levels.
  * Returns L1 sectors with nested L2 industries and L3 stocks.
+ * Uses real stock data if available, otherwise generates synthetic children.
  */
 function buildTreemapData(): TreemapNode[] {
   return mockSectors.map((sector) => {
@@ -19,12 +20,19 @@ function buildTreemapData(): TreemapNode[] {
       name: industry.name,
       capitalFlow: industry.capitalFlow,
       changePercent: industry.changePercent,
-      children: generateSyntheticChildren(
-        industry.name,
-        industry.capitalFlow,
-        industry.changePercent,
-        5 + Math.floor(Math.random() * 5)
-      ),
+      // Use real stock data if provided, otherwise generate synthetic
+      children: industry.children && industry.children.length > 0
+        ? industry.children.map((stock) => ({
+            name: stock.name,
+            capitalFlow: stock.capitalFlow,
+            changePercent: stock.changePercent,
+          }))
+        : generateSyntheticChildren(
+            industry.name,
+            industry.capitalFlow,
+            industry.changePercent,
+            5 + Math.floor(Math.random() * 5)
+          ),
     }));
 
     return {
