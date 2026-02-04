@@ -7,7 +7,7 @@ import { LimitAnalysis } from "./detail/limit-analysis";
 
 export function MarketDetailPanel() {
   return (
-    <div className="w-[360px] flex flex-col gap-0 rounded-xl bg-white shadow-sm border border-mine-border overflow-hidden">
+    <div className="w-[360px] min-w-0 max-w-full flex flex-col gap-0 rounded-xl bg-white shadow-sm border border-mine-border overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-mine-border/50">
         <h2 className="text-sm font-semibold text-mine-text">市场概览</h2>

@@ -70,7 +70,7 @@ function IndexCard({ index }: { index: (typeof mockIndices)[0] }) {
 
 export function IndexCardList() {
   return (
-    <div className="w-[280px] flex flex-col gap-2 overflow-y-auto pr-1">
+    <div className="w-[280px] min-w-0 max-w-full flex flex-col gap-2 overflow-y-auto pr-1">
       {mockIndices.map((idx) => (
         <IndexCard key={idx.code} index={idx} />
       ))}

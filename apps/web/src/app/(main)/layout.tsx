@@ -3,6 +3,7 @@
 import { TopNavBar } from "@/components/layout/top-nav-bar";
 import { LeftIconSidebar } from "@/components/layout/left-icon-sidebar";
 import { UserCapsule } from "@/components/layout/user-capsule";
+import { PageTransition } from "@/components/layout/page-transition";
 
 export default function MainLayout({
   children,
@@ -10,7 +11,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-screen w-screen min-w-[1440px] bg-mine-page-bg flex">
+    <div className="h-screen w-screen min-w-0 bg-mine-page-bg flex">
       {/* 左侧：头像 + sidebar 垂直排列 */}
       <div className="flex flex-col items-center pt-3 pb-4 px-3 gap-3 shrink-0">
         <UserCapsule />
@@ -24,7 +25,7 @@ export default function MainLayout({
 
         {/* 主内容区 */}
         <div className="flex-1 flex gap-4 pr-4 pb-4 overflow-hidden">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </div>
       </div>
     </div>

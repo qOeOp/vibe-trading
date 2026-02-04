@@ -72,7 +72,7 @@ const IndexCard = memo(function IndexCard({ index }: IndexCardProps) {
 
 export const MarketIndexSidebar = memo(function MarketIndexSidebar() {
   return (
-    <div className="w-[220px] flex flex-col gap-2 overflow-y-auto pr-1">
+    <div className="w-[220px] min-w-0 max-w-full flex flex-col gap-2 overflow-y-auto pr-1">
       {mockIndices.map((idx) => (
         <IndexCard key={idx.code} index={idx} />
       ))}
