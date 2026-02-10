@@ -263,7 +263,7 @@ export function BubbleSeries({
   );
 
   const handleDeactivate = useCallback(
-    (circle: BubbleCircle) => {
+    (_circle: BubbleCircle) => {
       hideTooltip();
       onDeactivate?.({ name: data.name });
     },

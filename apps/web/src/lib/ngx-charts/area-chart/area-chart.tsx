@@ -316,7 +316,6 @@ function AreaChartContent({
     timelineScales,
     updateXAxisHeight,
     updateYAxisWidth,
-    updateFilteredDomain,
   } = useAreaChart({
     data,
     width: dimensions.width,

@@ -109,7 +109,7 @@ function createSymPowScale(
     {
       range: () => range,
       domain: () => domain,
-      ticks: (count: number = 10) => generateSymPowTicks(domain, count, exponent),
+      ticks: (count = 10) => generateSymPowTicks(domain, count, exponent),
       tickFormat: () => (v: number) => String(v),
       copy: () => createSymPowScale(domain, range, exponent),
       nice: () => scale,
@@ -163,7 +163,10 @@ export function useBandChart(config: UseBandChartConfig): UseBandChartResult {
   const [xAxisHeight, setXAxisHeight] = useState(initialXAxisHeight);
   const [yAxisWidth, setYAxisWidth] = useState(initialYAxisWidth);
 
-  const margins: [number, number, number, number] = customMargins ?? [10, 24, 10, 10];
+  const margins: [number, number, number, number] = useMemo(
+    () => customMargins ?? [10, 24, 10, 10],
+    [customMargins]
+  );
 
   // Calculate view dimensions
   const dims = useMemo(() => {
@@ -180,7 +183,7 @@ export function useBandChart(config: UseBandChartConfig): UseBandChartResult {
       showLegend: false,
     };
     return calculateViewDimensions(cfg);
-  }, [width, height, showXAxis, showYAxis, xAxisHeight, yAxisWidth, customMargins]);
+  }, [width, height, margins, showXAxis, showYAxis, xAxisHeight, yAxisWidth]);
 
   // X domain: all point names in order
   const xDomain = useMemo(() => data.map((d) => d.name), [data]);

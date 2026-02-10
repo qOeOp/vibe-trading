@@ -30,9 +30,11 @@ export interface NgxAreaChartProps {
   scheme?: { domain: string[] };
   animations?: boolean;
   tooltipDisabled?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Callers pass (v: number) => string, (v: Date) => string, etc.; union of all signatures is impractical
   xAxisTickFormatting?: (value: any) => string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Callers pass (v: number) => string, (v: Date) => string, etc.; union of all signatures is impractical
   yAxisTickFormatting?: (value: any) => string;
-  onSelect?: (data: any) => void;
+  onSelect?: (data: unknown) => void;
 }
 
 export interface ViewDimensions {

@@ -75,7 +75,7 @@ function defaultValueFormatting(value: StringOrNumberOrDate): string {
  * Rounds percentages using the largest remainder method
  * to ensure they sum to 100%
  */
-function roundPercentagesWithDecimals(values: number[], decimals: number = 2): number[] {
+function roundPercentagesWithDecimals(values: number[], decimals = 2): number[] {
   const total = values.reduce((a, b) => a + b, 0);
   if (total === 0) return values.map(() => 0);
 

@@ -73,8 +73,8 @@ export function SvgRadialGradient({
 export function createRadialGradientStops(
   centerColor: string,
   edgeColor: string,
-  centerOpacity: number = 1,
-  edgeOpacity: number = 0.3
+  centerOpacity = 1,
+  edgeOpacity = 0.3
 ): Gradient[] {
   return [
     { offset: 0, color: centerColor, opacity: centerOpacity },

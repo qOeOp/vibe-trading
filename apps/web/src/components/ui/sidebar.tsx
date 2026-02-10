@@ -743,6 +743,7 @@ function SidebarMenuSubButton({
   }
 
   return (
+    // eslint-disable-next-line jsx-a11y/anchor-has-content -- content passed via {...props} spread
     <a
       data-slot="sidebar-menu-sub-button"
       data-sidebar="menu-sub-button"

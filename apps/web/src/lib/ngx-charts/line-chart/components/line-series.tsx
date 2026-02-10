@@ -102,7 +102,7 @@ export function LineSeries({
     return !activeEntries.some((entry) => entry.name === data.name);
   }, [activeEntries, data.name]);
 
-  const { hasGradient, gradientUrl, gradientStops, areaGradientStops, stroke } =
+  const { hasGradient, gradientUrl, gradientStops, stroke } =
     useMemo(() => {
       const hasGrad = colors.scaleType === ScaleType.Linear;
       const gradUrl = `url(#${stableGradientId})`;

@@ -13,6 +13,8 @@
  * @license MIT
  */
 
+import { useId } from 'react';
+
 const cache: Record<string, boolean> = {};
 
 /**
@@ -51,9 +53,7 @@ export function clearIdCache(): void {
  * React hook for generating a stable unique ID
  * Uses React's useId() for SSR-safe stable IDs
  */
-import { useId } from 'react';
-
-export function useStableId(prefix: string = 'a'): string {
+export function useStableId(prefix = 'a'): string {
   const id = useId();
   // React useId returns IDs like ":r0:", ":r1:", etc.
   // We need to make it a valid SVG ID (alphanumeric, starts with letter)
@@ -67,7 +67,7 @@ export function useStableId(prefix: string = 'a'): string {
  */
 let idCounter = 0;
 
-export function useUniqueId(prefix: string = 'ngx'): string {
+export function useUniqueId(prefix = 'ngx'): string {
   // In a real React implementation, this would use useId() or useMemo()
   // For now, we generate a deterministic ID
   return `${prefix}-${++idCounter}`;

@@ -14,7 +14,15 @@ export default [
         rules: {
             // Downgrade noisy pre-existing errors to warnings
             "@typescript-eslint/no-inferrable-types": "warn",
-            "@typescript-eslint/no-empty-function": "warn"
+            "@typescript-eslint/no-empty-function": "warn",
+            // Re-apply after flat/react which overrides root config options
+            "@typescript-eslint/no-unused-vars": ["warn", {
+                argsIgnorePattern: "^_",
+                varsIgnorePattern: "^_",
+                caughtErrorsIgnorePattern: "^_",
+                destructuredArrayIgnorePattern: "^_",
+                ignoreRestSiblings: true
+            }]
         }
     },
     // ngx-charts library: BaseChart render-prop pattern calls hooks inside callbacks

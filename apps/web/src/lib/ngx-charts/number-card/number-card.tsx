@@ -157,7 +157,7 @@ export function NumberCard({
     fixedHeight
   );
 
-  const margin = [10, 10, 10, 10];
+  const margin = useMemo<[number, number, number, number]>(() => [10, 10, 10, 10], []);
   const minCardWidth = 150;
 
   // Calculate view dimensions
@@ -165,9 +165,9 @@ export function NumberCard({
     return calculateViewDimensions({
       width,
       height,
-      margins: margin as [number, number, number, number],
+      margins: margin,
     });
-  }, [width, height]);
+  }, [width, height, margin]);
 
   // Get domain
   const domain = useMemo(() => {
@@ -207,6 +207,7 @@ export function NumberCard({
     // Pad data to fill grid
     const paddedData = [...gridData];
     while (paddedData.length < N) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Empty grid padding cells require null value despite GridData typing value as number
       paddedData.push({ name: '', value: null as any, extra: undefined, label: '', percent: 0, total: 0 });
     }
 

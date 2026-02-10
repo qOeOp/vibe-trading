@@ -124,7 +124,7 @@ export const mockNews: NewsItem[] = [
 ];
 
 // 获取最新N条新闻
-export function getLatestNews(n: number = 10): NewsItem[] {
+export function getLatestNews(n = 10): NewsItem[] {
   return mockNews.slice(0, n);
 }
 

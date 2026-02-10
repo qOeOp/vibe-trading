@@ -13,7 +13,6 @@ import {
   useTreemap,
   calculateRippleLayout,
   getTargetSize,
-  type TileLayout,
 } from "../../hooks/use-treemap";
 import { HeatMapTile } from "./heatmap-tile";
 import {
@@ -78,7 +77,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeHoverIndex, setActiveHoverIndex] = useState<number>(-1);
   const [showSparklineIndex, setShowSparklineIndex] = useState<number>(-1);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [_isTransitioning, setIsTransitioning] = useState(false);
 
   // Sync external data
   useEffect(() => {
@@ -156,7 +155,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
 
   // Handlers
   const handleTileClick = useCallback(
-    (node: TreemapNode, index: number) => {
+    (node: TreemapNode, _index: number) => {
       // Check if node has children for drill-down
       if (!node.children || node.children.length === 0) {
         // Leaf node - no drill down

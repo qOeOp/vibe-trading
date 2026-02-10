@@ -27,6 +27,7 @@ interface TopBarSlotContextValue {
 
 const TopBarSlotContext = createContext<TopBarSlotContextValue>({
   extraNavItems: [],
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setExtraNavItems: () => {},
 });
 

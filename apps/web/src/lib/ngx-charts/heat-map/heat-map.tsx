@@ -25,7 +25,6 @@ import { HeatMapCellSeries } from './heat-map-cell-series';
 import type {
   Series,
   DataItem,
-  ScaleType,
   LegendPosition,
   ColorScheme,
   StringOrNumberOrDate,
@@ -115,7 +114,7 @@ export interface HeatMapProps {
  */
 function getDimension(
   value: string | number | (string | number)[],
-  index: number = 0,
+  index = 0,
   N: number,
   L: number
 ): number {
@@ -181,7 +180,7 @@ const HeatMapInner = memo(function HeatMapInner({
   const [activeEntries, setActiveEntries] = useState<DataItem[]>(initialActiveEntries);
 
   // Default margins
-  const margin: [number, number, number, number] = [10, 20, 10, 20];
+  const margin: [number, number, number, number] = useMemo(() => [10, 20, 10, 20], []);
 
   // Merge axis config with defaults
   // IMPORTANT: Angular heat-map NEVER passes showGridLines to axes, so grid lines

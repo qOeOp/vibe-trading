@@ -100,19 +100,19 @@ function AuthPageContent() {
 					</form>
 					<p className="mt-8 text-muted-foreground text-sm">
 						By clicking continue, you agree to our{" "}
-						<a
+						<button
+							type="button"
 							className="underline underline-offset-4 hover:text-primary"
-							href="#"
 						>
 							Terms of Service
-						</a>{" "}
+						</button>{" "}
 						and{" "}
-						<a
+						<button
+							type="button"
 							className="underline underline-offset-4 hover:text-primary"
-							href="#"
 						>
 							Privacy Policy
-						</a>
+						</button>
 						.
 					</p>
 				</div>
@@ -134,7 +134,7 @@ const GoogleIcon = (props: React.ComponentProps<"svg">) => (
 	</svg>
 );
 
-function AppleIcon({
+function _AppleIcon({
 	fill = "currentColor",
 	...props
 }: React.ComponentProps<"svg">) {

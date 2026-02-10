@@ -126,7 +126,7 @@ export function BoxChart({
   const [xAxisHeight, setXAxisHeight] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
 
-  const margin: [number, number, number, number] = [10, 20, 10, 20];
+  const margin: [number, number, number, number] = useMemo(() => [10, 20, 10, 20], []);
 
   // Calculate view dimensions
   const dims: ViewDimensions = useMemo(() => {
@@ -143,7 +143,7 @@ export function BoxChart({
       showLegend: legend,
       legendPosition,
     });
-  }, [width, height, xAxis, yAxis, xAxisHeight, yAxisWidth, showXAxisLabel, showYAxisLabel, legend, legendPosition]);
+  }, [width, height, margin, xAxis, yAxis, xAxisHeight, yAxisWidth, showXAxisLabel, showYAxisLabel, legend, legendPosition]);
 
   // Calculate X domain
   const xDomain = useMemo(() => {

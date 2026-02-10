@@ -38,7 +38,6 @@ export interface CardSeriesProps {
 
 export function CardSeries({
   data,
-  dims,
   colors,
   innerPadding = 15,
   cardColor,
@@ -85,12 +84,15 @@ export function CardSeries({
   const cards = useMemo(() => {
     const { x: xPadding, y: yPadding } = getPadding();
 
-    return data.map((d, index) => {
-      let label = d.data?.name as any;
-      if (label && label.constructor?.name === 'Date') {
-        label = label.toLocaleDateString();
+    return data.map((d, _index) => {
+      let label: string;
+      const rawName = d.data?.name;
+      if (rawName instanceof Date) {
+        label = rawName.toLocaleDateString();
+      } else if (rawName !== undefined && rawName !== null) {
+        label = String(rawName);
       } else {
-        label = label ? label.toLocaleString() : label;
+        label = '';
       }
 
       const value = d.data?.value;

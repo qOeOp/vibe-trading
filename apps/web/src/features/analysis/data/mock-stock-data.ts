@@ -45,7 +45,7 @@ export interface AlertItem {
 function generateCandleData(
   basePrice: number,
   days: number,
-  volatility: number = 0.02
+  volatility = 0.02
 ): CandleData[] {
   const data: CandleData[] = [];
   let currentPrice = basePrice;

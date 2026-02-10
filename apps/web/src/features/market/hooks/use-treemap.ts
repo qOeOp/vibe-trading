@@ -89,20 +89,20 @@ export function buildSplitLineStructure(layout: TileLayout[]): SplitLineStructur
   };
 
   layout.forEach((tile, i) => {
-    const l = vLineMap.get(tile.x)!;
-    const r = vLineMap.get(tile.x + tile.width)!;
-    const t = hLineMap.get(tile.y)!;
-    const b = hLineMap.get(tile.y + tile.height)!;
+    const l = vLineMap.get(tile.x) ?? 0;
+    const r = vLineMap.get(tile.x + tile.width) ?? 0;
+    const t = hLineMap.get(tile.y) ?? 0;
+    const b = hLineMap.get(tile.y + tile.height) ?? 0;
 
     if (!structure.vLines.has(l)) structure.vLines.set(l, []);
     if (!structure.vLines.has(r)) structure.vLines.set(r, []);
     if (!structure.hLines.has(t)) structure.hLines.set(t, []);
     if (!structure.hLines.has(b)) structure.hLines.set(b, []);
 
-    structure.vLines.get(l)!.push({ idx: i, side: "left" });
-    structure.vLines.get(r)!.push({ idx: i, side: "right" });
-    structure.hLines.get(t)!.push({ idx: i, side: "top" });
-    structure.hLines.get(b)!.push({ idx: i, side: "bottom" });
+    structure.vLines.get(l)?.push({ idx: i, side: "left" });
+    structure.vLines.get(r)?.push({ idx: i, side: "right" });
+    structure.hLines.get(t)?.push({ idx: i, side: "top" });
+    structure.hLines.get(b)?.push({ idx: i, side: "bottom" });
   });
 
   return structure;
@@ -456,14 +456,14 @@ export function elasticRedistribute(
 
       if (
         !lockedCanonicals.has(tLo) &&
-        Math.abs(pos.get(tLo)! - desiredLo) > 0.5
+        Math.abs((pos.get(tLo) ?? curLo) - desiredLo) > 0.5
       ) {
         pos.set(tLo, desiredLo);
         anyFixed = true;
       }
       if (
         !lockedCanonicals.has(tHi) &&
-        Math.abs(pos.get(tHi)! - desiredHi) > 0.5
+        Math.abs((pos.get(tHi) ?? curHi) - desiredHi) > 0.5
       ) {
         pos.set(tHi, desiredHi);
         anyFixed = true;
@@ -474,7 +474,7 @@ export function elasticRedistribute(
   }
 
   // Monotonicity enforcement
-  const sortedPositions = canonicals.map((c) => pos.get(c)!);
+  const sortedPositions = canonicals.map((c) => pos.get(c) ?? c);
   for (let i = 1; i < sortedPositions.length; i++) {
     if (sortedPositions[i] < sortedPositions[i - 1]) {
       if (!lockedCanonicals.has(canonicals[i])) {
@@ -509,10 +509,14 @@ export function calculateRippleLayout(
     return originalLayout;
   }
 
-  const hovL = splitLineStructure.vLineMap.get(hoveredTile.x)!;
-  const hovR = splitLineStructure.vLineMap.get(hoveredTile.x + hoveredTile.width)!;
-  const hovT = splitLineStructure.hLineMap.get(hoveredTile.y)!;
-  const hovB = splitLineStructure.hLineMap.get(hoveredTile.y + hoveredTile.height)!;
+  const hovL = splitLineStructure.vLineMap.get(hoveredTile.x);
+  const hovR = splitLineStructure.vLineMap.get(hoveredTile.x + hoveredTile.width);
+  const hovT = splitLineStructure.hLineMap.get(hoveredTile.y);
+  const hovB = splitLineStructure.hLineMap.get(hoveredTile.y + hoveredTile.height);
+
+  if (hovL === undefined || hovR === undefined || hovT === undefined || hovB === undefined) {
+    return originalLayout;
+  }
 
   const VB_L = BORDER;
   const VB_R = W - BORDER;
@@ -543,15 +547,15 @@ export function calculateRippleLayout(
   );
 
   return originalLayout.map((tile) => {
-    const tileL = splitLineStructure.vLineMap.get(tile.x)!;
-    const tileR = splitLineStructure.vLineMap.get(tile.x + tile.width)!;
-    const tileT = splitLineStructure.hLineMap.get(tile.y)!;
-    const tileB = splitLineStructure.hLineMap.get(tile.y + tile.height)!;
+    const tileL = splitLineStructure.vLineMap.get(tile.x) ?? tile.x;
+    const tileR = splitLineStructure.vLineMap.get(tile.x + tile.width) ?? (tile.x + tile.width);
+    const tileT = splitLineStructure.hLineMap.get(tile.y) ?? tile.y;
+    const tileB = splitLineStructure.hLineMap.get(tile.y + tile.height) ?? (tile.y + tile.height);
 
-    const nL = vLinePos.get(tileL)!;
-    const nR = vLinePos.get(tileR)!;
-    const nT = hLinePos.get(tileT)!;
-    const nB = hLinePos.get(tileB)!;
+    const nL = vLinePos.get(tileL) ?? tileL;
+    const nR = vLinePos.get(tileR) ?? tileR;
+    const nT = hLinePos.get(tileT) ?? tileT;
+    const nB = hLinePos.get(tileB) ?? tileB;
 
     return {
       ...tile,
@@ -596,11 +600,11 @@ export function useTreemap(
     // Create hierarchy - use custom accessor to prevent nested traversal
     // The accessor returns undefined to prevent d3 from treating TreemapNode.children as hierarchy children
     const root = d3
-      .hierarchy(
-        { name: "root", flatChildren: flatData } as any,
-        (d: any) => d.flatChildren // Only root has flatChildren, so only direct children are added
+      .hierarchy<{ name: string; flatChildren?: typeof flatData; value?: number }>(
+        { name: "root", flatChildren: flatData },
+        (d) => d.flatChildren // Only root has flatChildren, so only direct children are added
       )
-      .sum((d: any) => d.value ?? 0)
+      .sum((d) => d.value ?? 0)
       .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
 
     // Stretch virtual height to bias tiles toward horizontal (width > height)
@@ -610,8 +614,9 @@ export function useTreemap(
       .tile(d3.treemapSquarify.ratio(1))(root as d3.HierarchyNode<unknown>);
 
     // Scale Y back - use root.children which are the direct children
-    const directChildren = root.children ?? [];
-    const layout: TileLayout[] = directChildren.map((d: any) => ({
+    // After treemap() layout, nodes are mutated to include x0/y0/x1/y1 properties
+    const directChildren = (root.children ?? []) as d3.HierarchyRectangularNode<unknown>[];
+    const layout: TileLayout[] = directChildren.map((d) => ({
       data: d.data as TreemapNode,
       x: d.x0 + BORDER,
       y: d.y0 / S + BORDER,
@@ -698,8 +703,8 @@ export function getBorderRadius(
   height: number,
   W: number,
   H: number,
-  R: number = 16,
-  tol: number = 3
+  R = 16,
+  tol = 3
 ): string {
   const touchLeft = x - BORDER < tol;
   const touchTop = y - BORDER < tol;

@@ -17,7 +17,7 @@
 
 import { useMemo, useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
-import { Gradient } from '../types';
+import { Gradient, DataItem } from '../types';
 import { roundedRect } from '../utils';
 import { SvgLinearGradient } from '../common';
 
@@ -28,7 +28,7 @@ export interface IVector2D {
 
 export interface IBoxModel {
   value: number;
-  data: any[];
+  data: DataItem[];
   label: string | number | Date;
   formattedLabel?: string;
   width: number;

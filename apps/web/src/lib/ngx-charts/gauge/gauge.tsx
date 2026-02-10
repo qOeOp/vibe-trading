@@ -170,7 +170,6 @@ export function Gauge({
   const {
     arcs,
     domain,
-    valueDomain,
     valueScale,
     displayValue,
     textRadius,

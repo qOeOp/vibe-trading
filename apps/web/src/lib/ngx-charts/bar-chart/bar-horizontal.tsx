@@ -118,7 +118,7 @@ const BarHorizontalInner = memo(function BarHorizontalInner({
   }, [containerWidth, containerHeight, margin, xAxisConfig, yAxisConfig, xAxisHeight, yAxisWidth, legend, legendPosition]);
 
   // Create scales
-  const { xScale, yScale, xDomain, yDomain } = useHorizontalBarScales({
+  const { xScale, yScale, xDomain: _xDomain, yDomain } = useHorizontalBarScales({
     data,
     width: dims.width,
     height: dims.height,

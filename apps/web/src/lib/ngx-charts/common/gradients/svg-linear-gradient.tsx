@@ -71,8 +71,8 @@ export function SvgLinearGradient({
 export function createGradientStops(
   startColor: string,
   endColor: string,
-  startOpacity: number = 1,
-  endOpacity: number = 1
+  startOpacity = 1,
+  endOpacity = 1
 ): Gradient[] {
   return [
     { offset: 0, color: startColor, opacity: startOpacity },
@@ -83,7 +83,7 @@ export function createGradientStops(
 /**
  * Creates gradient stops for an area chart (fading to transparent)
  */
-export function createAreaGradientStops(color: string, topOpacity: number = 0.7): Gradient[] {
+export function createAreaGradientStops(color: string, topOpacity = 0.7): Gradient[] {
   return [
     { offset: 0, color, opacity: topOpacity },
     { offset: 100, color, opacity: 0.05 },

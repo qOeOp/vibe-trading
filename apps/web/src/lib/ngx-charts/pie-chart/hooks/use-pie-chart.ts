@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 import { pie, arc, PieArcDatum } from 'd3-shape';
 import { max } from 'd3-array';
 import type { DataItem, ColorScheme, ViewDimensions } from '../../types';
-import { ColorHelper, calculateViewDimensions, trimLabel, formatLabel } from '../../utils';
+import { ColorHelper, calculateViewDimensions, formatLabel } from '../../utils';
 import { ScaleType, LegendPosition } from '../../types';
 
 /** Configuration for the pie chart hook */
@@ -95,7 +95,7 @@ export function usePieChart({
   showLabels = false,
   doughnut = false,
   arcWidth = 0.25,
-  explodeSlices = false,
+  explodeSlices: _explodeSlices = false,
   showLegend = false,
   legendPosition = LegendPosition.Right,
   colorScheme,
@@ -165,7 +165,7 @@ export function usePieChart({
       const label = formatLabel(d.data.name);
       const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
 
-      let pos: [number, number] = outerArcGen.centroid(d) as [number, number];
+      const pos: [number, number] = outerArcGen.centroid(d) as [number, number];
       pos[0] = factor * outerRadius * (midAngle < Math.PI ? 1 : -1);
 
       return {
@@ -219,7 +219,6 @@ export function usePieChart({
     showLabels,
     doughnut,
     arcWidth,
-    explodeSlices,
     showLegend,
     legendPosition,
     colorScheme,

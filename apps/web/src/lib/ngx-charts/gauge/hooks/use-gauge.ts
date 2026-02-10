@@ -71,7 +71,6 @@ export function useGauge({
   data,
   min: inputMin,
   max: inputMax,
-  startAngle,
   angleSpan,
   outerRadius,
   textValue,

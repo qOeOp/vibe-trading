@@ -15,7 +15,7 @@
  * @license MIT
  */
 
-import { useMemo, useCallback, useRef } from 'react';
+import { useMemo, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ScaleBand, ScaleLinear } from 'd3-scale';
 import type { DataItem } from '../../types';
@@ -54,12 +54,10 @@ export function BarSeriesHorizontal({
   yScale,
   getColor,
   getGradientStops,
-  dims,
   gradient = false,
   activeEntries = [],
   seriesName,
   tooltipDisabled = false,
-  tooltipTemplate,
   roundEdges = true,
   animated = true,
   showDataLabel = false,
@@ -293,7 +291,7 @@ export function BarSeriesHorizontal({
   return (
     <g>
       <AnimatePresence>
-        {bars.map((bar, index) => (
+        {bars.map((bar, _index) => (
           <motion.g
             key={String(bar.label)}
             initial={animated ? { opacity: 0 } : false}

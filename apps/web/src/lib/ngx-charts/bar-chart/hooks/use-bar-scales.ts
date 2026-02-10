@@ -17,7 +17,7 @@
 
 import { useMemo } from 'react';
 import { scaleBand, scaleLinear, type ScaleBand, type ScaleLinear } from 'd3-scale';
-import type { DataItem, StringOrNumberOrDate, Series } from '../../types';
+import type { DataItem, Series } from '../../types';
 
 export interface UseBarScalesConfig {
   /** Chart data (single series) */

@@ -217,7 +217,7 @@ function AdvancedPieChartInner({
   onActivate,
   onDeactivate,
 }: AdvancedPieChartInnerProps) {
-  const margin = [20, 20, 20, 20] as [number, number, number, number];
+  const margin = useMemo<[number, number, number, number]>(() => [20, 20, 20, 20], []);
 
   // Calculate dimensions - pie takes 4/12 of width, legend takes 8/12
   const dims = useMemo(() => {
@@ -226,7 +226,7 @@ function AdvancedPieChartInner({
       height,
       margins: margin,
     });
-  }, [width, height]);
+  }, [width, height, margin]);
 
   // Calculate center offset for pie
   const xOffset = dims.width / 2;

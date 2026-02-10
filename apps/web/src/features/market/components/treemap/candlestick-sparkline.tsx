@@ -18,7 +18,7 @@ interface CandlestickSparklineProps {
 
 // ============ Generator ============
 
-export function generateMockCandles(changePercent: number, days: number = 60): CandleData[] {
+export function generateMockCandles(changePercent: number, days = 60): CandleData[] {
   const basePrice = 50 + Math.random() * 150;
   const dailyDrift = changePercent / days / 100;
   const volatility = 0.015 + Math.random() * 0.01;
@@ -51,7 +51,8 @@ export const CandlestickSparkline = memo(function CandlestickSparkline({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || candles.length < 2 || width <= 0 || height <= 0) {
+    const container = containerRef.current;
+    if (!container || candles.length < 2 || width <= 0 || height <= 0) {
       return;
     }
 
@@ -119,19 +120,17 @@ export const CandlestickSparkline = memo(function CandlestickSparkline({
       svg.appendChild(rect);
     });
 
-    containerRef.current.innerHTML = "";
-    containerRef.current.appendChild(svg);
+    container.innerHTML = "";
+    container.appendChild(svg);
 
     // Trigger visible class after mount
     requestAnimationFrame(() => {
-      containerRef.current?.classList.add("visible");
+      container.classList.add("visible");
     });
 
     return () => {
-      if (containerRef.current) {
-        containerRef.current.innerHTML = "";
-        containerRef.current.classList.remove("visible");
-      }
+      container.innerHTML = "";
+      container.classList.remove("visible");
     };
   }, [candles, width, height]);
 

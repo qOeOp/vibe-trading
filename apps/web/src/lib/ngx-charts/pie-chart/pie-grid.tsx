@@ -221,12 +221,11 @@ function PieGridInner({
   tooltipDisabled,
   tooltipTemplate,
   tooltipText,
-  activeEntries,
   onSelect,
   onActivate,
   onDeactivate,
 }: PieGridInnerProps) {
-  const margin = [20, 20, 20, 20] as [number, number, number, number];
+  const margin = useMemo<[number, number, number, number]>(() => [20, 20, 20, 20], []);
 
   // Calculate view dimensions
   const dims = useMemo(() => {
@@ -235,7 +234,7 @@ function PieGridInner({
       height,
       margins: margin,
     });
-  }, [width, height]);
+  }, [width, height, margin]);
 
   // Transform for the grid container
   const transform = `translate(${margin[3]}, ${margin[0]})`;
@@ -261,7 +260,7 @@ function PieGridInner({
   }, [data, designatedTotal]);
 
   // Calculate grid layout and series data
-  const { gridData, series } = useMemo(() => {
+  const { series } = useMemo(() => {
     // Grid layout calculation - use Angular's gridSize algorithm
     // This keeps adding rows until each column width is >= minWidth
     let rows = 1;
@@ -307,7 +306,7 @@ function PieGridInner({
       // Angular uses a lighter shade of the same color for the background arc
       const actualColor = colorScale.getColor(labelText);
       let count = 0;
-      const colors = (colorLabel: string): string => {
+      const colors = (_colorLabel: string): string => {
         count += 1;
         if (count === 1) {
           // Background: lighter version of the actual color (30% opacity)

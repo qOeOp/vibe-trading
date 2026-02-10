@@ -19,7 +19,7 @@ export interface GridItem {
 }
 
 export interface GridData {
-  extra?: any;
+  extra?: unknown;
   label?: string;
   name: StringOrNumberOrDate;
   percent: number;

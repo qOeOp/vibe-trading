@@ -126,7 +126,7 @@ const BarHorizontalGroupedInner = memo(function BarHorizontalGroupedInner({
   }, [data]);
 
   // Create scales
-  const { groupScale, innerScale, valueScale, groupDomain, innerDomain, valueDomain } = useGroupedBarScales({
+  const { groupScale, innerScale, valueScale, groupDomain, innerDomain, valueDomain: _valueDomain } = useGroupedBarScales({
     multiData: multiSeriesData,
     width: dims.width,
     height: dims.height,
@@ -210,7 +210,7 @@ const BarHorizontalGroupedInner = memo(function BarHorizontalGroupedInner({
     setYAxisWidth(width);
   }, []);
 
-  const handleDataLabelWidthChanged = useCallback((event: { size: { width: number; negative: boolean }; index: number }, groupIndex: number) => {
+  const handleDataLabelWidthChanged = useCallback((event: { size: { width: number; negative: boolean }; index: number }, _groupIndex: number) => {
     if (event.size.negative) {
       setDataLabelMaxWidth((prev) => ({
         ...prev,

@@ -22,7 +22,6 @@ import { CurveFactory, curveLinear } from 'd3-shape';
 
 import {
   MultiSeries,
-  AreaChartSeries,
   ScaleType,
   ViewDimensions,
   LegendPosition,
@@ -269,7 +268,10 @@ export function useAreaChart(config: UseAreaChartConfig): UseAreaChartResult {
   const [yAxisWidth, setYAxisWidth] = useState(initialYAxisWidth);
   const [filteredDomain, setFilteredDomain] = useState<Array<string | number | Date> | null>(null);
 
-  const margins: [number, number, number, number] = customMargins ?? [10, 12, 10, 10];
+  const margins: [number, number, number, number] = useMemo(
+    () => customMargins ?? [10, 12, 10, 10],
+    [customMargins]
+  );
   const timelineHeight = 50;
   const timelinePadding = 10;
 
@@ -301,6 +303,7 @@ export function useAreaChart(config: UseAreaChartConfig): UseAreaChartResult {
   }, [
     width,
     height,
+    margins,
     showXAxis,
     showYAxis,
     xAxisHeight,
@@ -311,7 +314,6 @@ export function useAreaChart(config: UseAreaChartConfig): UseAreaChartResult {
     schemeType,
     legendPosition,
     timeline,
-    customMargins,
   ]);
 
   // Get unique X values and detect scale type
@@ -589,7 +591,7 @@ export function useAreaChart(config: UseAreaChartConfig): UseAreaChartResult {
       height: timelineHeight,
       transform: `translate(${dims.xOffset || 0}, ${-margins[2]})`,
     };
-  }, [timeline, scaleType, xValues, dims.width, dims.xOffset, yDomain]);
+  }, [timeline, scaleType, xValues, dims.width, dims.xOffset, yDomain, margins]);
 
   // Callbacks
   const updateXAxisHeight = useCallback((height: number) => {

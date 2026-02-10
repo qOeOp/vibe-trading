@@ -133,7 +133,7 @@ const BarVerticalStackedInner = memo(function BarVerticalStackedInner({
   }, [data]);
 
   // Create scales
-  const { groupScale, innerScale, valueScale, groupDomain, innerDomain, valueDomain } = useStackedBarScales({
+  const { groupScale, innerScale: _innerScale, valueScale, groupDomain: _groupDomain, innerDomain, valueDomain: _valueDomain } = useStackedBarScales({
     multiData: multiSeriesData,
     width: adjustedDims.width,
     height: adjustedDims.height,
@@ -216,7 +216,7 @@ const BarVerticalStackedInner = memo(function BarVerticalStackedInner({
     setYAxisWidth(width);
   }, []);
 
-  const handleDataLabelHeightChanged = useCallback((event: { size: { height: number; negative: boolean }; index: number }, groupIndex: number) => {
+  const handleDataLabelHeightChanged = useCallback((event: { size: { height: number; negative: boolean }; index: number }, _groupIndex: number) => {
     if (event.size.negative) {
       setDataLabelMaxHeight((prev) => ({
         ...prev,

@@ -131,12 +131,12 @@ export const AXES_MARGINS: Margin = {
 /**
  * Reduces ticks to max number while maintaining even distribution
  */
-export function reduceTicks(ticks: any[], maxTicks: number): any[] {
+export function reduceTicks<T>(ticks: T[], maxTicks: number): T[] {
   if (ticks.length <= maxTicks) {
     return ticks;
   }
 
-  const reduced: any[] = [];
+  const reduced: T[] = [];
   const step = Math.floor(ticks.length / maxTicks);
 
   for (let i = 0; i < ticks.length; i += step) {

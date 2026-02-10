@@ -51,13 +51,18 @@ export interface SankeyProps {
   /** Truncate labels */
   truncateLabels?: boolean;
   /** Selection callback */
-  onSelect?: (data: any) => void;
+  onSelect?: (data: unknown) => void;
   /** Activation callback */
-  onActivate?: (data: any) => void;
+  onActivate?: (data: unknown) => void;
   /** Deactivation callback */
-  onDeactivate?: (data: any) => void;
+  onDeactivate?: (data: unknown) => void;
   /** Custom class name */
   className?: string;
+}
+
+interface SankeyNodeData {
+  name: string;
+  value: number;
 }
 
 interface RectItem {
@@ -70,10 +75,21 @@ interface RectItem {
   labelAnchor: string;
   tooltip: string;
   transform: string;
-  data: any;
+  data: SankeyNodeData;
   originalLabel: string;
-  node?: any;
+  node?: unknown;
   active?: boolean;
+}
+
+/** Represents a d3-sankey computed node with layout positions */
+interface SankeyComputedNode {
+  name: string;
+  value: number;
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+  layer?: number;
 }
 
 interface LinkPath {
@@ -82,11 +98,11 @@ interface LinkPath {
   tooltip: string;
   id: string;
   gradientFill: string;
-  source: any;
-  target: any;
+  source: SankeyComputedNode;
+  target: SankeyComputedNode;
   startColor: string;
   endColor: string;
-  data: any;
+  data: { source: string; target: string; value: number };
   active?: boolean;
 }
 
@@ -97,7 +113,6 @@ export function Sankey({
   colorScheme = 'cool',
   colors: customColors,
   showLabels = true,
-  gradient = false,
   animated = true,
   tooltipDisabled = false,
   labelFormatting,
@@ -119,15 +134,15 @@ export function Sankey({
 
   const gradientIdBase = useStableId('grad');
 
-  const margin = [10, 10, 10, 10];
+  const margin = useMemo<[number, number, number, number]>(() => [10, 10, 10, 10], []);
 
   const dims: ViewDimensions = useMemo(() => {
     return calculateViewDimensions({
       width,
       height,
-      margins: margin as [number, number, number, number],
+      margins: margin,
     });
-  }, [width, height]);
+  }, [width, height, margin]);
 
   const nodeDefs = useMemo(() => {
     if (!data || data.length === 0) return [];
@@ -157,8 +172,9 @@ export function Sankey({
       return { nodeRects: [], linkPaths: [] };
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- d3-sankey generic parameters require flexible typing for node/link data
     const sankeyGenerator = sankey<any, any>()
-      .nodeId((d: any) => d.name)
+      .nodeId((d: SankeyNodeData) => d.name)
       .nodeAlign(sankeyLeft)
       .nodeWidth(15)
       .nodePadding(10)
@@ -172,38 +188,41 @@ export function Sankey({
       links: data.map((d) => ({ ...d })),
     });
 
-    const rects: RectItem[] = sankeyData.nodes.map((node: any) => {
-      const label = labelFormatting ? labelFormatting(node.name) : node.name;
+    const rects: RectItem[] = sankeyData.nodes.map((node) => {
+      const n = node as unknown as SankeyComputedNode;
+      const label = labelFormatting ? labelFormatting(n.name) : n.name;
       return {
-        x: node.x0,
-        y: node.y0,
-        height: node.y1 - node.y0,
-        width: node.x1 - node.x0,
-        fill: colorHelper.getColor(node.name),
-        tooltip: `<span class="tooltip-label">${escapeLabel(node.name)}</span><span class="tooltip-val">${node.value.toLocaleString()}</span>`,
+        x: n.x0,
+        y: n.y0,
+        height: n.y1 - n.y0,
+        width: n.x1 - n.x0,
+        fill: colorHelper.getColor(n.name),
+        tooltip: `<span class="tooltip-label">${escapeLabel(n.name)}</span><span class="tooltip-val">${n.value.toLocaleString()}</span>`,
         label: truncateLabels ? trimLabel(label, 20) : label,
-        originalLabel: node.name,
-        node,
-        data: { name: node.name, value: node.value },
-        transform: `translate(${node.x0},${node.y0})`,
-        labelAnchor: node.layer === 0 ? 'start' : 'end',
+        originalLabel: n.name,
+        node: n,
+        data: { name: n.name, value: n.value },
+        transform: `translate(${n.x0},${n.y0})`,
+        labelAnchor: n.layer === 0 ? 'start' : 'end',
         active: false,
       };
     });
 
-    const links: LinkPath[] = sankeyData.links.map((link: any, index: number) => {
+    const links: LinkPath[] = sankeyData.links.map((link, index: number) => {
+      const src = link.source as unknown as SankeyComputedNode;
+      const tgt = link.target as unknown as SankeyComputedNode;
       const gradientId = `${gradientIdBase}-${index}`;
       return {
         path: sankeyLinkHorizontal()(link) || '',
-        strokeWidth: Math.max(1, link.width),
-        tooltip: `<span class="tooltip-label">${escapeLabel(link.source.name)} → ${escapeLabel(link.target.name)}</span><span class="tooltip-val">${link.value.toLocaleString()}</span>`,
+        strokeWidth: Math.max(1, (link as unknown as { width: number }).width),
+        tooltip: `<span class="tooltip-label">${escapeLabel(src.name)} \u2192 ${escapeLabel(tgt.name)}</span><span class="tooltip-val">${link.value.toLocaleString()}</span>`,
         id: gradientId,
         gradientFill: `url(#${gradientId})`,
-        source: link.source,
-        target: link.target,
-        startColor: colorHelper.getColor(link.source.name),
-        endColor: colorHelper.getColor(link.target.name),
-        data: { source: link.source.name, target: link.target.name, value: link.value },
+        source: src,
+        target: tgt,
+        startColor: colorHelper.getColor(src.name),
+        endColor: colorHelper.getColor(tgt.name),
+        data: { source: src.name, target: tgt.name, value: link.value },
         active: false,
       };
     });

@@ -106,8 +106,6 @@ function getTickPath(startDistance: number, tickLength: number, angle: number): 
 export function GaugeAxis({
   bigSegments = 10,
   smallSegments = 5,
-  min,
-  max,
   angleSpan,
   startAngle,
   radius,

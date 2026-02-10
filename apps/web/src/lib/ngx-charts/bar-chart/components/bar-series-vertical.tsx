@@ -15,10 +15,10 @@
  * @license MIT
  */
 
-import { useMemo, useCallback, useRef } from 'react';
+import { useMemo, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ScaleBand, ScaleLinear } from 'd3-scale';
-import type { DataItem, StringOrNumberOrDate } from '../../types';
+import type { DataItem } from '../../types';
 import { Bar } from './bar';
 import { BarLabel } from './bar-label';
 import { BarChartType, D0Types, type Bar as BarModel, type BarSeriesProps } from '../types';
@@ -54,12 +54,10 @@ export function BarSeriesVertical({
   yScale,
   getColor,
   getGradientStops,
-  dims,
   gradient = false,
   activeEntries = [],
   seriesName,
   tooltipDisabled = false,
-  tooltipTemplate,
   roundEdges = true,
   animated = true,
   showDataLabel = false,
@@ -72,7 +70,6 @@ export function BarSeriesVertical({
   onDataLabelHeightChanged,
 }: BarSeriesVerticalProps) {
   const { showTooltip, hideTooltip } = useChartTooltip();
-  const barRefs = useRef<Map<string, SVGGElement | null>>(new Map());
 
   // Calculate bars
   const bars = useMemo((): BarModel[] => {
@@ -299,7 +296,7 @@ export function BarSeriesVertical({
   return (
     <g>
       <AnimatePresence>
-        {bars.map((bar, index) => (
+        {bars.map((bar, _index) => (
           <motion.g
             key={String(bar.label)}
             initial={animated ? { opacity: 0 } : false}

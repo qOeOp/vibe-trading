@@ -16,7 +16,7 @@
 'use client';
 
 import { useMemo, useRef } from 'react';
-import { treemap, stratify, HierarchyRectangularNode } from 'd3-hierarchy';
+import { treemap, stratify } from 'd3-hierarchy';
 import { DataItem, ColorScheme, ScaleType, ViewDimensions } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { BaseChart, useChartDimensions } from '../common';
@@ -70,15 +70,15 @@ export function TreeMap({
     fixedHeight
   );
 
-  const margin = [10, 10, 10, 10];
+  const margin = useMemo<[number, number, number, number]>(() => [10, 10, 10, 10], []);
 
   const dims: ViewDimensions = useMemo(() => {
     return calculateViewDimensions({
       width,
       height,
-      margins: margin as [number, number, number, number],
+      margins: margin,
     });
-  }, [width, height]);
+  }, [width, height, margin]);
 
   const domain = useMemo(() => {
     return data.map((d) => d.name);
@@ -96,18 +96,20 @@ export function TreeMap({
   const treemapData = useMemo(() => {
     if (!data || data.length === 0) return null;
 
-    const treemapLayout = treemap<any>()
+    type TreeMapNodeInput = DataItem & { isRoot?: boolean };
+
+    const treemapLayout = treemap<TreeMapNodeInput>()
       .size([dims.width, dims.height])
       .paddingInner(1);
 
-    const rootNode = {
+    const rootNode: TreeMapNodeInput = {
       name: 'root',
       value: 0,
       isRoot: true,
     };
 
     try {
-      const root = stratify<any>()
+      const root = stratify<TreeMapNodeInput>()
         .id((d) => {
           let label = d.name;
           if (label instanceof Date) {

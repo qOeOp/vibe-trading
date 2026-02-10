@@ -23,7 +23,7 @@ import { PieArc } from './pie-arc';
 import { PieLabel } from './pie-label';
 import { useChartTooltip } from '../../common/tooltip';
 import type { DataItem } from '../../types';
-import { ColorHelper, trimLabel, formatLabel, escapeLabel } from '../../utils';
+import { ColorHelper, formatLabel, escapeLabel } from '../../utils';
 
 /** Arc data with position for label */
 export interface ArcWithPosition {
@@ -117,6 +117,9 @@ export function PieSeries({
     const getMidAngle = (d: { startAngle: number; endAngle: number }) =>
       d.startAngle + (d.endAngle - d.startAngle) / 2;
 
+    const isLabelVisible = (arcItem: ArcWithPosition): boolean =>
+      showLabels && arcItem.endAngle - arcItem.startAngle > Math.PI / 30;
+
     const processedArcs: ArcWithPosition[] = arcData.map((d, index) => {
       const pos = outerArcGen.centroid({
         startAngle: d.startAngle,
@@ -144,11 +147,11 @@ export function PieSeries({
       const minDistance = 10;
       for (let i = 0; i < processedArcs.length - 1; i++) {
         const a = processedArcs[i];
-        if (!labelVisible(a)) continue;
+        if (!isLabelVisible(a)) continue;
 
         for (let j = i + 1; j < processedArcs.length; j++) {
           const b = processedArcs[j];
-          if (!labelVisible(b)) continue;
+          if (!isLabelVisible(b)) continue;
 
           // If they're on the same side
           if (b.pos[0] * a.pos[0] > 0) {

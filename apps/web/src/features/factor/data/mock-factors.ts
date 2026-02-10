@@ -14,9 +14,9 @@ import type {
 function createSeededRandom(seed: number) {
   return function() {
     let t = seed += 0x6D2B79F5;
-    t = Math.imul(t ^ t >>> 15, t | 1);
-    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return (((t ^ (t >>> 14)) >>> 0)) / 4294967296;
   };
 }
 
@@ -118,9 +118,9 @@ function generateCumulativeReturns(days: number): CumulativeReturnPoint[] {
     q5: 0.0005,
   };
 
-  for (const date of dates) {
-    const noise = () => (seededRandom() - 0.5) * 0.003;
+  const noise = () => (seededRandom() - 0.5) * 0.003;
 
+  for (const date of dates) {
     q1 += dailyReturns.q1 + noise();
     q2 += dailyReturns.q2 + noise();
     q3 += dailyReturns.q3 + noise();
@@ -169,7 +169,7 @@ function generateStatistics(factor: FactorInfo): FactorStatistics {
   };
 }
 
-function generateHoldingComposition(days: number, stepDays: number = 7): HoldingCompositionPoint[] {
+function generateHoldingComposition(days: number, stepDays = 7): HoldingCompositionPoint[] {
   const dates: string[] = [];
   const today = new Date();
   for (let i = days - 1; i >= 0; i -= stepDays) {
@@ -181,7 +181,7 @@ function generateHoldingComposition(days: number, stepDays: number = 7): Holding
   const points: HoldingCompositionPoint[] = [];
   const sectorCount = HOLDING_SECTORS.length;
 
-  let weights = [0, 0, 35, 0, 0, 65, 0];
+  const weights = [0, 0, 35, 0, 0, 65, 0];
 
   for (let t = 0; t < dates.length; t++) {
     for (let s = 0; s < sectorCount; s++) {

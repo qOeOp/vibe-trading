@@ -103,7 +103,7 @@ export function NgxAreaChart({
     if (dims.height <= 0) return null;
     const allValues = results.flatMap((s) => s.series.map((d) => d.value));
     let min = Math.min(...allValues);
-    let max = Math.max(...allValues);
+    const max = Math.max(...allValues);
 
     if (!autoScale) {
       min = Math.min(min, 0);
@@ -133,17 +133,17 @@ export function NgxAreaChart({
   const areaGenerator = useMemo(() => {
     if (!xScale || !yScale) return null;
     return area<DataPoint>()
-      .x((d) => xScale(d.name as Date | number)!)
+      .x((d) => xScale(d.name as Date | number) ?? 0)
       .y0(yScale.range()[0])
-      .y1((d) => yScale(d.value)!)
+      .y1((d) => yScale(d.value) ?? 0)
       .curve(curve);
   }, [xScale, yScale, curve]);
 
   const lineGenerator = useMemo(() => {
     if (!xScale || !yScale) return null;
     return line<DataPoint>()
-      .x((d) => xScale(d.name as Date | number)!)
-      .y((d) => yScale(d.value)!)
+      .x((d) => xScale(d.name as Date | number) ?? 0)
+      .y((d) => yScale(d.value) ?? 0)
       .curve(curve);
   }, [xScale, yScale, curve]);
 

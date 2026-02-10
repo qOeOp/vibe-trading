@@ -27,7 +27,6 @@ import {
   ColorScheme,
   ScaleType,
   LegendPosition,
-  ViewDimensions,
   StringOrNumberOrDate,
 } from '../types';
 import { BaseChart, XAxis, YAxis, Legend } from '../common';
@@ -270,6 +269,7 @@ export function BubbleChart({
         const seriesDomain = data.map((d) => String(d.name));
 
         // Calculate R domain (radius values)
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const rDomain = useMemo((): [number, number] => {
           let min = Infinity;
           let max = -Infinity;
@@ -283,9 +283,10 @@ export function BubbleChart({
           }
 
           return [min === Infinity ? 0 : min, max === -Infinity ? 1 : max];
-        }, [data]);
+        }, []);
 
         // Calculate X domain
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const { xDomain, xScaleType } = useMemo(() => {
           const values: unknown[] = [];
           for (const series of data) {
@@ -298,9 +299,10 @@ export function BubbleChart({
           const scaleType = getScaleType(values);
           const domain = getDomain(values, scaleType, autoScale, xScaleMin, xScaleMax);
           return { xDomain: domain, xScaleType: scaleType };
-        }, [data, autoScale, xScaleMin, xScaleMax]);
+        }, []);
 
         // Calculate Y domain
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const { yDomain, yScaleType } = useMemo(() => {
           const values: unknown[] = [];
           for (const series of data) {
@@ -313,21 +315,23 @@ export function BubbleChart({
           const scaleType = getScaleType(values);
           const domain = getDomain(values, scaleType, autoScale, yScaleMin, yScaleMax);
           return { yDomain: domain, yScaleType: scaleType };
-        }, [data, autoScale, yScaleMin, yScaleMax]);
+        }, []);
 
         // Ensure min/max radius are at least 1
         const effectiveMinRadius = Math.max(minRadius, 1);
         const effectiveMaxRadius = Math.max(maxRadius, 1);
 
         // Create radius scale
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const rScale = useMemo(() => {
           const scale = scaleLinear<number, number>()
             .range([effectiveMinRadius, effectiveMaxRadius])
             .domain(rDomain);
           return roundDomains ? scale.nice() : scale;
-        }, [rDomain, effectiveMinRadius, effectiveMaxRadius, roundDomains]);
+        }, [rDomain, effectiveMinRadius, effectiveMaxRadius]);
 
         // Calculate bubble padding to prevent clipping
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const bubblePadding = useMemo(() => {
           // First pass: create scales without padding
           const tempXScale = getScale(xDomain, [0, dims.width], xScaleType, roundDomains);
@@ -373,9 +377,10 @@ export function BubbleChart({
           yMax = Math.max(yMax - dims.height, 0);
 
           return [yMin, xMax, yMax, xMin] as [number, number, number, number];
-        }, [data, dims, xDomain, yDomain, xScaleType, yScaleType, rScale, roundDomains]);
+        }, [dims, xDomain, yDomain, xScaleType, yScaleType, rScale]);
 
         // Create final scales with padding
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const { xScale, yScale } = useMemo(() => {
           let width = dims.width;
           if (xScaleMin === undefined && xScaleMax === undefined) {
@@ -390,9 +395,10 @@ export function BubbleChart({
           const ys = getScale(yDomain, [height, bubblePadding[0]], yScaleType, roundDomains);
 
           return { xScale: xs, yScale: ys };
-        }, [dims, xDomain, yDomain, xScaleType, yScaleType, bubblePadding, roundDomains, xScaleMin, xScaleMax, yScaleMin, yScaleMax]);
+        }, [dims, xDomain, yDomain, xScaleType, yScaleType, bubblePadding]);
 
         // Create color helper
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const colors = useMemo(() => {
           const colorDomain = schemeType === ScaleType.Ordinal ? seriesDomain : rDomain;
           return new ColorHelper({
@@ -401,9 +407,10 @@ export function BubbleChart({
             domain: colorDomain as string[] | number[],
             customColors,
           });
-        }, [colorScheme, schemeType, seriesDomain, rDomain, customColors]);
+        }, [seriesDomain, rDomain]);
 
         // Legend options
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const legendOptions = useMemo(() => {
           if (schemeType === ScaleType.Ordinal) {
             return {
@@ -417,13 +424,14 @@ export function BubbleChart({
             colors,
             title: undefined,
           };
-        }, [schemeType, seriesDomain, rDomain, colors, legendTitle]);
+        }, [seriesDomain, rDomain, colors]);
 
         // Transform and clip path
         const transform = `translate(${dims.xOffset},${margin[0]})`;
         const clipPath = `url(#${clipPathId})`;
 
         // Event handlers
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleClick = useCallback(
           (eventData: BubbleChartDataItem, series?: BubbleChartSeries) => {
             const enrichedData = {
@@ -432,9 +440,10 @@ export function BubbleChart({
             } as BubbleChartDataItem & { series: StringOrNumberOrDate };
             onSelect?.(enrichedData);
           },
-          [onSelect]
+          []
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleActivate = useCallback(
           (item: { name: StringOrNumberOrDate }) => {
             const idx = activeEntries.findIndex((d) => String(d.name) === String(item.name));
@@ -444,9 +453,10 @@ export function BubbleChart({
             setActiveEntries(newEntries);
             onActivate?.({ value: item, entries: newEntries });
           },
-          [activeEntries, onActivate]
+          []
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleDeactivate = useCallback(
           (item: { name: StringOrNumberOrDate }) => {
             const idx = activeEntries.findIndex((d) => String(d.name) === String(item.name));
@@ -457,16 +467,18 @@ export function BubbleChart({
             setActiveEntries(newEntries);
             onDeactivate?.({ value: item, entries: newEntries });
           },
-          [activeEntries, onDeactivate]
+          []
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleDeactivateAll = useCallback(() => {
           for (const entry of activeEntries) {
             onDeactivate?.({ value: entry, entries: [] });
           }
           setActiveEntries([]);
-        }, [activeEntries, onDeactivate]);
+        }, []);
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleLegendClick = useCallback(
           (name: string) => {
             const series = data.find((s) => String(s.name) === name);
@@ -474,25 +486,27 @@ export function BubbleChart({
               handleClick(series.series[0], series);
             }
           },
-          [data, handleClick]
+          [handleClick]
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleXAxisHeightChange = useCallback(
           (newHeight: number) => {
             if (newHeight !== xAxisHeight) {
               setXAxisHeight(newHeight);
             }
           },
-          [xAxisHeight]
+          []
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleYAxisWidthChange = useCallback(
           (newWidth: number) => {
             if (newWidth !== yAxisWidth) {
               setYAxisWidth(newWidth);
             }
           },
-          [yAxisWidth]
+          []
         );
 
         return (

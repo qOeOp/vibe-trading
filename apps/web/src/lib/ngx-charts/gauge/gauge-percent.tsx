@@ -145,7 +145,7 @@ export function GaugePercent({
   }, [radius]);
 
   // Value domain for color scale
-  const valueDomain: [number, number] = [0, max];
+  const valueDomain: [number, number] = useMemo(() => [0, max], [max]);
 
   // Create color helper with linear scale
   const colorHelper = useMemo(() => {

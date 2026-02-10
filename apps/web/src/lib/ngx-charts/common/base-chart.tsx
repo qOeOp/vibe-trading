@@ -73,9 +73,6 @@ export const BaseChart = forwardRef<HTMLDivElement, BaseChartProps>(function Bas
   {
     width: fixedWidth,
     height: fixedHeight,
-    colorScheme = 'cool',
-    scaleType = ScaleType.Ordinal,
-    colors,
     animated = true,
     className = '',
     style,
@@ -234,7 +231,7 @@ export function useChartColors(
 /**
  * Hook for managing chart animation state
  */
-export function useChartAnimation(animated: boolean = true) {
+export function useChartAnimation(animated = true) {
   const [isInitialRender, setIsInitialRender] = useState(true);
 
   useEffect(() => {

@@ -172,7 +172,7 @@ export function Card({
     newPadding[0] = padding - textFontSize - labelFontSize / 2;
     newPadding[2] = padding - labelFontSize;
     setTextPadding(newPadding);
-  }, [cardWidth, cardHeight, textFontSize, labelFontSize]);
+  }, [cardWidth, cardHeight, textFontSize, labelFontSize, textPadding]);
 
   useLayoutEffect(() => {
     if (!hasValue) {
@@ -215,6 +215,7 @@ export function Card({
     }, 8);
 
     return () => clearTimeout(scaleTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- startCountAnimation and textFontSize intentionally excluded to prevent infinite re-render loops
   }, [cardWidth, cardHeight, hasValue, cardData, valueFormat, paddedValue, setPaddingValues, animated]);
 
   useEffect(() => {

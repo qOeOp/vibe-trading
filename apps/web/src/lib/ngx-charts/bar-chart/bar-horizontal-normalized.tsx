@@ -113,7 +113,7 @@ const BarHorizontalNormalizedInner = memo(function BarHorizontalNormalizedInner(
   }, [data]);
 
   // Create scales
-  const { groupScale, innerScale, valueScale, groupDomain, innerDomain, valueDomain } = useNormalizedBarScales({
+  const { groupScale, innerScale: _innerScale, valueScale, groupDomain: _groupDomain, innerDomain, valueDomain: _valueDomain } = useNormalizedBarScales({
     multiData: multiSeriesData,
     width: dims.width,
     height: dims.height,

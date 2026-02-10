@@ -45,7 +45,6 @@ export interface BoxSeriesProps {
 }
 
 export function BoxSeries({
-  dims,
   series,
   xScale,
   yScale,

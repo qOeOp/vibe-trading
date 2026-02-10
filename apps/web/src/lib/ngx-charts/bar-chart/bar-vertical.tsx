@@ -129,7 +129,7 @@ const BarVerticalInner = memo(function BarVerticalInner({
   }, [dims, showDataLabel, dataLabelMaxHeight]);
 
   // Create scales
-  const { xScale, yScale, xDomain, yDomain } = useVerticalBarScales({
+  const { xScale, yScale, xDomain, yDomain: _yDomain } = useVerticalBarScales({
     data,
     width: adjustedDims.width,
     height: adjustedDims.height,
@@ -225,7 +225,7 @@ const BarVerticalInner = memo(function BarVerticalInner({
 
   // Calculate SVG dimensions - when legend is on right, SVG needs to be narrower
   // to fit both chart and legend within container dimensions
-  const svgWidth = legend && legendPosition === 'right'
+  const _svgWidth = legend && legendPosition === 'right'
     ? dims.width + (dims.xOffset ?? 0) + margin[1] + margin[3]
     : containerWidth;
   const svgHeight = legend && legendPosition === 'below'

@@ -16,34 +16,42 @@
 'use client';
 
 import { useMemo, useCallback, useId } from 'react';
-import { lineRadial, curveCardinalClosed } from 'd3-shape';
-import { Series, DataItem, ScaleType } from '../types';
+import { lineRadial, curveCardinalClosed, type CurveFactory } from 'd3-shape';
+import { Series, DataItem, ScaleType, StringOrNumberOrDate } from '../types';
 import { ColorHelper, escapeLabel } from '../utils';
 import { SvgRadialGradient, createRadialGradientStops } from '../common/gradients';
 
 export interface PolarSeriesProps {
   data: Series;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- D3 scales have incompatible type signatures across scale types
   xScale: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- D3 scales have incompatible type signatures across scale types
   yScale: any;
   colors: ColorHelper;
   scaleType: ScaleType;
-  curve?: any;
-  activeEntries?: any[];
+  curve?: CurveFactory;
+  activeEntries?: { name: string | number | Date }[];
   rangeFillOpacity?: number;
   gradient?: boolean;
   animated?: boolean;
   tooltipDisabled?: boolean;
   circleRadius?: number;
-  onSelect?: (data: any) => void;
-  onActivate?: (data: any) => void;
-  onDeactivate?: (data: any) => void;
+  onSelect?: (data: unknown) => void;
+  onActivate?: (data: unknown) => void;
+  onDeactivate?: (data: unknown) => void;
+}
+
+interface PolarCircleData {
+  series: StringOrNumberOrDate;
+  value: number;
+  name: StringOrNumberOrDate;
 }
 
 interface PolarCircle {
   color: string;
   cx: number;
   cy: number;
-  data: any;
+  data: PolarCircleData;
   label: string;
   value: number;
 }
@@ -58,7 +66,6 @@ export function PolarSeries({
   activeEntries = [],
   rangeFillOpacity = 0.15,
   gradient = false,
-  animated = true,
   tooltipDisabled = false,
   circleRadius = 3,
   onSelect,
@@ -73,7 +80,7 @@ export function PolarSeries({
     if (scaleType === ScaleType.Linear) {
       return series.sort((a, b) => Number(a.name) - Number(b.name));
     } else if (scaleType === ScaleType.Time) {
-      return series.sort((a, b) => new Date(a.name as any).getTime() - new Date(b.name as any).getTime());
+      return series.sort((a, b) => new Date(a.name as string | number).getTime() - new Date(b.name as string | number).getTime());
     }
     // For ordinal, use domain order
     const domain = xScale.domain();

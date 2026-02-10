@@ -155,7 +155,7 @@ export function Bar({
   }, [x, y, width, height, radius, edges]);
 
   // Calculate starting path for animation
-  const startingPath = useMemo(() => {
+  const _startingPath = useMemo(() => {
     if (!animated) {
       return path;
     }

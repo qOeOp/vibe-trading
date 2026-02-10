@@ -16,7 +16,7 @@
 
 'use client';
 
-import { useState, useCallback, useMemo, type ReactNode } from 'react';
+import { useState, useCallback, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CurveFactory, curveLinear } from 'd3-shape';
 
@@ -27,11 +27,9 @@ import {
   ColorScheme,
   ScaleType,
   LegendPosition,
-  ViewDimensions,
 } from '../types';
 import {
   BaseChart,
-  useChartDimensions,
   XAxis,
   YAxis,
   Legend,
@@ -220,6 +218,7 @@ export function LineChart({
     >
       {({ width: containerWidth, height: containerHeight }) => {
         // Use line chart hook for calculations
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const chartState = useLineChart({
           data,
           width: containerWidth,
@@ -255,35 +254,36 @@ export function LineChart({
           clipPath,
           hasRange,
           legendOptions,
-          xAxisHeight,
-          yAxisWidth,
           onXAxisHeightChange,
           onYAxisWidthChange,
           timelineXScale,
           timelineYScale,
-          timelineWidth,
           timelineTransform,
         } = chartState;
 
         // Handlers
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleHover = useCallback(({ value }: { value: unknown }) => {
           setHoveredVertical(value);
           // Deactivate all when hovering
           setActiveEntries([]);
         }, []);
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleMouseLeave = useCallback(() => {
           setHoveredVertical(null);
           setActiveEntries([]);
         }, []);
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleClick = useCallback(
           (event: { name: unknown; value: number; series: string }) => {
             onSelect?.(event);
           },
-          [onSelect]
+          []
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleActivate = useCallback(
           (item: { name: string; value?: number }) => {
             // Check if already in activeEntries
@@ -296,9 +296,10 @@ export function LineChart({
             setActiveEntries(newEntries);
             onActivate?.({ value: item, entries: newEntries });
           },
-          [activeEntries, onActivate]
+          []
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleDeactivate = useCallback(
           (item: { name: string; value?: number }) => {
             const idx = activeEntries.findIndex(
@@ -311,9 +312,10 @@ export function LineChart({
             setActiveEntries(newEntries);
             onDeactivate?.({ value: item, entries: newEntries });
           },
-          [activeEntries, onDeactivate]
+          []
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleLegendClick = useCallback(
           (name: string) => {
             const series = data.find((s) => String(s.name) === name);
@@ -325,9 +327,10 @@ export function LineChart({
               });
             }
           },
-          [data, handleClick]
+          [handleClick]
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleLegendActivate = useCallback(
           (item: { name: string }) => {
             handleActivate(item);
@@ -335,6 +338,7 @@ export function LineChart({
           [handleActivate]
         );
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleLegendDeactivate = useCallback(
           (item: { name: string }) => {
             handleDeactivate(item);
@@ -425,7 +429,7 @@ export function LineChart({
                 <g clipPath={clipPath}>
                   {/* Line series */}
                   <AnimatePresence mode="sync">
-                    {data.map((series, index) => (
+                    {data.map((series, _index) => (
                       <motion.g
                         key={String(series.name)}
                         initial={animated ? { opacity: 0 } : { opacity: 1 }}

@@ -17,11 +17,11 @@
 'use client';
 
 import { useMemo, useCallback, useState, type ReactNode } from 'react';
-import { BaseChart, useChartColors, Legend } from '../common';
+import { BaseChart, Legend } from '../common';
 import { PieSeries, type ArcWithPosition } from './components';
 import { usePieChart } from './hooks';
 import type { DataItem, ColorScheme, LegendConfig, TooltipConfig } from '../types';
-import { LegendPosition, ScaleType } from '../types';
+import { LegendPosition } from '../types';
 
 export interface PieChartProps {
   /** Chart data - array of { name, value } objects */

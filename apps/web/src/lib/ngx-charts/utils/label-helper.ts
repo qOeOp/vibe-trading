@@ -16,7 +16,7 @@
 /**
  * Trims a label to a maximum length, adding ellipsis if truncated
  */
-export function trimLabel(s: unknown, max: number = 16): string {
+export function trimLabel(s: unknown, max = 16): string {
   if (typeof s !== 'string') {
     if (typeof s === 'number') {
       return String(s);
@@ -34,7 +34,7 @@ export function trimLabel(s: unknown, max: number = 16): string {
 /**
  * Formats a number value for display
  */
-export function formatNumber(value: number, precision: number = 2): string {
+export function formatNumber(value: number, precision = 2): string {
   if (value === null || value === undefined || isNaN(value)) {
     return '';
   }
@@ -51,7 +51,7 @@ export function formatNumber(value: number, precision: number = 2): string {
 /**
  * Formats a percentage value
  */
-export function formatPercent(value: number, precision: number = 1): string {
+export function formatPercent(value: number, precision = 1): string {
   if (value === null || value === undefined || isNaN(value)) {
     return '';
   }
@@ -73,7 +73,7 @@ export function formatDate(date: Date | string | number): string {
  * Calculates the width of text in SVG
  * This is an approximation - actual width depends on font
  */
-export function estimateTextWidth(text: string, fontSize: number = 12): number {
+export function estimateTextWidth(text: string, fontSize = 12): number {
   // Average character width is approximately 0.6 times the font size
   const avgCharWidth = fontSize * 0.6;
   return text.length * avgCharWidth;
@@ -82,7 +82,7 @@ export function estimateTextWidth(text: string, fontSize: number = 12): number {
 /**
  * Wraps text to fit within a maximum width
  */
-export function wrapText(text: string, maxWidth: number, fontSize: number = 12): string[] {
+export function wrapText(text: string, maxWidth: number, fontSize = 12): string[] {
   const words = text.split(' ');
   const lines: string[] = [];
   let currentLine = '';

@@ -19,15 +19,23 @@ import { useMemo, useCallback, useEffect, useRef } from 'react';
 import { Orientation, TextAnchor } from '../../types';
 import { trimLabel, reduceTicks } from '../../utils';
 
+/** Reference line definition for axis display */
+interface ReferenceLine {
+  name: string;
+  value: string | number | Date;
+}
+
 export interface YAxisTicksProps {
   /** D3 scale function */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- D3 scales have incompatible type signatures across scale types
   scale: any;
   /** Axis orientation */
   orient?: Orientation;
   /** Number of ticks to display */
   tickArguments?: number[];
   /** Specific tick values to display */
-  tickValues?: (string | number)[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- D3 scale.domain() returns unknown[]; callers pass heterogeneous tick arrays
+  tickValues?: any[];
   /** Tick stroke color */
   tickStroke?: string;
   /** Whether to trim tick labels */
@@ -35,6 +43,7 @@ export interface YAxisTicksProps {
   /** Maximum tick label length */
   maxTickLength?: number;
   /** Custom tick formatting function */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Callers pass (v: number) => string, (v: Date) => string, etc.; union of all signatures is impractical
   tickFormatting?: (value: any) => string;
   /** Whether to show grid lines */
   showGridLines?: boolean;
@@ -45,7 +54,7 @@ export interface YAxisTicksProps {
   /** Height of the axis */
   height?: number;
   /** Reference lines */
-  referenceLines?: any[];
+  referenceLines?: ReferenceLine[];
   /** Show reference labels */
   showRefLabels?: boolean;
   /** Show reference lines */
@@ -61,7 +70,6 @@ export function YAxisTicks({
   orient = Orientation.Left,
   tickArguments = [5],
   tickValues,
-  tickStroke = '#ddd',
   trimTicks: shouldTrimTicks = true,
   maxTickLength = 16,
   tickFormatting,
@@ -72,7 +80,6 @@ export function YAxisTicks({
   referenceLines,
   showRefLabels = false,
   showRefLines = false,
-  wrapTicks = false,
   onDimensionsChanged,
 }: YAxisTicksProps) {
   const ticksRef = useRef<SVGGElement>(null);
@@ -97,12 +104,12 @@ export function YAxisTicks({
   }, [scale, tickValues, tickArguments, height]);
 
   const tickFormat = useCallback(
-    (value: any): string => {
+    (value: string | number | Date): string => {
       if (tickFormatting) {
         return tickFormatting(value);
       }
       if (scale.tickFormat) {
-        return scale.tickFormat.apply(scale, tickArguments)(value);
+        return scale.tickFormat(...tickArguments)(value);
       }
       if (value instanceof Date) {
         return value.toLocaleDateString();
@@ -119,7 +126,7 @@ export function YAxisTicks({
 
   const adjustedScale = useMemo(() => {
     if (scale.bandwidth) {
-      return (d: any) => scale(d) + scale.bandwidth() * 0.5;
+      return (d: string | number | Date) => scale(d) + scale.bandwidth() * 0.5;
     }
     return scale;
   }, [scale]);
@@ -150,7 +157,7 @@ export function YAxisTicks({
   }, [orient]);
 
   const tickTransform = useCallback(
-    (tick: any): string => {
+    (tick: string | number | Date): string => {
       return `translate(0,${adjustedScale(tick)})`;
     },
     [adjustedScale]

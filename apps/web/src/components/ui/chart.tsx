@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
+import type { TooltipContentProps } from "recharts"
 
 import { cn } from "@/lib/utils"
 
@@ -132,15 +133,13 @@ function ChartTooltipContent({
   nameKey,
   labelKey,
 }: React.ComponentProps<"div"> &
-  RechartsPrimitive.TooltipProps<any, any> & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Recharts TooltipContentProps requires <any, any> generic parameters; payload/label types are dictated by Recharts internals
+  Partial<TooltipContentProps<any, any>> & {
     hideLabel?: boolean
     hideIndicator?: boolean
     indicator?: "line" | "dot" | "dashed"
     nameKey?: string
     labelKey?: string
-    payload?: any[]
-    active?: boolean
-    label?: any
   }) {
   const { config } = useChart()
 
@@ -278,7 +277,14 @@ function ChartLegendContent({
   Pick<RechartsPrimitive.LegendProps, "verticalAlign"> & {
     hideIcon?: boolean
     nameKey?: string
-    payload?: any[]
+    payload?: Array<{
+      value?: string;
+      type?: string;
+      color?: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Recharts DataKey<any> is the canonical type; no narrower alternative exists
+      dataKey?: any;
+      [key: string]: unknown;
+    }>
   }) {
   const { config } = useChart()
 

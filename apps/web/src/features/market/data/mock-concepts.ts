@@ -26,14 +26,14 @@ export const mockConcepts: ConceptData[] = [
 ];
 
 // 获取涨幅前N的概念
-export function getTopGainers(n: number = 8): ConceptData[] {
+export function getTopGainers(n = 8): ConceptData[] {
   return [...mockConcepts]
     .sort((a, b) => b.changePercent - a.changePercent)
     .slice(0, n);
 }
 
 // 获取资金流入前N的概念
-export function getTopCapitalInflow(n: number = 5): ConceptData[] {
+export function getTopCapitalInflow(n = 5): ConceptData[] {
   return [...mockConcepts]
     .filter((c) => c.capitalFlow > 0)
     .sort((a, b) => b.capitalFlow - a.capitalFlow)

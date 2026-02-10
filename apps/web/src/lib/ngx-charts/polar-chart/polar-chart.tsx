@@ -17,7 +17,7 @@
 
 import { useMemo, useCallback, useRef, useState } from 'react';
 import { scaleLinear, scaleTime, scalePoint } from 'd3-scale';
-import { curveCardinalClosed } from 'd3-shape';
+import { curveCardinalClosed, type CurveFactory } from 'd3-shape';
 import { MultiSeries, ColorScheme, ScaleType, ViewDimensions, LegendPosition } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { BaseChart, useChartDimensions } from '../common';
@@ -61,7 +61,7 @@ export interface PolarChartProps {
   /** Show grid lines */
   showGridLines?: boolean;
   /** Line curve type */
-  curve?: any;
+  curve?: CurveFactory;
   /** Range fill opacity */
   rangeFillOpacity?: number;
   /** Round Y axis domains */
@@ -79,15 +79,15 @@ export interface PolarChartProps {
   /** Label trim size */
   labelTrimSize?: number;
   /** X axis tick formatting */
-  xAxisTickFormatting?: (value: any) => string;
+  xAxisTickFormatting?: (value: string | number | Date) => string;
   /** Y axis tick formatting */
-  yAxisTickFormatting?: (value: any) => string;
+  yAxisTickFormatting?: (value: string | number | Date) => string;
   /** Selection callback */
-  onSelect?: (data: any) => void;
+  onSelect?: (data: unknown) => void;
   /** Activation callback */
-  onActivate?: (data: any) => void;
+  onActivate?: (data: unknown) => void;
   /** Deactivation callback */
-  onDeactivate?: (data: any) => void;
+  onDeactivate?: (data: unknown) => void;
   /** Custom class name */
   className?: string;
 }
@@ -132,17 +132,17 @@ export function PolarChart({
     fixedHeight
   );
 
-  const [activeEntries, setActiveEntries] = useState<any[]>([]);
+  const [activeEntries, setActiveEntries] = useState<{ name: string | number | Date }[]>([]);
   const [yAxisWidth, setYAxisWidth] = useState(0);
 
-  const margin = [10, 20, 10, 20];
+  const margin = useMemo<[number, number, number, number]>(() => [10, 20, 10, 20], []);
 
   // Calculate view dimensions
   const dims: ViewDimensions = useMemo(() => {
     return calculateViewDimensions({
       width,
       height,
-      margins: margin as [number, number, number, number],
+      margins: margin,
       showXAxis: xAxis,
       showYAxis: yAxis,
       yAxisWidth,
@@ -151,7 +151,7 @@ export function PolarChart({
       showLegend: legend,
       legendPosition,
     });
-  }, [width, height, xAxis, yAxis, yAxisWidth, showXAxisLabel, showYAxisLabel, legend, legendPosition]);
+  }, [width, height, margin, xAxis, yAxis, yAxisWidth, showXAxisLabel, showYAxisLabel, legend, legendPosition]);
 
   // Calculate outer radius
   const outerRadius = useMemo(() => {
@@ -162,7 +162,7 @@ export function PolarChart({
 
   // Get all X values
   const xValues = useMemo(() => {
-    const values: any[] = [];
+    const values: (string | number | Date)[] = [];
     for (const result of data) {
       for (const d of result.series || []) {
         if (!values.includes(d.name)) {
@@ -237,10 +237,10 @@ export function PolarChart({
         return roundDomains ? scale.nice() : scale;
       }
       default:
-        return scalePoint<any>()
-          .range([0, TWO_PI - TWO_PI / (xDomain as any[]).length])
+        return scalePoint<string>()
+          .range([0, TWO_PI - TWO_PI / (xDomain as string[]).length])
           .padding(0)
-          .domain(xDomain as any[]);
+          .domain(xDomain as string[]);
     }
   }, [scaleType, xDomain, roundDomains]);
 
@@ -273,14 +273,15 @@ export function PolarChart({
 
     const tickFormat =
       xAxisTickFormatting ||
-      ((d: any) => {
+      ((d: string | number | Date) => {
         if (d instanceof Date) return d.toLocaleDateString();
-        return d.toLocaleString();
+        return String(d);
       });
 
     const s = 1.1;
-    return (xDomain as any[]).map((d) => {
-      const startAngle = xScale(d) ?? 0;
+    return (xDomain as (string | number | Date)[]).map((d) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- xScale can be time/linear/point scale; D3 scale input types are incompatible across scale types
+      const startAngle = (xScale as (v: any) => number)(d) ?? 0;
       const dd = s * outerRadius * (startAngle > Math.PI ? -1 : 1);
       const label = tickFormat(d);
 
@@ -320,14 +321,15 @@ export function PolarChart({
 
   // Event handlers
   const handleSelect = useCallback(
-    (item: any) => {
+    (item: unknown) => {
       onSelect?.(item);
     },
     [onSelect]
   );
 
   const handleActivate = useCallback(
-    (item: any) => {
+    (data: unknown) => {
+      const item = data as { name: string | number | Date };
       const idx = activeEntries.findIndex((d) => d.name === item.name);
       if (idx === -1) {
         setActiveEntries([item, ...activeEntries]);
@@ -338,7 +340,8 @@ export function PolarChart({
   );
 
   const handleDeactivate = useCallback(
-    (item: any) => {
+    (data: unknown) => {
+      const item = data as { name: string | number | Date };
       const idx = activeEntries.findIndex((d) => d.name === item.name);
       if (idx > -1) {
         const newEntries = [...activeEntries];

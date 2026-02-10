@@ -227,7 +227,6 @@ function AreaChartStackedContent({
   roundDomains,
   timeline,
   activeEntries,
-  hoveredVertical,
   setHoveredVertical,
   setLocalActiveEntries,
   onSelect,

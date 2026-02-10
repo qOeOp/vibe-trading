@@ -12,9 +12,9 @@ interface LeaderboardTableProps {
 }
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <span className="text-xs" title="1st">🥇</span>;
-  if (rank === 2) return <span className="text-xs" title="2nd">🥈</span>;
-  if (rank === 3) return <span className="text-xs" title="3rd">🥉</span>;
+  if (rank === 1) return <span className="text-xs" role="img" aria-label="1st place">🥇</span>;
+  if (rank === 2) return <span className="text-xs" role="img" aria-label="2nd place">🥈</span>;
+  if (rank === 3) return <span className="text-xs" role="img" aria-label="3rd place">🥉</span>;
   return (
     <span className="text-xs text-mine-muted font-mono tabular-nums w-5 text-center inline-block">
       {rank}

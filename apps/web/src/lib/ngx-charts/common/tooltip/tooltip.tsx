@@ -134,31 +134,6 @@ export function Tooltip({
     };
   }, []);
 
-  // Handle click outside
-  useEffect(() => {
-    if (!isVisible || !closeOnClickOutside) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      const triggerContains = triggerRef.current?.contains(target);
-      const tooltipContains = tooltipRef.current?.contains(target);
-
-      if (!triggerContains && !tooltipContains) {
-        hideTooltip(true);
-      }
-    };
-
-    // Delay adding listener to avoid immediate trigger
-    const timeoutId = setTimeout(() => {
-      document.addEventListener('click', handleClickOutside);
-    }, 10);
-
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [isVisible, closeOnClickOutside]);
-
   const showTooltip = useCallback(
     (immediate = false) => {
       if (isVisible || disabled) return;
@@ -210,6 +185,31 @@ export function Tooltip({
     },
     [isVisible, hideTimeout, onHide]
   );
+
+  // Handle click outside
+  useEffect(() => {
+    if (!isVisible || !closeOnClickOutside) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const triggerContains = triggerRef.current?.contains(target);
+      const tooltipContains = tooltipRef.current?.contains(target);
+
+      if (!triggerContains && !tooltipContains) {
+        hideTooltip(true);
+      }
+    };
+
+    // Delay adding listener to avoid immediate trigger
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 10);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isVisible, closeOnClickOutside, hideTooltip]);
 
   // Event handlers
   const handleMouseEnter = useCallback(() => {

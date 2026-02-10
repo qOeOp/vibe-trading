@@ -143,9 +143,9 @@ export function useChartTooltip() {
   const context = useContext(TooltipContext);
   if (!context) {
     return {
-      showTooltip: () => {},
-      hideTooltip: () => {},
-      hideTooltipImmediate: () => {},
+      showTooltip: /* noop fallback */ () => undefined as void,
+      hideTooltip: /* noop fallback */ () => undefined as void,
+      hideTooltipImmediate: /* noop fallback */ () => undefined as void,
     };
   }
   return context;

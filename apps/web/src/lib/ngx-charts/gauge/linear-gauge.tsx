@@ -98,7 +98,7 @@ export function LinearGauge({
   const [valueTextScale, setValueTextScale] = useState(1);
   const [unitsTextScale, setUnitsTextScale] = useState(1);
 
-  const margin: [number, number, number, number] = [10, 20, 10, 20];
+  const margin: [number, number, number, number] = useMemo(() => [10, 20, 10, 20], []);
 
   // Check if previous value exists
   const hasPreviousValue = previousValue !== undefined;

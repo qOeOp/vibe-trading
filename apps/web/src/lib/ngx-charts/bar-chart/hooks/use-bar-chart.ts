@@ -16,7 +16,7 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import type { DataItem, StringOrNumberOrDate, Series, LegendPosition, ScaleType } from '../../types';
+import type { DataItem, Series, LegendPosition, ScaleType } from '../../types';
 import {
   ColorHelper,
   type ColorHelperConfig,

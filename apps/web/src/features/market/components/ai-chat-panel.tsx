@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getLatestNews, type NewsItem } from "../data/mock-news";
-import { useChat, type Message } from "../hooks";
+import { useChat } from "../hooks";
 
 type TabType = "news" | "chat";
 

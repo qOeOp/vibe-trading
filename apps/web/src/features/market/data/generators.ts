@@ -30,7 +30,7 @@ export function generateSyntheticChildren(
   return children;
 }
 
-export function generateCandleData(days: number = 60): CandleData[] {
+export function generateCandleData(days = 60): CandleData[] {
   const candles: CandleData[] = [];
   let close = 50 + Math.random() * 50;
   for (let i = 0; i < days; i++) {

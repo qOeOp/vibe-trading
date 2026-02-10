@@ -22,6 +22,7 @@ import { AxisLabel } from './axis-label';
 
 export interface YAxisProps {
   /** D3 scale function */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- D3 scales have incompatible type signatures across scale types
   yScale: any;
   /** Chart dimensions */
   dims: ViewDimensions;
@@ -30,8 +31,10 @@ export interface YAxisProps {
   /** Maximum tick label length */
   maxTickLength?: number;
   /** Custom tick formatting function */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Callers pass (v: number) => string, (v: Date) => string, etc.; union of all signatures is impractical
   tickFormatting?: (value: any) => string;
   /** Specific tick values to display */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- D3 scale.domain() returns unknown[]; callers pass heterogeneous tick arrays
   ticks?: any[];
   /** Whether to show grid lines */
   showGridLines?: boolean;
@@ -46,7 +49,7 @@ export interface YAxisProps {
   /** Axis orientation */
   yOrient?: Orientation;
   /** Reference lines */
-  referenceLines?: any[];
+  referenceLines?: Array<{ name: string; value: string | number | Date }>;
   /** Show reference lines */
   showRefLines?: boolean;
   /** Show reference labels */

@@ -223,7 +223,6 @@ function AreaChartNormalizedContent({
   roundDomains,
   timeline,
   activeEntries,
-  hoveredVertical,
   setHoveredVertical,
   setLocalActiveEntries,
   onSelect,
