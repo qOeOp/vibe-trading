@@ -51,5 +51,20 @@ export default [
         ],
         // Override or add rules here
         rules: {}
+    },
+    // Enforce @/ alias for imports that cross feature/module boundaries
+    {
+        files: [
+            "apps/web/src/**/*.ts",
+            "apps/web/src/**/*.tsx"
+        ],
+        rules: {
+            "no-restricted-imports": ["warn", {
+                patterns: [{
+                    group: ["../../../**"],
+                    message: "Use @/ alias instead of deep relative imports (3+ parent traversals)."
+                }]
+            }]
+        }
     }
 ];
