@@ -2,7 +2,7 @@
 
 A modern, event-driven trading platform built with a multi-language monorepo architecture combining TypeScript (React + Express) and Python (FastAPI microservices) with Kafka message streaming.
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────┐
@@ -12,36 +12,37 @@ A modern, event-driven trading platform built with a multi-language monorepo arc
        ↓
 ┌─────────────┐         ┌───────────────┐
 │  Web (TS)   │────────→│   API (TS)    │
-│  React 19   │         │   Express     │
-└─────────────┘         └───────┬───────┘
-                                │
-                                ↓
-                        ┌───────────────┐
-                        │     Kafka     │
-                        │  Event Stream │
-                        └───────┬───────┘
-                                │
-         ┌──────────────────────┼────────────────────────┐
-         ↓                      ↓                        ↓
+│  Next.js 15 │         │   Express     │
+│  React 19   │         └───────┬───────┘
+└─────────────┘                │
+                               ↓
+                       ┌───────────────┐
+                       │     Kafka     │
+                       │  Event Stream │
+                       └───────┬───────┘
+                               │
+        ┌──────────────────────┼────────────────────────┐
+        ↓                      ↓                        ↓
 ┌────────────────┐    ┌────────────────┐     ┌────────────────┐
 │ Trading Engine │    │  Market Data   │     │   Analytics    │
 │  (Python)      │    │   (Python)     │     │   (Python)     │
 └────────────────┘    └────────────────┘     └────────────────┘
-                                │
-                                ↓
-                        ┌───────────────┐
-                        │   ML Models   │
-                        │   (Python)    │
-                        └───────────────┘
+                               │
+                               ↓
+                       ┌───────────────┐
+                       │   ML Models   │
+                       │   (Python)    │
+                       └───────────────┘
 ```
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 vibe-trading/
 ├── apps/
-│   ├── web/                    # React frontend (TypeScript)
-│   ├── api/                    # Express API (TypeScript)
+│   ├── web/                    # React frontend (Next.js 15, static export)
+│   ├── wiki/                   # Documentation site (Next.js/MDX)
+│   ├── api/                    # Express API gateway (TypeScript)
 │   ├── trading-engine/         # Trading logic service (Python/FastAPI)
 │   ├── market-data/            # Market data processing (Python/FastAPI)
 │   ├── analytics/              # Analytics service (Python/FastAPI)
@@ -51,31 +52,57 @@ vibe-trading/
 │   ├── shared-types/           # Shared TypeScript types
 │   └── shared-python/          # Shared Python utilities
 │
-├── docker/
-│   ├── web.Dockerfile
-│   ├── api.Dockerfile
-│   ├── trading-engine.Dockerfile
-│   ├── market-data.Dockerfile
-│   ├── analytics.Dockerfile
-│   ├── ml-models.Dockerfile
-│   └── nginx.conf
+├── conductor/                  # Workflow management & product docs
+├── guidelines/                 # Coding guidelines (Kafka, Python, TS, ops)
+├── docs/                       # Project plans & design assets
 │
-├── tools/scripts/
-│   ├── build-all.sh            # Build all Docker images
-│   ├── push-images.sh          # Push images to registry
-│   ├── deploy.sh               # Deploy with Docker Compose
-│   └── dev.sh                  # Development environment
-│
+├── docker/                     # Dockerfiles and nginx config
 ├── docker-compose.yml          # Development compose
 ├── docker-compose.prod.yml     # Production compose
 └── .env.example                # Environment variables template
 ```
 
-## 🚀 Services
+## Frontend Features
+
+### Pages & Routes
+
+| Route | Feature | Description |
+|-------|---------|-------------|
+| `/login` | Auth | Login page |
+| `/market` | Market | Sector treemap, k-line charts, market breadth, AI chat |
+| `/factor` | Factor Analysis | Band chart, polar calendar, leaderboard, quantile charts |
+| `/factor/home` | Factor Home | Alternative factor view |
+| `/factor/library` | Factor Library | Factor discovery grid with filters |
+| `/analysis` | Stock Analysis | TradingView integration, watchlist, stock details |
+
+### ngx-charts Library
+
+Custom D3-based chart library at `apps/web/src/lib/ngx-charts/` with 13 chart families:
+
+| Chart Type | Description |
+|------------|-------------|
+| **line-chart** | Line charts with circle markers |
+| **area-chart** | Area charts (standard, stacked, normalized) |
+| **bar-chart** | Bar charts (vertical, horizontal, stacked) |
+| **band-chart** | Box plot bands with symmetric power scale |
+| **pie-chart** | Pie and donut charts |
+| **gauge** | Radial and linear gauges |
+| **heat-map** | Grid heatmaps |
+| **tree-map** | Hierarchical rectangles |
+| **bubble-chart** | Scatter plots with sized bubbles |
+| **polar-chart** | Polar/radar charts |
+| **number-card** | Numeric KPI cards |
+| **sankey** | Flow diagrams |
+| **line-race** | Animated racing line chart with leaderboard |
+
+Built with D3.js for calculations, Framer Motion for animations, and ResizeObserver for responsive sizing.
+
+## Services
 
 | Service | Language | Port | Purpose |
 |---------|----------|------|---------|
-| **web** | TypeScript/React | 8200 | Frontend dashboard |
+| **web** | TypeScript/React | 4200 (dev) / 8200 (prod) | Frontend dashboard |
+| **wiki** | TypeScript/Next.js | - | Documentation site |
 | **api** | TypeScript/Express | 8201 | REST API gateway |
 | **trading-engine** | Python/FastAPI | 8202 | Order execution and strategy |
 | **market-data** | Python/FastAPI | 8203 | Real-time market data processing |
@@ -93,7 +120,7 @@ vibe-trading/
 | **Kafka UI** | 8211 | Kafka monitoring |
 | **Redis Commander** | 8212 | Redis management UI |
 
-## 🛠️ Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -115,14 +142,14 @@ cd apps/analytics && poetry install && cd ../..
 cd apps/ml-models && poetry install && cd ../..
 
 # 3. Start development environment
-./tools/scripts/dev.sh
-
-# Or manually with docker-compose
 docker-compose up -d
+
+# 4. Start frontend dev server
+npx nx run web:serve --port=4200
 ```
 
 **Access the application:**
-- Frontend: http://localhost:8200
+- Frontend: http://localhost:4200 (dev) / http://localhost:8200 (prod)
 - API: http://localhost:8201/health
 - Portainer: http://localhost:8210
 - Kafka UI: http://localhost:8211
@@ -150,226 +177,71 @@ npx nx test shared-python              # Test Python utilities
 # Code quality
 npx nx run-many --target=lint --all    # Lint all projects
 npx nx format:write                    # Format all code
+
+# Workspace
+npx nx graph                           # View project graph
+npx nx reset                           # Clear Nx cache
 ```
 
-## 🐳 Docker Deployment
+## Docker Deployment
 
-### Build Images
+### Build & Deploy
 
 ```bash
 # Build all images
 ./tools/scripts/build-all.sh
 
-# Build with custom registry and tag
-./tools/scripts/build-all.sh my-registry.com latest
-
-# Build single service
-docker build -f docker/web.Dockerfile -t vibe-trading-web:latest .
-```
-
-### Deploy to Production
-
-#### Option 1: With Local Kafka (Recommended for Testing)
-
-```bash
+# Deploy with local Kafka (testing)
 ./tools/scripts/deploy.sh local-kafka latest
-```
 
-#### Option 2: With External Kafka (Production)
-
-```bash
-# Set Kafka brokers
+# Deploy with external Kafka (production)
 export KAFKA_BROKERS=your-kafka-1:9092,your-kafka-2:9092
 export REDIS_URL=redis://your-redis:6379
-
 ./tools/scripts/deploy.sh external-kafka latest
-```
 
-#### Manual Deployment
-
-```bash
-# With local Kafka
+# Manual deployment
 docker-compose -f docker-compose.prod.yml --profile local-kafka up -d
-
-# With external Kafka (set KAFKA_BROKERS and REDIS_URL first)
-docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### Push Images to Registry
+## Design System
 
-```bash
-# Push all images
-./tools/scripts/push-images.sh
+### Theme: Mine (Warm Light)
 
-# Push to custom registry
-./tools/scripts/push-images.sh my-registry.com v1.0.0
+Despite the `dark` CSS class, the actual visual appearance is a warm, light beige theme.
+
+**Core Colors:**
+```
+Page background:   oklch(0.92 0.01 85)  (warm light gray)
+Panel background:  #f5f3ef               (light beige)
+Card background:   #ffffff               (white)
+Primary text:      #1a1a1a               (near black)
+Secondary text:    #8a8a8a               (medium gray)
+Borders:           #e0ddd8               (warm gray)
 ```
 
-## 🔧 Environment Configuration
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
-# Docker Registry
-DOCKER_REGISTRY=crpi-8qkmcs5mqpg6052i.cn-shanghai.personal.cr.aliyuncs.com/qoeop
-IMAGE_TAG=latest
-
-# Infrastructure
-KAFKA_BROKERS=kafka:9092          # or your external Kafka
-REDIS_URL=redis://redis:6379       # or your external Redis
-
-# Application
-NODE_ENV=production
+**Market Colors (Chinese convention: Red=Up, Green=Down):**
+```
+Up/Positive:    #F6465D  (red)
+Down/Negative:  #2EBD85  (green)
+Flat/Unchanged: #76808E  (gray)
 ```
 
-## 📊 Monitoring & Observability
+## Tech Stack
 
-### Portainer (http://localhost:8210)
-- Docker container management
-- Resource monitoring
-- Log viewing
-
-### Kafka UI (http://localhost:8211)
-- Topic management
-- Message browsing
-- Consumer group monitoring
-
-### Redis Commander (http://localhost:8212)
-- Key-value browsing
-- Redis stats
-- Command execution
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-npx nx run-many --target=test --all
-
-# Test specific service
-npx nx test web
-npx nx test api
-npx nx test shared-python
-npx nx test trading-engine
-
-# Watch mode
-npx nx test web --watch
-```
-
-## 🎨 Design System
-
-### Color Palette (Violet Bloom Theme)
-- **Primary**: `#6e3ff3` (violet)
-- **Accent**: `#df3674` (pink)
-- **Secondary**: `#35b9e9` (cyan)
-- **Tertiary**: `#375dfb` (blue)
-- **Supporting**: `#e255f2` (magenta)
-
-### Border Radius
-- Small: `0.425rem` (6.8px)
-- Medium: `0.625rem` (10px)
-- Large: `0.625rem` (10px)
-- XLarge: `1.025rem` (16.4px)
-
-## 🔄 Git Workflow
-
-This project uses git worktrees for feature development:
-
-```bash
-# List worktrees
-git worktree list
-
-# Create new worktree
-git worktree add .worktrees/feature-name -b feature/feature-name
-
-# Work in worktree
-cd .worktrees/feature-name
-
-# Remove worktree (after merging)
-git worktree remove .worktrees/feature-name
-```
-
-## 🐛 Troubleshooting
-
-### Docker Issues
-
-**Services not starting:**
-```bash
-# Check logs
-docker-compose logs [service-name]
-
-# Restart services
-docker-compose restart
-
-# Clean rebuild
-docker-compose down -v
-docker-compose build --no-cache
-docker-compose up -d
-```
-
-**Health check failures (connection refused):**
-
-If services show as "unhealthy" with "connection refused" errors in Alpine Linux containers:
-
-```bash
-# Check health check logs
-docker inspect <container-name> --format='{{json .State.Health}}' | jq .
-
-# Common issue: localhost resolves to IPv6 (::1) in Alpine
-# Solution: Use 127.0.0.1 instead of localhost in health checks
-```
-
-**Fix:** All health checks in this project use `127.0.0.1` (IPv4) instead of `localhost` to avoid IPv6 resolution issues in Alpine Linux containers.
-
-**Port conflicts:**
-```bash
-# Check what's using ports
-lsof -i :8200
-lsof -i :8207
-
-# Change ports in docker-compose.yml if needed
-```
-
-### Python Services
-
-**Import errors:**
-```bash
-# Reinstall dependencies
-cd apps/[service] && poetry install
-```
-
-**Module not found:**
-```bash
-# Ensure shared library is installed
-cd libs/shared-python && poetry install
-```
-
-### TypeScript Services
-
-**Build failures:**
-```bash
-# Clear Nx cache
-npx nx reset
-
-# Rebuild
-npx nx run web:build --skip-nx-cache
-```
-
-## 📚 Tech Stack Details
-
-### Frontend (apps/web)
+### Frontend (`apps/web`)
 - React 19 with TypeScript
-- Next.js 15 with static export for optimized production builds
+- Next.js 15 (static export mode)
 - Tailwind CSS v4 with OKLCH colors
-- Radix UI components
-- Recharts v3 for data visualization
+- Custom ngx-charts library (D3.js + Framer Motion)
+- Radix UI component primitives
+- AG Grid for data tables
 - Zustand for state management
-- React Router v6
+- Lucide React icons
 
-### Backend (apps/api)
+### Backend (`apps/api`)
 - Express.js with TypeScript
 - Kafka producer/consumer
 - Redis for caching
-- REST API endpoints
 
 ### Python Services
 - FastAPI for HTTP APIs
@@ -379,28 +251,44 @@ npx nx run web:build --skip-nx-cache
 - Poetry for dependency management
 
 ### Infrastructure
-- Kafka 7.6.0 for event streaming
+- Nx 22.3.3 for monorepo management
+- Apache Kafka 7.6.0 for event streaming
 - Redis 7 for caching
 - Docker multi-stage builds
 - Nginx for static file serving
-- Nx 22.3.3 for monorepo management
 
-## 📄 License
+## Git Workflow
+
+Uses git worktrees for feature development:
+
+```bash
+git worktree add .worktrees/feature-name -b feature/feature-name
+cd .worktrees/feature-name
+# ... work ...
+git worktree remove .worktrees/feature-name
+```
+
+Follow conventional commit messages. Keep commits atomic.
+
+## Troubleshooting
+
+**Docker health check failures:** All health checks use `127.0.0.1` (not `localhost`) to avoid IPv6 resolution issues in Alpine Linux containers.
+
+**Build failures:**
+```bash
+npx nx reset                           # Clear Nx cache
+npx nx run web:build --skip-nx-cache   # Rebuild without cache
+```
+
+**Python import errors:**
+```bash
+cd apps/[service] && poetry install    # Reinstall dependencies
+```
+
+## License
 
 Private project
 
-## 👤 Author
+## Author
 
 Vincent Xu (vincent@vibe.trading)
-
-## 🤝 Contributing
-
-This is a private project. For internal team members:
-1. Create a feature branch using git worktree
-2. Make changes following CLAUDE.md guidelines
-3. Ensure all tests pass
-4. Create a pull request to main
-
----
-
-Built with ❤️ using Nx, React, TypeScript, Python, and FastAPI

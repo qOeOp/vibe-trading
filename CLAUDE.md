@@ -11,8 +11,11 @@ Vibe Trading is a modern, event-driven trading platform built with a multi-langu
 - **API**: Express.js with TypeScript
 - **Styling**: Tailwind CSS v4 with OKLCH color space
 - **UI Components**: Radix UI primitives with custom styling
-- **Charts**: Recharts v3
+- **Charts**: Custom ngx-charts library (D3.js + Framer Motion), Recharts v3 (legacy)
+- **Data Grid**: AG Grid
+- **Animation**: Framer Motion
 - **State Management**: Zustand
+- **Validation**: Zod
 - **Icons**: Lucide React
 
 ### Python Stack
@@ -37,15 +40,19 @@ Vibe Trading is a modern, event-driven trading platform built with a multi-langu
 ```
 vibe-trading/
 ├── apps/
-│   ├── web/                    # React frontend (TypeScript)
-│   ├── api/                    # Express API (TypeScript)
+│   ├── web/                    # React frontend (TypeScript/Next.js)
+│   ├── wiki/                   # Documentation site (Next.js/MDX)
+│   ├── api/                    # Express API gateway (TypeScript)
 │   ├── trading-engine/         # Python FastAPI service
 │   ├── market-data/            # Python FastAPI service
 │   ├── analytics/              # Python FastAPI service
 │   └── ml-models/              # Python FastAPI service
-└── libs/
-    ├── shared-types/           # Shared TypeScript types
-    └── shared-python/          # Shared Python utilities
+├── libs/
+│   ├── shared-types/           # Shared TypeScript types
+│   └── shared-python/          # Shared Python utilities
+├── conductor/                  # Workflow management & product docs
+├── guidelines/                 # Coding guidelines (Kafka, Python, TS, ops)
+└── docs/                       # Project plans & design assets
 ```
 
 ### Service Communication
@@ -61,17 +68,29 @@ vibe-trading/
 
 ```
 apps/web/src/
-├── app/              # App routing and configuration
-├── components/       # Shared components
-│   ├── ui/          # Base UI components (buttons, inputs, etc.)
-│   └── ...          # Feature-agnostic components
-├── features/        # Feature modules
-│   └── dashboard/
-│       ├── components/  # Feature-specific components
-│       ├── pages/       # Page components
-│       ├── data/        # Mock data and constants
-│       └── store/       # State management
-└── styles.css       # Global styles
+├── app/                  # Next.js App Router
+│   ├── (auth)/           # Auth route group (/login)
+│   └── (main)/           # Main app route group
+│       ├── market/       # Market overview page
+│       ├── factor/       # Factor analysis page
+│       │   ├── home/     # Factor home (alternative view)
+│       │   └── library/  # Factor library grid
+│       └── analysis/     # Stock analysis page
+├── components/           # Shared components
+│   ├── ui/              # Radix UI primitives (18 components)
+│   ├── layout/          # Layout components (sidebar, nav, ticker)
+│   ├── animation/       # AnimateIn entrance animations
+│   └── shared/          # Logo, floating paths, etc.
+├── features/            # Feature modules
+│   ├── market/          # Market overview (treemap, k-line, breadth)
+│   ├── factor/          # Factor analysis (band chart, polar calendar)
+│   ├── library/         # Factor library (grid, filters)
+│   ├── analysis/        # Stock analysis (TradingView integration)
+│   └── auth/            # Authentication
+├── lib/                 # Libraries
+│   └── ngx-charts/      # Custom D3-based chart library (13 chart types)
+├── hooks/               # Global hooks
+└── styles.css           # Global styles
 ```
 
 ### Python Service Structure
@@ -121,14 +140,7 @@ apps/<service>/
    - Use semantic color tokens from the design system
    - Prefer `className` composition over inline styles
 
-2. **Color Palette (Violet Bloom Theme)**
-   ```
-   Primary:    #6e3ff3 (violet)
-   Accent:     #df3674 (pink)
-   Secondary:  #35b9e9 (cyan)
-   Tertiary:   #375dfb (blue)
-   Supporting: #e255f2 (magenta)
-   ```
+2. **Color Palette** - See "UI Design System" section below for the Mine theme color system
 
 3. **Border Radius System**
    ```
@@ -420,22 +432,30 @@ gap-2  // 8px (tight)
    ```
 
 2. **Path Aliases**
-   - Use `@/` for absolute imports from `src/`
-   - Use relative imports for feature-internal modules
+   - **Always use `@/` for cross-feature or cross-directory imports** (e.g. `@/components/ui/button`, `@/lib/ngx-charts/...`)
+   - **Only use relative imports (`./`, `../`) within the same feature module** (e.g. within `features/market/`)
+   - Never use `../` to reach outside the current feature - use `@/` instead
    - Use named imports (not `import *`)
 
 ### Chart Components
 
-1. **Recharts Best Practices**
-   - Always use `ResponsiveContainer` with `initialDimension` prop
-   - Keep chart data separate from component logic
-   - Use consistent color schemes from design system
-   - Implement proper TypeScript types for chart data
+1. **ngx-charts Library** (`src/lib/ngx-charts/`)
+   - Custom D3-based chart library with 13 chart families (line, area, bar, band, pie, gauge, heat-map, tree-map, bubble, polar, number-card, sankey, line-race)
+   - Architecture: `BaseChart` (ResizeObserver container) → render function receives `{width, height}` → inner `Content` component
+   - Hook pattern: `useXChart(config)` returns `{dims, xScale, yScale, transform, updateXAxisHeight, updateYAxisWidth}`
+   - Animation: Framer Motion `<motion.path>` with `d`-attribute morphing, 750ms ease-in-out
+   - Tooltip: `useChartTooltip()` from tooltip-context, `positionKey` for immediate repositioning
+   - SVG structure: `<svg viewBox className="ngx-charts">` → `<g transform={transform} className="chart-type chart">`
+   - Always include `d` attribute in all Framer Motion animation variants (initial, animate, exit) to avoid undefined SVG path errors
 
-2. **Chart Data Management**
-   - Data should be internal to chart components (not passed as props)
-   - Use state for interactive features (filters, time ranges)
-   - Keep data transformations in helper functions
+2. **ngx-charts Data Flow**
+   - Chart components receive pre-computed data as props (unlike old Recharts pattern)
+   - Feature-layer hooks (e.g. `useBandData`, `usePolarCalendar`) transform raw API data into chart-ready formats
+   - Keep data transformations in feature hooks, not in chart components
+
+3. **Recharts** (legacy, used in some market components)
+   - Use `ResponsiveContainer` with `initialDimension` prop
+   - Use consistent color schemes from design system
 
 ### Component-Specific Rules
 
@@ -455,8 +475,8 @@ gap-2  // 8px (tight)
    - The `color-scheme: 'dark'` CSS property ensures native browser UI elements match the theme
 
 3. **Data Props**
-   - Chart components manage their own data internally
-   - Don't pass data as props to chart components
+   - ngx-charts components receive data as props from feature-layer hooks
+   - Feature hooks transform raw data into chart-ready formats
    - Use composition for complex data flows
 
 ## Testing
@@ -803,7 +823,7 @@ The web app uses Next.js 15 with static export mode for deployment:
 - [ ] No `any` types without justification
 - [ ] Components follow single responsibility
 - [ ] Imports are organized and clean
-- [ ] No Next.js-specific code
+- [ ] `"use client"` added where needed (interactive components)
 - [ ] Tailwind classes are used consistently
 - [ ] Responsive design is implemented
 - [ ] Test IDs are added where needed
@@ -825,8 +845,8 @@ The web app uses Next.js 15 with static export mode for deployment:
 ## Common Pitfalls to Avoid
 
 ### TypeScript Pitfalls
-1. ❌ Using `"use client"` directive (this is not Next.js)
-2. ❌ Passing data props to chart components
+1. ❌ Missing `"use client"` on interactive components (Next.js App Router defaults to server components)
+2. ❌ Using `../` relative imports to reach outside the current feature (use `@/` instead)
 3. ❌ Mixing inline styles with Tailwind
 4. ❌ Creating components without TypeScript types
 5. ❌ Using default exports (except for Next.js `page.tsx` and `layout.tsx` files where they're required)
@@ -858,8 +878,10 @@ The web app uses Next.js 15 with static export mode for deployment:
 
 ### TypeScript/Frontend
 - [React 19 Documentation](https://react.dev)
+- [Next.js 15 Documentation](https://nextjs.org/docs)
 - [Tailwind CSS v4](https://tailwindcss.com)
-- [Recharts Documentation](https://recharts.org)
+- [D3.js Documentation](https://d3js.org)
+- [Framer Motion](https://motion.dev)
 - [Radix UI](https://www.radix-ui.com)
 
 ### Python/Backend
