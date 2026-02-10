@@ -1,0 +1,950 @@
+/* ==========================================================================
+   ngx-charts Styles - Theme-aware chart styling
+   Migrated from Angular ngx-charts library
+   Using @layer to ensure proper precedence over Tailwind base styles
+   ========================================================================== */
+
+@layer components {
+  /* Base ngx-charts container styles */
+  .ngx-charts-outer {
+    animation: chartFadeIn linear 600ms;
+  }
+
+  .ngx-charts,
+  .ngx-charts-container {
+    float: left;
+    overflow: visible;
+  }
+
+  /* Default text styling for ngx-charts - matching Angular ngx-charts */
+  /* Using CSS variable --font-chart for easy customization in web projects */
+  svg.ngx-charts,
+  svg.ngx-charts text,
+  .ngx-charts-outer svg,
+  .ngx-charts-outer svg text,
+  .ngx-charts-container svg,
+  .ngx-charts-container svg text {
+    font-family: var(--font-chart);
+  }
+
+  .ngx-charts text,
+  .ngx-charts-outer text,
+  .ngx-charts-container text {
+    fill: #666666;
+    font-family: var(--font-chart);
+    font-size: 12px;
+    font-weight: var(--font-chart-weight);
+    stroke-width: 0.01;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Ensure all ngx-charts elements use chart font */
+  .ngx-charts,
+  .ngx-charts-outer,
+  .ngx-charts-container,
+  .chart-legend,
+  .chart-legend *,
+  .legend-labels,
+  .legend-label-text {
+    font-family: var(--font-chart);
+  }
+}
+
+@keyframes chartFadeIn {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.ngx-charts .circle,
+.ngx-charts .cell,
+.ngx-charts .bar,
+.ngx-charts .node,
+.ngx-charts .link,
+.ngx-charts .arc {
+  cursor: pointer;
+}
+
+.ngx-charts .bar.active,
+.ngx-charts .bar:hover,
+.ngx-charts .cell.active,
+.ngx-charts .cell:hover,
+.ngx-charts .arc.active,
+.ngx-charts .arc:hover,
+.ngx-charts .node.active,
+.ngx-charts .node:hover,
+.ngx-charts .link.active,
+.ngx-charts .link:hover,
+.ngx-charts .card.active,
+.ngx-charts .card:hover {
+  opacity: 0.8;
+  transition: opacity 100ms ease-in-out;
+}
+
+.ngx-charts .bar:focus,
+.ngx-charts .cell:focus,
+.ngx-charts .arc:focus,
+.ngx-charts .node:focus,
+.ngx-charts .link:focus,
+.ngx-charts .card:focus {
+  outline: none;
+}
+
+.ngx-charts .bar.hidden,
+.ngx-charts .cell.hidden,
+.ngx-charts .arc.hidden,
+.ngx-charts .node.hidden,
+.ngx-charts .link.hidden,
+.ngx-charts .card.hidden {
+  display: none;
+}
+
+.ngx-charts g:focus {
+  outline: none;
+}
+
+/* Line highlight - hidden by default, visible when active */
+.ngx-charts .line-highlight {
+  display: none;
+}
+
+.ngx-charts .line-highlight.active {
+  display: block;
+}
+
+/* Circle hover state */
+.ngx-charts .circle:hover {
+  cursor: pointer;
+}
+
+.ngx-charts .line-series.inactive,
+.ngx-charts .line-series-range.inactive,
+.ngx-charts .line.inactive,
+.ngx-charts .polar-series-path.inactive,
+.ngx-charts .polar-series-area.inactive,
+.ngx-charts .area-series.inactive,
+.ngx-charts .area.inactive {
+  transition: opacity 100ms ease-in-out;
+  opacity: 0.2;
+}
+
+.ngx-charts .area {
+  opacity: 1;
+}
+
+.ngx-charts .label {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.ngx-charts .tooltip-anchor {
+  fill: rgb(0, 0, 0);
+}
+
+.ngx-charts .gridline-path {
+  stroke: #ddd;
+  stroke-width: 1;
+  fill: none;
+}
+
+.ngx-charts .refline-path {
+  stroke: #a8b2c7;
+  stroke-width: 1;
+  stroke-dasharray: 5;
+  stroke-dashoffset: 5;
+}
+
+.ngx-charts .refline-label {
+  font-size: 9px;
+}
+
+.ngx-charts .reference-area {
+  fill-opacity: 0.05;
+  fill: #000;
+}
+
+.ngx-charts .gridline-path-dotted {
+  stroke: #ddd;
+  stroke-width: 1;
+  fill: none;
+  stroke-dasharray: 1, 20;
+  stroke-dashoffset: 3;
+}
+
+.ngx-charts .grid-panel rect {
+  fill: none;
+}
+
+.ngx-charts .grid-panel.odd rect {
+  fill: rgba(0, 0, 0, 0.05);
+}
+
+/* Gauge styles - matching Angular ngx-charts */
+.ngx-charts .gauge .background-arc path {
+  fill: rgba(0, 0, 0, 0.05);
+}
+
+.ngx-charts .gauge .gauge-tick path {
+  stroke: #666;
+}
+
+.ngx-charts .gauge .gauge-tick text {
+  font-size: 12px;
+  fill: #666;
+  font-weight: bold;
+}
+
+.ngx-charts .gauge .gauge-tick-large path {
+  stroke-width: 2px;
+}
+
+.ngx-charts .gauge .gauge-tick-small path {
+  stroke-width: 1px;
+}
+
+/* Linear gauge styles - matching Angular ngx-charts */
+.ngx-charts .linear-gauge {
+  cursor: pointer;
+}
+
+.ngx-charts .linear-gauge .background-bar path {
+  fill: rgba(0, 0, 0, 0.05);
+}
+
+.ngx-charts .linear-gauge .units {
+  fill: #666;
+}
+
+/* Pie grid styles - matching Angular ngx-charts */
+.ngx-charts .pie-grid .arc1 {
+  opacity: 0.4;
+}
+
+.ngx-charts .pie-grid .percent-label {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* Advanced pie chart styles - matching Angular ngx-charts */
+.ngx-charts .advanced-pie {
+  display: inline-block;
+  float: left;
+}
+
+.ngx-charts .advanced-pie-legend-wrapper {
+  display: inline-block;
+}
+
+/* Tree map styles - matching Angular ngx-charts */
+.ngx-charts .tree-map .treemap-val {
+  font-size: 1.3em;
+  padding-top: 5px;
+  display: inline-block;
+}
+
+.ngx-charts .tree-map .treemap-label p {
+  display: table-cell;
+  text-align: center;
+  line-height: 1.2em;
+  vertical-align: middle;
+}
+
+/* Percent gauge styles - matching Angular ngx-charts */
+.ngx-charts .percent-gauge {
+  cursor: pointer;
+}
+
+.ngx-charts .percent-gauge text {
+  text-anchor: middle;
+}
+
+.ngx-charts .percent-gauge .dashes-back {
+  stroke: #e7e7e7;
+}
+
+.ngx-charts .percent-gauge .target-circle,
+.ngx-charts .percent-gauge .target-circle-bg {
+  fill: white;
+}
+
+.ngx-charts .percent-gauge .target-circle-bg {
+  stroke: #e7e7e7;
+}
+
+.ngx-charts .percent-gauge .total {
+  dominant-baseline: middle;
+}
+
+.ngx-charts .percent-gauge .label {
+  display: block;
+  text-anchor: middle;
+}
+
+/* Number card styles - matching Angular ngx-charts */
+.ngx-charts .number-card .cell .trimmed-label {
+  font-size: 12px;
+  pointer-events: none;
+  overflow: hidden;
+  text-align: left;
+  line-height: 1em;
+}
+
+.ngx-charts .number-card .cell .trimmed-label p {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.ngx-charts .number-card .cell .value-text {
+  pointer-events: none;
+}
+
+.ngx-charts .number-card.clickable .cell .card,
+.ngx-charts .number-card.clickable .cell .card-band {
+  cursor: pointer;
+}
+
+/* Polar chart styles - matching Angular ngx-charts */
+.ngx-charts .polar-chart .polar-chart-background {
+  fill: none;
+}
+
+.ngx-charts .polar-chart .radial-gridline-path {
+  stroke-dasharray: 10 10;
+  fill: none;
+}
+
+.ngx-charts .polar-chart .pie-label-line {
+  stroke: #2f3646;
+}
+
+.ngx-charts .polar-charts-series .polar-series-area {
+  pointer-events: none;
+}
+
+.ngx-charts .polar-series-path {
+  pointer-events: none;
+}
+
+/* Dark theme ngx-charts styles */
+.dark .ngx-charts text {
+  fill: #a0aabe;
+}
+
+.dark .ngx-charts .tooltip-anchor {
+  fill: rgb(255, 255, 255);
+}
+
+.dark .ngx-charts .gridline-path {
+  stroke: #2f3646;
+}
+
+.dark .ngx-charts .refline-path {
+  stroke: #455066;
+}
+
+.dark .ngx-charts .reference-area {
+  fill: #fff;
+}
+
+.dark .ngx-charts .grid-panel.odd rect {
+  fill: rgba(255, 255, 255, 0.05);
+}
+
+.dark .ngx-charts .gauge .background-arc path {
+  fill: #2f3646;
+}
+
+.dark .ngx-charts .gauge .gauge-tick path {
+  stroke: #a0aabe;
+}
+
+.dark .ngx-charts .gauge .gauge-tick text {
+  fill: #a0aabe;
+}
+
+.dark .ngx-charts .linear-gauge .background-bar path {
+  fill: #2f3646;
+}
+
+.dark .ngx-charts .linear-gauge .units {
+  fill: #72809b;
+}
+
+.dark .ngx-charts .timeline .brush-background {
+  fill: rgba(255, 255, 255, 0.05);
+}
+
+.dark .ngx-charts .timeline .brush .selection {
+  fill: rgba(255, 255, 255, 0.1);
+  stroke: #aaa;
+}
+
+.dark .ngx-charts .polar-chart .polar-chart-background {
+  fill: rgb(30, 34, 46);
+}
+
+/* Chart legend styles - matching Angular ngx-charts exactly */
+.chart-legend {
+  display: inline-block;
+  padding: 0;
+  width: auto !important;
+}
+
+.chart-legend .legend-title {
+  white-space: nowrap;
+  overflow: hidden;
+  margin-left: 10px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.chart-legend ul,
+.chart-legend li {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.chart-legend .horizontal-legend li {
+  display: inline-block;
+}
+
+.chart-legend .legend-wrap {
+  width: calc(100% - 10px);
+}
+
+.chart-legend .legend-labels {
+  line-height: 85%;
+  list-style: none;
+  text-align: left;
+  float: left;
+  width: 100%;
+  border-radius: 3px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.chart-legend .legend-label {
+  cursor: pointer;
+  font-size: 90%;
+  margin: 8px;
+  color: #afb7c8;
+  transition: color 0.2s;
+}
+
+.chart-legend .legend-label:hover {
+  color: #000;
+}
+
+.chart-legend .legend-label.active .legend-label-text,
+.chart-legend .legend-label .active .legend-label-text,
+.chart-legend .legend-label-entry.active .legend-label-text {
+  color: #000;
+}
+
+.chart-legend .legend-label-color {
+  display: inline-block;
+  height: 15px;
+  width: 15px;
+  margin-right: 5px;
+  color: #5b646b;
+  border-radius: 3px;
+}
+
+.chart-legend .legend-label-text {
+  display: inline-block;
+  vertical-align: top;
+  line-height: 15px;
+  font-size: 12px;
+  width: calc(100% - 20px);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.chart-legend .legend-title-text {
+  vertical-align: bottom;
+  display: inline-block;
+  line-height: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Dark theme legend styles */
+.dark .chart-legend .legend-labels {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .chart-legend .legend-label {
+  color: #a0aabe;
+}
+
+.dark .chart-legend .legend-label:hover {
+  color: #fff;
+}
+
+.dark .chart-legend .legend-label.active .legend-label-text,
+.dark .chart-legend .legend-label .active .legend-label-text,
+.dark .chart-legend .legend-label-entry.active .legend-label-text {
+  color: #fff;
+}
+
+.dark .chart-legend .scale-legend-label {
+  color: #a0aabe;
+}
+
+/* Advanced pie legend dark theme */
+.dark .advanced-pie-legend {
+  color: #a0aabe;
+}
+
+.dark .advanced-pie-legend .legend-item:hover {
+  color: #fff;
+}
+
+/* Number card dark theme */
+.dark .number-card .number-card-label {
+  font-size: 0.8em;
+  color: #a0aabe;
+}
+
+/* Percent gauge dark theme */
+.dark .percent-gauge .dashes-back {
+  stroke: #455066;
+}
+
+.dark .percent-gauge .target-circle,
+.dark .percent-gauge .target-circle-bg {
+  fill: #1b1e27;
+}
+
+.dark .percent-gauge .target-circle-bg {
+  stroke: #455066;
+}
+
+.dark .percent-gauge .target-label {
+  fill: #a0aabe;
+}
+
+.dark .percent-gauge .target-value {
+  fill: #cdd2dd;
+}
+
+/* Tooltip styles - matching Angular ngx-charts exactly */
+.ngx-charts-tooltip-content {
+  position: fixed;
+  border-radius: 3px;
+  z-index: 5000;
+  display: block;
+  font-weight: normal;
+  opacity: 0;
+  pointer-events: none !important;
+}
+
+.ngx-charts-tooltip-content.type-popover {
+  background: #fff;
+  color: #060709;
+  border: 1px solid #72809b;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
+  font-size: 13px;
+  padding: 4px;
+}
+
+.ngx-charts-tooltip-content.type-tooltip {
+  color: #fff;
+  background: rgba(0, 0, 0, 0.75);
+  font-size: 12px;
+  padding: 0 10px;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.ngx-charts-tooltip-content .tooltip-caret {
+  position: absolute;
+  z-index: 5001;
+  width: 0;
+  height: 0;
+}
+
+.ngx-charts-tooltip-content .tooltip-caret.position-left {
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 7px solid rgba(0, 0, 0, 0.75);
+}
+
+.ngx-charts-tooltip-content .tooltip-caret.position-top {
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid rgba(0, 0, 0, 0.75);
+}
+
+.ngx-charts-tooltip-content .tooltip-caret.position-right {
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 7px solid rgba(0, 0, 0, 0.75);
+}
+
+.ngx-charts-tooltip-content .tooltip-caret.position-bottom {
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid rgba(0, 0, 0, 0.75);
+}
+
+.ngx-charts-tooltip-content .tooltip-label {
+  display: block;
+  line-height: 1em;
+  padding: 8px 5px 5px 5px;
+  font-size: 1em;
+}
+
+.ngx-charts-tooltip-content .tooltip-val {
+  display: block;
+  font-size: 1.3em;
+  line-height: 1em;
+  padding: 0 5px 8px 5px;
+}
+
+.ngx-charts-tooltip-content.position-right {
+  transform: translate3d(10px, 0, 0);
+}
+
+.ngx-charts-tooltip-content.position-left {
+  transform: translate3d(-10px, 0, 0);
+}
+
+.ngx-charts-tooltip-content.position-top {
+  transform: translate3d(0, -10px, 0);
+}
+
+.ngx-charts-tooltip-content.position-bottom {
+  transform: translate3d(0, 10px, 0);
+}
+
+.ngx-charts-tooltip-content.animate {
+  opacity: 1;
+  transition: opacity 0.3s, transform 0.3s;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+
+.area-tooltip-container {
+  padding: 5px 0;
+  pointer-events: none;
+}
+
+.tooltip-item {
+  text-align: left;
+  line-height: 1.2em;
+  padding: 5px 0;
+}
+
+.tooltip-item .tooltip-item-color {
+  display: inline-block;
+  height: 12px;
+  width: 12px;
+  margin-right: 5px;
+  color: #5b646b;
+  border-radius: 3px;
+}
+
+/* Timeline styles - matching Angular ngx-charts */
+.ngx-charts .timeline .brush-background {
+  fill: rgba(0, 0, 0, 0.05);
+}
+
+.ngx-charts .timeline .brush .selection {
+  fill: rgba(0, 0, 0, 0.1);
+  stroke-width: 1px;
+  stroke: #888888;
+}
+
+.ngx-charts .timeline .brush .handle {
+  fill-opacity: 0;
+}
+
+.ngx-charts .timeline .embedded-chart {
+  opacity: 0.6;
+}
+
+/* Dark theme timeline */
+.dark .ngx-charts .timeline .brush-background {
+  fill: rgba(255, 255, 255, 0.05);
+}
+
+.dark .ngx-charts .timeline .brush .selection {
+  fill: rgba(255, 255, 255, 0.1);
+  stroke: #aaa;
+}
+
+/* Advanced legend styles - matching Angular ngx-charts */
+.advanced-pie-legend {
+  float: left;
+  position: relative;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+.advanced-pie-legend .total-value {
+  font-size: 36px;
+}
+
+.advanced-pie-legend .total-label {
+  font-size: 24px;
+  margin-bottom: 19px;
+}
+
+.advanced-pie-legend .legend-items-container {
+  width: 100%;
+}
+
+.advanced-pie-legend .legend-items {
+  white-space: nowrap;
+  overflow: auto;
+}
+
+.advanced-pie-legend .legend-item {
+  margin-right: 20px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.advanced-pie-legend .legend-item:focus {
+  outline: none;
+}
+
+.advanced-pie-legend .legend-item:hover {
+  color: #000;
+  transition: 0.2s;
+}
+
+.advanced-pie-legend .legend-item .item-value {
+  font-size: 24px;
+  margin-top: -6px;
+  margin-left: 11px;
+}
+
+.advanced-pie-legend .legend-item .item-label {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-left: 11px;
+  margin-top: -6px;
+}
+
+.advanced-pie-legend .legend-item .item-percent {
+  font-size: 24px;
+  opacity: 0.7;
+  margin-left: 11px;
+}
+
+.advanced-pie-legend .legend-item .item-color {
+  border-left: 4px solid;
+  width: 4px;
+  height: 42px;
+  float: left;
+  margin-right: 7px;
+}
+
+/* Scale legend styles - matching Angular ngx-charts */
+.chart-legend .scale-legend {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-legend .scale-legend-wrap {
+  display: inline-block;
+  flex: 1;
+  width: 30px;
+  border-radius: 5px;
+  margin: 0 auto;
+}
+
+.chart-legend .scale-legend-label {
+  font-size: 12px;
+}
+
+.chart-legend .horizontal-legend.scale-legend {
+  flex-direction: row;
+}
+
+.chart-legend .horizontal-legend .scale-legend-wrap {
+  width: auto;
+  height: 30px;
+  margin: 0 16px;
+}
+
+/* Dark theme advanced legend */
+.dark .advanced-pie-legend .legend-item:hover {
+  color: #fff;
+}
+
+/* Pie label styles - matching Angular ngx-charts */
+.pie-label {
+  font-size: 11px;
+}
+
+.pie-label.animation {
+  animation: pieLabelfadeIn 750ms ease-in;
+}
+
+@keyframes pieLabelfadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pie-label-line {
+  stroke-dasharray: 100%;
+}
+
+.pie-label-line.animation {
+  animation: pieLabelDrawOut 3s linear;
+  transition: d 750ms;
+}
+
+@keyframes pieLabelDrawOut {
+  from {
+    stroke-dashoffset: 100%;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Bar label styles - matching Angular ngx-charts */
+.textDataLabel {
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   ngx-charts Demo Page Styles - Matching Angular demo exactly
+   From: ngx-charts-e241d94221430000a8fddaa9eb4d8f2878ed8a38/src/app/app.component.scss
+   ========================================================================== */
+
+/* Custom scrollbar for demo sidebar - matching Angular exactly */
+.ngx-demo-sidebar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.ngx-demo-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ngx-demo-sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 88, 112, 0.3);
+}
+
+.ngx-demo-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(75, 88, 112, 1);
+}
+
+/* Demo sidebar input/select styles - matching Angular exactly */
+.ngx-demo-sidebar input[type='text'],
+.ngx-demo-sidebar input[type='number'] {
+  font-size: 16px;
+  padding: 5px;
+  display: block;
+  background: transparent;
+  color: #fff;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #5264ae;
+}
+
+.ngx-demo-sidebar input:focus {
+  outline: none;
+}
+
+.ngx-demo-sidebar select {
+  width: 100%;
+  height: 30px;
+  margin: 5px 0;
+}
+
+/* Demo sidebar h3 headers - matching Angular exactly */
+.ngx-demo-sidebar h3 {
+  padding: 0;
+  margin: 10px 0 0 0;
+  text-transform: uppercase;
+  color: #a8b2c7;
+  user-select: none;
+  font-size: 0.75rem;
+}
+
+.ngx-demo-sidebar h3 a {
+  color: #a8b2c7;
+  text-decoration: none;
+}
+
+/* Demo sidebar pre (data display) - matching Angular exactly */
+.ngx-demo-sidebar pre {
+  background: #1b1e27;
+  font-size: 12px;
+  line-height: 1em;
+  max-height: 400px;
+  overflow: auto;
+  padding: 15px;
+}
+
+/* Arrow indicators - matching Angular exactly */
+.arrow-down {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #fff;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.arrow-right {
+  margin-right: 5px;
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #fff;
+}
+
+/* Demo sidebar header - matching Angular exactly */
+.ngx-demo-sidebar h1 {
+  color: #fff;
+  font-weight: 100;
+  text-transform: uppercase;
+  display: block;
+  margin: 0;
+  background: #1f89ff;
+  padding: 15px;
+}
+
+.ngx-demo-sidebar h1 strong {
+  font-weight: 700;
+}
+
+.ngx-demo-sidebar h1 small {
+  font-size: 0.5em;
+  line-height: 1.3em;
+  color: white;
+}
+
+.ngx-demo-sidebar h1 small.subtitle {
+  display: block;
+}
+
+/* Dark theme chart container background - matching Angular exactly */
+.dark .chart-container-bg {
+  background: #1b1e27;
+}
