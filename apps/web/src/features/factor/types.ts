@@ -34,12 +34,6 @@ export interface QuantileReturn {
   period20D: number;
 }
 
-export interface ICTimeSeriesPoint {
-  date: string;
-  ic: number;
-  icMovingAvg: number;
-}
-
 export interface CumulativeReturnPoint {
   date: string;
   quantile1: number;
@@ -48,18 +42,6 @@ export interface CumulativeReturnPoint {
   quantile4: number;
   quantile5: number;
   longShort: number;
-}
-
-export interface TurnoverDataPoint {
-  quantile: number;
-  turnover1D: number;
-  turnover5D: number;
-  turnover10D: number;
-}
-
-export interface FactorRankAutocorrelation {
-  lag: number;
-  autocorrelation: number;
 }
 
 export interface SectorBreakdown {
@@ -84,13 +66,38 @@ export interface FactorStatistics {
   factorRankAutocorr: number;
 }
 
+export interface HoldingCompositionPoint {
+  date: string;
+  Consumer: number;
+  Resources: number;
+  Manufacturing: number;
+  Financials: number;
+  Healthcare: number;
+  Technology: number;
+  Other: number;
+}
+
+export const HOLDING_SECTORS = ["Consumer", "Resources", "Manufacturing", "Financials", "Healthcare", "Technology", "Other"] as const;
+export type HoldingSector = (typeof HOLDING_SECTORS)[number];
+
+/**
+ * Global sector color map — single source of truth for all sector charts.
+ * 6 core sectors (医药/消费/金融/制造/科技/资源) + Other.
+ */
+export const SECTOR_COLOR_MAP: Record<HoldingSector, string> = {
+  Consumer:      "#1939B7",  // 消费 — royal blue
+  Resources:     "#36D6F0",  // 资源 — cyan
+  Manufacturing: "#228B22",  // 制造 — forest green
+  Financials:    "#E8626F",  // 金融 — coral red
+  Healthcare:    "#58CEAA",  // 医药 — mint green
+  Technology:    "#A8385D",  // 科技 — deep rose
+  Other:         "#B0B0B0",  // 其他 — gray
+};
+
 export interface FactorData {
   info: FactorInfo;
   statistics: FactorStatistics;
-  quantileReturns: QuantileReturn[];
-  icTimeSeries: ICTimeSeriesPoint[];
   cumulativeReturns: CumulativeReturnPoint[];
-  turnoverByQuantile: TurnoverDataPoint[];
-  rankAutocorrelation: FactorRankAutocorrelation[];
   sectorBreakdown: SectorBreakdown[];
+  holdingComposition: HoldingCompositionPoint[];
 }

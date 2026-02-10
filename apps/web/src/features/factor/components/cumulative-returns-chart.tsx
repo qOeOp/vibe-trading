@@ -1,23 +1,25 @@
 "use client";
 
 import { useMemo } from "react";
-import { NgxAreaChart } from "@/components/charts/ngx-area-chart";
-import type { AreaChartSeries } from "@/components/charts/ngx-area-chart";
+import { curveLinear } from "d3-shape";
+import { AreaChart, type MultiSeries } from "@/lib/ngx-charts";
 import type { CumulativeReturnPoint } from "../types";
+
+/** Legend items for external rendering */
+export const CUMULATIVE_RETURNS_LEGEND = [
+  { label: "Q5 (Best)", color: "#a8385d" },
+  { label: "Q1 (Worst)", color: "#7aa3e5" },
+];
 
 interface CumulativeReturnsChartProps {
   data: CumulativeReturnPoint[];
-  showLongShort?: boolean;
+  /** Externally controlled active entries for legend highlight interaction */
+  activeEntries?: Array<{ name: string }>;
 }
 
-// ngx-charts inspired colors
-const COLOR_SCHEME = {
-  domain: ["#7aa3e5", "#a8385d"], // Soft blue (Best), Pink/rose (Worst)
-};
-
-export function CumulativeReturnsChart({ data }: CumulativeReturnsChartProps) {
-  // Transform data to ngx-charts format
-  const chartData: AreaChartSeries[] = useMemo(() => {
+export function CumulativeReturnsChart({ data, activeEntries = [] }: CumulativeReturnsChartProps) {
+  // Transform data to ngx-charts MultiSeries format
+  const chartData: MultiSeries = useMemo(() => {
     const q5Series = {
       name: "Q5 (Best)",
       series: data.map((d) => ({
@@ -38,21 +40,38 @@ export function CumulativeReturnsChart({ data }: CumulativeReturnsChartProps) {
   }, [data]);
 
   return (
-    <NgxAreaChart
-      results={chartData}
-      legend={true}
-      legendTitle=""
-      xAxis={true}
-      yAxis={true}
-      showGridLines={true}
+    <AreaChart
+      data={chartData}
+      colorScheme="cool"
+      curve={curveLinear}
+      animated={true}
       gradient={true}
-      scheme={COLOR_SCHEME}
-      animations={true}
       autoScale={false}
-      xAxisTickFormatting={(value: Date) =>
-        value.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-      }
-      yAxisTickFormatting={(value: number) => `${value}%`}
+      activeItems={activeEntries}
+      xAxis={{
+        visible: true,
+        showGridLines: false,
+        showLabel: false,
+        tickFormatting: (value: unknown) => {
+          if (value instanceof Date) {
+            return value.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          }
+          return String(value);
+        },
+      }}
+      yAxis={{
+        visible: true,
+        showGridLines: true,
+        gridLineStrokeDasharray: "6 4",
+        showLabel: false,
+        tickFormatting: (value: unknown) => `${value}%`,
+      }}
+      legend={{
+        visible: false,
+      }}
+      tooltip={{
+        disabled: false,
+      }}
     />
   );
 }

@@ -1,11 +1,12 @@
-import { FactorPage as FactorPageClient } from "@/features/factor";
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Factor Analysis - Vibe Trading",
-  description: "Quantitative factor analysis with Alphalens-style tear sheets",
-};
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function FactorPage() {
-  return <FactorPageClient />;
+export default function FactorRedirect() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/factor/home");
+  }, [router]);
+  return null;
 }

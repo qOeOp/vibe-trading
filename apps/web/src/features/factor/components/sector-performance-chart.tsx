@@ -2,38 +2,26 @@
 
 import { useEffect, useRef, useMemo, useCallback } from "react";
 import * as d3 from "d3";
-import type { SectorBreakdown } from "../types";
+import type { SectorBreakdown, HoldingSector } from "../types";
+import { SECTOR_COLOR_MAP } from "../types";
 
 interface SectorPerformanceChartProps {
   data: SectorBreakdown[];
   metric: "meanReturn" | "ic";
 }
 
-// Color palette similar to the reference image - each sector gets a distinct color
-const SECTOR_COLORS: Record<string, string> = {
-  "Technology": "#a8324a",      // Deep rose/maroon
-  "Comm. Services": "#7b9fd4",  // Light blue
-  "Healthcare": "#9b7bb8",      // Purple/lavender
-  "Financials": "#9b7bb8",      // Purple/lavender
-  "Consumer Disc.": "#7dd4d4",  // Teal/cyan
-  "Industrials": "#7dd4d4",     // Teal/cyan
-  "Materials": "#c77070",       // Dusty rose
-  "Energy": "#c77070",          // Dusty rose
-  "Real Estate": "#8ba8c9",     // Steel blue
-  "Utilities": "#8ba8c9",       // Steel blue
-};
-
 const COLORS = {
   text: "#1a1a1a",
-  muted: "#8a8a8a",
   tooltipBg: "rgba(30, 30, 30, 0.95)",
 };
 
-// Margins: left margin for sector labels (needs space for "Comm. Services"), right margin for value labels
-const margin = { top: 8, right: 48, bottom: 8, left: 100 };
+// Margins: right margin for value labels; left margin is computed dynamically
+const LABEL_GAP = 10; // gap between label text and bar
+const HEADER_PAD = 12; // matches ChartCard header px-3
+const baseMargin = { top: 8, right: 48, bottom: 8 };
 
 function getSectorColor(sector: string): string {
-  return SECTOR_COLORS[sector] || "#76808E";
+  return SECTOR_COLOR_MAP[sector as HoldingSector] ?? "#76808E";
 }
 
 export function SectorPerformanceChart({ data, metric }: SectorPerformanceChartProps) {
@@ -42,7 +30,8 @@ export function SectorPerformanceChart({ data, metric }: SectorPerformanceChartP
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   const chartData = useMemo(() => {
-    const sorted = [...data].sort((a, b) => b[metric] - a[metric]);
+    const filtered = data.filter((d) => d.sector in SECTOR_COLOR_MAP);
+    const sorted = [...filtered].sort((a, b) => b[metric] - a[metric]);
     return sorted.map((d) => ({
       sector: d.sector,
       value: metric === "meanReturn" ? d.meanReturn * 100 : d.ic,
@@ -58,11 +47,27 @@ export function SectorPerformanceChart({ data, metric }: SectorPerformanceChartP
     const container = containerRef.current;
     const width = container.clientWidth;
     const height = container.clientHeight;
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
+
+    // Measure max label width to compute left margin dynamically
+    const measureGroup = svg.append("g").attr("class", "measure");
+    let maxLabelWidth = 0;
+    chartData.forEach((d) => {
+      const text = measureGroup.append("text")
+        .attr("font-size", 11)
+        .attr("font-weight", 500)
+        .attr("font-family", "Inter, system-ui, sans-serif")
+        .text(d.sector);
+      const bbox = text.node()?.getBBox();
+      if (bbox && bbox.width > maxLabelWidth) maxLabelWidth = bbox.width;
+    });
+    measureGroup.remove();
+
+    const marginLeft = HEADER_PAD + maxLabelWidth + LABEL_GAP;
+    const innerWidth = width - marginLeft - baseMargin.right;
+    const innerHeight = height - baseMargin.top - baseMargin.bottom;
 
     const root = svg.append("g").attr("class", "chart-root");
 
@@ -82,7 +87,7 @@ export function SectorPerformanceChart({ data, metric }: SectorPerformanceChartP
     // ============ MAIN CHART GROUP ============
     const g = root.append("g")
       .attr("class", "chart-main")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+      .attr("transform", `translate(${marginLeft},${baseMargin.top})`);
 
     // ============ BARS GROUP ============
     const barsGroup = g.append("g").attr("class", "bars-group");
@@ -94,10 +99,10 @@ export function SectorPerformanceChart({ data, metric }: SectorPerformanceChartP
       const barHeight = yScale.bandwidth();
       const targetWidth = xScale(d.value);
 
-      // Sector label (left side)
+      // Sector label (left side, right-aligned near bar edge)
       barGroup.append("text")
         .attr("class", "sector-label")
-        .attr("x", -8)
+        .attr("x", -LABEL_GAP)
         .attr("y", barY + barHeight / 2)
         .attr("dy", "0.35em")
         .attr("text-anchor", "end")
@@ -201,13 +206,23 @@ export function SectorPerformanceChart({ data, metric }: SectorPerformanceChartP
   useEffect(() => {
     drawChart();
 
-    const handleResize = () => drawChart();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const container = containerRef.current;
+    if (!container) return;
+
+    let rafId: number;
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(drawChart);
+    });
+    ro.observe(container);
+    return () => {
+      cancelAnimationFrame(rafId);
+      ro.disconnect();
+    };
   }, [drawChart]);
 
   return (
-    <div ref={containerRef} className="w-full h-full min-h-[200px] relative">
+    <div ref={containerRef} className="w-full h-full relative">
       <svg ref={svgRef} className="w-full h-full" />
       <div
         ref={tooltipRef}

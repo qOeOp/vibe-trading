@@ -6,14 +6,12 @@
 import type {
   FactorInfo,
   FactorData,
-  QuantileReturn,
-  ICTimeSeriesPoint,
   CumulativeReturnPoint,
-  TurnoverDataPoint,
-  FactorRankAutocorrelation,
   SectorBreakdown,
   FactorStatistics,
+  HoldingCompositionPoint,
 } from "../types";
+import { HOLDING_SECTORS } from "../types";
 
 // ============ Seeded Random for SSR Consistency ============
 
@@ -120,44 +118,6 @@ function generateDateRange(days: number): string[] {
   return dates;
 }
 
-function generateQuantileReturns(): QuantileReturn[] {
-  return [
-    { quantile: 1, period1D: -0.0012, period5D: -0.0058, period10D: -0.0095, period20D: -0.0182 },
-    { quantile: 2, period1D: -0.0004, period5D: -0.0018, period10D: -0.0032, period20D: -0.0055 },
-    { quantile: 3, period1D: 0.0002, period5D: 0.0008, period10D: 0.0015, period20D: 0.0028 },
-    { quantile: 4, period1D: 0.0008, period5D: 0.0042, period10D: 0.0078, period20D: 0.0145 },
-    { quantile: 5, period1D: 0.0018, period5D: 0.0092, period10D: 0.0168, period20D: 0.0325 },
-  ];
-}
-
-function generateICTimeSeries(days: number, baseIC: number): ICTimeSeriesPoint[] {
-  const dates = generateDateRange(days);
-  const points: ICTimeSeriesPoint[] = [];
-  let movingSum = 0;
-  const windowSize = 20;
-
-  for (let i = 0; i < dates.length; i++) {
-    const noise = (seededRandom() - 0.5) * 0.08;
-    const trend = Math.sin(i / 30) * 0.02;
-    const ic = baseIC + noise + trend;
-
-    movingSum += ic;
-    if (i >= windowSize) {
-      movingSum -= points[i - windowSize].ic;
-    }
-
-    const icMovingAvg = i >= windowSize - 1 ? movingSum / windowSize : movingSum / (i + 1);
-
-    points.push({
-      date: dates[i],
-      ic: Number(ic.toFixed(4)),
-      icMovingAvg: Number(icMovingAvg.toFixed(4)),
-    });
-  }
-
-  return points;
-}
-
 function generateCumulativeReturns(days: number): CumulativeReturnPoint[] {
   const dates = generateDateRange(days);
   const points: CumulativeReturnPoint[] = [];
@@ -194,39 +154,14 @@ function generateCumulativeReturns(days: number): CumulativeReturnPoint[] {
   return points;
 }
 
-function generateTurnoverData(): TurnoverDataPoint[] {
-  return [
-    { quantile: 1, turnover1D: 0.28, turnover5D: 0.45, turnover10D: 0.58 },
-    { quantile: 2, turnover1D: 0.22, turnover5D: 0.38, turnover10D: 0.52 },
-    { quantile: 3, turnover1D: 0.18, turnover5D: 0.32, turnover10D: 0.45 },
-    { quantile: 4, turnover1D: 0.24, turnover5D: 0.42, turnover10D: 0.55 },
-    { quantile: 5, turnover1D: 0.32, turnover5D: 0.52, turnover10D: 0.65 },
-  ];
-}
-
-function generateRankAutocorrelation(): FactorRankAutocorrelation[] {
-  return [
-    { lag: 1, autocorrelation: 0.92 },
-    { lag: 5, autocorrelation: 0.78 },
-    { lag: 10, autocorrelation: 0.65 },
-    { lag: 20, autocorrelation: 0.48 },
-    { lag: 40, autocorrelation: 0.32 },
-    { lag: 60, autocorrelation: 0.22 },
-  ];
-}
-
 function generateSectorBreakdown(): SectorBreakdown[] {
   return [
     { sector: "Technology", meanReturn: 0.0045, ic: 0.052, count: 156 },
     { sector: "Healthcare", meanReturn: 0.0038, ic: 0.048, count: 98 },
     { sector: "Financials", meanReturn: 0.0028, ic: 0.042, count: 124 },
-    { sector: "Consumer Disc.", meanReturn: 0.0035, ic: 0.045, count: 87 },
-    { sector: "Industrials", meanReturn: 0.0032, ic: 0.038, count: 112 },
-    { sector: "Materials", meanReturn: 0.0025, ic: 0.035, count: 45 },
-    { sector: "Energy", meanReturn: 0.0018, ic: 0.028, count: 38 },
-    { sector: "Utilities", meanReturn: 0.0012, ic: 0.022, count: 32 },
-    { sector: "Real Estate", meanReturn: 0.0022, ic: 0.032, count: 28 },
-    { sector: "Comm. Services", meanReturn: 0.0042, ic: 0.055, count: 52 },
+    { sector: "Consumer", meanReturn: 0.0035, ic: 0.045, count: 87 },
+    { sector: "Manufacturing", meanReturn: 0.0032, ic: 0.038, count: 112 },
+    { sector: "Resources", meanReturn: 0.0025, ic: 0.035, count: 45 },
   ];
 }
 
@@ -245,6 +180,88 @@ function generateStatistics(factor: FactorInfo): FactorStatistics {
     turnoverMean: factor.turnover,
     factorRankAutocorr: 0.85 + seededRandom() * 0.1,
   };
+}
+
+function generateHoldingComposition(days: number, stepDays: number = 7): HoldingCompositionPoint[] {
+  // Generate dates at weekly intervals over the given timespan
+  const dates: string[] = [];
+  const today = new Date();
+  for (let i = days - 1; i >= 0; i -= stepDays) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    dates.push(date.toISOString().split("T")[0]);
+  }
+
+  const points: HoldingCompositionPoint[] = [];
+  const sectorCount = HOLDING_SECTORS.length;
+
+  // Start with only 2-3 active sectors, others at zero
+  let weights = [0, 0, 35, 0, 0, 65, 0];
+
+  for (let t = 0; t < dates.length; t++) {
+    // Occasionally a dormant sector enters or an active sector exits
+    for (let s = 0; s < sectorCount; s++) {
+      if (weights[s] === 0) {
+        // ~20% chance per step for a zero-weight sector to appear
+        if (seededRandom() < 0.2) {
+          weights[s] = 3 + seededRandom() * 8;
+        }
+      } else {
+        // ~8% chance for a small sector to drop out entirely
+        if (weights[s] < 5 && seededRandom() < 0.08) {
+          weights[s] = 0;
+          continue;
+        }
+      }
+
+      if (weights[s] > 0) {
+        const drift = (seededRandom() - 0.5) * 6;
+        weights[s] = Math.max(0, weights[s] + drift);
+      }
+    }
+
+    // Normalize to sum to 100
+    const total = weights.reduce((a, b) => a + b, 0);
+    const normalized = total > 0
+      ? weights.map((w) => Number(((w / total) * 100).toFixed(1)))
+      : weights.map(() => Number((100 / sectorCount).toFixed(1)));
+
+    // Zero out tiny normalized values (< 1%) to keep chart clean
+    for (let s = 0; s < sectorCount; s++) {
+      if (normalized[s] < 1) {
+        normalized[s] = 0;
+        weights[s] = 0;
+      }
+    }
+
+    // Re-normalize after zeroing
+    const sum2 = normalized.reduce((a, b) => a + b, 0);
+    if (sum2 > 0 && Math.abs(sum2 - 100) > 0.01) {
+      const scale = 100 / sum2;
+      for (let s = 0; s < sectorCount; s++) {
+        normalized[s] = Number((normalized[s] * scale).toFixed(1));
+      }
+    }
+    // Fix rounding on last non-zero element
+    const sumNorm = normalized.reduce((a, b) => a + b, 0);
+    const lastNonZero = normalized.findLastIndex((v) => v > 0);
+    if (lastNonZero >= 0) {
+      normalized[lastNonZero] = Number((normalized[lastNonZero] + (100 - sumNorm)).toFixed(1));
+    }
+
+    points.push({
+      date: dates[t],
+      Consumer: normalized[0],
+      Resources: normalized[1],
+      Manufacturing: normalized[2],
+      Financials: normalized[3],
+      Healthcare: normalized[4],
+      Technology: normalized[5],
+      Other: normalized[6],
+    });
+  }
+
+  return points;
 }
 
 // ============ Factory Function ============
@@ -270,19 +287,12 @@ export function getFactorData(factorId: string): FactorData | null {
   return {
     info: factor,
     statistics: generateStatistics(factor),
-    quantileReturns: generateQuantileReturns(),
-    icTimeSeries: generateICTimeSeries(252, factor.informationCoefficient),
-    cumulativeReturns: generateCumulativeReturns(300), // 300 days for cumulative returns chart
-    turnoverByQuantile: generateTurnoverData(),
-    rankAutocorrelation: generateRankAutocorrelation(),
+    cumulativeReturns: generateCumulativeReturns(300),
     sectorBreakdown: generateSectorBreakdown(),
+    holdingComposition: generateHoldingComposition(60),
   };
 }
 
 export function getAllFactors(): FactorInfo[] {
   return [...FACTORS];
-}
-
-export function getFactorsByCategory(category: string): FactorInfo[] {
-  return FACTORS.filter((f) => f.category === category);
 }

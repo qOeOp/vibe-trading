@@ -26,16 +26,16 @@ export function ChartCard({ title, subtitle, children, className, actions, frost
       )}
     >
       <div className={cn(
-        "flex items-center justify-between px-3 py-2 border-b",
+        "flex items-center gap-x-4 px-3 py-2 border-b bg-white rounded-t-xl",
         frostedContent ? "border-white/40" : "border-mine-border/50"
       )}>
-        <div>
+        <div className="shrink-0">
           <h3 className="text-sm font-semibold text-mine-text leading-tight">{title}</h3>
           {subtitle && <p className="text-[11px] text-mine-muted">{subtitle}</p>}
         </div>
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
+        {actions && <div className="flex-1 min-w-0 flex justify-end">{actions}</div>}
       </div>
-      <div className="flex-1 p-2 min-h-0">
+      <div className="flex-1 flex flex-col pt-1.5 min-h-0 overflow-hidden">
         {children}
       </div>
     </div>
