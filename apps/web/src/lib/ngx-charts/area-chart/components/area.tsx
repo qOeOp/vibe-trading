@@ -19,8 +19,8 @@
 import { useMemo, useId } from 'react';
 import { motion } from 'framer-motion';
 
-import { Gradient } from '../../types';
-import { SvgLinearGradient } from '../../common';
+import type { Gradient } from '@/lib/ngx-charts/types';
+import { SvgLinearGradient } from '@/lib/ngx-charts/common';
 
 export interface AreaProps {
   /** Area path data string */

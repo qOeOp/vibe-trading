@@ -16,7 +16,8 @@
 
 'use client';
 
-import { useMemo, useCallback, useState, type ReactNode } from 'react';
+import { useMemo, useCallback, useState } from 'react';
+import type { ReactNode } from 'react';
 import { format } from 'd3-format';
 import { min } from 'd3-array';
 import { motion } from 'framer-motion';

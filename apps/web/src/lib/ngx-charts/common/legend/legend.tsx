@@ -18,7 +18,8 @@
 'use client';
 
 import { useMemo, useCallback } from 'react';
-import { ColorHelper, formatLabel } from '../../utils';
+import type { ColorHelper} from '@/lib/ngx-charts/utils';
+import { formatLabel } from '@/lib/ngx-charts/utils';
 import { LegendEntry } from './legend-entry';
 
 /** Legend entry data structure */

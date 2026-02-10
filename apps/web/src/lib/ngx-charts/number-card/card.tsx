@@ -17,7 +17,7 @@
 
 import { useMemo, useCallback, useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion } from 'framer-motion';
-import { GridData } from './types';
+import type { GridData } from './types';
 import { trimLabel, escapeLabel, roundedRect } from '../utils';
 
 export interface CardProps {

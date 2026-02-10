@@ -17,7 +17,8 @@
 
 import { useMemo, useRef } from 'react';
 import { treemap, stratify } from 'd3-hierarchy';
-import { DataItem, ColorScheme, ScaleType, ViewDimensions } from '../types';
+import type { DataItem, ColorScheme, ViewDimensions } from '../types';
+import { ScaleType } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { BaseChart, useChartDimensions } from '../common';
 import { TreeMapCellSeries } from './tree-map-cell-series';

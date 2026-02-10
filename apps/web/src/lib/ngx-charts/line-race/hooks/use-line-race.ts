@@ -11,15 +11,17 @@
  */
 
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
-import { scaleLinear, ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
 
-import {
+import type {
   ViewDimensions,
+  ColorScheme} from '@/lib/ngx-charts/types';
+import {
   ScaleType,
-  ColorScheme,
   LegendPosition,
-} from '../../types';
-import { ColorHelper, calculateViewDimensions, useStableId } from '../../utils';
+} from '@/lib/ngx-charts/types';
+import { ColorHelper, calculateViewDimensions, useStableId } from '@/lib/ngx-charts/utils';
 
 /** Individual series data for line race */
 export interface LineRaceSeriesData {

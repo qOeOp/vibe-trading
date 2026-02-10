@@ -8,7 +8,10 @@
  * @license MIT
  */
 
-export { NumberCard, type NumberCardProps } from './number-card';
-export { Card, type CardProps } from './card';
-export { CardSeries, type CardSeriesProps } from './card-series';
+export { NumberCard } from './number-card';
+export type { NumberCardProps } from './number-card';
+export { Card } from './card';
+export type { CardProps } from './card';
+export { CardSeries } from './card-series';
+export type { CardSeriesProps } from './card-series';
 export type { GridItem, GridData, CardModel } from './types';

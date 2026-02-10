@@ -17,7 +17,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { Orientation } from '../../types';
+import { Orientation } from '@/lib/ngx-charts/types';
 
 export interface GridLinesProps {
   /** Tick values to draw grid lines at */

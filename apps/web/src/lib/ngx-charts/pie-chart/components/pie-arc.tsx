@@ -20,8 +20,8 @@
 import { useMemo, useCallback, useRef, useId } from 'react';
 import { motion } from 'framer-motion';
 import { arc as d3Arc } from 'd3-shape';
-import type { DataItem } from '../../types';
-import { SvgRadialGradient, createRadialGradientStops } from '../../common';
+import type { DataItem } from '@/lib/ngx-charts/types';
+import { SvgRadialGradient, createRadialGradientStops } from '@/lib/ngx-charts/common';
 
 export interface PieArcProps {
   /** Arc fill color */

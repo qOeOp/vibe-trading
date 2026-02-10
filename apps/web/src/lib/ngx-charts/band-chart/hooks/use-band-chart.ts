@@ -1,10 +1,12 @@
 'use client';
 
 import { useMemo, useCallback, useState } from 'react';
-import { scaleLinear, scalePoint, ScaleLinear, ScalePoint } from 'd3-scale';
+import type { ScaleLinear, ScalePoint } from 'd3-scale';
+import { scaleLinear, scalePoint } from 'd3-scale';
 
-import { ViewDimensions } from '../../types';
-import { calculateViewDimensions, ViewDimensionsConfig } from '../../utils';
+import type { ViewDimensions } from '@/lib/ngx-charts/types';
+import type { ViewDimensionsConfig } from '@/lib/ngx-charts/utils';
+import { calculateViewDimensions } from '@/lib/ngx-charts/utils';
 
 /* ── Public types ────────────────────────────────────────────── */
 

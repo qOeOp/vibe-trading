@@ -17,7 +17,8 @@
 
 import { useMemo, useCallback, useRef, useState } from 'react';
 import { sankey, sankeyLeft, sankeyLinkHorizontal } from 'd3-sankey';
-import { ColorScheme, ScaleType, ViewDimensions } from '../types';
+import type { ColorScheme, ViewDimensions } from '../types';
+import { ScaleType } from '../types';
 import { ColorHelper, calculateViewDimensions, useStableId, trimLabel, escapeLabel } from '../utils';
 import { BaseChart, useChartDimensions } from '../common';
 

@@ -18,7 +18,7 @@
 
 import { useMemo, useCallback } from 'react';
 import { PieArc } from './pie-arc';
-import type { DataItem, PieGridDataItem } from '../../types';
+import type { DataItem, PieGridDataItem } from '@/lib/ngx-charts/types';
 
 /** Pie grid data structure */
 export interface PieGridData {

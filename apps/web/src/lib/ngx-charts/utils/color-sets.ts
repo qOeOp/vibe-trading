@@ -14,7 +14,8 @@
  * @license MIT
  */
 
-import { ColorScheme, ScaleType } from '../types';
+import type { ColorScheme} from '../types';
+import { ScaleType } from '../types';
 
 /** All available color schemes */
 export const colorSets: ColorScheme[] = [

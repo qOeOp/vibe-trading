@@ -16,17 +16,19 @@
  */
 
 import { useMemo, useState, useCallback } from 'react';
-import { scaleLinear, scaleTime, scalePoint, ScaleLinear, ScaleTime, ScalePoint } from 'd3-scale';
+import type { ScaleLinear, ScaleTime, ScalePoint } from 'd3-scale';
+import { scaleLinear, scaleTime, scalePoint } from 'd3-scale';
 
-import {
+import type {
   MultiSeries,
   DataItem,
   ViewDimensions,
+  ColorScheme} from '@/lib/ngx-charts/types';
+import {
   ScaleType,
-  ColorScheme,
   LegendPosition,
-} from '../../types';
-import { ColorHelper, calculateViewDimensions, useStableId } from '../../utils';
+} from '@/lib/ngx-charts/types';
+import { ColorHelper, calculateViewDimensions, useStableId } from '@/lib/ngx-charts/utils';
 
 /** X Scale type union */
 export type XScale = ScaleTime<number, number> | ScaleLinear<number, number> | ScalePoint<string>;

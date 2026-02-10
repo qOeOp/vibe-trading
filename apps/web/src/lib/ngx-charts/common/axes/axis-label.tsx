@@ -16,7 +16,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Orientation } from '../../types';
+import { Orientation } from '@/lib/ngx-charts/types';
 
 export interface AxisLabelProps {
   label: string;

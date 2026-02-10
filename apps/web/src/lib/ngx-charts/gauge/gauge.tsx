@@ -18,12 +18,13 @@
 'use client';
 
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
-import {
+import type {
   DataItem,
   ColorScheme,
+  ViewDimensions} from '../types';
+import {
   ScaleType,
-  LegendPosition,
-  ViewDimensions,
+  LegendPosition
 } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { Legend } from '../common';

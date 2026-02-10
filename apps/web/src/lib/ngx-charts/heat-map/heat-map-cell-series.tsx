@@ -15,12 +15,14 @@
  * @license MIT
  */
 
-import { useMemo, useCallback, type ReactNode } from 'react';
+import { useMemo, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import type { ScaleBand } from 'd3-scale';
 import { HeatMapCell } from './heat-map-cell';
 import { useChartTooltip } from '../common/tooltip';
 import type { DataItem, Series, StringOrNumberOrDate } from '../types';
-import { ColorHelper, trimLabel, escapeLabel } from '../utils';
+import type { ColorHelper} from '../utils';
+import { trimLabel, escapeLabel } from '../utils';
 
 /** Internal cell representation for rendering */
 interface Cell {

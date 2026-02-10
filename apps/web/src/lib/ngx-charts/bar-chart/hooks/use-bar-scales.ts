@@ -16,8 +16,9 @@
  */
 
 import { useMemo } from 'react';
-import { scaleBand, scaleLinear, type ScaleBand, type ScaleLinear } from 'd3-scale';
-import type { DataItem, Series } from '../../types';
+import { scaleBand, scaleLinear } from 'd3-scale';
+import type { ScaleBand, ScaleLinear } from 'd3-scale';
+import type { DataItem, Series } from '@/lib/ngx-charts/types';
 
 export interface UseBarScalesConfig {
   /** Chart data (single series) */

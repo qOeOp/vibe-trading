@@ -5,13 +5,12 @@ import {
   useRef,
   useCallback,
   useMemo,
-  type ReactNode,
-  type MouseEvent,
 } from 'react';
-import { ScalePoint, ScaleLinear } from 'd3-scale';
+import type { ReactNode, MouseEvent } from 'react';
+import type { ScalePoint, ScaleLinear } from 'd3-scale';
 
-import { ViewDimensions } from '../../types';
-import { useChartTooltip } from '../../common/tooltip/tooltip-context';
+import type { ViewDimensions } from '@/lib/ngx-charts/types';
+import { useChartTooltip } from '@/lib/ngx-charts/common/tooltip/tooltip-context';
 import type { BandDataPoint, AuxiliaryLine } from '../hooks';
 
 export interface BandTooltipAreaProps {

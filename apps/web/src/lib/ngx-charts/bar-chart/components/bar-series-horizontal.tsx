@@ -18,12 +18,13 @@
 import { useMemo, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ScaleBand, ScaleLinear } from 'd3-scale';
-import type { DataItem } from '../../types';
+import type { DataItem } from '@/lib/ngx-charts/types';
 import { Bar } from './bar';
 import { BarLabel } from './bar-label';
-import { BarChartType, D0Types, type Bar as BarModel, type BarSeriesProps } from '../types';
-import { formatLabel, escapeLabel } from '../../utils';
-import { useChartTooltip } from '../../common/tooltip';
+import { BarChartType, D0Types } from '../types';
+import type { Bar as BarModel, BarSeriesProps } from '../types';
+import { formatLabel, escapeLabel } from '@/lib/ngx-charts/utils';
+import { useChartTooltip } from '@/lib/ngx-charts/common/tooltip';
 
 /**
  * Type guard to check if a scale is a ScaleBand

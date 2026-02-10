@@ -8,6 +8,9 @@
  * @license MIT
  */
 
-export { BoxChart, type BoxChartProps, type BoxChartMultiSeries } from './box-chart';
-export { BoxSeries, type BoxSeriesProps, type BoxChartSeries } from './box-series';
-export { Box, type BoxProps, type IBoxModel, type IVector2D } from './box';
+export { BoxChart } from './box-chart';
+export type { BoxChartProps, BoxChartMultiSeries } from './box-chart';
+export { BoxSeries } from './box-series';
+export type { BoxSeriesProps, BoxChartSeries } from './box-series';
+export { Box } from './box';
+export type { BoxProps, IBoxModel, IVector2D } from './box';

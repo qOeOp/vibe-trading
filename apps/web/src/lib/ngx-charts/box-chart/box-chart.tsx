@@ -16,14 +16,17 @@
 'use client';
 
 import { useMemo, useCallback, useRef, useState } from 'react';
-import { scaleBand, scaleLinear, ScaleBand, ScaleLinear } from 'd3-scale';
-import { ColorScheme, ScaleType, ViewDimensions, LegendPosition } from '../types';
+import type { ScaleBand, ScaleLinear } from 'd3-scale';
+import { scaleBand, scaleLinear } from 'd3-scale';
+import type { ColorScheme, ViewDimensions} from '../types';
+import { ScaleType, LegendPosition } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { BaseChart, useChartDimensions } from '../common';
 import { XAxis, YAxis } from '../common/axes';
 import { Legend } from '../common/legend';
-import { BoxSeries, BoxChartSeries } from './box-series';
-import { IBoxModel } from './box';
+import type { BoxChartSeries } from './box-series';
+import { BoxSeries } from './box-series';
+import type { IBoxModel } from './box';
 
 export type BoxChartMultiSeries = BoxChartSeries[];
 

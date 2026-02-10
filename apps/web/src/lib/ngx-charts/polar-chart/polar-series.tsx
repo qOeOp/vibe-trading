@@ -16,9 +16,12 @@
 'use client';
 
 import { useMemo, useCallback, useId } from 'react';
-import { lineRadial, curveCardinalClosed, type CurveFactory } from 'd3-shape';
-import { Series, DataItem, ScaleType, StringOrNumberOrDate } from '../types';
-import { ColorHelper, escapeLabel } from '../utils';
+import { lineRadial, curveCardinalClosed } from 'd3-shape';
+import type { CurveFactory } from 'd3-shape';
+import type { Series, DataItem, StringOrNumberOrDate } from '../types';
+import { ScaleType } from '../types';
+import type { ColorHelper} from '../utils';
+import { escapeLabel } from '../utils';
 import { SvgRadialGradient, createRadialGradientStops } from '../common/gradients';
 
 export interface PolarSeriesProps {

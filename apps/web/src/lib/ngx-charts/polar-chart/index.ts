@@ -8,5 +8,7 @@
  * @license MIT
  */
 
-export { PolarChart, type PolarChartProps } from './polar-chart';
-export { PolarSeries, type PolarSeriesProps } from './polar-series';
+export { PolarChart } from './polar-chart';
+export type { PolarChartProps } from './polar-chart';
+export { PolarSeries } from './polar-series';
+export type { PolarSeriesProps } from './polar-series';

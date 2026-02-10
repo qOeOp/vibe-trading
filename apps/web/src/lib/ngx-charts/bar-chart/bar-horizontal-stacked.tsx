@@ -22,7 +22,8 @@ import { BaseChart, XAxis, YAxis, Legend } from '../common';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { useStackedBarScales } from './hooks';
 import { BarSeriesHorizontal } from './components';
-import { BarChartType, type MultiSeriesBarChartProps } from './types';
+import { BarChartType } from './types';
+import type { MultiSeriesBarChartProps } from './types';
 
 interface BarHorizontalStackedInnerProps extends Omit<MultiSeriesBarChartProps, 'width' | 'height' | 'className'> {
   containerWidth: number;

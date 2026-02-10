@@ -17,10 +17,12 @@
 'use client';
 
 import { useMemo } from 'react';
-import { area, Area as D3Area, CurveFactory, curveLinear } from 'd3-shape';
+import type { Area as D3Area, CurveFactory} from 'd3-shape';
+import { area, curveLinear } from 'd3-shape';
 
-import { AreaChartSeries, Gradient, ScaleType } from '../../types';
-import { ColorHelper } from '../../utils';
+import type { AreaChartSeries, Gradient} from '@/lib/ngx-charts/types';
+import { ScaleType } from '@/lib/ngx-charts/types';
+import type { ColorHelper } from '@/lib/ngx-charts/utils';
 import { Area } from './area';
 
 /** Data item interface matching area chart needs */

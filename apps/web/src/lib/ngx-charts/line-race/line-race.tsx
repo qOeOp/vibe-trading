@@ -12,11 +12,13 @@
 
 'use client';
 
-import { useState, useCallback, useRef, useEffect, useMemo, type MouseEvent } from 'react';
-import { CurveFactory, curveLinear } from 'd3-shape';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import type { MouseEvent } from 'react';
+import type { CurveFactory } from 'd3-shape';
+import { curveLinear } from 'd3-shape';
 
+import type { ColorScheme } from '../types';
 import {
-  ColorScheme,
   ScaleType,
   LegendPosition,
 } from '../types';
@@ -26,8 +28,10 @@ import {
   YAxis,
   Legend,
 } from '../common';
-import { useLineRace, type LineRaceSeriesData } from './hooks';
-import { LineRaceSeries, LineRaceCrosshair, type CrosshairItem } from './components';
+import { useLineRace } from './hooks';
+import type { LineRaceSeriesData } from './hooks';
+import { LineRaceSeries, LineRaceCrosshair } from './components';
+import type { CrosshairItem } from './components';
 import { markerPath, findClosestRound } from './utils';
 
 export interface LineRaceProps {

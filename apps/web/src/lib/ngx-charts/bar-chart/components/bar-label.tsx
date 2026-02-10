@@ -17,7 +17,7 @@
 
 import { useMemo, useRef, useEffect } from 'react';
 import type { BarLabelProps } from '../types';
-import { formatLabel } from '../../utils';
+import { formatLabel } from '@/lib/ngx-charts/utils';
 
 /** Track reported dimensions to avoid infinite loops */
 interface ReportedDimensions {

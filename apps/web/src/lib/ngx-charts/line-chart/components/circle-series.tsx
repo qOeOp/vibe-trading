@@ -15,13 +15,15 @@
 
 'use client';
 
-import { useMemo, useCallback, type ReactNode } from 'react';
+import { useMemo, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { Series, DataItem, ScaleType } from '../../types';
-import { ColorHelper } from '../../utils';
-import { useChartTooltip } from '../../common/tooltip';
-import { XScale, YScale } from '../hooks';
+import type { Series, DataItem} from '@/lib/ngx-charts/types';
+import { ScaleType } from '@/lib/ngx-charts/types';
+import type { ColorHelper } from '@/lib/ngx-charts/utils';
+import { useChartTooltip } from '@/lib/ngx-charts/common/tooltip';
+import type { XScale, YScale } from '../hooks';
 
 export interface CircleSeriesProps {
   /** Series data */

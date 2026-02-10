@@ -16,10 +16,10 @@
 'use client';
 
 import { useMemo, useCallback } from 'react';
-import { ViewDimensions } from '../types';
-import { ColorHelper } from '../utils';
+import type { ViewDimensions } from '../types';
+import type { ColorHelper } from '../utils';
 import { Card, invertColor } from './card';
-import { GridData, CardModel } from './types';
+import type { GridData, CardModel } from './types';
 
 export interface CardSeriesProps {
   data: CardModel[];

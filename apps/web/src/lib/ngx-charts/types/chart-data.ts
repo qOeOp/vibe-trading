@@ -14,7 +14,7 @@
  * @license MIT
  */
 
-import { Vector2D } from './coordinates';
+import type { Vector2D } from './coordinates';
 
 /** Base type for chart data item names */
 export type StringOrNumberOrDate = string | number | Date;

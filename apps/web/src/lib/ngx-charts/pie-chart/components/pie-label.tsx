@@ -19,8 +19,8 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { arc as d3Arc } from 'd3-shape';
-import { trimLabel } from '../../utils';
-import type { TextAnchor } from '../../types';
+import { trimLabel } from '@/lib/ngx-charts/utils';
+import type { TextAnchor } from '@/lib/ngx-charts/types';
 
 /** Pie data for label positioning */
 export interface PieLabelData {

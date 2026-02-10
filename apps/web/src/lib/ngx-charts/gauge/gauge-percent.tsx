@@ -19,7 +19,8 @@
 
 import { useMemo, useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
-import { ColorScheme, ScaleType, ViewDimensions } from '../types';
+import type { ColorScheme, ViewDimensions } from '../types';
+import { ScaleType } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 
 export interface GaugePercentProps {

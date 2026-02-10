@@ -17,11 +17,12 @@
 
 import { useMemo, useCallback, useRef } from 'react';
 import { scaleBand } from 'd3-scale';
-import { DataItem, ColorScheme, ScaleType, ViewDimensions } from '../types';
+import type { DataItem, ColorScheme, ViewDimensions } from '../types';
+import { ScaleType } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { BaseChart, useChartDimensions } from '../common';
 import { CardSeries } from './card-series';
-import { GridData, GridItem, CardModel } from './types';
+import type { GridData, GridItem, CardModel } from './types';
 
 export interface NumberCardProps {
   /** Chart data */

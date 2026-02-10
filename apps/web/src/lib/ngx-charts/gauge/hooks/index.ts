@@ -11,4 +11,5 @@
  * @license MIT
  */
 
-export { useGauge, type UseGaugeConfig, type UseGaugeResult, type GaugeArcs } from './use-gauge';
+export { useGauge } from './use-gauge';
+export type { UseGaugeConfig, UseGaugeResult, GaugeArcs } from './use-gauge';

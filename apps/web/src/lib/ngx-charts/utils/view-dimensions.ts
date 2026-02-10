@@ -13,7 +13,8 @@
  * @license MIT
  */
 
-import { LegendPosition, ScaleType, ViewDimensions, Margin } from '../types';
+import type { ViewDimensions, Margin } from '../types';
+import { LegendPosition, ScaleType } from '../types';
 
 export interface ViewDimensionsConfig {
   width: number;

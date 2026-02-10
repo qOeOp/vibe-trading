@@ -16,7 +16,8 @@
 'use client';
 
 import { useMemo, useState, useCallback, useRef } from 'react';
-import { Orientation, ViewDimensions } from '../../types';
+import type { ViewDimensions } from '@/lib/ngx-charts/types';
+import { Orientation } from '@/lib/ngx-charts/types';
 import { YAxisTicks } from './y-axis-ticks';
 import { AxisLabel } from './axis-label';
 

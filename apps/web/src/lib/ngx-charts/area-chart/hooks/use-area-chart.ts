@@ -17,20 +17,24 @@
  */
 
 import { useMemo, useCallback, useState } from 'react';
-import { scaleLinear, scalePoint, scaleTime, ScaleLinear, ScaleTime, ScalePoint } from 'd3-scale';
-import { CurveFactory, curveLinear } from 'd3-shape';
+import type { ScaleLinear, ScaleTime, ScalePoint } from 'd3-scale';
+import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
+import type { CurveFactory} from 'd3-shape';
+import { curveLinear } from 'd3-shape';
 
-import {
+import type {
   MultiSeries,
+  ViewDimensions} from '@/lib/ngx-charts/types';
+import {
   ScaleType,
-  ViewDimensions,
   LegendPosition,
-} from '../../types';
+} from '@/lib/ngx-charts/types';
+import type {
+  ViewDimensionsConfig} from '@/lib/ngx-charts/utils';
 import {
   calculateViewDimensions,
-  ViewDimensionsConfig,
   ColorHelper,
-} from '../../utils';
+} from '@/lib/ngx-charts/utils';
 
 /** Scale type union */
 export type XScale =

@@ -14,8 +14,9 @@
  */
 
 import { useMemo } from 'react';
-import { scaleLinear, ScaleLinear } from 'd3-scale';
-import type { DataItem } from '../../types';
+import type { ScaleLinear } from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
+import type { DataItem } from '@/lib/ngx-charts/types';
 import type { ArcItem } from '../components/gauge-arc';
 
 /** Arcs configuration for a single gauge segment */

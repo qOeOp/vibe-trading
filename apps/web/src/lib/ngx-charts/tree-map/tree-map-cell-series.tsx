@@ -16,8 +16,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { DataItem, ViewDimensions } from '../types';
-import { ColorHelper } from '../utils';
+import type { DataItem, ViewDimensions } from '../types';
+import type { ColorHelper } from '../utils';
 import { TreeMapCell } from './tree-map-cell';
 
 /** D3 hierarchy node with treemap layout positions */

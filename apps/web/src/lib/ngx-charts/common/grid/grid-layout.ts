@@ -15,7 +15,7 @@
  */
 
 import { scaleBand } from 'd3-scale';
-import type { ViewDimensions, StringOrNumberOrDate } from '../../types';
+import type { ViewDimensions, StringOrNumberOrDate } from '@/lib/ngx-charts/types';
 
 /**
  * Grid item representing a positioned cell in the grid

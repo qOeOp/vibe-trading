@@ -1,8 +1,9 @@
 'use client';
 
 import { useMemo, useState, useRef, useEffect, useCallback, useId } from 'react';
-import { line, curveMonotoneX, type CurveFactory } from 'd3-shape';
-import { ScalePoint, ScaleLinear } from 'd3-scale';
+import { line, curveMonotoneX } from 'd3-shape';
+import type { CurveFactory } from 'd3-shape';
+import type { ScalePoint, ScaleLinear } from 'd3-scale';
 
 export interface RaceStrategy {
   id: string;

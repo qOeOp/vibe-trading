@@ -19,7 +19,8 @@
 import { useMemo, memo } from 'react';
 import type { ScaleBand } from 'd3-scale';
 import { GridPanel } from './grid-panel';
-import { BarOrientation, ViewDimensions } from '../../types';
+import type { ViewDimensions } from '@/lib/ngx-charts/types';
+import { BarOrientation } from '@/lib/ngx-charts/types';
 
 /** Classification for grid panel styling (odd/even alternation) */
 export enum GridPanelClass {

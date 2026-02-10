@@ -13,13 +13,19 @@
  */
 
 // Main chart components
-export { Gauge, type GaugeProps } from './gauge';
-export { LinearGauge, type LinearGaugeProps } from './linear-gauge';
-export { GaugePercent, type GaugePercentProps } from './gauge-percent';
+export { Gauge } from './gauge';
+export type { GaugeProps } from './gauge';
+export { LinearGauge } from './linear-gauge';
+export type { LinearGaugeProps } from './linear-gauge';
+export { GaugePercent } from './gauge-percent';
+export type { GaugePercentProps } from './gauge-percent';
 
 // Supporting components
-export { GaugeArc, type GaugeArcProps, type ArcItem } from './components/gauge-arc';
-export { GaugeAxis, type GaugeAxisProps } from './components/gauge-axis';
+export { GaugeArc } from './components/gauge-arc';
+export type { GaugeArcProps, ArcItem } from './components/gauge-arc';
+export { GaugeAxis } from './components/gauge-axis';
+export type { GaugeAxisProps } from './components/gauge-axis';
 
 // Hooks
-export { useGauge, type UseGaugeConfig, type UseGaugeResult, type GaugeArcs } from './hooks/use-gauge';
+export { useGauge } from './hooks/use-gauge';
+export type { UseGaugeConfig, UseGaugeResult, GaugeArcs } from './hooks/use-gauge';

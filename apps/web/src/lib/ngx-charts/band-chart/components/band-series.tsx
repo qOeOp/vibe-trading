@@ -1,11 +1,13 @@
 'use client';
 
 import { useMemo, useId } from 'react';
-import { area, line, Area as D3Area, Line as D3Line, curveMonotoneX, curveBasis, type CurveFactory } from 'd3-shape';
-import { ScalePoint, ScaleLinear } from 'd3-scale';
+import type { Area as D3Area, Line as D3Line} from 'd3-shape';
+import { area, line, curveMonotoneX, curveBasis } from 'd3-shape';
+import type { CurveFactory } from 'd3-shape';
+import type { ScalePoint, ScaleLinear } from 'd3-scale';
 import { motion } from 'framer-motion';
 
-import { SvgLinearGradient } from '../../common';
+import { SvgLinearGradient } from '@/lib/ngx-charts/common';
 import type { BandDataPoint, BandConfig } from '../hooks';
 import { BandArea } from './band-area';
 

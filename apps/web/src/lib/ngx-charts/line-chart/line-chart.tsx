@@ -16,26 +16,30 @@
 
 'use client';
 
-import { useState, useCallback, type ReactNode } from 'react';
+import { useState, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CurveFactory, curveLinear } from 'd3-shape';
+import type { CurveFactory} from 'd3-shape';
+import { curveLinear } from 'd3-shape';
 
-import {
+import type {
   MultiSeries,
   DataItem,
   Series,
-  ColorScheme,
+  ColorScheme} from '../types';
+import {
   ScaleType,
   LegendPosition,
 } from '../types';
+import type {
+  TooltipItem,
+  SeriesData} from '../common';
 import {
   BaseChart,
   XAxis,
   YAxis,
   Legend,
-  TooltipArea,
-  TooltipItem,
-  SeriesData,
+  TooltipArea
 } from '../common';
 import { useLineChart } from './hooks';
 import { LineSeries, CircleSeries } from './components';

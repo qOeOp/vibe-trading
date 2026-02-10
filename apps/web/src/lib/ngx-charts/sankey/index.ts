@@ -8,4 +8,5 @@
  * @license MIT
  */
 
-export { Sankey, type SankeyProps, type SankeyLink } from './sankey';
+export { Sankey } from './sankey';
+export type { SankeyProps, SankeyLink } from './sankey';

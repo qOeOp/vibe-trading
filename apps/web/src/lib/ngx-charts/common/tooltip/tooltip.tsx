@@ -21,14 +21,14 @@ import {
   useRef,
   useEffect,
   useCallback,
-  type ReactNode,
-  type ReactElement,
   cloneElement,
   isValidElement,
 } from 'react';
+import type { ReactNode, ReactElement } from 'react';
 import { createPortal } from 'react-dom';
-import { TooltipContent, TooltipStyleType, TooltipAlignment } from './tooltip-content';
-import { Placement } from '../../types';
+import type { TooltipStyleType, TooltipAlignment } from './tooltip-content';
+import { TooltipContent } from './tooltip-content';
+import type { Placement } from '@/lib/ngx-charts/types';
 
 /** Show event types */
 export type TooltipShowEvent = 'all' | 'focus' | 'mouseover';

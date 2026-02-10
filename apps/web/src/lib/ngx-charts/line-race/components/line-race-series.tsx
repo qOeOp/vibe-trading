@@ -13,11 +13,12 @@
 'use client';
 
 import { useMemo, useState, useCallback, useId } from 'react';
-import { line, curveLinear, CurveFactory } from 'd3-shape';
-import { ScaleLinear } from 'd3-scale';
+import type { CurveFactory } from 'd3-shape';
+import { line, curveLinear } from 'd3-shape';
+import type { ScaleLinear } from 'd3-scale';
 
-import { ColorHelper } from '../../utils';
-import { LineRaceSeriesData } from '../hooks/use-line-race';
+import type { ColorHelper } from '@/lib/ngx-charts/utils';
+import type { LineRaceSeriesData } from '../hooks/use-line-race';
 
 export interface LineRaceSeriesProps {
   data: LineRaceSeriesData[];

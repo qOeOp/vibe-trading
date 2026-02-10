@@ -1,11 +1,12 @@
 'use client';
 
 import { useMemo, useId } from 'react';
-import { line, area, curveMonotoneX, type CurveFactory } from 'd3-shape';
-import { ScalePoint, ScaleLinear } from 'd3-scale';
+import { line, area, curveMonotoneX } from 'd3-shape';
+import type { CurveFactory } from 'd3-shape';
+import type { ScalePoint, ScaleLinear } from 'd3-scale';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { SvgLinearGradient } from '../../common';
+import { SvgLinearGradient } from '@/lib/ngx-charts/common';
 import type { OverlaySeries } from '../hooks';
 
 export interface OverlayLineProps {

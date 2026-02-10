@@ -22,7 +22,8 @@ import { BaseChart, XAxis, YAxis, Legend } from '../common';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { useNormalizedBarScales } from './hooks';
 import { BarSeriesVertical } from './components';
-import { BarChartType, type MultiSeriesBarChartProps } from './types';
+import { BarChartType } from './types';
+import type { MultiSeriesBarChartProps } from './types';
 
 interface BarVerticalNormalizedInnerProps extends Omit<MultiSeriesBarChartProps, 'width' | 'height' | 'className'> {
   containerWidth: number;

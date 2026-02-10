@@ -16,7 +16,7 @@
 
 import type { ReactNode } from 'react';
 import type { LineRaceSeriesData } from '../hooks';
-import { ColorHelper } from '../../utils';
+import type { ColorHelper } from '@/lib/ngx-charts/utils';
 
 export interface CrosshairItem {
   name: string;

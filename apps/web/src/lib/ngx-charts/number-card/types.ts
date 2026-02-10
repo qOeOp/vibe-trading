@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { StringOrNumberOrDate } from '../types';
+import type { StringOrNumberOrDate } from '../types';
 
 export interface GridItem {
   data: GridData;

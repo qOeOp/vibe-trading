@@ -21,12 +21,11 @@ import {
   useRef,
   useCallback,
   useMemo,
-  type ReactNode,
-  type MouseEvent,
 } from 'react';
-import { ViewDimensions } from '../../types';
+import type { ReactNode, MouseEvent } from 'react';
+import type { ViewDimensions } from '@/lib/ngx-charts/types';
 import { useChartTooltip } from './tooltip-context';
-import { ScaleType } from '../../types/scale';
+import { ScaleType } from '@/lib/ngx-charts/types/scale';
 
 /** Tooltip item data structure */
 export interface TooltipItem {

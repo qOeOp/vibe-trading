@@ -16,13 +16,16 @@
 'use client';
 
 import { useMemo, useId } from 'react';
-import { line, area, CurveFactory, curveLinear } from 'd3-shape';
+import type { CurveFactory} from 'd3-shape';
+import { line, area, curveLinear } from 'd3-shape';
 
-import { Series, DataItem, ScaleType, Gradient } from '../../types';
-import { ColorHelper } from '../../utils';
-import { SvgLinearGradient } from '../../common';
+import type { Series, DataItem, Gradient } from '@/lib/ngx-charts/types';
+import { ScaleType } from '@/lib/ngx-charts/types';
+import type { ColorHelper } from '@/lib/ngx-charts/utils';
+import { SvgLinearGradient } from '@/lib/ngx-charts/common';
 import { Line } from './line';
-import { sortLineData, XScale, YScale } from '../hooks/use-line-chart';
+import type { XScale, YScale } from '../hooks/use-line-chart';
+import { sortLineData } from '../hooks/use-line-chart';
 
 export interface LineSeriesProps {
   /** Series data */

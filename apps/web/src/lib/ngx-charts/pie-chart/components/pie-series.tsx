@@ -16,14 +16,16 @@
 
 'use client';
 
-import { useMemo, useCallback, type ReactNode } from 'react';
+import { useMemo, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import { pie as d3Pie, arc as d3Arc } from 'd3-shape';
 import { max } from 'd3-array';
 import { PieArc } from './pie-arc';
 import { PieLabel } from './pie-label';
-import { useChartTooltip } from '../../common/tooltip';
-import type { DataItem } from '../../types';
-import { ColorHelper, formatLabel, escapeLabel } from '../../utils';
+import { useChartTooltip } from '@/lib/ngx-charts/common/tooltip';
+import type { DataItem } from '@/lib/ngx-charts/types';
+import type { ColorHelper} from '@/lib/ngx-charts/utils';
+import { formatLabel, escapeLabel } from '@/lib/ngx-charts/utils';
 
 /** Arc data with position for label */
 export interface ArcWithPosition {

@@ -15,17 +15,19 @@
  */
 
 import { range } from 'd3-array';
+import type {
+  ScaleLinear,
+  ScaleOrdinal,
+  ScaleQuantile} from 'd3-scale';
 import {
   scaleBand,
   scaleLinear,
   scaleOrdinal,
-  scaleQuantile,
-  ScaleLinear,
-  ScaleOrdinal,
-  ScaleQuantile,
+  scaleQuantile
 } from 'd3-scale';
 
-import { ColorScheme, Gradient, ScaleType, StringOrNumberOrDate } from '../types';
+import type { ColorScheme, Gradient, StringOrNumberOrDate } from '../types';
+import { ScaleType } from '../types';
 import { colorSets } from './color-sets';
 
 type ColorScale =

@@ -15,22 +15,27 @@
 
 'use client';
 
-import { useState, useCallback, useMemo, type ReactNode } from 'react';
-import { CurveFactory, curveLinear } from 'd3-shape';
+import { useState, useCallback, useMemo } from 'react';
+import type { ReactNode } from 'react';
+import type { CurveFactory } from 'd3-shape';
+import { curveLinear } from 'd3-shape';
 
-import {
+import type {
   MultiSeries,
-  ScaleType,
-  LegendPosition,
-  LegendType,
   ColorScheme,
   AxisConfig,
   LegendConfig,
-  TooltipConfig,
+  TooltipConfig} from '../types';
+import {
+  ScaleType,
+  LegendPosition,
+  LegendType
 } from '../types';
-import { BaseChart, XAxis, YAxis, Legend, TooltipArea, TooltipItem } from '../common';
+import type { TooltipItem } from '../common';
+import { BaseChart, XAxis, YAxis, Legend, TooltipArea } from '../common';
 import { useAreaChart } from './hooks';
-import { AreaSeries, XScaleWithDomain, YScaleWithRange } from './components';
+import type { XScaleWithDomain, YScaleWithRange } from './components';
+import { AreaSeries } from './components';
 import { CircleSeries } from '../line-chart/components';
 
 /** Reference line configuration */

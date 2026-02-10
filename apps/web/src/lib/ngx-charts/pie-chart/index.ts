@@ -18,31 +18,38 @@
  */
 
 // Main chart components
-export { PieChart, type PieChartProps } from './pie-chart';
-export { AdvancedPieChart, type AdvancedPieChartProps } from './advanced-pie-chart';
-export { PieGrid, type PieGridProps } from './pie-grid';
+export { PieChart } from './pie-chart';
+export type { PieChartProps } from './pie-chart';
+export { AdvancedPieChart } from './advanced-pie-chart';
+export type { AdvancedPieChartProps } from './advanced-pie-chart';
+export { PieGrid } from './pie-grid';
+export type { PieGridProps } from './pie-grid';
 
 // Sub-components (for advanced customization)
 export {
   PieArc,
-  type PieArcProps,
   PieLabel,
-  type PieLabelProps,
-  type PieLabelData,
   PieSeries,
-  type PieSeriesProps,
-  type ArcWithPosition,
   PieGridSeries,
-  type PieGridSeriesProps,
+} from './components';
+export type {
+  PieArcProps,
+  PieLabelProps,
+  PieLabelData,
+  PieSeriesProps,
+  ArcWithPosition,
+  PieGridSeriesProps,
 } from './components';
 
 // Hooks
 export {
   usePieChart,
-  type UsePieChartConfig,
-  type UsePieChartResult,
-  type ProcessedArc,
   useGridLayout,
-  type UseGridLayoutConfig,
-  type GridCell,
+} from './hooks';
+export type {
+  UsePieChartConfig,
+  UsePieChartResult,
+  ProcessedArc,
+  UseGridLayoutConfig,
+  GridCell,
 } from './hooks';

@@ -16,13 +16,12 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import type { DataItem, Series, LegendPosition, ScaleType } from '../../types';
+import type { DataItem, Series, LegendPosition, ScaleType } from '@/lib/ngx-charts/types';
 import {
   ColorHelper,
-  type ColorHelperConfig,
   calculateViewDimensions,
-  type ViewDimensionsConfig,
-} from '../../utils';
+} from '@/lib/ngx-charts/utils';
+import type { ColorHelperConfig, ViewDimensionsConfig } from '@/lib/ngx-charts/utils';
 
 export interface UseBarChartConfig {
   /** Chart data */

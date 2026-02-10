@@ -13,7 +13,7 @@
  * @license MIT
  */
 
-import { ScaleType } from './scale';
+import type { ScaleType } from './scale';
 
 /** View dimensions for chart rendering */
 export interface ViewDimensions {

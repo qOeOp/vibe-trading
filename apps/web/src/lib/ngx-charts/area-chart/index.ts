@@ -15,25 +15,33 @@
  */
 
 // Main chart components
-export { AreaChart, type AreaChartProps, type ReferenceLine } from './area-chart';
-export { AreaChartStacked, type AreaChartStackedProps } from './area-chart-stacked';
-export { AreaChartNormalized, type AreaChartNormalizedProps } from './area-chart-normalized';
+export { AreaChart } from './area-chart';
+export type { AreaChartProps, ReferenceLine } from './area-chart';
+export { AreaChartStacked } from './area-chart-stacked';
+export type { AreaChartStackedProps } from './area-chart-stacked';
+export { AreaChartNormalized } from './area-chart-normalized';
+export type { AreaChartNormalizedProps } from './area-chart-normalized';
 
 // Sub-components
-export { Area, type AreaProps } from './components/area';
+export { Area } from './components/area';
+export type { AreaProps } from './components/area';
 export {
   AreaSeries,
-  type AreaSeriesProps,
-  type XScaleWithDomain,
-  type YScaleWithRange,
+} from './components/area-series';
+export type {
+  AreaSeriesProps,
+  XScaleWithDomain,
+  YScaleWithRange,
 } from './components/area-series';
 
 // Hooks
 export {
   useAreaChart,
-  type UseAreaChartConfig,
-  type UseAreaChartResult,
-  type ProcessedSeriesData,
-  type XScale,
-  type YScale,
+} from './hooks/use-area-chart';
+export type {
+  UseAreaChartConfig,
+  UseAreaChartResult,
+  ProcessedSeriesData,
+  XScale,
+  YScale,
 } from './hooks/use-area-chart';

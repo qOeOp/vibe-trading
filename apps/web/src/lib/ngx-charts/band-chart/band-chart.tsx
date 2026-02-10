@@ -1,13 +1,17 @@
 'use client';
 
-import { useCallback, useMemo, useId, type ReactNode } from 'react';
-import { line, area, curveMonotoneX, curveBasis, type CurveFactory } from 'd3-shape';
+import { useCallback, useMemo, useId } from 'react';
+import type { ReactNode } from 'react';
+import { line, area, curveMonotoneX, curveBasis } from 'd3-shape';
+import type { CurveFactory } from 'd3-shape';
 import { motion } from 'framer-motion';
 
-import { AxisConfig } from '../types';
+import type { AxisConfig } from '../types';
 import { BaseChart, XAxis, YAxis, SvgLinearGradient } from '../common';
-import { useBandChart, type BandData, type BandDataPoint, type BandConfig, type OverlaySeries, type AuxiliaryLine } from './hooks';
-import { BandSeries, OverlayLine, BandTooltipArea, RaceOverlay, type BandTooltipInfo, type RaceStrategy } from './components';
+import { useBandChart } from './hooks';
+import type { BandData, BandDataPoint, BandConfig, OverlaySeries, AuxiliaryLine } from './hooks';
+import { BandSeries, OverlayLine, BandTooltipArea, RaceOverlay } from './components';
+import type { BandTooltipInfo, RaceStrategy } from './components';
 
 export interface BandChartProps {
   data: BandData;

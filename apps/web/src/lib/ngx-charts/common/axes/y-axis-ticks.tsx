@@ -16,8 +16,9 @@
 'use client';
 
 import { useMemo, useCallback, useEffect, useRef } from 'react';
-import { Orientation, TextAnchor } from '../../types';
-import { trimLabel, reduceTicks } from '../../utils';
+import type { TextAnchor } from '@/lib/ngx-charts/types';
+import { Orientation } from '@/lib/ngx-charts/types';
+import { trimLabel, reduceTicks } from '@/lib/ngx-charts/utils';
 
 /** Reference line definition for axis display */
 interface ReferenceLine {

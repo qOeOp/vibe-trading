@@ -16,7 +16,8 @@
 
 'use client';
 
-import { useMemo, useCallback, useState, type ReactNode } from 'react';
+import { useMemo, useCallback, useState } from 'react';
+import type { ReactNode } from 'react';
 import { BaseChart, AdvancedLegend } from '../common';
 import { PieSeries } from './components';
 import type { DataItem, ColorScheme, StringOrNumberOrDate, TooltipConfig } from '../types';

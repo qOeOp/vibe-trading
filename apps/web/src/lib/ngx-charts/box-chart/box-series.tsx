@@ -16,11 +16,14 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ScaleBand, ScaleLinear } from 'd3-scale';
+import type { ScaleBand, ScaleLinear } from 'd3-scale';
 import { min, max, quantile } from 'd3-array';
-import { ViewDimensions, ScaleType } from '../types';
-import { ColorHelper, escapeLabel, formatLabel } from '../utils';
-import { Box, IBoxModel, IVector2D } from './box';
+import type { ViewDimensions} from '../types';
+import { ScaleType } from '../types';
+import type { ColorHelper} from '../utils';
+import { escapeLabel, formatLabel } from '../utils';
+import type { IBoxModel, IVector2D } from './box';
+import { Box } from './box';
 
 export interface BoxChartSeries {
   name: string | number | Date;

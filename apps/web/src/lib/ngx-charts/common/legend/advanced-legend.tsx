@@ -19,8 +19,9 @@
 
 import { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ColorHelper, trimLabel, formatLabel } from '../../utils';
-import type { DataItem, StringOrNumberOrDate } from '../../types';
+import type { ColorHelper} from '@/lib/ngx-charts/utils';
+import { trimLabel, formatLabel } from '@/lib/ngx-charts/utils';
+import type { DataItem, StringOrNumberOrDate } from '@/lib/ngx-charts/types';
 
 /** Advanced legend item data structure */
 export interface AdvancedLegendItem {

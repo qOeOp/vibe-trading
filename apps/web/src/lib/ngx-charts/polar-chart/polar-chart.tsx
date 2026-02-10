@@ -17,8 +17,10 @@
 
 import { useMemo, useCallback, useRef, useState } from 'react';
 import { scaleLinear, scaleTime, scalePoint } from 'd3-scale';
-import { curveCardinalClosed, type CurveFactory } from 'd3-shape';
-import { MultiSeries, ColorScheme, ScaleType, ViewDimensions, LegendPosition } from '../types';
+import { curveCardinalClosed } from 'd3-shape';
+import type { CurveFactory } from 'd3-shape';
+import type { MultiSeries, ColorScheme, ViewDimensions} from '../types';
+import { ScaleType, LegendPosition } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 import { BaseChart, useChartDimensions } from '../common';
 import { YAxis } from '../common/axes';

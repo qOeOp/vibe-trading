@@ -16,7 +16,8 @@
  * @license MIT
  */
 
-import { useState, useMemo, useCallback, memo, type ReactNode } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
+import type { ReactNode } from 'react';
 import { scaleBand } from 'd3-scale';
 import type { ScaleBand } from 'd3-scale';
 import { BaseChart, XAxis, YAxis, Legend, ScaleLegend } from '../common';

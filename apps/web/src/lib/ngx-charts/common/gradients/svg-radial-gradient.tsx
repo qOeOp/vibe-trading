@@ -15,7 +15,7 @@
 
 'use client';
 
-import { Gradient } from '../../types';
+import type { Gradient } from '@/lib/ngx-charts/types';
 
 export interface SvgRadialGradientProps {
   /** Unique ID for the gradient */

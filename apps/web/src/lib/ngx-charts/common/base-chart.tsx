@@ -22,12 +22,11 @@ import {
   useState,
   useCallback,
   forwardRef,
-  type ReactNode,
-  type CSSProperties,
 } from 'react';
+import type { ReactNode, CSSProperties } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { ColorScheme, ScaleType } from '../types';
+import type { ColorScheme, ScaleType } from '../types';
 import { ColorHelper } from '../utils';
 import { ChartTooltipProvider } from './tooltip';
 

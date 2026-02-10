@@ -16,22 +16,26 @@
 
 'use client';
 
-import { useState, useCallback, useMemo, useId, type ReactNode } from 'react';
+import { useState, useCallback, useMemo, useId } from 'react';
+import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { scaleLinear, scaleTime, scalePoint, ScaleLinear, ScaleTime, ScalePoint } from 'd3-scale';
+import type { ScaleLinear, ScaleTime, ScalePoint } from 'd3-scale';
+import { scaleLinear, scaleTime, scalePoint } from 'd3-scale';
 
-import {
+import type {
   BubbleChartMultiSeries,
   BubbleChartSeries,
   BubbleChartDataItem,
   ColorScheme,
+  StringOrNumberOrDate} from '../types';
+import {
   ScaleType,
-  LegendPosition,
-  StringOrNumberOrDate,
+  LegendPosition
 } from '../types';
 import { BaseChart, XAxis, YAxis, Legend } from '../common';
 import { calculateViewDimensions, ColorHelper, getScaleType } from '../utils';
-import { BubbleSeries, BubbleScale } from './bubble-series';
+import type { BubbleScale } from './bubble-series';
+import { BubbleSeries } from './bubble-series';
 
 export interface BubbleChartProps {
   /** Chart data - array of series with name and bubble data points */

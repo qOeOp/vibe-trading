@@ -21,10 +21,9 @@ import {
   useRef,
   useState,
   useCallback,
-  type ReactNode,
-  type CSSProperties,
 } from 'react';
-import { Placement } from '../../types';
+import type { ReactNode, CSSProperties } from 'react';
+import type { Placement } from '@/lib/ngx-charts/types';
 
 /** Style types for tooltip appearance */
 export type TooltipStyleType = 'tooltip' | 'popover';

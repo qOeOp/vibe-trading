@@ -11,5 +11,7 @@
  * @license MIT
  */
 
-export { GaugeArc, type GaugeArcProps, type ArcItem } from './gauge-arc';
-export { GaugeAxis, type GaugeAxisProps } from './gauge-axis';
+export { GaugeArc } from './gauge-arc';
+export type { GaugeArcProps, ArcItem } from './gauge-arc';
+export { GaugeAxis } from './gauge-axis';
+export type { GaugeAxisProps } from './gauge-axis';

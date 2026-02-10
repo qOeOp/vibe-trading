@@ -1,10 +1,16 @@
-export { LineRace, type LineRaceProps } from './line-race';
-export { LineRaceWithLeaderboard, type LineRaceWithLeaderboardProps } from './line-race-with-leaderboard';
-export { LineRaceSeries, type LineRaceSeriesProps } from './components';
-export { LineRaceLeaderboard, type LineRaceLeaderboardProps } from './components';
+export { LineRace } from './line-race';
+export type { LineRaceProps } from './line-race';
+export { LineRaceWithLeaderboard } from './line-race-with-leaderboard';
+export type { LineRaceWithLeaderboardProps } from './line-race-with-leaderboard';
+export { LineRaceSeries } from './components';
+export type { LineRaceSeriesProps } from './components';
+export { LineRaceLeaderboard } from './components';
+export type { LineRaceLeaderboardProps } from './components';
 export {
   useLineRace,
-  type UseLineRaceConfig,
-  type LineRaceState,
-  type LineRaceSeriesData,
+} from './hooks';
+export type {
+  UseLineRaceConfig,
+  LineRaceState,
+  LineRaceSeriesData,
 } from './hooks';

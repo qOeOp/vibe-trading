@@ -19,8 +19,9 @@
 import { useMemo, useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
 import { arc as d3Arc } from 'd3-shape';
-import type { DataItem } from '../../types';
-import { ColorHelper, formatLabel } from '../../utils';
+import type { DataItem } from '@/lib/ngx-charts/types';
+import type { ColorHelper} from '@/lib/ngx-charts/utils';
+import { formatLabel } from '@/lib/ngx-charts/utils';
 
 /** Arc item structure */
 export interface ArcItem {

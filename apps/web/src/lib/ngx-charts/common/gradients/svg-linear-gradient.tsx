@@ -16,7 +16,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Gradient } from '../../types';
+import type { Gradient } from '@/lib/ngx-charts/types';
 
 export interface SvgLinearGradientProps {
   /** Unique ID for the gradient */

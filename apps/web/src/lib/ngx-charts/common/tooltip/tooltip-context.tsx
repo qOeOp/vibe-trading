@@ -16,11 +16,12 @@ import {
   useState,
   useCallback,
   useRef,
-  type ReactNode,
 } from 'react';
+import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { TooltipContent, TooltipStyleType } from './tooltip-content';
-import { Placement } from '../../types';
+import type { TooltipStyleType } from './tooltip-content';
+import { TooltipContent } from './tooltip-content';
+import type { Placement } from '@/lib/ngx-charts/types';
 
 interface TooltipState {
   visible: boolean;

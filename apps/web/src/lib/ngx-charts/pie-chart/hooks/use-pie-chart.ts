@@ -15,11 +15,12 @@
  */
 
 import { useMemo } from 'react';
-import { pie, arc, PieArcDatum } from 'd3-shape';
+import type { PieArcDatum } from 'd3-shape';
+import { pie, arc } from 'd3-shape';
 import { max } from 'd3-array';
-import type { DataItem, ColorScheme, ViewDimensions } from '../../types';
-import { ColorHelper, calculateViewDimensions, formatLabel } from '../../utils';
-import { ScaleType, LegendPosition } from '../../types';
+import type { DataItem, ColorScheme, ViewDimensions } from '@/lib/ngx-charts/types';
+import { ColorHelper, calculateViewDimensions, formatLabel } from '@/lib/ngx-charts/utils';
+import { ScaleType, LegendPosition } from '@/lib/ngx-charts/types';
 
 /** Configuration for the pie chart hook */
 export interface UsePieChartConfig {

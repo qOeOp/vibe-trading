@@ -17,7 +17,7 @@
 
 import { useMemo, useCallback, useId } from 'react';
 import type { BarProps } from '../types';
-import { SvgLinearGradient } from '../../common';
+import { SvgLinearGradient } from '@/lib/ngx-charts/common';
 
 /**
  * Creates a rounded rectangle path

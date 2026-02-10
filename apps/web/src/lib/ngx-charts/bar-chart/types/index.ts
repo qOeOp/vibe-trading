@@ -14,8 +14,8 @@
  */
 
 import type { ScaleBand, ScaleLinear } from 'd3-scale';
-import type { DataItem, StringOrNumberOrDate } from '../../types';
-import type { Gradient } from '../../types/common';
+import type { DataItem, StringOrNumberOrDate } from '@/lib/ngx-charts/types';
+import type { Gradient } from '@/lib/ngx-charts/types/common';
 
 /**
  * D3 Scale types for bar charts

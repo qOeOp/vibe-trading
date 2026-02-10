@@ -17,7 +17,7 @@
 
 import { useMemo, useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
-import { DataItem, Gradient } from '../types';
+import type { DataItem, Gradient } from '../types';
 import { trimLabel, escapeLabel } from '../utils';
 import { SvgLinearGradient } from '../common/gradients';
 

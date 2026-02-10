@@ -13,11 +13,16 @@
  * @license MIT
  */
 
-export { LegendEntry, type LegendEntryProps } from './legend-entry';
-export { Legend, type LegendProps, type LegendEntryData, type ActiveEntry } from './legend';
+export { LegendEntry } from './legend-entry';
+export type { LegendEntryProps } from './legend-entry';
+export { Legend } from './legend';
+export type { LegendProps, LegendEntryData, ActiveEntry } from './legend';
 export {
   AdvancedLegend,
-  type AdvancedLegendProps,
-  type AdvancedLegendItem,
 } from './advanced-legend';
-export { ScaleLegend, type ScaleLegendProps, type ColorScale } from './scale-legend';
+export type {
+  AdvancedLegendProps,
+  AdvancedLegendItem,
+} from './advanced-legend';
+export { ScaleLegend } from './scale-legend';
+export type { ScaleLegendProps, ColorScale } from './scale-legend';

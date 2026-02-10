@@ -8,6 +8,9 @@
  * @license MIT
  */
 
-export { TreeMap, type TreeMapProps } from './tree-map';
-export { TreeMapCell, type TreeMapCellProps } from './tree-map-cell';
-export { TreeMapCellSeries, type TreeMapCellSeriesProps } from './tree-map-cell-series';
+export { TreeMap } from './tree-map';
+export type { TreeMapProps } from './tree-map';
+export { TreeMapCell } from './tree-map-cell';
+export type { TreeMapCellProps } from './tree-map-cell';
+export { TreeMapCellSeries } from './tree-map-cell-series';
+export type { TreeMapCellSeriesProps } from './tree-map-cell-series';

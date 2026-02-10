@@ -17,7 +17,7 @@
 
 import { useMemo, useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
-import { Gradient, DataItem } from '../types';
+import type { Gradient, DataItem } from '../types';
 import { roundedRect } from '../utils';
 import { SvgLinearGradient } from '../common';
 

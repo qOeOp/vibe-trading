@@ -16,17 +16,20 @@
 
 'use client';
 
-import { useMemo, useCallback, type ReactNode } from 'react';
+import { useMemo, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ScaleLinear, ScalePoint, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScalePoint, ScaleTime } from 'd3-scale';
 
-import {
+import type {
   BubbleChartSeries,
   BubbleChartDataItem,
-  ScaleType,
-  StringOrNumberOrDate,
+  StringOrNumberOrDate} from '../types';
+import {
+  ScaleType
 } from '../types';
-import { ColorHelper, formatLabel, escapeLabel } from '../utils';
+import type { ColorHelper} from '../utils';
+import { formatLabel, escapeLabel } from '../utils';
 import { useChartTooltip } from '../common/tooltip';
 
 /** Type for X/Y scales used in bubble chart */

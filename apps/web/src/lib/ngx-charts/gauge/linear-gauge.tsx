@@ -20,7 +20,8 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { scaleLinear } from 'd3-scale';
-import { ColorScheme, ScaleType, ViewDimensions } from '../types';
+import type { ColorScheme, ViewDimensions } from '../types';
+import { ScaleType } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
 
 export interface LinearGaugeProps {
