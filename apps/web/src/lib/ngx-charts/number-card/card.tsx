@@ -57,7 +57,7 @@ function shadeRGBColor(r: number, g: number, b: number, percent: number): string
  * Matches Angular: invertColor from color-utils.ts
  * Uses YIQ formula and shades the color instead of returning black/white
  */
-function invertColor(value: string): string {
+export function invertColor(value: string): string {
   if (!value) return '#000';
 
   // Parse color - handle hex, rgb, etc.
@@ -111,7 +111,6 @@ export function Card({
   const lastAnimatedValueRef = useRef<number | null>(null);
   const initializedRef = useRef(false);
 
-  // Match Angular initial values
   const [textFontSize, setTextFontSize] = useState(12);
   const [labelFontSize, setLabelFontSize] = useState(15);
   const [textPadding, setTextPadding] = useState<number[]>([10, 20, 5, 20]);
@@ -124,7 +123,6 @@ export function Card({
   const label = propLabel || (data.name as string);
   const hasValue = data && typeof data.value !== 'undefined' && data.value !== null;
 
-  // Format functions - match Angular exactly
   const valueFormat = useCallback(
     (card: { label: string; data: GridData; value: number }) => {
       if (valueFormatting) return valueFormatting(card);
@@ -153,12 +151,10 @@ export function Card({
   const transform = `translate(${x}, ${y})`;
   const transformBand = `translate(0, ${cardHeight - bandHeight})`;
 
-  // Band path with rounded bottom corners
   const bandPath = useMemo(() => {
     return roundedRect(0, 0, cardWidth, bandHeight, 3, [false, false, true, true]);
   }, [cardWidth]);
 
-  // Pad value for consistent width during animation - match Angular paddedValue
   const paddedValue = useCallback(
     (val: string): string => {
       if (medianSize && medianSize > val.length) {
@@ -169,7 +165,6 @@ export function Card({
     [medianSize]
   );
 
-  // Set padding - match Angular setPadding exactly
   const setPaddingValues = useCallback(() => {
     const newPadding = [...textPadding];
     newPadding[1] = newPadding[3] = cardWidth / 8;
@@ -179,7 +174,6 @@ export function Card({
     setTextPadding(newPadding);
   }, [cardWidth, cardHeight, textFontSize, labelFontSize]);
 
-  // Update - match Angular update() method
   useLayoutEffect(() => {
     if (!hasValue) {
       setValue('');
@@ -223,12 +217,10 @@ export function Card({
     return () => clearTimeout(scaleTimeout);
   }, [cardWidth, cardHeight, hasValue, cardData, valueFormat, paddedValue, setPaddingValues, animated]);
 
-  // Update padding when font sizes change
   useEffect(() => {
     setPaddingValues();
   }, [textFontSize, labelFontSize, setPaddingValues]);
 
-  // Count animation - match Angular startCount
   const startCountAnimation = useCallback(() => {
     if (initializedRef.current || !animated) return;
 

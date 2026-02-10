@@ -20,7 +20,7 @@ import { useState, useMemo, useCallback, memo, type ReactNode } from 'react';
 import { scaleBand } from 'd3-scale';
 import type { ScaleBand } from 'd3-scale';
 import { BaseChart, XAxis, YAxis, Legend, ScaleLegend } from '../common';
-import { ColorHelper, calculateViewDimensions } from '../utils';
+import { ColorHelper, calculateViewDimensions, getScaleType } from '../utils';
 import { HeatMapCellSeries } from './heat-map-cell-series';
 import type {
   Series,
@@ -143,31 +143,6 @@ function getDimension(
   }
 
   return N / (L / +processedValue + 1);
-}
-
-/**
- * Determines the scale type from the value domain
- */
-function getScaleType(valueDomain: unknown[]): ScaleType {
-  let date = true;
-  let num = true;
-
-  for (const value of valueDomain) {
-    if (!(value instanceof Date)) {
-      date = false;
-    }
-    if (typeof value !== 'number') {
-      num = false;
-    }
-  }
-
-  if (date) {
-    return ScaleTypeEnum.Time;
-  }
-  if (num) {
-    return ScaleTypeEnum.Linear;
-  }
-  return ScaleTypeEnum.Ordinal;
 }
 
 interface HeatMapInnerProps extends Omit<HeatMapProps, 'width' | 'height' | 'className'> {
@@ -353,10 +328,7 @@ const HeatMapInner = memo(function HeatMapInner({
     });
   }, [colorScheme, scaleType, valueDomain, customColors]);
 
-  // Calculate transform
-  const transform = useMemo(() => {
-    return `translate(${dims.xOffset ?? 0}, ${margin[0]})`;
-  }, [dims.xOffset, margin]);
+  const transform = `translate(${dims.xOffset ?? 0}, ${margin[0]})`;
 
   // Generate background rects (grid)
   const rects = useMemo((): RectItem[] => {
@@ -382,14 +354,6 @@ const HeatMapInner = memo(function HeatMapInner({
 
     return result;
   }, [xDomain, yDomain, xScale, yScale]);
-
-  // Event handlers
-  const handleClick = useCallback(
-    (item: DataItem) => {
-      onSelect?.(item);
-    },
-    [onSelect]
-  );
 
   const handleActivate = useCallback(
     (event: DataItem, group?: Series, fromLegend = false) => {
@@ -451,17 +415,6 @@ const HeatMapInner = memo(function HeatMapInner({
   const handleYAxisWidthChanged = useCallback(({ width }: { width: number }) => {
     setYAxisWidth(width);
   }, []);
-
-  // Legend options
-  const legendOptions = useMemo(() => {
-    return {
-      scaleType,
-      domain: valueDomain,
-      colors: scaleType === ScaleTypeEnum.Ordinal ? colors : colors.scale,
-      title: scaleType === ScaleTypeEnum.Ordinal ? legendTitle : undefined,
-      position: legendPosition as LegendPosition,
-    };
-  }, [scaleType, valueDomain, colors, legendTitle, legendPosition]);
 
   return (
     <>
@@ -526,7 +479,7 @@ const HeatMapInner = memo(function HeatMapInner({
             tooltipTemplate={tooltip?.template}
             tooltipText={tooltip?.text}
             animated={animated}
-            onSelect={handleClick}
+            onSelect={onSelect}
             onActivate={(item) => handleActivate(item)}
             onDeactivate={(item) => handleDeactivate(item)}
           />
@@ -551,7 +504,7 @@ const HeatMapInner = memo(function HeatMapInner({
             height={containerHeight}
             width={legendPosition === 'below' ? containerWidth : undefined}
             horizontal={legendPosition === 'below'}
-            onLabelClick={(label: string) => handleClick({ name: label, value: 0 })}
+            onLabelClick={(label: string) => onSelect?.({ name: label, value: 0 })}
           />
         )
       )}

@@ -17,7 +17,7 @@
 
 import { useMemo, useCallback, useEffect, useRef } from 'react';
 import { Orientation, TextAnchor } from '../../types';
-import { trimLabel } from '../../utils';
+import { trimLabel, reduceTicks } from '../../utils';
 
 export interface XAxisTicksProps {
   /** D3 scale function */
@@ -56,27 +56,6 @@ export interface XAxisTicksProps {
   onDimensionsChanged?: (dimensions: { height: number }) => void;
 }
 
-/**
- * Reduces ticks to max number while maintaining even distribution
- */
-function reduceTicks(ticks: any[], maxTicks: number): any[] {
-  if (ticks.length <= maxTicks) {
-    return ticks;
-  }
-
-  const reduced: any[] = [];
-  const step = Math.floor(ticks.length / maxTicks);
-
-  for (let i = 0; i < ticks.length; i += step) {
-    reduced.push(ticks[i]);
-  }
-
-  return reduced;
-}
-
-/**
- * X-axis ticks component
- */
 export function XAxisTicks({
   scale,
   orient = Orientation.Bottom,
@@ -99,7 +78,6 @@ export function XAxisTicks({
   const ticksRef = useRef<SVGGElement>(null);
   const lastHeightRef = useRef(0);
 
-  // Calculate ticks
   const ticks = useMemo(() => {
     if (tickValues) {
       return tickValues;
@@ -116,7 +94,6 @@ export function XAxisTicks({
     return reduceTicks(domain, maxTicks);
   }, [scale, tickValues, tickArguments, width]);
 
-  // Tick format function
   const tickFormat = useCallback(
     (value: any): string => {
       if (tickFormatting) {
@@ -133,15 +110,11 @@ export function XAxisTicks({
     [tickFormatting, scale, tickArguments]
   );
 
-  // Trim tick label
   const tickTrim = useCallback(
-    (label: string): string => {
-      return shouldTrimTicks ? trimLabel(label, maxTickLength) : label;
-    },
+    (label: string): string => shouldTrimTicks ? trimLabel(label, maxTickLength) : label,
     [shouldTrimTicks, maxTickLength]
   );
 
-  // Get adjusted scale for band scales
   const adjustedScale = useMemo(() => {
     if (scale.bandwidth) {
       return (d: any) => scale(d) + scale.bandwidth() * 0.5;
@@ -149,7 +122,6 @@ export function XAxisTicks({
     return scale;
   }, [scale]);
 
-  // Calculate rotation angle
   const { textTransform, textAnchor, verticalSpacing } = useMemo(() => {
     if (!shouldRotateTicks || ticks.length === 0) {
       return {
@@ -197,15 +169,12 @@ export function XAxisTicks({
     };
   }, [shouldRotateTicks, ticks, tickFormat, tickTrim, shouldTrimTicks, width]);
 
-  // Measure and report height - use ref for callback to avoid infinite loops
   const onDimensionsChangedRef = useRef(onDimensionsChanged);
   onDimensionsChangedRef.current = onDimensionsChanged;
 
-  // Use layout effect to measure after DOM updates, with debouncing to prevent loops
   useEffect(() => {
     if (!ticksRef.current || typeof window === 'undefined') return;
 
-    // Use requestAnimationFrame to ensure DOM has settled
     const measureAndReport = () => {
       if (!ticksRef.current) return;
       const rect = ticksRef.current.getBoundingClientRect();
@@ -218,9 +187,8 @@ export function XAxisTicks({
 
     const rafId = requestAnimationFrame(measureAndReport);
     return () => cancelAnimationFrame(rafId);
-  }); // Run on every render but use ref comparison to prevent state loops
+  });
 
-  // Calculate tick transform
   const tickTransform = useCallback(
     (tick: any): string => {
       return `translate(${adjustedScale(tick)},${verticalSpacing})`;
@@ -228,12 +196,10 @@ export function XAxisTicks({
     [adjustedScale, verticalSpacing]
   );
 
-  // Grid line transform
   const gridLineTransform = `translate(0,${-verticalSpacing - 5})`;
 
   return (
     <g className="x-axis-ticks">
-      {/* Tick marks and labels - measured for height */}
       <g ref={ticksRef}>
         {ticks.map((tick: string | number | Date, index: number) => {
           const formatted = tickFormat(tick);
@@ -255,7 +221,6 @@ export function XAxisTicks({
         })}
       </g>
 
-      {/* Grid lines - not included in height measurement */}
       {showGridLines &&
         ticks.map((tick: string | number | Date, index: number) => (
           <g key={`grid-${index}`} transform={tickTransform(tick)}>
@@ -269,7 +234,6 @@ export function XAxisTicks({
           </g>
         ))}
 
-      {/* Reference lines */}
       {showRefLines &&
         referenceLines?.map((refLine, index) => (
           <g key={`ref-${index}`} className="ref-line" transform={`translate(${adjustedScale(refLine.value)},0)`}>

@@ -19,7 +19,7 @@
 
 import { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ColorHelper, trimLabel } from '../../utils';
+import { ColorHelper, trimLabel, formatLabel } from '../../utils';
 import type { DataItem, StringOrNumberOrDate } from '../../types';
 
 /** Advanced legend item data structure */
@@ -59,19 +59,6 @@ export interface AdvancedLegendProps {
   onActivate?: (data: DataItem) => void;
   /** Callback when an item is deactivated */
   onDeactivate?: (data: DataItem) => void;
-}
-
-/**
- * Formats a label for display
- */
-function formatLabel(label: unknown): string {
-  if (label instanceof Date) {
-    return label.toLocaleDateString();
-  }
-  if (label === null || label === undefined) {
-    return '';
-  }
-  return String(label);
 }
 
 /**
@@ -132,12 +119,10 @@ export function AdvancedLegend({
   onActivate,
   onDeactivate,
 }: AdvancedLegendProps) {
-  // Calculate total
   const total = useMemo(() => {
     return data.map((d) => Number(d.value)).reduce((sum, d) => sum + d, 0);
   }, [data]);
 
-  // Get percentage for a value
   const getPercentage = useCallback(
     (value: number): number => {
       return total > 0 ? (value / total) * 100 : 0;
@@ -145,7 +130,6 @@ export function AdvancedLegend({
     [total]
   );
 
-  // Generate legend items
   const legendItems = useMemo((): AdvancedLegendItem[] => {
     const values = data.map((d) => Number(d.value));
     const percentages = roundPercentages
@@ -154,15 +138,14 @@ export function AdvancedLegend({
 
     return data.map((d, index) => {
       const itemLabel = formatLabel(d.name);
-      const value = d.value;
       const color = colors.getColor(itemLabel);
       const percentage = roundPercentages ? percentages[index] : getPercentage(values[index]);
-      const formattedLabel = typeof labelFormatting === 'function' ? labelFormatting(itemLabel) : itemLabel;
+      const formattedLabel = labelFormatting(itemLabel);
 
       return {
-        _value: value,
+        _value: d.value,
         data: d,
-        value,
+        value: d.value,
         color,
         label: formattedLabel,
         displayLabel: trimLabel(formattedLabel, 20),
@@ -208,7 +191,6 @@ export function AdvancedLegend({
         width: width ?? 'auto',
       }}
     >
-      {/* Total Value */}
       <div
         className="total-value"
         style={{
@@ -229,7 +211,6 @@ export function AdvancedLegend({
         )}
       </div>
 
-      {/* Total Label */}
       <div
         className="total-label"
         style={{
@@ -240,7 +221,6 @@ export function AdvancedLegend({
         {label}
       </div>
 
-      {/* Legend Items Container */}
       <div
         className="legend-items-container"
         style={{
@@ -269,7 +249,6 @@ export function AdvancedLegend({
                 transition: 'color 0.2s',
               }}
             >
-              {/* Color Indicator */}
               <div
                 className="item-color"
                 style={{
@@ -281,7 +260,6 @@ export function AdvancedLegend({
                 }}
               />
 
-              {/* Value */}
               <div
                 className="item-value"
                 style={{
@@ -304,7 +282,6 @@ export function AdvancedLegend({
                 )}
               </div>
 
-              {/* Label */}
               <div
                 className="item-label"
                 style={{
@@ -317,7 +294,6 @@ export function AdvancedLegend({
                 {item.displayLabel}
               </div>
 
-              {/* Percentage */}
               <div
                 className="item-percent"
                 style={{

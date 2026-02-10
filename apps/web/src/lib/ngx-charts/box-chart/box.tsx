@@ -94,16 +94,13 @@ export function Box({
   const whiskerStrokeWidth = Math.max(strokeWidth / 2, 1);
   const medianLineWidth = 1.5 * strokeWidth;
 
-  const hasGradient = gradient;
   const hideBar = height === 0;
 
-  // Get radius for rounded edges
   const radius = useMemo(() => {
     if (!roundEdges || height <= 5 || width <= 5) return 0;
     return Math.floor(Math.min(5, height / 2, width / 2));
   }, [roundEdges, height, width]);
 
-  // Generate box path
   const boxPath = useMemo(() => {
     const edges: [boolean, boolean, boolean, boolean] = roundEdges
       ? [true, true, true, true]
@@ -111,7 +108,6 @@ export function Box({
     return roundedRect(x, y, width, height, Math.min(height, radius), edges);
   }, [x, y, width, height, radius, roundEdges]);
 
-  // Gradient stops
   const stops = useMemo(() => {
     if (gradientStops) return gradientStops;
     return [
@@ -120,7 +116,6 @@ export function Box({
     ];
   }, [gradientStops, fill, roundEdges]);
 
-  // Event handlers
   const handleClick = useCallback(() => {
     onSelect?.(data);
   }, [data, onSelect]);
@@ -138,7 +133,7 @@ export function Box({
   return (
     <g>
       <defs>
-        {hasGradient && (
+        {gradient && (
           <SvgLinearGradient
             id={gradientId}
             orientation="vertical"
@@ -162,7 +157,7 @@ export function Box({
           d={boxPath}
           stroke={strokeColor}
           strokeWidth={boxStrokeWidth}
-          fill={hasGradient ? gradientFill : fill}
+          fill={gradient ? gradientFill : fill}
           aria-label={ariaLabel}
           onClick={handleClick}
           onMouseEnter={handleMouseEnter}

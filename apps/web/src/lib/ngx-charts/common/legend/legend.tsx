@@ -18,7 +18,7 @@
 'use client';
 
 import { useMemo, useCallback } from 'react';
-import { ColorHelper } from '../../utils';
+import { ColorHelper, formatLabel } from '../../utils';
 import { LegendEntry } from './legend-entry';
 
 /** Legend entry data structure */
@@ -57,19 +57,6 @@ export interface LegendProps {
 }
 
 /**
- * Formats a label for display
- */
-function formatLabel(label: unknown): string {
-  if (label instanceof Date) {
-    return label.toLocaleDateString();
-  }
-  if (label === null || label === undefined) {
-    return '';
-  }
-  return String(label);
-}
-
-/**
  * Legend component for displaying chart data labels with colors
  */
 export function Legend({
@@ -84,14 +71,11 @@ export function Legend({
   onLabelActivate,
   onLabelDeactivate,
 }: LegendProps) {
-  // Generate legend entries from data
   const legendEntries = useMemo((): LegendEntryData[] => {
     const items: LegendEntryData[] = [];
 
     for (const label of data) {
       const formattedLabel = formatLabel(label);
-
-      // Check for duplicates
       const exists = items.some((item) => item.label === formattedLabel);
 
       if (!exists) {
@@ -106,7 +90,6 @@ export function Legend({
     return items;
   }, [data, colors]);
 
-  // Check if an entry is active
   const isActive = useCallback(
     (entry: LegendEntryData): boolean => {
       if (!activeEntries || activeEntries.length === 0) {
@@ -117,31 +100,8 @@ export function Legend({
     [activeEntries]
   );
 
-  const handleSelect = useCallback(
-    (label: string) => {
-      onLabelClick?.(label);
-    },
-    [onLabelClick]
-  );
-
-  const handleActivate = useCallback(
-    (item: { name: string }) => {
-      onLabelActivate?.(item);
-    },
-    [onLabelActivate]
-  );
-
-  const handleDeactivate = useCallback(
-    (item: { name: string }) => {
-      onLabelDeactivate?.(item);
-    },
-    [onLabelDeactivate]
-  );
-
   const maxHeight = height ? height - 45 : undefined;
 
-  // Angular structure: outer div with class, inner div with width
-  // This avoids CSS !important on .chart-legend overriding inline width
   return (
     <div className="chart-legend">
       <div style={width ? { width } : undefined}>
@@ -168,9 +128,9 @@ export function Legend({
                   formattedLabel={entry.formattedLabel}
                   color={entry.color}
                   isActive={isActive(entry)}
-                  onSelect={handleSelect}
-                  onActivate={handleActivate}
-                  onDeactivate={handleDeactivate}
+                  onSelect={onLabelClick}
+                  onActivate={onLabelActivate}
+                  onDeactivate={onLabelDeactivate}
                 />
               </li>
             ))}

@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 import { pie, arc, PieArcDatum } from 'd3-shape';
 import { max } from 'd3-array';
 import type { DataItem, ColorScheme, ViewDimensions } from '../../types';
-import { ColorHelper, calculateViewDimensions, trimLabel } from '../../utils';
+import { ColorHelper, calculateViewDimensions, trimLabel, formatLabel } from '../../utils';
 import { ScaleType, LegendPosition } from '../../types';
 
 /** Configuration for the pie chart hook */
@@ -86,19 +86,6 @@ export interface UsePieChartResult {
 }
 
 /**
- * Formats a label for display
- */
-function formatLabel(label: unknown): string {
-  if (label instanceof Date) {
-    return label.toLocaleDateString();
-  }
-  if (label === null || label === undefined) {
-    return '';
-  }
-  return String(label);
-}
-
-/**
  * Hook for pie chart calculations
  */
 export function usePieChart({
@@ -116,7 +103,6 @@ export function usePieChart({
   margins: providedMargins,
 }: UsePieChartConfig): UsePieChartResult {
   return useMemo(() => {
-    // Determine margins based on labels
     let margins: [number, number, number, number];
     if (providedMargins && providedMargins.length === 4) {
       margins = providedMargins;
@@ -126,7 +112,6 @@ export function usePieChart({
       margins = [20, 20, 20, 20];
     }
 
-    // Calculate view dimensions
     const dims = calculateViewDimensions({
       width,
       height,
@@ -135,15 +120,12 @@ export function usePieChart({
       legendPosition,
     });
 
-    // Calculate center offset
     const xOffset = margins[3] + dims.width / 2;
     const yOffset = margins[0] + dims.height / 2;
     const translation = `translate(${xOffset}, ${yOffset})`;
 
-    // Calculate radii
     let outerRadius = Math.min(dims.width, dims.height);
     if (showLabels) {
-      // Make room for labels
       outerRadius /= 3;
     } else {
       outerRadius /= 2;
@@ -154,15 +136,12 @@ export function usePieChart({
       innerRadius = outerRadius * (1 - arcWidth);
     }
 
-    // Get domain (labels)
     const domain = data.map((d) => formatLabel(d.name));
 
-    // Sort data according to domain
     const sortedData = [...data].sort((a, b) => {
       return domain.indexOf(formatLabel(a.name)) - domain.indexOf(formatLabel(b.name));
     });
 
-    // Create color helper
     const colors = new ColorHelper({
       scheme: colorScheme,
       scaleType: ScaleType.Ordinal,
@@ -170,29 +149,22 @@ export function usePieChart({
       customColors,
     });
 
-    // Create pie generator
     const pieGenerator = pie<DataItem>()
       .value((d) => d.value)
       .sort(null);
 
-    // Generate arc data
     const arcData = pieGenerator(sortedData);
-
-    // Calculate max value
     const maxValue = max(arcData, (d) => d.value) ?? 0;
 
-    // Calculate label positions
     const factor = 1.5;
     const outerArcGen = arc<PieArcDatum<DataItem>>()
       .innerRadius(outerRadius * factor)
       .outerRadius(outerRadius * factor);
 
-    // Process arcs with label positions
     const arcs: ProcessedArc[] = arcData.map((d, index) => {
       const label = formatLabel(d.data.name);
       const midAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
 
-      // Calculate label position
       let pos: [number, number] = outerArcGen.centroid(d) as [number, number];
       pos[0] = factor * outerRadius * (midAngle < Math.PI ? 1 : -1);
 
@@ -209,7 +181,6 @@ export function usePieChart({
       };
     });
 
-    // Adjust label positions to avoid overlap
     if (showLabels) {
       const minDistance = 10;
       for (let i = 0; i < arcs.length - 1; i++) {
@@ -287,7 +258,6 @@ export function useGridLayout({
     const total = designatedTotal ?? data.reduce((sum, d) => sum + d.value, 0);
     const numCells = data.length;
 
-    // Calculate grid dimensions
     const columns = Math.max(1, Math.floor(width / minWidth));
     const rows = Math.ceil(numCells / columns);
     const cellWidth = width / columns;

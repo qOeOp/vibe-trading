@@ -17,7 +17,7 @@
 
 import { useMemo, useCallback, useEffect, useRef } from 'react';
 import { Orientation, TextAnchor } from '../../types';
-import { trimLabel } from '../../utils';
+import { trimLabel, reduceTicks } from '../../utils';
 
 export interface YAxisTicksProps {
   /** D3 scale function */
@@ -56,27 +56,6 @@ export interface YAxisTicksProps {
   onDimensionsChanged?: (dimensions: { width: number }) => void;
 }
 
-/**
- * Reduces ticks to max number while maintaining even distribution
- */
-function reduceTicks(ticks: any[], maxTicks: number): any[] {
-  if (ticks.length <= maxTicks) {
-    return ticks;
-  }
-
-  const reduced: any[] = [];
-  const step = Math.floor(ticks.length / maxTicks);
-
-  for (let i = 0; i < ticks.length; i += step) {
-    reduced.push(ticks[i]);
-  }
-
-  return reduced;
-}
-
-/**
- * Y-axis ticks component
- */
 export function YAxisTicks({
   scale,
   orient = Orientation.Left,
@@ -99,12 +78,8 @@ export function YAxisTicks({
   const ticksRef = useRef<SVGGElement>(null);
   const lastWidthRef = useRef(0);
 
-  // Calculate spacing
-  const innerTickSize = 6;
-  const tickPadding = 3;
-  const tickSpacing = Math.max(innerTickSize, 0) + tickPadding;
+  const tickSpacing = 9; // innerTickSize(6) + tickPadding(3)
 
-  // Calculate ticks
   const ticks = useMemo(() => {
     if (tickValues) {
       return tickValues;
@@ -121,7 +96,6 @@ export function YAxisTicks({
     return reduceTicks(domain, maxTicks);
   }, [scale, tickValues, tickArguments, height]);
 
-  // Tick format function
   const tickFormat = useCallback(
     (value: any): string => {
       if (tickFormatting) {
@@ -138,15 +112,11 @@ export function YAxisTicks({
     [tickFormatting, scale, tickArguments]
   );
 
-  // Trim tick label
   const tickTrim = useCallback(
-    (label: string): string => {
-      return shouldTrimTicks ? trimLabel(label, maxTickLength) : label;
-    },
+    (label: string): string => shouldTrimTicks ? trimLabel(label, maxTickLength) : label,
     [shouldTrimTicks, maxTickLength]
   );
 
-  // Get adjusted scale for band scales
   const adjustedScale = useMemo(() => {
     if (scale.bandwidth) {
       return (d: any) => scale(d) + scale.bandwidth() * 0.5;
@@ -154,7 +124,6 @@ export function YAxisTicks({
     return scale;
   }, [scale]);
 
-  // Calculate positioning based on orientation
   const { textAnchor, x1, dy } = useMemo(() => {
     const sign = orient === Orientation.Top || orient === Orientation.Right ? -1 : 1;
 
@@ -178,9 +147,8 @@ export function YAxisTicks({
           dy: '.71em',
         };
     }
-  }, [orient, tickSpacing]);
+  }, [orient]);
 
-  // Calculate tick transform
   const tickTransform = useCallback(
     (tick: any): string => {
       return `translate(0,${adjustedScale(tick)})`;
@@ -188,15 +156,12 @@ export function YAxisTicks({
     [adjustedScale]
   );
 
-  // Measure and report width - use ref for callback to avoid infinite loops
   const onDimensionsChangedRef = useRef(onDimensionsChanged);
   onDimensionsChangedRef.current = onDimensionsChanged;
 
-  // Use layout effect to measure after DOM updates, with debouncing to prevent loops
   useEffect(() => {
     if (!ticksRef.current || typeof window === 'undefined') return;
 
-    // Use requestAnimationFrame to ensure DOM has settled
     const measureAndReport = () => {
       if (!ticksRef.current) return;
       const rect = ticksRef.current.getBoundingClientRect();
@@ -209,23 +174,12 @@ export function YAxisTicks({
 
     const rafId = requestAnimationFrame(measureAndReport);
     return () => cancelAnimationFrame(rafId);
-  }); // Run on every render but use ref comparison to prevent state loops
+  });
 
-  // Get approximate width for SSR
-  const getApproximateWidth = useCallback(() => {
-    const maxChars = Math.max(
-      ...ticks.map((t: string | number | Date) => tickTrim(tickFormat(t)).length)
-    );
-    const charWidth = 7;
-    return maxChars * charWidth;
-  }, [ticks, tickTrim, tickFormat]);
-
-  // Grid line transform
   const gridLineTransform = 'translate(5,0)';
 
   return (
     <g className="y-axis-ticks">
-      {/* Tick marks and labels - measured for width */}
       <g ref={ticksRef}>
         {ticks.map((tick: string | number | Date, index: number) => {
           const formatted = tickFormat(tick);
@@ -248,32 +202,21 @@ export function YAxisTicks({
         })}
       </g>
 
-      {/* Grid lines - not included in width measurement */}
       {showGridLines &&
+        (orient === Orientation.Left || orient === Orientation.Right) &&
         ticks.map((tick: string | number | Date, index: number) => (
           <g key={`grid-${index}`} transform={tickTransform(tick)}>
             <g transform={gridLineTransform}>
-              {orient === Orientation.Left && (
-                <line
-                  className="gridline-path gridline-path-horizontal"
-                  x1={0}
-                  x2={gridLineWidth}
-                  strokeDasharray={gridLineStrokeDasharray}
-                />
-              )}
-              {orient === Orientation.Right && (
-                <line
-                  className="gridline-path gridline-path-horizontal"
-                  x1={0}
-                  x2={-gridLineWidth}
-                  strokeDasharray={gridLineStrokeDasharray}
-                />
-              )}
+              <line
+                className="gridline-path gridline-path-horizontal"
+                x1={0}
+                x2={orient === Orientation.Left ? gridLineWidth : -gridLineWidth}
+                strokeDasharray={gridLineStrokeDasharray}
+              />
             </g>
           </g>
         ))}
 
-      {/* Reference lines */}
       {showRefLines &&
         referenceLines?.map((refLine, index) => (
           <g key={`ref-${index}`} className="ref-line" transform={tickTransform(refLine.value)}>

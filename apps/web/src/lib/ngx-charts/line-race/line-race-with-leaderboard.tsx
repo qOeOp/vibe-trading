@@ -15,7 +15,7 @@
 
 'use client';
 
-import { useState, useCallback, useRef, useMemo, type MouseEvent } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo, type MouseEvent } from 'react';
 import { CurveFactory, curveLinear, line } from 'd3-shape';
 
 import {
@@ -27,8 +27,9 @@ import {
   BaseChart,
 } from '../common';
 import { useLineRace, type LineRaceSeriesData } from './hooks';
-import { LineRaceSeries } from './components';
+import { LineRaceSeries, LineRaceCrosshair, type CrosshairItem } from './components';
 import { LineRaceLeaderboard } from './components/line-race-leaderboard';
+import { findClosestRound } from './utils';
 
 export interface LineRaceWithLeaderboardProps {
   data: LineRaceSeriesData[];
@@ -128,17 +129,14 @@ function LineRaceWithLeaderboardInner({
   const [hoveredRound, setHoveredRound] = useState<number | null>(null);
   const prevRoundRef = useRef(-1);
 
-  // Layout: chart on left, connector gap, leaderboard on right
   const connectorGap = 48;
   const chartWidth = containerWidth - leaderboardWidth - connectorGap;
 
-  // No axes → tighter margins
   const margin: [number, number, number, number] = [12, 8, 8, 8];
 
   const controlsHeight = showControls ? 44 : 0;
   const chartHeight = containerHeight - controlsHeight;
 
-  // Expand yScaleMin/Max to include benchmark range
   const effectiveYScaleMin = useMemo(() => {
     if (!benchmarkData || benchmarkData.length === 0) return yScaleMin;
     const bmMin = Math.min(...benchmarkData);
@@ -189,10 +187,12 @@ function LineRaceWithLeaderboardInner({
     seekTo,
   } = state;
 
-  if (currentRound !== prevRoundRef.current && onRoundChange) {
-    prevRoundRef.current = currentRound;
-    onRoundChange(currentRound);
-  }
+  useEffect(() => {
+    if (currentRound !== prevRoundRef.current && onRoundChange) {
+      prevRoundRef.current = currentRound;
+      onRoundChange(currentRound);
+    }
+  }, [currentRound, onRoundChange]);
 
   const handleLegendActivate = useCallback((name: string) => {
     setActiveSeries(name);
@@ -202,7 +202,6 @@ function LineRaceWithLeaderboardInner({
     setActiveSeries(null);
   }, []);
 
-  // Compute leading-edge Y positions for connector lines
   const seriesEndpoints = useMemo(() => {
     return data.map((series, i) => {
       const maxR = Math.min(currentRound, series.values.length - 1);
@@ -229,7 +228,6 @@ function LineRaceWithLeaderboardInner({
     });
   }, [data, currentRound, interpolation, isPlaying, yScale, customColors, colors]);
 
-  // Leaderboard sorted by value
   const leaderboardSorted = useMemo(() => {
     const sorted = [...seriesEndpoints].sort((a, b) => b.value - a.value);
     sorted.forEach((item, idx) => {
@@ -238,23 +236,16 @@ function LineRaceWithLeaderboardInner({
     return sorted;
   }, [seriesEndpoints]);
 
-  // Compute leaderboard row Y positions
   const ROW_HEIGHT = 32;
   const ROW_GAP = 2;
   const ITEM_STEP = ROW_HEIGHT + ROW_GAP;
   const leaderboardTotalHeight = data.length * ITEM_STEP;
 
-  // Center leaderboard vertically relative to chart
   const leaderboardTopOffset = Math.max(0, (chartHeight - leaderboardTotalHeight) / 2);
 
-  // Chart content offset (from transform)
   const chartXOffset = dims.xOffset ?? 0;
   const chartYOffset = margin[0];
-
-  // Connector line source X is right edge of chart area
   const connectorStartX = chartXOffset + dims.width;
-
-  // Current round label for playback bar
   const currentRoundLabel = roundLabels?.[currentRound] ?? `Round ${currentRound}`;
 
   return (
@@ -424,110 +415,30 @@ function LineRaceWithLeaderboardInner({
             )}
 
             {/* Tooltip crosshair + markers */}
-            {hoveredRound !== null && hoveredRound <= currentRound && (() => {
-              const hx = xScale(hoveredRound);
-              const labelH = 22;
-              const labelPad = 8;
-              const placeLeft = hx > dims.width * 0.5;
-
-              const items = data
-                .map((series, i) => {
-                  if (hoveredRound >= series.values.length) return null;
-                  const val = series.values[hoveredRound];
-                  return {
-                    name: series.name,
-                    value: val,
-                    color: customColors?.[i] ?? colors.getColor(series.name),
-                    cy: yScale(val),
-                    dataIndex: i,
-                  };
-                })
-                .filter(Boolean) as Array<{
-                  name: string; value: number; color: string; cy: number; dataIndex: number;
-                }>;
-
-              items.sort((a, b) => a.cy - b.cy);
-
-              const minGap = labelH + 2;
-              const totalNeeded = items.length * minGap;
-              const medianCy = items[Math.floor(items.length / 2)]?.cy ?? dims.height / 2;
-              const stackTop = Math.max(0, Math.min(dims.height - totalNeeded, medianCy - totalNeeded / 2));
-
-              const labelYs = items.map((_, j) => stackTop + j * minGap);
-
-              for (let pass = 0; pass < 5; pass++) {
-                for (let j = 0; j < items.length; j++) {
-                  const target = items[j].cy - labelH / 2;
-                  const minY = j === 0 ? 0 : labelYs[j - 1] + minGap;
-                  const maxY = j === items.length - 1 ? dims.height - labelH : labelYs[j + 1] - minGap;
-                  labelYs[j] = Math.max(minY, Math.min(maxY, target));
-                }
-              }
-
-              return (
-                <g style={{ pointerEvents: 'none' }}>
-                  <line
-                    x1={hx} y1={0} x2={hx} y2={dims.height}
-                    stroke="#333" strokeWidth={1} shapeRendering="crispEdges" opacity={0.35}
+            {hoveredRound !== null && hoveredRound <= currentRound && (
+              <LineRaceCrosshair
+                hoveredRound={hoveredRound}
+                data={data}
+                yScale={yScale}
+                hx={xScale(hoveredRound)}
+                chartWidth={dims.width}
+                chartHeight={dims.height}
+                customColors={customColors}
+                colors={colors}
+                valueFormatter={valueFormatter}
+                renderMarker={(item: CrosshairItem, hx: number) => (
+                  <circle
+                    key={`marker-${item.name}`}
+                    cx={hx}
+                    cy={item.cy}
+                    r={4}
+                    fill={item.color}
+                    stroke="#fff"
+                    strokeWidth={1.5}
                   />
-                  {items.map((item, j) => {
-                    const labelCenterY = labelYs[j] + labelH / 2;
-                    const labelEdgeX = placeLeft ? hx - labelPad : hx + labelPad;
-                    return (
-                      <line
-                        key={`conn-${item.name}`}
-                        x1={hx} y1={item.cy}
-                        x2={labelEdgeX} y2={labelCenterY}
-                        stroke={item.color} strokeWidth={0.8} opacity={0.5}
-                      />
-                    );
-                  })}
-                  {items.map((item) => (
-                    <circle
-                      key={`marker-${item.name}`}
-                      cx={hx}
-                      cy={item.cy}
-                      r={4}
-                      fill={item.color}
-                      stroke="#fff"
-                      strokeWidth={1.5}
-                    />
-                  ))}
-                  {items.map((item, j) => {
-                    const lx = placeLeft ? hx - labelPad : hx + labelPad;
-                    const ly = labelYs[j];
-                    return (
-                      <foreignObject
-                        key={`label-${item.name}`}
-                        x={placeLeft ? lx - 220 : lx}
-                        y={ly} width={220} height={labelH}
-                        style={{ overflow: 'visible' }}
-                      >
-                        <div
-                          style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 5,
-                            padding: '2px 8px 2px 6px',
-                            background: 'rgba(255,255,255,0.95)',
-                            border: `1px solid ${item.color}`,
-                            borderLeft: placeLeft ? undefined : `3px solid ${item.color}`,
-                            borderRight: placeLeft ? `3px solid ${item.color}` : undefined,
-                            borderRadius: 3, fontSize: 11,
-                            fontFamily: 'var(--font-chart, Roboto, sans-serif)',
-                            whiteSpace: 'nowrap', lineHeight: '16px',
-                            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                            float: placeLeft ? 'right' : 'left',
-                          }}
-                        >
-                          <span style={{ color: '#333', fontWeight: 500 }}>{item.name}:</span>
-                          <span style={{ color: '#333', fontVariantNumeric: 'tabular-nums' }}>
-                            {valueFormatter ? valueFormatter(item.value) : item.value.toLocaleString()}
-                          </span>
-                        </div>
-                      </foreignObject>
-                    );
-                  })}
-                  {/* Hovered round label badge */}
-                  <foreignObject x={hx - 60} y={dims.height + 4} width={120} height={22}>
+                )}
+                renderRoundLabel={(round: number, hx: number, h: number) => (
+                  <foreignObject x={hx - 60} y={h + 4} width={120} height={22}>
                     <div
                       style={{
                         display: 'flex', justifyContent: 'center', alignItems: 'center',
@@ -537,43 +448,25 @@ function LineRaceWithLeaderboardInner({
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      {roundLabels?.[hoveredRound] ?? `Round ${hoveredRound}`}
+                      {roundLabels?.[round] ?? `Round ${round}`}
                     </div>
                   </foreignObject>
-                </g>
-              );
-            })()}
+                )}
+              />
+            )}
 
             {/* Invisible overlay for mouse detection */}
             <rect
               x={0} y={0} width={dims.width} height={dims.height}
               style={{ opacity: 0, cursor: 'crosshair' }}
               onMouseMove={(e: MouseEvent<SVGRectElement>) => {
-                const target = e.target as SVGRectElement;
-                const rect = target.getBoundingClientRect();
-                const xPos = e.clientX - rect.left;
-                const yPos = e.clientY - rect.top;
-
-                let closestRound = 0;
-                let minDist = Infinity;
-                const maxR = Math.min(currentRound, totalRounds);
-                for (let r = 0; r <= maxR; r++) {
-                  const dist = Math.abs(xScale(r) - xPos);
-                  if (dist < minDist) { minDist = dist; closestRound = r; }
-                }
-
-                let closestName: string | null = null;
-                let minYDist = Infinity;
-                for (const series of data) {
-                  if (closestRound < series.values.length) {
-                    const sy = yScale(series.values[closestRound]);
-                    const dy = Math.abs(sy - yPos);
-                    if (dy < minYDist) { minYDist = dy; closestName = series.name; }
-                  }
-                }
-
-                setHoveredRound(closestRound);
-                setActiveSeries(closestName);
+                const rect = (e.target as SVGRectElement).getBoundingClientRect();
+                const result = findClosestRound(
+                  e.clientX - rect.left, e.clientY - rect.top,
+                  xScale, yScale, currentRound, totalRounds, data,
+                );
+                setHoveredRound(result.round);
+                setActiveSeries(result.seriesName);
               }}
               onMouseLeave={() => { setHoveredRound(null); setActiveSeries(null); }}
             />

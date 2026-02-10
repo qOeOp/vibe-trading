@@ -23,7 +23,7 @@ import { PieArc } from './pie-arc';
 import { PieLabel } from './pie-label';
 import { useChartTooltip } from '../../common/tooltip';
 import type { DataItem } from '../../types';
-import { ColorHelper, trimLabel } from '../../utils';
+import { ColorHelper, trimLabel, formatLabel, escapeLabel } from '../../utils';
 
 /** Arc data with position for label */
 export interface ArcWithPosition {
@@ -78,31 +78,6 @@ export interface PieSeriesProps {
 }
 
 /**
- * Formats a label for display
- */
-function formatLabel(label: unknown): string {
-  if (label instanceof Date) {
-    return label.toLocaleDateString();
-  }
-  if (label === null || label === undefined) {
-    return '';
-  }
-  return String(label);
-}
-
-/**
- * Escapes HTML entities in a string
- */
-function escapeLabel(label: string): string {
-  return label
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-/**
  * Pie series component that renders arcs and labels
  */
 export function PieSeries({
@@ -126,30 +101,22 @@ export function PieSeries({
   onDeactivate,
   onDblClick,
 }: PieSeriesProps) {
-  // Calculate arcs with position data
   const { arcs, maxValue } = useMemo(() => {
-    // Create pie generator
     const pieGenerator = d3Pie<DataItem>()
       .value((d) => d.value)
       .sort(null);
 
-    // Generate arc data
     const arcData = pieGenerator(series);
-
-    // Calculate max value
     const max_ = max(arcData, (d) => d.value) ?? 0;
 
-    // Calculate label positions
     const factor = 1.5;
     const outerArcGen = d3Arc()
       .innerRadius(outerRadius * factor)
       .outerRadius(outerRadius * factor);
 
-    // Calculate mid angle helper
     const getMidAngle = (d: { startAngle: number; endAngle: number }) =>
       d.startAngle + (d.endAngle - d.startAngle) / 2;
 
-    // Process arcs with positions
     const processedArcs: ArcWithPosition[] = arcData.map((d, index) => {
       const pos = outerArcGen.centroid({
         startAngle: d.startAngle,
@@ -199,12 +166,10 @@ export function PieSeries({
     return { arcs: processedArcs, maxValue: max_ };
   }, [series, outerRadius, showLabels]);
 
-  // Check if label is visible (arc is large enough)
   function labelVisible(arcItem: ArcWithPosition): boolean {
     return showLabels && arcItem.endAngle - arcItem.startAngle > Math.PI / 30;
   }
 
-  // Get label text
   const getLabelText = useCallback(
     (arcItem: ArcWithPosition): string => {
       const name = formatLabel(arcItem.data.name);
@@ -216,7 +181,6 @@ export function PieSeries({
     [labelFormatting]
   );
 
-  // Get color for arc
   const getColor = useCallback(
     (arcItem: ArcWithPosition): string => {
       const name = formatLabel(arcItem.data.name);
@@ -225,7 +189,6 @@ export function PieSeries({
     [colors]
   );
 
-  // Default tooltip text generator
   const defaultTooltipText = useCallback((arcItem: ArcWithPosition): string => {
     const label = formatLabel(arcItem.data.name);
     const val = formatLabel(arcItem.data.value);
@@ -235,7 +198,6 @@ export function PieSeries({
     `;
   }, []);
 
-  // Get tooltip title
   const getTooltipTitle = useCallback(
     (arcItem: ArcWithPosition): string => {
       if (tooltipTemplate) return '';
@@ -245,7 +207,6 @@ export function PieSeries({
     [tooltipText, tooltipTemplate, defaultTooltipText]
   );
 
-  // Check if entry is active
   const isActive = useCallback(
     (entry: DataItem): boolean => {
       if (!activeEntries || activeEntries.length === 0) return false;
@@ -255,10 +216,8 @@ export function PieSeries({
     [activeEntries]
   );
 
-  // Global tooltip context - like Angular's TooltipService with destroyAll()
   const { showTooltip, hideTooltip } = useChartTooltip();
 
-  // Tooltip handlers using global context (only ONE tooltip visible at a time)
   const handleArcMouseEnter = useCallback(
     (arcItem: ArcWithPosition, event: React.MouseEvent<SVGGElement>) => {
       if (tooltipDisabled) return;

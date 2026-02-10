@@ -26,7 +26,7 @@ import {
   ScaleType,
   StringOrNumberOrDate,
 } from '../types';
-import { ColorHelper } from '../utils';
+import { ColorHelper, formatLabel, escapeLabel } from '../utils';
 import { useChartTooltip } from '../common/tooltip';
 
 /** Type for X/Y scales used in bubble chart */
@@ -90,28 +90,6 @@ interface BubbleCircle {
 }
 
 /**
- * Format a label for display
- */
-function formatLabel(label: unknown): string {
-  if (label instanceof Date) {
-    return label.toLocaleDateString();
-  }
-  return String(label ?? '');
-}
-
-/**
- * Escape HTML for safe display
- */
-function escapeLabel(label: string): string {
-  return label
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-/**
  * Bubble series component
  *
  * Renders animated bubble circles for data points with x, y, r values.
@@ -134,10 +112,8 @@ export function BubbleSeries({
   onDeactivate,
   animated = true,
 }: BubbleSeriesProps) {
-  // Global tooltip context - like Angular's TooltipService with destroyAll()
   const { showTooltip, hideTooltip } = useChartTooltip();
 
-  // Check if series is active
   const isActive = useCallback(
     (entry: { name: StringOrNumberOrDate }): boolean => {
       if (!activeEntries || activeEntries.length === 0) return true;
@@ -146,7 +122,6 @@ export function BubbleSeries({
     [activeEntries]
   );
 
-  // Calculate circle data for all bubbles
   const circles = useMemo((): BubbleCircle[] => {
     const seriesName = data.name;
 
@@ -165,7 +140,6 @@ export function BubbleSeries({
       const radius = rScale(r || 1);
       const tooltipLabel = formatLabel(d.name);
 
-      // Calculate cx based on scale type
       let cx: number;
       if (xScaleType === ScaleType.Linear) {
         cx = (xScale as ScaleLinear<number, number>)(Number(x));
@@ -176,7 +150,6 @@ export function BubbleSeries({
         cx = (xScale as ScalePoint<string>)(String(x)) ?? 0;
       }
 
-      // Calculate cy based on scale type
       let cy: number;
       if (yScaleType === ScaleType.Linear) {
         cy = (yScale as ScaleLinear<number, number>)(Number(y));
@@ -187,7 +160,6 @@ export function BubbleSeries({
         cy = (yScale as ScalePoint<string>)(String(y)) ?? 0;
       }
 
-      // Get color based on scale type
       const color =
         colors.scaleType === ScaleType.Linear
           ? colors.getColor(r)
@@ -224,7 +196,6 @@ export function BubbleSeries({
     return result;
   }, [data, xScale, yScale, rScale, xScaleType, yScaleType, colors, isActive]);
 
-  // Generate tooltip text
   const getTooltipText = useCallback(
     (circle: BubbleCircle): string => {
       const hasRadius = circle.r !== undefined;
@@ -260,7 +231,6 @@ export function BubbleSeries({
     [xAxisLabel, yAxisLabel]
   );
 
-  // Event handlers
   const handleClick = useCallback(
     (circle: BubbleCircle) => {
       onSelect?.(circle.data);

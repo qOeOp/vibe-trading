@@ -20,7 +20,7 @@ import { useMemo, useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
 import { arc as d3Arc } from 'd3-shape';
 import type { DataItem } from '../../types';
-import { ColorHelper } from '../../utils';
+import { ColorHelper, formatLabel } from '../../utils';
 
 /** Arc item structure */
 export interface ArcItem {
@@ -59,19 +59,6 @@ export interface GaugeArcProps {
 }
 
 /**
- * Formats a label for display
- */
-function formatLabel(label: unknown): string {
-  if (label instanceof Date) {
-    return label.toLocaleDateString();
-  }
-  if (label === null || label === undefined) {
-    return '';
-  }
-  return String(label);
-}
-
-/**
  * Gauge arc component with background and value arcs
  */
 export function GaugeArc({
@@ -89,7 +76,6 @@ export function GaugeArc({
 }: GaugeArcProps) {
   const tooltipId = useId();
 
-  // Generate background arc path
   const backgroundPath = useMemo(() => {
     const arcGenerator = d3Arc()
       .innerRadius(backgroundArc.innerRadius)
@@ -106,7 +92,6 @@ export function GaugeArc({
     }) || '';
   }, [backgroundArc, cornerRadius]);
 
-  // Generate value arc path
   const { valuePath, initialValuePath } = useMemo(() => {
     const arcGenerator = d3Arc()
       .innerRadius(valueArc.innerRadius)
@@ -131,12 +116,8 @@ export function GaugeArc({
     return { valuePath: vPath, initialValuePath: initPath };
   }, [valueArc, cornerRadius]);
 
-  // Get fill color for value arc
-  const fillColor = useMemo(() => {
-    return colors.getColor(valueArc.data.name);
-  }, [colors, valueArc.data.name]);
+  const fillColor = useMemo(() => colors.getColor(valueArc.data.name), [colors, valueArc.data.name]);
 
-  // Generate tooltip text
   const tooltipText = useMemo(() => {
     if (tooltipDisabled) return '';
 
@@ -148,7 +129,6 @@ export function GaugeArc({
     return `${label}: ${value}`;
   }, [tooltipDisabled, valueArc.data, valueFormatting]);
 
-  // Event handlers
   const handleClick = useCallback(() => {
     onSelect?.({
       name: valueArc.data.name,

@@ -15,11 +15,11 @@
 
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
 import { ScaleBand, ScaleLinear } from 'd3-scale';
 import { min, max, quantile } from 'd3-array';
 import { ViewDimensions, ScaleType } from '../types';
-import { ColorHelper, escapeLabel } from '../utils';
+import { ColorHelper, escapeLabel, formatLabel } from '../utils';
 import { Box, IBoxModel, IVector2D } from './box';
 
 export interface BoxChartSeries {
@@ -44,13 +44,6 @@ export interface BoxSeriesProps {
   onDeactivate?: (data: IBoxModel) => void;
 }
 
-function formatLabel(label: any): string {
-  if (label instanceof Date) {
-    return label.toLocaleDateString();
-  }
-  return String(label);
-}
-
 export function BoxSeries({
   dims,
   series,
@@ -67,7 +60,6 @@ export function BoxSeries({
   onActivate,
   onDeactivate,
 }: BoxSeriesProps) {
-  // Calculate box data
   const box = useMemo((): IBoxModel | null => {
     if (!series || !series.series || series.series.length === 0) return null;
 
@@ -75,7 +67,6 @@ export function BoxSeries({
     const seriesName = series.name;
     const counts = series.series;
 
-    // Calculate quantiles
     const mappedCounts = counts.map((c) => Number(c.value));
     const whiskers: [number, number] = [min(mappedCounts) ?? 0, max(mappedCounts) ?? 0];
 
@@ -86,7 +77,6 @@ export function BoxSeries({
       quantile(groupCounts, 0.75) ?? 0,
     ];
 
-    // Calculate line coordinates
     const commonX = xScale(String(seriesName)) ?? 0;
     const offsetX = commonX + width / 2;
 
@@ -138,7 +128,6 @@ export function BoxSeries({
       ariaLabel: `${formattedLabel} - Median: ${value.toLocaleString()}`,
     };
 
-    // Set color
     if (colors.scaleType === ScaleType.Ordinal) {
       boxModel.color = colors.getColor(seriesName);
     } else {
@@ -146,7 +135,6 @@ export function BoxSeries({
       boxModel.gradientStops = colors.getLinearGradientStops(quartiles[0], quartiles[2]);
     }
 
-    // Set tooltip
     if (!tooltipDisabled) {
       boxModel.tooltipText = `
         <span class="tooltip-label">${escapeLabel(formattedLabel)}</span>
@@ -159,27 +147,6 @@ export function BoxSeries({
 
     return boxModel;
   }, [series, xScale, yScale, colors, strokeWidth, roundEdges, tooltipDisabled]);
-
-  const handleSelect = useCallback(
-    (data: IBoxModel) => {
-      onSelect?.(data);
-    },
-    [onSelect]
-  );
-
-  const handleActivate = useCallback(
-    (data: IBoxModel) => {
-      onActivate?.(data);
-    },
-    [onActivate]
-  );
-
-  const handleDeactivate = useCallback(
-    (data: IBoxModel) => {
-      onDeactivate?.(data);
-    },
-    [onDeactivate]
-  );
 
   if (!box) return null;
 
@@ -200,9 +167,9 @@ export function BoxSeries({
         gradientStops={box.gradientStops}
         animated={animated}
         ariaLabel={box.ariaLabel}
-        onSelect={handleSelect}
-        onActivate={handleActivate}
-        onDeactivate={handleDeactivate}
+        onSelect={onSelect}
+        onActivate={onActivate}
+        onDeactivate={onDeactivate}
       />
       {!tooltipDisabled && box.tooltipText && (
         <title dangerouslySetInnerHTML={{ __html: box.tooltipText }} />

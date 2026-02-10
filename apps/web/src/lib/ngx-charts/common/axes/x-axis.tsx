@@ -85,23 +85,16 @@ export function XAxis({
   const [labelOffset, setLabelOffset] = useState(0);
   const lastHeightRef = useRef(0);
 
-  const padding = 5;
-  const tickStroke = '#ddd';
+  const transform = useMemo(
+    () => `translate(0,${xAxisOffset + 5 + dims.height})`,
+    [xAxisOffset, dims.height]
+  );
 
-  // Calculate transform
-  const transform = useMemo(() => {
-    return `translate(0,${xAxisOffset + padding + dims.height})`;
-  }, [xAxisOffset, padding, dims.height]);
+  const tickArguments = useMemo(
+    () => xAxisTickCount !== undefined ? [xAxisTickCount] : [5],
+    [xAxisTickCount]
+  );
 
-  // Calculate tick arguments
-  const tickArguments = useMemo(() => {
-    if (xAxisTickCount !== undefined) {
-      return [xAxisTickCount];
-    }
-    return [5];
-  }, [xAxisTickCount]);
-
-  // Handle ticks height change
   const handleTicksHeightChange = useCallback(
     ({ height }: { height: number }) => {
       if (height !== lastHeightRef.current) {
@@ -122,7 +115,7 @@ export function XAxis({
           orient={xOrient}
           tickArguments={tickArguments}
           tickValues={ticks}
-          tickStroke={tickStroke}
+          tickStroke="#ddd"
           trimTicks={trimTicks}
           maxTickLength={maxTickLength}
           tickFormatting={tickFormatting}

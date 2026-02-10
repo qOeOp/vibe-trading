@@ -72,30 +72,16 @@ export function Area({
   data,
   onClick,
 }: AreaProps) {
-  // Generate unique gradient ID (useId ensures stable IDs across SSR/hydration)
   const reactId = useId();
   const gradientId = `gradient${reactId.replace(/:/g, '')}`;
   const gradientUrl = `url(#${gradientId})`;
 
-  // Calculate opacity based on active state
-  // Angular uses: active=normal, inactive=0.2 (via CSS class)
-  const computedOpacity = useMemo(() => {
-    if (isActive) {
-      return opacity; // Keep normal opacity when active
-    }
-    if (isInactive) {
-      return 0.2; // Match Angular's .area-series.inactive opacity
-    }
-    return opacity;
-  }, [isActive, isInactive, opacity]);
+  const computedOpacity = isInactive ? 0.2 : opacity;
 
-  // Generate default gradient stops if gradient is enabled but no stops provided
-  // This matches Angular's getGradient() method in area.component.ts
   const gradientStops = useMemo((): Gradient[] => {
     if (stops && stops.length > 0) {
       return stops;
     }
-    // Default gradient: top is lighter (startOpacity), bottom is darker (endOpacity)
     return [
       {
         offset: 0,
@@ -110,51 +96,31 @@ export function Area({
     ];
   }, [stops, fill, startOpacity, endOpacity]);
 
-  // Use gradient if enabled (either with custom or default stops)
   const hasGradient = gradient || (stops && stops.length > 0);
   const fillValue = hasGradient ? gradientUrl : fill;
 
-  // Animation variants — always include `d` in initial to prevent Framer Motion
-  // from resolving a missing initial to "undefined"
   const variants = {
     initial: animated && startingPath ? { d: startingPath, opacity: 0 } : { d: path, opacity: computedOpacity },
     animate: { d: path, opacity: computedOpacity },
     exit: animated && startingPath ? { d: startingPath, opacity: 0 } : { opacity: 0 },
   };
 
-  // Transition settings
   const transition = {
     d: { duration: animated ? 0.75 : 0, ease: 'easeInOut' as const },
     opacity: { duration: animated ? 0.3 : 0 },
   };
 
-  // Handle click
   const handleClick = () => {
     if (onClick && data) {
       onClick(data);
     }
   };
 
-  // Guard: don't render <motion.path> with empty/undefined d
   if (!path) return null;
 
-  // CSS class names for outer group (matches Angular CSS selector)
-  const groupClassNames = [
-    'area-series',
-    isActive ? 'active' : '',
-    isInactive ? 'inactive' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  // CSS class names for inner path
-  const pathClassNames = [
-    'area',
-    isActive ? 'active' : '',
-    isInactive ? 'inactive' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const stateClass = isActive ? ' active' : isInactive ? ' inactive' : '';
+  const groupClassNames = `area-series${stateClass}`;
+  const pathClassNames = `area${stateClass}`;
 
   return (
     <g className={groupClassNames}>
@@ -182,8 +148,6 @@ export function Area({
         style={{
           cursor: onClick ? 'pointer' : 'default',
           pointerEvents: 'visiblePainted',
-          opacity: computedOpacity,
-          transition: 'opacity 0.3s ease-in-out',
         }}
       />
     </g>

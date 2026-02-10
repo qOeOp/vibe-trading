@@ -54,25 +54,21 @@ interface TooltipContextValue {
 const TooltipContext = createContext<TooltipContextValue | null>(null);
 
 const SHOW_DELAY = 100;
-const HIDE_DELAY = 0; // Immediate hide like Angular
 
 export function ChartTooltipProvider({ children }: { children: ReactNode }) {
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
     content: null,
-    title: undefined,
     host: null,
     placement: 'top',
     type: 'tooltip',
     showCaret: true,
-    positionKey: undefined,
   });
 
   const showTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hideTooltipImmediate = useCallback(() => {
-    // Clear any pending timeouts
     if (showTimeoutRef.current) {
       clearTimeout(showTimeoutRef.current);
       showTimeoutRef.current = null;
@@ -85,57 +81,36 @@ export function ChartTooltipProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const hideTooltip = useCallback(() => {
-    // Clear any pending show
-    if (showTimeoutRef.current) {
-      clearTimeout(showTimeoutRef.current);
-      showTimeoutRef.current = null;
-    }
-
-    // Hide immediately (Angular uses immediateExit for chart tooltips)
     hideTooltipImmediate();
   }, [hideTooltipImmediate]);
 
   const showTooltip = useCallback((options: ShowTooltipOptions) => {
-    // Clear any pending hide
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
       hideTimeoutRef.current = null;
     }
 
-    // Clear any pending show
     if (showTimeoutRef.current) {
       clearTimeout(showTimeoutRef.current);
     }
 
-    // For area charts with positionKey, update immediately without delay
-    // This allows the tooltip to reposition smoothly as the anchor moves
-    if (options.positionKey !== undefined) {
-      setTooltip({
-        visible: true,
-        content: options.content,
-        title: options.title,
-        host: options.host,
-        placement: options.placement || 'top',
-        type: options.type || 'tooltip',
-        showCaret: options.showCaret ?? true,
-        positionKey: options.positionKey,
-      });
-      return;
-    }
+    const state: TooltipState = {
+      visible: true,
+      content: options.content,
+      title: options.title,
+      host: options.host,
+      placement: options.placement || 'top',
+      type: options.type || 'tooltip',
+      showCaret: options.showCaret ?? true,
+      positionKey: options.positionKey,
+    };
 
-    // Show after a small delay (like Angular's showTimeout)
-    showTimeoutRef.current = setTimeout(() => {
-      setTooltip({
-        visible: true,
-        content: options.content,
-        title: options.title,
-        host: options.host,
-        placement: options.placement || 'top',
-        type: options.type || 'tooltip',
-        showCaret: options.showCaret ?? true,
-        positionKey: undefined,
-      });
-    }, SHOW_DELAY);
+    // positionKey means area charts: update immediately for smooth repositioning
+    if (options.positionKey !== undefined) {
+      setTooltip(state);
+    } else {
+      showTimeoutRef.current = setTimeout(() => setTooltip(state), SHOW_DELAY);
+    }
   }, []);
 
   return (
@@ -167,7 +142,6 @@ export function ChartTooltipProvider({ children }: { children: ReactNode }) {
 export function useChartTooltip() {
   const context = useContext(TooltipContext);
   if (!context) {
-    // Return no-op functions if not within provider (fallback)
     return {
       showTooltip: () => {},
       hideTooltip: () => {},

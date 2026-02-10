@@ -31,7 +31,7 @@ import {
   StringOrNumberOrDate,
 } from '../types';
 import { BaseChart, XAxis, YAxis, Legend } from '../common';
-import { calculateViewDimensions, ColorHelper } from '../utils';
+import { calculateViewDimensions, ColorHelper, getScaleType } from '../utils';
 import { BubbleSeries, BubbleScale } from './bubble-series';
 
 export interface BubbleChartProps {
@@ -117,25 +117,6 @@ export interface BubbleChartProps {
   onDeactivate?: (event: { value: unknown; entries: unknown[] }) => void;
   /** Custom CSS class name */
   className?: string;
-}
-
-/** Determine scale type from values */
-function getScaleType(values: unknown[]): ScaleType {
-  let date = true;
-  let num = true;
-
-  for (const value of values) {
-    if (!(value instanceof Date)) {
-      date = false;
-    }
-    if (typeof value !== 'number') {
-      num = false;
-    }
-  }
-
-  if (date) return ScaleType.Time;
-  if (num) return ScaleType.Linear;
-  return ScaleType.Ordinal;
 }
 
 /** Get domain from values based on scale type */
@@ -249,16 +230,13 @@ export function BubbleChart({
   onDeactivate,
   className = '',
 }: BubbleChartProps) {
-  // State for axis dimensions
   const [xAxisHeight, setXAxisHeight] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
   const [activeEntries, setActiveEntries] = useState<Array<{ name: string }>>([]);
 
-  // Generate stable clip path ID (must be at component level, not inside render prop)
   const reactId = useId();
   const clipPathId = `clip${reactId.replace(/:/g, '')}`;
 
-  // Margins
   const margin: [number, number, number, number] = [10, 20, 10, 20];
 
   return (
@@ -499,20 +477,6 @@ export function BubbleChart({
           [data, handleClick]
         );
 
-        const handleLegendActivate = useCallback(
-          (item: { name: string }) => {
-            handleActivate(item);
-          },
-          [handleActivate]
-        );
-
-        const handleLegendDeactivate = useCallback(
-          (item: { name: string }) => {
-            handleDeactivate(item);
-          },
-          [handleDeactivate]
-        );
-
         const handleXAxisHeightChange = useCallback(
           (newHeight: number) => {
             if (newHeight !== xAxisHeight) {
@@ -651,8 +615,8 @@ export function BubbleChart({
                 activeEntries={activeEntries}
                 horizontal={legendPosition === LegendPosition.Below}
                 onLabelClick={handleLegendClick}
-                onLabelActivate={handleLegendActivate}
-                onLabelDeactivate={handleLegendDeactivate}
+                onLabelActivate={handleActivate}
+                onLabelDeactivate={handleDeactivate}
               />
             )}
           </>

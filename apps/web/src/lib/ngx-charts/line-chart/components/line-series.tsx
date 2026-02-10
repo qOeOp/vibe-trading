@@ -90,10 +90,8 @@ export function LineSeries({
   animationDuration = 750,
   className = '',
 }: LineSeriesProps) {
-  // Stable ID for gradient (SSR-safe)
   const stableGradientId = `grad${useId().replace(/:/g, '')}`;
 
-  // Check if series is active or inactive
   const isActive = useMemo(() => {
     if (!activeEntries || activeEntries.length === 0) return false;
     return activeEntries.some((entry) => entry.name === data.name);
@@ -104,12 +102,10 @@ export function LineSeries({
     return !activeEntries.some((entry) => entry.name === data.name);
   }, [activeEntries, data.name]);
 
-  // Calculate gradient and stroke
-  const { hasGradient, gradientId, gradientUrl, gradientStops, areaGradientStops, stroke } =
+  const { hasGradient, gradientUrl, gradientStops, areaGradientStops, stroke } =
     useMemo(() => {
       const hasGrad = colors.scaleType === ScaleType.Linear;
-      const gradId = stableGradientId;
-      const gradUrl = `url(#${gradId})`;
+      const gradUrl = `url(#${stableGradientId})`;
 
       let gradientStops: Gradient[] | undefined;
       let areaGradientStops: Gradient[] | undefined;
@@ -133,7 +129,6 @@ export function LineSeries({
 
       return {
         hasGradient: hasGrad,
-        gradientId: gradId,
         gradientUrl: gradUrl,
         gradientStops,
         areaGradientStops,
@@ -141,17 +136,14 @@ export function LineSeries({
       };
     }, [colors, data.name, data.series, stableGradientId]);
 
-  // Sort data and generate paths
   const { linePath, areaPath, rangePath } = useMemo(() => {
     const sortedData = sortLineData(data.series, scaleType, xScale);
 
-    // Line generator
     const lineGen = line<DataItem>()
       .x((d) => getXValue(d, scaleType, xScale))
       .y((d) => yScale(d.value))
       .curve(curve);
 
-    // Area generator for highlight
     const areaGen = area<DataItem>()
       .x((d) => getXValue(d, scaleType, xScale))
       .y0(() => yScale.range()[0])
@@ -161,7 +153,6 @@ export function LineSeries({
     const linePath = lineGen(sortedData) || '';
     const areaPath = areaGen(sortedData) || '';
 
-    // Range area generator for min/max
     let rangePath = '';
     if (hasRange) {
       const rangeGen = area<DataItem>()
@@ -176,10 +167,8 @@ export function LineSeries({
     return { linePath, areaPath, rangePath };
   }, [data.series, scaleType, xScale, yScale, curve, hasRange]);
 
-  // Determine fill color
   const fillColor = hasGradient ? gradientUrl : colors.getColor(data.name);
 
-  // Class names for active/inactive state
   const seriesClassName = [
     'line-series',
     className,
@@ -191,18 +180,16 @@ export function LineSeries({
 
   return (
     <g className={seriesClassName}>
-      {/* Gradient definitions */}
       {hasGradient && gradientStops && (
         <defs>
           <SvgLinearGradient
-            id={gradientId}
+            id={stableGradientId}
             stops={gradientStops}
             orientation="vertical"
           />
         </defs>
       )}
 
-      {/* Area highlight */}
       <path
         className="line-highlight"
         d={areaPath}
@@ -213,17 +200,14 @@ export function LineSeries({
         }}
       />
 
-      {/* Main line */}
       <Line
         path={linePath}
         stroke={stroke}
-        data={data}
         animated={animated}
         animationDuration={animationDuration}
         className={isActive ? 'active' : isInactive ? 'inactive' : ''}
       />
 
-      {/* Range area (min/max) */}
       {hasRange && rangePath && (
         <path
           className="line-series-range"

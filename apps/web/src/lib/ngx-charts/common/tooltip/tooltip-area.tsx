@@ -80,7 +80,7 @@ export interface TooltipAreaProps {
   tooltipTemplate?: (items: TooltipItem[]) => ReactNode;
   /** Callback when hover position changes */
   onHover?: (value: { value: unknown }) => void;
-  /** Whether this is a stacked chart — use mouse Y instead of snapping to data */
+  /** Whether this is a stacked chart (reserved for future use) */
   stacked?: boolean;
 }
 
@@ -118,15 +118,7 @@ function DefaultTooltipTemplate({ items }: { items: TooltipItem[] }) {
  * Get formatted tooltip text for an item
  */
 function getToolTipText(tooltipItem: TooltipItem): string {
-  let result = '';
-
-  if (tooltipItem.series !== undefined) {
-    result += tooltipItem.series;
-  } else {
-    result += '???';
-  }
-
-  result += ': ';
+  let result = (tooltipItem.series ?? '???') + ': ';
 
   if (tooltipItem.value !== undefined) {
     result +=
@@ -204,26 +196,21 @@ export function TooltipArea({
   dims,
   xSet,
   xScale,
-  yScale,
   results,
   colors,
   showPercentage = false,
   tooltipDisabled = false,
   tooltipTemplate,
   onHover,
-  stacked = false,
 }: TooltipAreaProps) {
   const [anchorOpacity, setAnchorOpacity] = useState(0);
   const [anchorPos, setAnchorPos] = useState(-1);
   const [anchorYPos, setAnchorYPos] = useState(-1);
-  const [anchorValues, setAnchorValues] = useState<TooltipItem[]>([]);
   const lastAnchorPosRef = useRef<number>(-1);
   const anchorRef = useRef<SVGLineElement>(null);
 
-  // Global tooltip context - like Angular's TooltipService with destroyAll()
   const { showTooltip, hideTooltip } = useChartTooltip();
 
-  // Get values for a given x value
   const getValues = useCallback(
     (xVal: string | number | Date): TooltipItem[] => {
       const resultItems: TooltipItem[] = [];
@@ -276,7 +263,6 @@ export function TooltipArea({
     [results, colors, showPercentage]
   );
 
-  // Handle mouse move
   const handleMouseMove = useCallback(
     (event: MouseEvent<SVGRectElement>) => {
       if (typeof window === 'undefined') return;
@@ -288,24 +274,16 @@ export function TooltipArea({
       const closestIndex = findClosestPointIndex(xPos, xSet, xScale);
       const closestPoint = xSet[closestIndex];
 
-      let newAnchorPos = xScale(closestPoint);
-      newAnchorPos = Math.max(0, newAnchorPos);
-      newAnchorPos = Math.min(dims.width, newAnchorPos);
+      const newAnchorPos = Math.max(0, Math.min(dims.width, xScale(closestPoint)));
 
       const values = getValues(closestPoint);
 
-      // Calculate Y position for horizontal crosshair — always follow mouse
-      let yPos = event.clientY - rect.top;
-      yPos = Math.max(0, Math.min(dims.height, yPos));
+      const yPos = Math.max(0, Math.min(dims.height, event.clientY - rect.top));
 
-      // Update anchor position
       setAnchorPos(newAnchorPos);
       setAnchorYPos(yPos);
-      setAnchorValues(values);
       setAnchorOpacity(0.7);
 
-      // Show tooltip positioned relative to anchor line (placement: right)
-      // Pass positionKey (anchor position) so tooltip repositions when anchor moves
       if (anchorRef.current && !tooltipDisabled) {
         const content = tooltipTemplate ? tooltipTemplate(values) : <DefaultTooltipTemplate items={values} />;
         showTooltip({
@@ -314,7 +292,7 @@ export function TooltipArea({
           placement: 'right',
           type: 'tooltip',
           showCaret: false,
-          positionKey: newAnchorPos, // Triggers reposition when anchor moves
+          positionKey: newAnchorPos,
         });
       }
 
@@ -323,17 +301,15 @@ export function TooltipArea({
         lastAnchorPosRef.current = newAnchorPos;
       }
     },
-    [xSet, xScale, dims.width, getValues, onHover, tooltipDisabled, tooltipTemplate, showTooltip]
+    [xSet, xScale, dims.width, dims.height, getValues, onHover, tooltipDisabled, tooltipTemplate, showTooltip]
   );
 
-  // Handle mouse leave
   const handleMouseLeave = useCallback(() => {
     setAnchorOpacity(0);
     hideTooltip();
     lastAnchorPosRef.current = -1;
   }, [hideTooltip]);
 
-  // Animation styles for anchor
   const anchorStyle = useMemo(
     () => ({
       opacity: anchorOpacity,
@@ -345,7 +321,6 @@ export function TooltipArea({
 
   return (
     <g>
-      {/* Invisible area for mouse detection */}
       <rect
         className="tooltip-area"
         x={0}
@@ -357,9 +332,7 @@ export function TooltipArea({
         onMouseLeave={handleMouseLeave}
       />
 
-      {/* Crosshair lines */}
       <g style={anchorStyle}>
-        {/* Vertical dashed line */}
         <line
           ref={anchorRef}
           className="tooltip-anchor"
@@ -371,7 +344,6 @@ export function TooltipArea({
           strokeWidth={1}
           strokeDasharray="6 4"
         />
-        {/* Horizontal dashed line */}
         {anchorYPos >= 0 && (
           <line
             x1={0}
@@ -383,7 +355,6 @@ export function TooltipArea({
             strokeDasharray="6 4"
           />
         )}
-        {/* Center circle at intersection */}
         {anchorYPos >= 0 && (
           <circle
             cx={anchorPos}

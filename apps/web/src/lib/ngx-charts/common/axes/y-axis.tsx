@@ -85,43 +85,23 @@ export function YAxis({
   const [labelOffset, setLabelOffset] = useState(15);
   const lastWidthRef = useRef(0);
 
-  const padding = 5;
-  const tickStroke = '#ddd';
+  const transform = useMemo(() => {
+    const off = -(yAxisOffset + 5);
+    return yOrient === Orientation.Right
+      ? `translate(${off + dims.width}, 0)`
+      : `translate(${off}, 0)`;
+  }, [yAxisOffset, yOrient, dims.width]);
 
-  // Calculate transform and offset
-  const { transform, offset } = useMemo(() => {
-    const off = -(yAxisOffset + padding);
-    let trans: string;
+  const tickArguments = useMemo(
+    () => yAxisTickCount !== undefined ? [yAxisTickCount] : [5],
+    [yAxisTickCount]
+  );
 
-    if (yOrient === Orientation.Right) {
-      trans = `translate(${off + dims.width}, 0)`;
-    } else {
-      trans = `translate(${off}, 0)`;
-    }
-
-    return { transform: trans, offset: off };
-  }, [yAxisOffset, padding, yOrient, dims.width]);
-
-  // Calculate tick arguments
-  const tickArguments = useMemo(() => {
-    if (yAxisTickCount !== undefined) {
-      return [yAxisTickCount];
-    }
-    return [5];
-  }, [yAxisTickCount]);
-
-  // Handle ticks width change
   const handleTicksWidthChange = useCallback(
     ({ width }: { width: number }) => {
       if (width !== lastWidthRef.current) {
         lastWidthRef.current = width;
-        let newLabelOffset: number;
-        if (yOrient === Orientation.Right) {
-          newLabelOffset = width + 15; // Base offset for right orientation
-        } else {
-          newLabelOffset = width;
-        }
-        setLabelOffset(newLabelOffset);
+        setLabelOffset(yOrient === Orientation.Right ? width + 15 : width);
         onDimensionsChanged?.({ width });
       }
     },
@@ -136,7 +116,7 @@ export function YAxis({
           orient={yOrient}
           tickArguments={tickArguments}
           tickValues={ticks}
-          tickStroke={tickStroke}
+          tickStroke="#ddd"
           trimTicks={trimTicks}
           maxTickLength={maxTickLength}
           tickFormatting={tickFormatting}

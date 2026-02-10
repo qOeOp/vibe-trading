@@ -20,7 +20,7 @@ import type { ScaleBand } from 'd3-scale';
 import { HeatMapCell } from './heat-map-cell';
 import { useChartTooltip } from '../common/tooltip';
 import type { DataItem, Series, StringOrNumberOrDate } from '../types';
-import { ColorHelper, trimLabel } from '../utils';
+import { ColorHelper, trimLabel, escapeLabel } from '../utils';
 
 /** Internal cell representation for rendering */
 interface Cell {
@@ -92,18 +92,6 @@ function getDefaultTooltipText({
 }
 
 /**
- * Escapes HTML in labels to prevent XSS
- */
-function escapeLabel(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-/**
  * Heat map cell series component
  */
 export function HeatMapCellSeries({
@@ -120,10 +108,8 @@ export function HeatMapCellSeries({
   onActivate,
   onDeactivate,
 }: HeatMapCellSeriesProps) {
-  // Use default tooltip text if not provided
   const getTooltipText = tooltipText || getDefaultTooltipText;
 
-  // Calculate cells
   const cells = useMemo((): Cell[] => {
     const result: Cell[] = [];
 
@@ -160,31 +146,8 @@ export function HeatMapCellSeries({
     return result;
   }, [data, xScale, yScale, colors]);
 
-  const handleSelect = useCallback(
-    (cell: DataItem) => {
-      onSelect?.(cell);
-    },
-    [onSelect]
-  );
-
-  const handleActivate = useCallback(
-    (cell: DataItem) => {
-      onActivate?.(cell);
-    },
-    [onActivate]
-  );
-
-  const handleDeactivate = useCallback(
-    (cell: DataItem) => {
-      onDeactivate?.(cell);
-    },
-    [onDeactivate]
-  );
-
-  // Global tooltip context - like Angular's TooltipService with destroyAll()
   const { showTooltip, hideTooltip } = useChartTooltip();
 
-  // Tooltip handlers using global context (only ONE tooltip visible at a time)
   const handleCellMouseEnter = useCallback(
     (c: Cell, event: React.MouseEvent<SVGGElement>) => {
       if (tooltipDisabled) return;
@@ -227,9 +190,9 @@ export function HeatMapCellSeries({
             data={c.data}
             gradient={gradient}
             animated={animated}
-            onSelect={() => handleSelect(c.cell)}
-            onActivate={() => handleActivate(c.cell)}
-            onDeactivate={() => handleDeactivate(c.cell)}
+            onSelect={() => onSelect?.(c.cell)}
+            onActivate={() => onActivate?.(c.cell)}
+            onDeactivate={() => onDeactivate?.(c.cell)}
           />
         </g>
       ))}

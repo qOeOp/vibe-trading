@@ -19,58 +19,29 @@ import { useMemo } from 'react';
 import { Orientation } from '../../types';
 
 export interface AxisLabelProps {
-  /** Label text */
   label: string;
-  /** Offset from axis */
   offset: number;
-  /** Orientation of the axis */
   orient: Orientation;
-  /** Chart width */
   width: number;
-  /** Chart height */
   height: number;
 }
 
-/**
- * Axis label component for rendering axis titles
- */
 export function AxisLabel({ label, offset, orient, width, height }: AxisLabelProps) {
-  const { x, y, transform, textAnchor } = useMemo(() => {
+  const { x, y, transform } = useMemo(() => {
     const textHeight = 25;
     const margin = 5;
-    let xPos = 0;
-    let yPos = 0;
-    let trans = '';
 
     switch (orient) {
       case Orientation.Top:
-        yPos = offset;
-        xPos = width / 2;
-        break;
       case Orientation.Bottom:
-        yPos = offset;
-        xPos = width / 2;
-        break;
+        return { x: width / 2, y: offset, transform: '' };
       case Orientation.Left:
-        yPos = -(offset + textHeight + margin);
-        xPos = -height / 2;
-        trans = 'rotate(270)';
-        break;
+        return { x: -height / 2, y: -(offset + textHeight + margin), transform: 'rotate(270)' };
       case Orientation.Right:
-        yPos = offset + margin;
-        xPos = -height / 2;
-        trans = 'rotate(270)';
-        break;
+        return { x: -height / 2, y: offset + margin, transform: 'rotate(270)' };
       default:
-        break;
+        return { x: 0, y: 0, transform: '' };
     }
-
-    return {
-      x: xPos,
-      y: yPos,
-      transform: trans,
-      textAnchor: 'middle' as const,
-    };
   }, [orient, offset, width, height]);
 
   return (
@@ -79,7 +50,7 @@ export function AxisLabel({ label, offset, orient, width, height }: AxisLabelPro
       strokeWidth="0.01"
       x={x}
       y={y}
-      textAnchor={textAnchor}
+      textAnchor="middle"
       transform={transform}
       style={{ fontSize: '12px' }}
     >

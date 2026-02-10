@@ -27,8 +27,8 @@ import {
   Legend,
 } from '../common';
 import { useLineRace, type LineRaceSeriesData } from './hooks';
-import { LineRaceSeries } from './components';
-import { markerPath } from './utils';
+import { LineRaceSeries, LineRaceCrosshair, type CrosshairItem } from './components';
+import { markerPath, findClosestRound } from './utils';
 
 export interface LineRaceProps {
   /** Chart data: array of { name, values: number[] } */
@@ -212,7 +212,6 @@ function LineRaceInner({
     [title],
   );
 
-  // Reserve space for controls at the bottom
   const controlsHeight = showControls ? 50 : 0;
   const chartHeight = containerHeight - controlsHeight;
 
@@ -257,7 +256,6 @@ function LineRaceInner({
     legendOptions,
   } = state;
 
-  // Notify round changes (must be in effect, not render phase)
   useEffect(() => {
     if (currentRound !== prevRoundRef.current && onRoundChange) {
       prevRoundRef.current = currentRound;
@@ -265,7 +263,6 @@ function LineRaceInner({
     }
   }, [currentRound, onRoundChange]);
 
-  // Legend handlers
   const handleLegendActivate = useCallback((item: { name: string }) => {
     setActiveSeries(item.name);
   }, []);
@@ -380,159 +377,44 @@ function LineRaceInner({
             />
           )}
 
-          {/* Highcharts-style tooltip: crosshair + markers + connector lines + stacked labels */}
-          {hoveredRound !== null && hoveredRound <= currentRound && (() => {
-            const hx = xScale(hoveredRound);
-            const labelH = 22;
-            const labelPad = 8;
-            const placeLeft = hx > dims.width * 0.5;
-
-            const items = data
-              .map((series, i) => {
-                if (hoveredRound >= series.values.length) return null;
-                const val = series.values[hoveredRound];
-                return {
-                  name: series.name,
-                  value: val,
-                  color: customColors?.[i] ?? colors.getColor(series.name),
-                  cy: yScale(val),
-                  dataIndex: i,
-                };
-              })
-              .filter(Boolean) as Array<{
-                name: string; value: number; color: string; cy: number; dataIndex: number;
-              }>;
-
-            items.sort((a, b) => a.cy - b.cy);
-
-            const minGap = labelH + 2;
-            const totalNeeded = items.length * minGap;
-            const medianCy = items[Math.floor(items.length / 2)]?.cy ?? dims.height / 2;
-            const stackTop = Math.max(0, Math.min(dims.height - totalNeeded, medianCy - totalNeeded / 2));
-
-            const labelYs = items.map((_, j) => stackTop + j * minGap);
-
-            for (let pass = 0; pass < 5; pass++) {
-              for (let j = 0; j < items.length; j++) {
-                const target = items[j].cy - labelH / 2;
-                const minY = j === 0 ? 0 : labelYs[j - 1] + minGap;
-                const maxY = j === items.length - 1 ? dims.height - labelH : labelYs[j + 1] - minGap;
-                labelYs[j] = Math.max(minY, Math.min(maxY, target));
-              }
-            }
-
-            return (
-              <g style={{ pointerEvents: 'none' }}>
-                {/* Crosshair line */}
-                <line
-                  x1={hx}
-                  y1={0}
-                  x2={hx}
-                  y2={dims.height}
-                  stroke="#333"
-                  strokeWidth={1}
-                  shapeRendering="crispEdges"
-                  opacity={0.35}
-                />
-
-                {/* Connector lines from data point to label */}
-                {items.map((item, j) => {
-                  const labelCenterY = labelYs[j] + labelH / 2;
-                  const labelEdgeX = placeLeft ? hx - labelPad : hx + labelPad;
-                  return (
-                    <line
-                      key={`conn-${item.name}`}
-                      x1={hx}
-                      y1={item.cy}
-                      x2={labelEdgeX}
-                      y2={labelCenterY}
-                      stroke={item.color}
-                      strokeWidth={0.8}
-                      opacity={0.5}
-                    />
-                  );
-                })}
-
-                {/* Geometric markers on each series data point */}
-                {items.map((item) => (
-                  <g key={`marker-${item.name}`}>
-                    <path
-                      d={markerPath(hx, item.cy, 5, item.dataIndex)}
-                      fill={item.color}
-                      stroke="#fff"
-                      strokeWidth={1.5}
-                    />
-                  </g>
-                ))}
-
-                {/* Stacked labels */}
-                {items.map((item, j) => {
-                  const lx = placeLeft ? hx - labelPad : hx + labelPad;
-                  const ly = labelYs[j];
-                  return (
-                    <foreignObject
-                      key={`label-${item.name}`}
-                      x={placeLeft ? lx - 220 : lx}
-                      y={ly}
-                      width={220}
-                      height={labelH}
-                      style={{ overflow: 'visible' }}
-                    >
-                      <div
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 5,
-                          padding: '2px 8px 2px 6px',
-                          background: 'rgba(255,255,255,0.95)',
-                          border: `1px solid ${item.color}`,
-                          borderLeft: placeLeft ? undefined : `3px solid ${item.color}`,
-                          borderRight: placeLeft ? `3px solid ${item.color}` : undefined,
-                          borderRadius: 3,
-                          fontSize: 11,
-                          fontFamily: 'var(--font-chart, Roboto, sans-serif)',
-                          whiteSpace: 'nowrap',
-                          lineHeight: '16px',
-                          boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                          float: placeLeft ? 'right' : 'left',
-                        }}
-                      >
-                        <span style={{ color: '#333', fontWeight: 500 }}>{item.name}:</span>
-                        <span style={{ color: '#333', fontVariantNumeric: 'tabular-nums' }}>
-                          {item.value.toLocaleString()} Points
-                        </span>
-                      </div>
-                    </foreignObject>
-                  );
-                })}
-
-                {/* Round number label at bottom of crosshair */}
-                <foreignObject
-                  x={hx - 20}
-                  y={dims.height + 2}
-                  width={40}
-                  height={20}
-                >
+          {/* Tooltip crosshair + markers */}
+          {hoveredRound !== null && hoveredRound <= currentRound && (
+            <LineRaceCrosshair
+              hoveredRound={hoveredRound}
+              data={data}
+              yScale={yScale}
+              hx={xScale(hoveredRound)}
+              chartWidth={dims.width}
+              chartHeight={dims.height}
+              customColors={customColors}
+              colors={colors}
+              valueFormatter={(v: number) => `${v.toLocaleString()} Points`}
+              renderMarker={(item: CrosshairItem, hx: number) => (
+                <g key={`marker-${item.name}`}>
+                  <path
+                    d={markerPath(hx, item.cy, 5, item.dataIndex)}
+                    fill={item.color}
+                    stroke="#fff"
+                    strokeWidth={1.5}
+                  />
+                </g>
+              )}
+              renderRoundLabel={(round: number, hx: number, h: number) => (
+                <foreignObject x={hx - 20} y={h + 2} width={40} height={20}>
                   <div
                     style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      background: '#f5f5f5',
-                      border: '1px solid #ddd',
-                      borderRadius: 3,
-                      fontSize: 11,
-                      fontFamily: 'var(--font-chart, Roboto, sans-serif)',
-                      color: '#333',
-                      fontWeight: 500,
+                      display: 'flex', justifyContent: 'center', alignItems: 'center',
+                      background: '#f5f5f5', border: '1px solid #ddd', borderRadius: 3,
+                      fontSize: 11, fontFamily: 'var(--font-chart, Roboto, sans-serif)',
+                      color: '#333', fontWeight: 500,
                     }}
                   >
-                    {hoveredRound}
+                    {round}
                   </div>
                 </foreignObject>
-              </g>
-            );
-          })()}
+              )}
+            />
+          )}
 
           {/* Invisible overlay for mouse detection */}
           <rect
@@ -542,37 +424,13 @@ function LineRaceInner({
             height={dims.height}
             style={{ opacity: 0, cursor: 'crosshair' }}
             onMouseMove={(e: MouseEvent<SVGRectElement>) => {
-              const target = e.target as SVGRectElement;
-              const rect = target.getBoundingClientRect();
-              const xPos = e.clientX - rect.left;
-              const yPos = e.clientY - rect.top;
-
-              let closestRound = 0;
-              let minDist = Infinity;
-              const maxR = Math.min(currentRound, totalRounds);
-              for (let r = 0; r <= maxR; r++) {
-                const dist = Math.abs(xScale(r) - xPos);
-                if (dist < minDist) {
-                  minDist = dist;
-                  closestRound = r;
-                }
-              }
-
-              let closestName: string | null = null;
-              let minYDist = Infinity;
-              for (const series of data) {
-                if (closestRound < series.values.length) {
-                  const sy = yScale(series.values[closestRound]);
-                  const dy = Math.abs(sy - yPos);
-                  if (dy < minYDist) {
-                    minYDist = dy;
-                    closestName = series.name;
-                  }
-                }
-              }
-
-              setHoveredRound(closestRound);
-              setActiveSeries(closestName);
+              const rect = (e.target as SVGRectElement).getBoundingClientRect();
+              const result = findClosestRound(
+                e.clientX - rect.left, e.clientY - rect.top,
+                xScale, yScale, currentRound, totalRounds, data,
+              );
+              setHoveredRound(result.round);
+              setActiveSeries(result.seriesName);
             }}
             onMouseLeave={() => {
               setHoveredRound(null);

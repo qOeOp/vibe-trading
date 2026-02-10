@@ -126,7 +126,6 @@ export function AreaSeries({
   animated = true,
   onSelect,
 }: AreaSeriesProps) {
-  // Check if this series is active/inactive
   const { isActive, isInactive } = useMemo(() => {
     if (!activeEntries || activeEntries.length === 0) {
       return { isActive: false, isInactive: false };
@@ -139,7 +138,6 @@ export function AreaSeries({
     };
   }, [activeEntries, data.name]);
 
-  // Calculate gradient stops if needed
   const { hasGradient, gradientStops } = useMemo(() => {
     if (colors.scaleType !== ScaleType.Linear) {
       return { hasGradient: false, gradientStops: undefined };
@@ -161,14 +159,8 @@ export function AreaSeries({
     return { hasGradient: true, gradientStops: stops };
   }, [colors, data.series, stacked, normalized]);
 
-  // Generate area paths
   const { path, startingPath } = useMemo(() => {
-    // Get the X position for a data point
-    const xProperty = (d: AreaDataItem): number => {
-      return xScale(d.name);
-    };
-
-    // Sort data
+    const xProperty = (d: AreaDataItem): number => xScale(d.name);
     const sortedData = sortData(data.series as AreaDataItem[], scaleType, xScale);
 
     let currentArea: D3Area<AreaDataItem>;
@@ -210,24 +202,16 @@ export function AreaSeries({
     };
   }, [data.series, xScale, yScale, baseValue, stacked, normalized, curve, scaleType]);
 
-  // Get fill color
-  const fillColor = useMemo(() => {
-    return colors.getColor(data.name);
-  }, [colors, data.name]);
+  const fillColor = useMemo(() => colors.getColor(data.name), [colors, data.name]);
 
-  // Use gradient if appropriate
-  const useGradient = gradient || hasGradient;
-  const stops = gradientStops;
-
-  // Angular sets opacity to 0.8 in area-series.component.ts line 101
   return (
     <Area
       path={path}
       startingPath={startingPath}
       fill={fillColor}
       opacity={1}
-      gradient={useGradient}
-      stops={stops}
+      gradient={gradient || hasGradient}
+      stops={gradientStops}
       animated={animated}
       isActive={isActive}
       isInactive={isInactive}

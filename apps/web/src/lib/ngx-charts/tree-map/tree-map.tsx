@@ -15,7 +15,7 @@
 
 'use client';
 
-import { useMemo, useCallback, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { treemap, stratify, HierarchyRectangularNode } from 'd3-hierarchy';
 import { DataItem, ColorScheme, ScaleType, ViewDimensions } from '../types';
 import { ColorHelper, calculateViewDimensions } from '../utils';
@@ -72,7 +72,6 @@ export function TreeMap({
 
   const margin = [10, 10, 10, 10];
 
-  // Calculate view dimensions
   const dims: ViewDimensions = useMemo(() => {
     return calculateViewDimensions({
       width,
@@ -81,12 +80,10 @@ export function TreeMap({
     });
   }, [width, height]);
 
-  // Get domain
   const domain = useMemo(() => {
     return data.map((d) => d.name);
   }, [data]);
 
-  // Create color helper
   const colorHelper = useMemo(() => {
     return new ColorHelper({
       scheme: colorScheme,
@@ -96,7 +93,6 @@ export function TreeMap({
     });
   }, [colorScheme, domain, customColors]);
 
-  // Create treemap layout
   const treemapData = useMemo(() => {
     if (!data || data.length === 0) return null;
 
@@ -131,14 +127,6 @@ export function TreeMap({
     }
   }, [data, dims.width, dims.height]);
 
-  // Handle click
-  const handleSelect = useCallback(
-    (item: DataItem) => {
-      onSelect?.(item);
-    },
-    [onSelect]
-  );
-
   const transform = `translate(${dims.xOffset || margin[3]}, ${margin[0]})`;
 
   return (
@@ -161,7 +149,7 @@ export function TreeMap({
               gradient={gradient}
               animated={animated}
               tooltipDisabled={tooltipDisabled}
-              onSelect={handleSelect}
+              onSelect={onSelect}
             />
           )}
         </g>
