@@ -4,8 +4,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Accessibility: Wrapper div for auth pages */}
+    <div className="dark min-h-screen bg-background">
       {children}
     </div>
   );

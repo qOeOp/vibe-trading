@@ -4,6 +4,8 @@ import { TopNavBar } from "@/components/layout/top-nav-bar";
 import { LeftIconSidebar } from "@/components/layout/left-icon-sidebar";
 import { UserCapsule } from "@/components/layout/user-capsule";
 import { PageTransition } from "@/components/layout/page-transition";
+import { TopBarSlotProvider } from "@/components/layout/top-bar-slot";
+import { ChartTooltipProvider } from "@/lib/ngx-charts";
 
 export default function MainLayout({
   children,
@@ -11,23 +13,27 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-screen w-screen min-w-0 bg-mine-page-bg flex">
-      {/* 左侧：头像 + sidebar 垂直排列 */}
-      <div className="flex flex-col items-center pt-3 pb-4 px-3 gap-3 shrink-0">
-        <UserCapsule />
-        <LeftIconSidebar />
-      </div>
+    <TopBarSlotProvider>
+      <ChartTooltipProvider>
+        <div className="h-screen w-screen min-w-0 bg-mine-page-bg flex">
+          {/* Left: avatar + sidebar stacked vertically */}
+          <div className="flex flex-col items-center pt-3 pb-4 px-3 gap-3 shrink-0 min-h-0">
+            <UserCapsule />
+            <LeftIconSidebar />
+          </div>
 
-      {/* 右侧主区域 */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* 顶部导航栏 */}
-        <TopNavBar />
+          {/* Right: main area */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Top navigation bar */}
+            <TopNavBar />
 
-        {/* 主内容区 */}
-        <div className="flex-1 flex gap-4 pr-4 pb-4 overflow-hidden">
-          <PageTransition>{children}</PageTransition>
+            {/* Main content area */}
+            <div className="flex-1 flex gap-4 pr-4 pb-4 overflow-hidden">
+              <PageTransition>{children}</PageTransition>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </ChartTooltipProvider>
+    </TopBarSlotProvider>
   );
 }

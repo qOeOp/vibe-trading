@@ -66,6 +66,10 @@
 }
 
 :root {
+  /* Chart-specific font (Roboto for ngx-charts compatibility, loaded via next/font) */
+  /* Angular ngx-charts uses font-weight: 300 (light) */
+  --font-chart: var(--font-roboto), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-chart-weight: 300;
   --radius: 0.625rem;
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
@@ -346,4 +350,48 @@
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.3);
+}
+
+/* ── AG Grid Mine Theme Overrides ──────────────────────────────── */
+
+.ag-grid-mine {
+  --ag-row-height: 46px;
+}
+
+/* Value color classes (matching finance demo pattern) */
+.ag-grid-mine .ag-cell-value-up {
+  color: var(--market-up-medium);
+}
+
+.ag-grid-mine .ag-cell-value-down {
+  color: var(--market-down-medium);
+}
+
+.ag-grid-mine .ag-cell-bold {
+  font-weight: 600;
+}
+
+/* Tabular figures for numeric alignment */
+.ag-grid-mine .ag-right-aligned-cell {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Status bar styling */
+.ag-grid-mine .ag-status-bar {
+  border-top: 1px solid #e8e5e0;
+  background: #faf9f7;
+  font-size: 12px;
+  color: #8a8a8a;
+}
+
+/* Header sort indicator */
+.ag-grid-mine .ag-header-cell-label {
+  gap: 4px;
+}
+
+/* Sparkline cell padding override */
+.ag-grid-mine .ag-cell[col-id="icTrend"] {
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
