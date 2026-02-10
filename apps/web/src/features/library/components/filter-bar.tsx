@@ -15,26 +15,10 @@ interface FilterBarProps {
   onSearchChange: (v: string) => void;
 }
 
-const CATEGORIES: Array<{ value: string; label: string }> = [
-  { value: "全部", label: "全部" },
-  { value: "价值", label: "价值" },
-  { value: "质量", label: "质量" },
-  { value: "动量", label: "动量" },
-  { value: "情绪", label: "情绪" },
-  { value: "波动", label: "波动" },
-  { value: "流动性", label: "流动性" },
-  { value: "规模", label: "规模" },
-];
-
+const CATEGORIES = ["全部", "价值", "质量", "动量", "情绪", "波动", "流动性", "规模"];
 const STOCK_POOLS = ["全A", "沪深300", "中证500", "中证1000"];
 const TIME_PERIODS = ["近1年", "近3年", "近5年", "全部"];
-const STATUSES: Array<{ value: string; label: string }> = [
-  { value: "全部", label: "全部" },
-  { value: "强有效", label: "强有效" },
-  { value: "有效", label: "有效" },
-  { value: "弱", label: "弱" },
-  { value: "反向", label: "反向" },
-];
+const STATUSES = ["全部", "强有效", "有效", "弱", "反向"];
 
 function SelectFilter({
   label,
@@ -44,14 +28,9 @@ function SelectFilter({
 }: {
   label: string;
   value: string;
-  options: Array<{ value: string; label: string }> | string[];
+  options: string[];
   onChange: (v: string) => void;
 }) {
-  const opts =
-    typeof options[0] === "string"
-      ? (options as string[]).map((o) => ({ value: o, label: o }))
-      : (options as Array<{ value: string; label: string }>);
-
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-mine-muted whitespace-nowrap">{label}:</span>
@@ -60,9 +39,9 @@ function SelectFilter({
         onChange={(e) => onChange(e.target.value)}
         className="text-sm text-mine-text bg-white border border-mine-border rounded-lg px-2.5 py-1.5 outline-none focus:border-mine-nav-active transition-colors cursor-pointer"
       >
-        {opts.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
           </option>
         ))}
       </select>
@@ -109,10 +88,8 @@ export function FilterBar({
         onChange={onStatusChange}
       />
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Search */}
       <div className="relative">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-mine-muted" />
         <input
@@ -124,7 +101,6 @@ export function FilterBar({
         />
       </div>
 
-      {/* New factor button */}
       <button type="button" className="flex items-center gap-1.5 bg-market-up-medium text-white text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-market-up-medium/90 transition-colors">
         <Plus className="w-3.5 h-3.5" />
         新建因子

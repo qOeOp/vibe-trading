@@ -4,16 +4,16 @@ import { useRef, useState, useMemo, useCallback, useEffect } from "react";
 import { scaleTime, scaleLinear } from "d3-scale";
 import { area, line, curveLinear } from "d3-shape";
 import { extent, bisector } from "d3-array";
-import type { NgxAreaChartProps, AreaChartSeries, DataPoint, ViewDimensions, GradientStop } from "./types";
+import type { NgxAreaChartProps, DataPoint, ViewDimensions, GradientStop } from "./types";
 
-// Default color scheme similar to ngx-charts
 const DEFAULT_SCHEME = {
   domain: ["#5AA454", "#A10A28", "#C7B42C", "#AAAAAA", "#7aa3e5", "#a8385d", "#aae3f5"],
 };
 
-// Helper to generate unique IDs
 let idCounter = 0;
-const generateId = () => `ngx-area-${++idCounter}`;
+function generateId(): string {
+  return `ngx-area-${++idCounter}`;
+}
 
 export function NgxAreaChart({
   results,
@@ -43,7 +43,6 @@ export function NgxAreaChart({
   const [hoveredX, setHoveredX] = useState<Date | number | null>(null);
   const [activeEntries, setActiveEntries] = useState<string[]>([]);
 
-  // Responsive sizing
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
@@ -64,7 +63,6 @@ export function NgxAreaChart({
   const width = propWidth || containerSize.width;
   const height = propHeight || containerSize.height;
 
-  // Calculate margins based on axes
   const margin = useMemo(() => {
     const m = { top: 10, right: 10, bottom: 10, left: 10 };
     if (xAxis) m.bottom += 20;
@@ -81,7 +79,6 @@ export function NgxAreaChart({
     xOffset: margin.left,
   }), [width, height, margin]);
 
-  // Get all unique x values
   const xSet = useMemo(() => {
     const allX = results.flatMap((s) => s.series.map((d) => d.name));
     const unique = Array.from(new Set(allX.map((x) => (x instanceof Date ? x.getTime() : x))));
@@ -92,7 +89,6 @@ export function NgxAreaChart({
     );
   }, [results]);
 
-  // X Scale
   const xScale = useMemo(() => {
     if (!xSet.length || dims.width <= 0) return null;
     const domain = extent(xSet as (Date | number)[]) as [Date | number, Date | number];
@@ -103,7 +99,6 @@ export function NgxAreaChart({
     return scaleLinear().domain(domain as [number, number]).range([0, dims.width]);
   }, [xSet, dims.width]);
 
-  // Y Domain and Scale
   const yScale = useMemo(() => {
     if (dims.height <= 0) return null;
     const allValues = results.flatMap((s) => s.series.map((d) => d.value));
@@ -121,23 +116,20 @@ export function NgxAreaChart({
       .nice();
   }, [results, dims.height, autoScale]);
 
-  // Color helper
   const getColor = useCallback(
-    (name: string, index: number) => {
+    (index: number) => {
       return scheme.domain[index % scheme.domain.length];
     },
     [scheme]
   );
 
-  // Generate gradient stops
-  const getGradientStops = useCallback((color: string): GradientStop[] => {
+  function getGradientStops(color: string): GradientStop[] {
     return [
       { offset: 0, color, opacity: 0.7 },
       { offset: 100, color, opacity: 0.1 },
     ];
-  }, []);
+  }
 
-  // Area path generator
   const areaGenerator = useMemo(() => {
     if (!xScale || !yScale) return null;
     return area<DataPoint>()
@@ -147,7 +139,6 @@ export function NgxAreaChart({
       .curve(curve);
   }, [xScale, yScale, curve]);
 
-  // Line path generator (for stroke on top of area)
   const lineGenerator = useMemo(() => {
     if (!xScale || !yScale) return null;
     return line<DataPoint>()
@@ -156,10 +147,8 @@ export function NgxAreaChart({
       .curve(curve);
   }, [xScale, yScale, curve]);
 
-  // Tooltip bisector
   const bisect = useMemo(() => bisector<Date | number, Date | number>((d) => d).left, []);
 
-  // Find closest point on hover
   const findClosestPoint = useCallback(
     (mouseX: number) => {
       if (!xScale || !xSet.length) return null;
@@ -177,7 +166,6 @@ export function NgxAreaChart({
     [xScale, xSet, bisect]
   );
 
-  // Get values for tooltip at hovered x
   const hoveredValues = useMemo(() => {
     if (hoveredX === null) return [];
     const hoveredXNum = hoveredX instanceof Date ? hoveredX.getTime() : hoveredX;
@@ -189,12 +177,11 @@ export function NgxAreaChart({
       return {
         series: series.name,
         value: point?.value ?? 0,
-        color: getColor(series.name, i),
+        color: getColor(i),
       };
     });
   }, [hoveredX, results, getColor]);
 
-  // Mouse handlers
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<SVGRectElement>) => {
       if (tooltipDisabled) return;
@@ -210,7 +197,6 @@ export function NgxAreaChart({
     setHoveredX(null);
   }, []);
 
-  // Legend click handler
   const handleLegendClick = useCallback(
     (name: string) => {
       setActiveEntries((prev) => {
@@ -224,21 +210,17 @@ export function NgxAreaChart({
     [onSelect]
   );
 
-  // X axis ticks
   const xTicks = useMemo(() => {
     if (!xScale || dims.width <= 0) return [];
-    // Fewer ticks for cleaner appearance
     const tickCount = Math.max(2, Math.min(8, Math.floor(dims.width / 100)));
     return xScale.ticks(tickCount);
   }, [xScale, dims.width]);
 
-  // Y axis ticks
   const yTicks = useMemo(() => {
     if (!yScale || dims.height <= 0) return [];
     return yScale.ticks(5);
   }, [yScale, dims.height]);
 
-  // Format X tick
   const formatXTick = useCallback(
     (value: Date | number) => {
       if (xAxisTickFormatting) return xAxisTickFormatting(value);
@@ -250,7 +232,6 @@ export function NgxAreaChart({
     [xAxisTickFormatting]
   );
 
-  // Format Y tick
   const formatYTick = useCallback(
     (value: number) => {
       if (yAxisTickFormatting) return yAxisTickFormatting(value);
@@ -259,7 +240,6 @@ export function NgxAreaChart({
     [yAxisTickFormatting]
   );
 
-  // Generate clip path ID
   const clipPathId = useMemo(() => generateId(), []);
 
   if (width <= 0 || height <= 0 || !xScale || !yScale || !areaGenerator || !lineGenerator) {
@@ -277,7 +257,7 @@ export function NgxAreaChart({
 
           {/* Gradient definitions for each series */}
           {results.map((series, i) => {
-            const color = getColor(series.name, i);
+            const color = getColor(i);
             const gradientId = `gradient-${clipPathId}-${i}`;
             const stops = getGradientStops(color);
             return (
@@ -388,7 +368,7 @@ export function NgxAreaChart({
           <g clipPath={`url(#${clipPathId})`}>
             {/* Area series */}
             {results.map((series, i) => {
-              const color = getColor(series.name, i);
+              const color = getColor(i);
               const isActive = activeEntries.length === 0 || activeEntries.includes(series.name);
               const opacity = isActive ? 1 : 0.3;
               const sortedData = [...series.series].sort((a, b) => {
@@ -461,7 +441,7 @@ export function NgxAreaChart({
                         return xNum === hoveredXNum;
                       });
                       if (!point) return null;
-                      const color = getColor(series.name, i);
+                      const color = getColor(i);
                       return (
                         <circle
                           key={series.name}
@@ -496,7 +476,7 @@ export function NgxAreaChart({
               {legendTitle}
             </text>
             {results.map((series, i) => {
-              const color = getColor(series.name, i);
+              const color = getColor(i);
               const isActive = activeEntries.length === 0 || activeEntries.includes(series.name);
               return (
                 <g

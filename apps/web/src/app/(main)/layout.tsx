@@ -16,18 +16,14 @@ export default function MainLayout({
     <TopBarSlotProvider>
       <ChartTooltipProvider>
         <div className="h-screen w-screen min-w-0 bg-mine-page-bg flex">
-          {/* Left: avatar + sidebar stacked vertically */}
           <div className="flex flex-col items-center pt-3 pb-4 px-3 gap-3 shrink-0 min-h-0">
             <UserCapsule />
             <LeftIconSidebar />
           </div>
 
-          {/* Right: main area */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Top navigation bar */}
             <TopNavBar />
 
-            {/* Main content area */}
             <div className="flex-1 flex gap-4 pr-4 pb-4 overflow-hidden">
               <PageTransition>{children}</PageTransition>
             </div>

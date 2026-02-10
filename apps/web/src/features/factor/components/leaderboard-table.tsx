@@ -3,8 +3,6 @@
 import { cn } from "@/lib/utils";
 import type { RankedStrategy } from "../data/polar-calendar-data";
 
-/* ── Types ────────────────────────────────────────────────────── */
-
 interface LeaderboardTableProps {
   rankings: RankedStrategy[];
   hoverStrategyId: string | null;
@@ -13,7 +11,6 @@ interface LeaderboardTableProps {
   onSelectStrategy: (id: string) => void;
 }
 
-/* ── Medal display for top 3 ──────────────────────────────────── */
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return <span className="text-xs" title="1st">🥇</span>;
   if (rank === 2) return <span className="text-xs" title="2nd">🥈</span>;
@@ -24,8 +21,6 @@ function RankBadge({ rank }: { rank: number }) {
     </span>
   );
 }
-
-/* ── Component ────────────────────────────────────────────────── */
 
 export function LeaderboardTable({
   rankings,
@@ -49,7 +44,8 @@ export function LeaderboardTable({
         {rankings.map((item) => {
           const isHovered = hoverStrategyId === item.strategy.id;
           const isSelected = selectedStrategyId === item.strategy.id;
-          const dimmed = (hoverStrategyId || selectedStrategyId) && !isHovered && !isSelected;
+          const hasHighlight = hoverStrategyId != null || selectedStrategyId != null;
+          const dimmed = hasHighlight && !isHovered && !isSelected;
 
           return (
             <div

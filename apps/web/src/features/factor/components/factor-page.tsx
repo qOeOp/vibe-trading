@@ -1,27 +1,26 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { BookOpen } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { AnimateIn, AnimateHeavy } from "@/components/animation";
 import { ErrorBoundary, FeatureErrorFallback } from "@/components/error-boundary";
 import { useSetTopBarNavItems } from "@/components/layout/top-bar-slot";
+import { ChartLegendInline } from "@/components/chart-legend-inline";
+import { BandChart } from "@/lib/ngx-charts/band-chart";
 import type { TopBarNavItem } from "@/components/layout/top-bar-slot";
-import { BookOpen } from "lucide-react";
-import { cn } from "@/lib/utils";
+import type { BandTooltipInfo, RaceStrategy } from "@/lib/ngx-charts/band-chart/components";
+import type { HoldingCompositionPoint, FactorStatistics } from "../types";
 
+import { usePolarCalendar } from "../hooks/use-polar-calendar";
+import { useBandData } from "../hooks/use-band-data";
+import { getAllFactors, getFactorData } from "../data/mock-factors";
 import { PolarRing } from "./polar-ring";
 import { LeaderboardTable } from "./leaderboard-table";
-import { BandChart } from "@/lib/ngx-charts/band-chart";
-import type { BandTooltipInfo, RaceStrategy } from "@/lib/ngx-charts/band-chart/components";
-import { useBandData } from "../hooks/use-band-data";
 import { ChartCard } from "./chart-card";
 import { HoldingCompositionChart, HOLDING_COMPOSITION_LEGEND } from "./holding-composition-chart";
 import { CumulativeReturnsChart, CUMULATIVE_RETURNS_LEGEND } from "./cumulative-returns-chart";
-import { ChartLegendInline } from "@/components/chart-legend-inline";
 import { SectorPerformanceChart } from "./sector-performance-chart";
-
-import { usePolarCalendar } from "../hooks/use-polar-calendar";
-import { getAllFactors, getFactorData } from "../data/mock-factors";
-import type { HoldingCompositionPoint, FactorStatistics } from "../types";
 
 /** Evenly-spaced date labels rendered above the chart */
 function HoldingDateTicks({ data }: { data: HoldingCompositionPoint[] }) {
@@ -211,8 +210,6 @@ function FactorPageContent() {
     return polar.dataset.strategies.find((s) => s.id === polar.selectedStrategyId) ?? null;
   }, [polar.selectedStrategyId, polar.dataset.strategies]);
 
-  const handleSelectStrategy = polar.setSelectedStrategyId;
-
   if (!factorData) {
     return (
       <div className="flex-1 flex items-center justify-center text-mine-muted">
@@ -244,7 +241,7 @@ function FactorPageContent() {
                 hoverStrategyId={polar.hoverStrategyId}
                 selectedStrategyId={polar.selectedStrategyId}
                 onHoverStrategy={polar.setHoverStrategyId}
-                onSelectStrategy={handleSelectStrategy}
+                onSelectStrategy={polar.setSelectedStrategyId}
               />
             </ErrorBoundary>
           </div>

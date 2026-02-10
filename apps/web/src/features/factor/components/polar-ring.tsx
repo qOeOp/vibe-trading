@@ -3,8 +3,6 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import type { MonthSlice, Strategy } from "../data/polar-calendar-data";
 
-/* ── Types ────────────────────────────────────────────────────── */
-
 interface PolarRingProps {
   months: MonthSlice[];
   strategies: Strategy[];
@@ -18,7 +16,6 @@ interface PolarRingProps {
   onSelectMonth: (month: number | null) => void;
 }
 
-/* ── Layout constants ─────────────────────────────────────────── */
 const OUTER_RADIUS_RATIO = 0.44;
 const INNER_RADIUS_RATIO = 0.097;  // matches preview: 64 / 660 ≈ 0.097
 const RING_GAP_PX = 2;            // fixed 2px gap between rings (matches preview)
@@ -26,15 +23,12 @@ const VISUAL_PAD = 0.015;         // extra angular gap beyond cap compensation
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/* ── Colors ───────────────────────────────────────────────────── */
 const BASE_RING_BG = "#eae7e2";     // 玉盘底座
 const PILLAR_EVEN = "#f0ede8";
 const PILLAR_ODD = "#f7f5f2";
 const RING_BORDER = "#d6d3cd";
 const CENTER_BG = "#FAFAF8";
 const SELECTED_ARC_COLOR = "#6366F1";
-
-/* ── Helpers ──────────────────────────────────────────────────── */
 
 function hexRgba(hex: string, a: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -54,8 +48,6 @@ function getAngleFromCenter(x: number, y: number, cx: number, cy: number): numbe
 function dist(x: number, y: number, cx: number, cy: number): number {
   return Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
 }
-
-/* ── Merged-arc span ──────────────────────────────────────────── */
 
 interface ArcSpan {
   strategyId: string;
@@ -113,8 +105,6 @@ function buildMergedArcs(months: MonthSlice[], N: number): ArcSpan[] {
 
   return spans;
 }
-
-/* ── Component ────────────────────────────────────────────────── */
 
 export function PolarRing({
   months,
@@ -256,16 +246,15 @@ export function PolarRing({
       else alpha = 0.40;
 
       const isHighlighted = hoverStrategyId === span.strategyId || selectedStrategyId === span.strategyId;
-      if (hoverStrategyId || selectedStrategyId) {
+      const hasActiveStrategy = hoverStrategyId != null || selectedStrategyId != null;
+      if (hasActiveStrategy) {
         alpha = isHighlighted ? 1.0 : 0.10;
       }
+
       if (selectedMonth !== null) {
-        let coversSelected = false;
-        if (span.startMonth <= span.endMonth) {
-          coversSelected = selectedMonth >= span.startMonth && selectedMonth <= span.endMonth;
-        } else {
-          coversSelected = selectedMonth >= span.startMonth || selectedMonth <= span.endMonth;
-        }
+        const coversSelected = span.startMonth <= span.endMonth
+          ? selectedMonth >= span.startMonth && selectedMonth <= span.endMonth
+          : selectedMonth >= span.startMonth || selectedMonth <= span.endMonth;
         if (!coversSelected) {
           alpha *= 0.55;
         }
@@ -282,7 +271,7 @@ export function PolarRing({
       ctx.stroke();
 
       // Glow effect for highlighted arcs
-      if (isHighlighted && (hoverStrategyId || selectedStrategyId)) {
+      if (isHighlighted && hasActiveStrategy) {
         ctx.globalAlpha = 0.1;
         ctx.beginPath();
         ctx.arc(cx, cy, ringR, arcStartAngle, arcEndAngle);
@@ -335,8 +324,7 @@ export function PolarRing({
     // ── 8. Month labels (rotated along tangent) ──
     ctx.save();
     const labelR = outerR * 1.08;   // half the previous offset for tighter but breathable gap
-    const labelFontNormal = Math.round(outerR * 0.07);    // ~20px at 288
-    const labelFontSelected = labelFontNormal;             // same size — differentiated by weight + color
+    const labelFontSize = Math.round(outerR * 0.07);
     for (let m = 0; m < 12; m++) {
       const midAngle = -Math.PI / 2 + (m + 0.5) * pillarSlice;
       const lx = cx + Math.cos(midAngle) * labelR;
@@ -353,8 +341,7 @@ export function PolarRing({
       if (rot > Math.PI / 2 && rot < Math.PI * 1.5) rot += Math.PI;
       ctx.rotate(rot);
 
-      const lfs = isSelected ? labelFontSelected : labelFontNormal;
-      ctx.font = `${isSelected || isHovered ? 700 : 500} ${lfs}px Inter, system-ui, sans-serif`;
+      ctx.font = `${isSelected || isHovered ? 700 : 500} ${labelFontSize}px Inter, system-ui, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = isSelected ? SELECTED_ARC_COLOR : isHovered ? "#1c1917" : "#a8a29e";
@@ -479,7 +466,7 @@ export function PolarRing({
       onHoverStrategy(null);
       canvas.style.cursor = "default";
     }
-  }, [canvasSize, months, strategies, onHoverStrategy, hoverCenter]);
+  }, [canvasSize, months, strategies, onHoverStrategy]);
 
   const handleMouseLeave = useCallback(() => {
     setHoverMonth(null);

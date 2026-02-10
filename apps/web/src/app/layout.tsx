@@ -30,8 +30,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // 'lang="en"' is critical for accessibility to allow screen readers to correctly pronounce content.
-    // suppressHydrationWarning is required by next-themes to prevent hydration mismatch warnings.
     <html lang="en" className={roboto.variable} suppressHydrationWarning>
       <body>
         <ThemeProvider

@@ -6,30 +6,51 @@ import { MiniSparkline } from "@/features/market/components/widgets/mini-sparkli
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
+function getMarketDirection(changePercent: number): "up" | "down" | "flat" {
+  if (changePercent > 0) return "up";
+  if (changePercent < 0) return "down";
+  return "flat";
+}
+
+const MARKET_COLORS = {
+  up: "var(--market-up-medium)",
+  down: "var(--market-down-medium)",
+  flat: "var(--market-flat)",
+} as const;
+
+const BADGE_STYLES = {
+  up: "border-market-up-medium/30 text-market-up-medium bg-market-up-medium/5",
+  down: "border-market-down-medium/30 text-market-down-medium bg-market-down-medium/5",
+  flat: "border-mine-muted/30 text-mine-muted",
+} as const;
+
+const BADGE_LABELS = {
+  up: "Active",
+  down: "Declining",
+  flat: "Stable",
+} as const;
+
+const CHANGE_TEXT_STYLES = {
+  up: "text-market-up-medium",
+  down: "text-market-down-medium",
+  flat: "text-market-flat",
+} as const;
+
 function IndexCard({ index }: { index: (typeof mockIndices)[0] }) {
-  const isUp = index.changePercent > 0;
-  const color = isUp
-    ? "var(--market-up-medium)"
-    : index.changePercent < 0
-      ? "var(--market-down-medium)"
-      : "var(--market-flat)";
+  const direction = getMarketDirection(index.changePercent);
+  const color = MARKET_COLORS[direction];
 
   return (
     <div className="p-3 rounded-xl bg-white shadow-sm border border-mine-border hover:shadow-md transition-shadow cursor-pointer space-y-2">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <Badge
           variant="outline"
           className={cn(
             "text-[10px] font-medium px-1.5 py-0",
-            isUp
-              ? "border-market-up-medium/30 text-market-up-medium bg-market-up-medium/5"
-              : index.changePercent < 0
-                ? "border-market-down-medium/30 text-market-down-medium bg-market-down-medium/5"
-                : "border-mine-muted/30 text-mine-muted"
+            BADGE_STYLES[direction],
           )}
         >
-          {isUp ? "Active" : index.changePercent < 0 ? "Declining" : "Stable"}
+          {BADGE_LABELS[direction]}
         </Badge>
         <MiniSparkline
           data={index.sparklineData}
@@ -39,10 +60,8 @@ function IndexCard({ index }: { index: (typeof mockIndices)[0] }) {
         />
       </div>
 
-      {/* Index name */}
       <div className="text-xs text-mine-muted font-medium">{index.name}</div>
 
-      {/* Value + Change */}
       <div className="flex items-baseline gap-2">
         <span className="text-lg font-bold text-mine-text">
           {formatNumber(index.value)}
@@ -50,16 +69,13 @@ function IndexCard({ index }: { index: (typeof mockIndices)[0] }) {
         <span
           className={cn(
             "text-xs font-semibold",
-            isUp && "text-market-up-medium",
-            index.changePercent < 0 && "text-market-down-medium",
-            index.changePercent === 0 && "text-market-flat"
+            CHANGE_TEXT_STYLES[direction],
           )}
         >
           {formatPercent(index.changePercent)}
         </span>
       </div>
 
-      {/* Extra info */}
       <div className="flex items-center justify-between text-[10px] text-mine-muted pt-1 border-t border-mine-border/50">
         <span>Vol: {formatNumber(index.volume)}亿</span>
         <span>成交: {formatNumber(index.turnover)}亿</span>

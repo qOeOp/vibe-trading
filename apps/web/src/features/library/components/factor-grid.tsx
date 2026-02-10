@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { AgGridReact, type CustomCellRendererProps } from "ag-grid-react";
 import {
   AllCommunityModule,
@@ -14,10 +14,8 @@ import {
 } from "ag-grid-community";
 import type { LibraryFactor } from "../types";
 
-// ── Register community modules ──────────────────────────────────
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-// ── Custom Mine Theme ───────────────────────────────────────────
 const mineGridTheme = themeQuartz.withParams({
   accentColor: "#2d2d2d",
   backgroundColor: "#ffffff",
@@ -40,8 +38,6 @@ const mineGridTheme = themeQuartz.withParams({
   cellHorizontalPadding: 16,
   columnBorder: false,
 });
-
-// ── React Cell Renderers ────────────────────────────────────────
 
 const CATEGORY_COLORS: Record<string, string> = {
   "价值": "#3b82f6",
@@ -128,8 +124,6 @@ function SparklineCellRenderer({ data }: CustomCellRendererProps<LibraryFactor>)
   );
 }
 
-// ── Value Formatters ────────────────────────────────────────────
-
 function icFormatter(params: ValueFormatterParams): string {
   if (params.value == null) return "";
   const v = params.value as number;
@@ -151,19 +145,13 @@ function drawdownFormatter(params: ValueFormatterParams): string {
   return `${(params.value as number).toFixed(1)}%`;
 }
 
-// Suppress ag-grid "object" cellDataType warning for icTrend (number[])
-function sparklineValueFormatter(): string {
-  return "";
-}
-
-// ── Cell Class Helpers ──────────────────────────────────────────
+const EMPTY_VALUE_FORMATTER = (): string => "";
 
 function icCellClass(params: CellClassParams): string {
   if (params.value == null) return "";
   return (params.value as number) >= 0 ? "ag-cell-value-up" : "ag-cell-value-down";
 }
 
-/** Shared cell class for ICIR and Sharpe columns (same threshold logic) */
 function ratioCellClass(params: CellClassParams): string {
   if (params.value == null) return "";
   const v = params.value as number;
@@ -172,19 +160,13 @@ function ratioCellClass(params: CellClassParams): string {
   return "ag-cell-value-down";
 }
 
-function drawdownCellClass(): string {
-  return "ag-cell-value-down";
-}
-
-// ── Grid Component ──────────────────────────────────────────────
+const DRAWDOWN_CELL_CLASS = "ag-cell-value-down";
 
 interface FactorGridProps {
   factors: LibraryFactor[];
 }
 
 export function FactorGrid({ factors }: FactorGridProps) {
-  const gridRef = useRef<AgGridReact>(null);
-
   const defaultColDef = useMemo<ColDef>(
     () => ({
       flex: 1,
@@ -272,7 +254,7 @@ export function FactorGrid({ factors }: FactorGridProps) {
         field: "maxDrawdown",
         cellDataType: "number",
         valueFormatter: drawdownFormatter,
-        cellClass: drawdownCellClass,
+        cellClass: DRAWDOWN_CELL_CLASS,
         type: "rightAligned",
         minWidth: 100,
         maxWidth: 110,
@@ -291,7 +273,7 @@ export function FactorGrid({ factors }: FactorGridProps) {
         headerName: "IC趋势",
         field: "icTrend",
         cellRenderer: SparklineCellRenderer,
-        valueFormatter: sparklineValueFormatter,
+        valueFormatter: EMPTY_VALUE_FORMATTER,
         sortable: false,
         filter: false,
         minWidth: 140,
@@ -313,7 +295,6 @@ export function FactorGrid({ factors }: FactorGridProps) {
   return (
     <div className="ag-grid-mine" style={{ width: "100%" }}>
       <AgGridReact<LibraryFactor>
-        ref={gridRef}
         theme={mineGridTheme}
         rowData={factors}
         columnDefs={columnDefs}

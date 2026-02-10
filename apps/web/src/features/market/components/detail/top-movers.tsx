@@ -6,8 +6,6 @@ import { formatPercent, formatFlow } from "../../utils/formatters";
 import { cn } from "@/lib/utils";
 import { SectionHeader } from "../shared/section-header";
 
-// ============ Sub Components ============
-
 interface MoverRowProps {
   name: string;
   rank: number;
@@ -36,11 +34,9 @@ const MoverRow = memo(function MoverRow({
         <span
           className={cn(
             "text-xs font-semibold w-16 text-right tabular-nums",
-            variant === "gainer"
-              ? "text-market-up-medium"
-              : changePercent < 0
-                ? "text-market-down-medium"
-                : "text-market-flat"
+            variant === "gainer" && "text-market-up-medium",
+            variant !== "gainer" && changePercent < 0 && "text-market-down-medium",
+            variant !== "gainer" && changePercent >= 0 && "text-market-flat"
           )}
         >
           {formatPercent(changePercent)}
@@ -49,8 +45,6 @@ const MoverRow = memo(function MoverRow({
     </div>
   );
 });
-
-// ============ Main Component ============
 
 export const TopMovers = memo(function TopMovers() {
   const { gainers, losers } = useMemo(() => {
@@ -67,7 +61,6 @@ export const TopMovers = memo(function TopMovers() {
     <div className="space-y-3">
       <SectionHeader title="涨跌排行" />
 
-      {/* Gainers */}
       <div className="space-y-1">
         <div className="text-[10px] text-market-up-medium font-medium mb-1">
           涨幅前5
@@ -84,7 +77,6 @@ export const TopMovers = memo(function TopMovers() {
         ))}
       </div>
 
-      {/* Losers */}
       <div className="space-y-1">
         <div className="text-[10px] text-market-down-medium font-medium mb-1">
           跌幅前5

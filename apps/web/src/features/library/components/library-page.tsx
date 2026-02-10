@@ -12,20 +12,17 @@ import { SummaryCards } from "./summary-cards";
 import { FactorGrid } from "./factor-grid";
 import { CorrelationMatrix, EffectivenessDistribution } from "./bottom-panels";
 import { getLibraryFactors, getLibrarySummary } from "../data/mock-library";
-import type { LibraryFactor } from "../types";
 
 const LIBRARY_NAV_ITEMS: TopBarNavItem[] = [
   { id: "library", label: "Library", icon: BookOpen, afterId: "market", href: "/factor/library" },
 ];
 
 function LibraryPageContent() {
-  // Inject "Library" tab into the top bar nav
   useSetTopBarNavItems(LIBRARY_NAV_ITEMS);
 
   const allFactors = useMemo(() => getLibraryFactors(), []);
   const summary = useMemo(() => getLibrarySummary(allFactors), [allFactors]);
 
-  // Filters
   const [category, setCategory] = useState("全部");
   const [stockPool, setStockPool] = useState("全A");
   const [timePeriod, setTimePeriod] = useState("近3年");
@@ -53,7 +50,6 @@ function LibraryPageContent() {
 
   return (
     <AnimateHeavy delay={0.1} className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-thin pr-2">
-      {/* Filter bar */}
       <div className="bg-white shadow-sm border border-mine-border rounded-xl px-4 py-3">
         <FilterBar
           category={category}
@@ -69,10 +65,8 @@ function LibraryPageContent() {
         />
       </div>
 
-      {/* Summary cards */}
       <SummaryCards summary={summary} />
 
-      {/* Factor overview table header */}
       <div className="bg-white shadow-sm border border-mine-border rounded-xl overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-mine-border/50">
           <div className="flex items-center gap-2">
@@ -91,7 +85,6 @@ function LibraryPageContent() {
           </div>
         </div>
 
-        {/* AG Grid table */}
         <ErrorBoundary
           fallback={(error) => (
             <FeatureErrorFallback error={error} featureName="Factor Grid" />
@@ -101,7 +94,6 @@ function LibraryPageContent() {
         </ErrorBoundary>
       </div>
 
-      {/* Bottom panels */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-2">
         <ErrorBoundary
           fallback={(error) => (

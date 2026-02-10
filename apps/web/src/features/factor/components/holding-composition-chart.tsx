@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import { curveLinear } from "d3-shape";
 import { AreaChartStacked, type MultiSeries, ScaleType } from "@/lib/ngx-charts";
-import type { HoldingCompositionPoint } from "../types";
 import { HOLDING_SECTORS, SECTOR_COLOR_MAP } from "../types";
+import type { HoldingCompositionPoint } from "../types";
 
 const SECTOR_COLORS: Array<{ name: string; value: string }> = HOLDING_SECTORS.map(
   (name) => ({ name, value: SECTOR_COLOR_MAP[name] ?? "#76808E" }),
@@ -21,15 +21,16 @@ interface HoldingCompositionChartProps {
 }
 
 export function HoldingCompositionChart({ data, activeEntries = [] }: HoldingCompositionChartProps) {
-  const chartData: MultiSeries = useMemo(() => {
-    return HOLDING_SECTORS.map((sector) => ({
+  const chartData: MultiSeries = useMemo(
+    () => HOLDING_SECTORS.map((sector) => ({
       name: sector,
       series: data.map((d) => ({
         name: new Date(d.date),
         value: d[sector],
       })),
-    }));
-  }, [data]);
+    })),
+    [data],
+  );
 
   return (
     <AreaChartStacked

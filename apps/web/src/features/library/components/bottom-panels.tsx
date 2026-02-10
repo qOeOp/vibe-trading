@@ -3,13 +3,10 @@
 import { useMemo } from "react";
 import type { LibraryFactor } from "../types";
 
-/* ── Correlation Matrix ──────────────────────────────────────── */
-
 interface CorrelationMatrixProps {
   factors: LibraryFactor[];
 }
 
-/** Generate a symmetric correlation matrix from factor names */
 function generateCorrelationMatrix(names: string[]): number[][] {
   const n = names.length;
   const matrix: number[][] = Array.from({ length: n }, () =>
@@ -39,11 +36,11 @@ function getCorrelationColor(value: number): string {
 }
 
 export function CorrelationMatrix({ factors }: CorrelationMatrixProps) {
-  const topFactors = factors.slice(0, 8);
-  const names = topFactors.map((f) => f.name);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- stable when name list is the same
-  const nameKey = names.join(",");
-  const matrix = useMemo(() => generateCorrelationMatrix(names), [nameKey]);
+  const nameKey = factors.slice(0, 8).map((f) => f.name).join(",");
+  const { names, matrix } = useMemo(() => {
+    const n = nameKey.split(",");
+    return { names: n, matrix: generateCorrelationMatrix(n) };
+  }, [nameKey]);
 
   return (
     <div className="bg-white shadow-sm border border-mine-border rounded-xl p-4 flex flex-col">
@@ -95,8 +92,6 @@ export function CorrelationMatrix({ factors }: CorrelationMatrixProps) {
     </div>
   );
 }
-
-/* ── Effectiveness Distribution ──────────────────────────────── */
 
 interface EffectivenessDistProps {
   factors: LibraryFactor[];

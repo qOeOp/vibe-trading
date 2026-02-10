@@ -10,30 +10,19 @@ interface AnimateInProps {
   children: ReactNode;
   /** Delay index for staggered animations (0 = first, 1 = second, etc.) */
   delay?: number;
-  /** Base delay in seconds before starting */
   baseDelay?: number;
-  /** Stagger interval in seconds between each item */
   staggerInterval?: number;
-  /** Direction the element animates from */
   from?: AnimationDirection;
-  /** Distance to animate in pixels */
   distance?: number;
-  /** Animation duration in seconds */
   duration?: number;
-  /** Additional className */
   className?: string;
-  /** Inline styles */
   style?: CSSProperties;
-  /** Whether to show skeleton placeholder during delay */
-  showSkeleton?: boolean;
-  /** Custom skeleton className */
-  skeletonClassName?: string;
 }
 
-const getInitialPosition = (
+function getInitialPosition(
   from: AnimationDirection,
   distance: number
-): { x: number; y: number } => {
+): { x: number; y: number } {
   switch (from) {
     case "up":
       return { x: 0, y: distance };
@@ -47,7 +36,7 @@ const getInitialPosition = (
     default:
       return { x: 0, y: 0 };
   }
-};
+}
 
 export function AnimateIn({
   children,
@@ -82,7 +71,7 @@ export function AnimateIn({
   const transition: Transition = {
     duration,
     delay: calculatedDelay,
-    ease: [0.25, 0.1, 0.25, 1], // Custom ease-out curve
+    ease: [0.25, 0.1, 0.25, 1],
   };
 
   return (
@@ -100,19 +89,11 @@ export function AnimateIn({
   );
 }
 
-/**
- * Heavy component wrapper - for components like TradingView that need extra load time
- * Has longer delay and different animation style
- */
 interface AnimateHeavyProps {
   children: ReactNode;
-  /** Delay in seconds before showing */
   delay?: number;
-  /** Animation duration */
   duration?: number;
-  /** Additional className */
   className?: string;
-  /** Inline styles */
   style?: CSSProperties;
 }
 

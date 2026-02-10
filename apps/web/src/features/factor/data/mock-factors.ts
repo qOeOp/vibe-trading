@@ -1,8 +1,6 @@
-/**
- * Mock Factor Data
- * Simulates Alphalens-style factor analysis results
- */
-
+import {
+  HOLDING_SECTORS,
+} from "../types";
 import type {
   FactorInfo,
   FactorData,
@@ -11,14 +9,8 @@ import type {
   FactorStatistics,
   HoldingCompositionPoint,
 } from "../types";
-import { HOLDING_SECTORS } from "../types";
 
-// ============ Seeded Random for SSR Consistency ============
-
-/**
- * Simple seeded random number generator (mulberry32)
- * Ensures consistent values between server and client renders
- */
+/** Seeded PRNG (mulberry32) for SSR-consistent data */
 function createSeededRandom(seed: number) {
   return function() {
     let t = seed += 0x6D2B79F5;
@@ -28,14 +20,11 @@ function createSeededRandom(seed: number) {
   };
 }
 
-// Global seeded random instance - reset per factor for consistency
 let seededRandom = createSeededRandom(12345);
 
 function resetSeed(seed: number) {
   seededRandom = createSeededRandom(seed);
 }
-
-// ============ Factor List ============
 
 export const FACTORS: FactorInfo[] = [
   {
@@ -104,8 +93,6 @@ export const FACTORS: FactorInfo[] = [
     quantiles: 5,
   },
 ];
-
-// ============ Data Generation Helpers ============
 
 function generateDateRange(days: number): string[] {
   const dates: string[] = [];
@@ -183,7 +170,6 @@ function generateStatistics(factor: FactorInfo): FactorStatistics {
 }
 
 function generateHoldingComposition(days: number, stepDays: number = 7): HoldingCompositionPoint[] {
-  // Generate dates at weekly intervals over the given timespan
   const dates: string[] = [];
   const today = new Date();
   for (let i = days - 1; i >= 0; i -= stepDays) {
@@ -195,19 +181,15 @@ function generateHoldingComposition(days: number, stepDays: number = 7): Holding
   const points: HoldingCompositionPoint[] = [];
   const sectorCount = HOLDING_SECTORS.length;
 
-  // Start with only 2-3 active sectors, others at zero
   let weights = [0, 0, 35, 0, 0, 65, 0];
 
   for (let t = 0; t < dates.length; t++) {
-    // Occasionally a dormant sector enters or an active sector exits
     for (let s = 0; s < sectorCount; s++) {
       if (weights[s] === 0) {
-        // ~20% chance per step for a zero-weight sector to appear
         if (seededRandom() < 0.2) {
           weights[s] = 3 + seededRandom() * 8;
         }
       } else {
-        // ~8% chance for a small sector to drop out entirely
         if (weights[s] < 5 && seededRandom() < 0.08) {
           weights[s] = 0;
           continue;
@@ -220,13 +202,11 @@ function generateHoldingComposition(days: number, stepDays: number = 7): Holding
       }
     }
 
-    // Normalize to sum to 100
     const total = weights.reduce((a, b) => a + b, 0);
     const normalized = total > 0
       ? weights.map((w) => Number(((w / total) * 100).toFixed(1)))
       : weights.map(() => Number((100 / sectorCount).toFixed(1)));
 
-    // Zero out tiny normalized values (< 1%) to keep chart clean
     for (let s = 0; s < sectorCount; s++) {
       if (normalized[s] < 1) {
         normalized[s] = 0;
@@ -234,7 +214,6 @@ function generateHoldingComposition(days: number, stepDays: number = 7): Holding
       }
     }
 
-    // Re-normalize after zeroing
     const sum2 = normalized.reduce((a, b) => a + b, 0);
     if (sum2 > 0 && Math.abs(sum2 - 100) > 0.01) {
       const scale = 100 / sum2;
@@ -242,7 +221,6 @@ function generateHoldingComposition(days: number, stepDays: number = 7): Holding
         normalized[s] = Number((normalized[s] * scale).toFixed(1));
       }
     }
-    // Fix rounding on last non-zero element
     const sumNorm = normalized.reduce((a, b) => a + b, 0);
     const lastNonZero = normalized.findLastIndex((v) => v > 0);
     if (lastNonZero >= 0) {
@@ -264,15 +242,12 @@ function generateHoldingComposition(days: number, stepDays: number = 7): Holding
   return points;
 }
 
-// ============ Factory Function ============
-
-// Simple hash function to convert factor ID to a seed number
 function hashString(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
+    hash = hash & hash;
   }
   return Math.abs(hash);
 }
@@ -281,7 +256,6 @@ export function getFactorData(factorId: string): FactorData | null {
   const factor = FACTORS.find((f) => f.id === factorId);
   if (!factor) return null;
 
-  // Reset seed based on factor ID for consistent data generation
   resetSeed(hashString(factorId));
 
   return {

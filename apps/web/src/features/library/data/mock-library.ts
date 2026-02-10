@@ -1,6 +1,5 @@
 import type { LibraryFactor, LibrarySummary, FactorStatus } from "../types";
 
-/** Seeded PRNG (mulberry32) for SSR-consistent sparklines */
 function createSeededRandom(seed: number) {
   return function () {
     let t = (seed += 0x6d2b79f5);
@@ -10,14 +9,20 @@ function createSeededRandom(seed: number) {
   };
 }
 
-/** Generate a deterministic sparkline array */
+function getTrendDrift(trend: "up" | "down" | "flat"): number {
+  switch (trend) {
+    case "up": return 0.3;
+    case "down": return -0.3;
+    case "flat": return 0;
+  }
+}
+
 function generateSparkline(length: number, trend: "up" | "down" | "flat", seed: number): number[] {
   const rand = createSeededRandom(seed);
+  const drift = getTrendDrift(trend);
   const data: number[] = [];
   let value = 50 + rand() * 20;
   for (let i = 0; i < length; i++) {
-    const drift =
-      trend === "up" ? 0.3 : trend === "down" ? -0.3 : 0;
     value += drift + (rand() - 0.5) * 8;
     value = Math.max(10, Math.min(90, value));
     data.push(Math.round(value * 100) / 100);
@@ -78,4 +83,3 @@ export function getLibrarySummary(factors: LibraryFactor[]): LibrarySummary {
     newThisMonth: 3,
   };
 }
-

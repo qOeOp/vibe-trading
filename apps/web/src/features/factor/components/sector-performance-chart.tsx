@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useMemo, useCallback } from "react";
 import * as d3 from "d3";
-import type { SectorBreakdown, HoldingSector } from "../types";
 import { SECTOR_COLOR_MAP } from "../types";
+import type { SectorBreakdown, HoldingSector } from "../types";
 
 interface SectorPerformanceChartProps {
   data: SectorBreakdown[];
@@ -15,9 +15,8 @@ const COLORS = {
   tooltipBg: "rgba(30, 30, 30, 0.95)",
 };
 
-// Margins: right margin for value labels; left margin is computed dynamically
-const LABEL_GAP = 10; // gap between label text and bar
-const HEADER_PAD = 12; // matches ChartCard header px-3
+const LABEL_GAP = 10;
+const HEADER_PAD = 12;
 const baseMargin = { top: 8, right: 48, bottom: 8 };
 
 function getSectorColor(sector: string): string {

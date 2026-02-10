@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, CSSProperties, useRef, useEffect, useState } from "react";
+import { memo, useMemo, useRef, useEffect, useState, type CSSProperties } from "react";
 import type { TreemapNode } from "../../types";
 import { getTileColor } from "../../utils/treemap-colors";
 import { formatPercent, formatFlow } from "../../utils/formatters";
@@ -11,8 +11,6 @@ import {
   type CandleData,
 } from "./candlestick-sparkline";
 import { cn } from "@/lib/utils";
-
-// ============ Types ============
 
 interface HeatMapTileProps {
   node: TreemapNode;
@@ -30,8 +28,6 @@ interface HeatMapTileProps {
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }
-
-// ============ Component ============
 
 export const HeatMapTile = memo(function HeatMapTile({
   node,
@@ -52,27 +48,23 @@ export const HeatMapTile = memo(function HeatMapTile({
   const sparklineRef = useRef<HTMLDivElement>(null);
   const [sparklineDimensions, setSparklineDimensions] = useState({ width: 0, height: 0 });
 
-  // Calculate adaptive styles based on dimensions
   const styles = useMemo(
     () => getAdaptiveStyles(width, height, node.name, maxArea, minArea),
     [width, height, node.name, maxArea, minArea]
   );
 
-  // Generate candlestick data (memoized per node)
-  const candleData = useMemo<CandleData[]>(() => {
-    return generateMockCandles(node.changePercent, 60);
-  }, [node.changePercent]);
+  const candleData = useMemo<CandleData[]>(
+    () => generateMockCandles(node.changePercent, 60),
+    [node.changePercent],
+  );
 
-  // Border radius based on container position (Binance-style)
   const borderRadius = useMemo(
     () => getBorderRadius(x, y, width, height, containerWidth, containerHeight),
     [x, y, width, height, containerWidth, containerHeight]
   );
 
-  // Background color
   const bgColor = getTileColor(node.changePercent);
 
-  // Measure sparkline container
   useEffect(() => {
     if (!sparklineRef.current || !showSparkline) return;
 
@@ -90,12 +82,8 @@ export const HeatMapTile = memo(function HeatMapTile({
     return () => observer.disconnect();
   }, [showSparkline]);
 
-  // Format value text
-  const flowSign = node.capitalFlow > 0 ? "+" : "";
-  const fullValueText = `${flowSign}${node.capitalFlow}亿`;
-  const changeSign = node.changePercent > 0 ? "+" : "";
+  const fullValueText = formatFlow(node.capitalFlow);
 
-  // Dynamic styles only - static styles are in globals.css .tile class
   const tileStyle: CSSProperties = {
     left: x,
     top: y,
@@ -106,7 +94,6 @@ export const HeatMapTile = memo(function HeatMapTile({
     zIndex: isHovered ? 10 : 1,
   };
 
-  // CSS variables for adaptive sizing
   const contentStyle: CSSProperties = {
     "--tile-pad": `${styles.pad.toFixed(1)}px`,
     "--tile-name-size": `${styles.nameSize.toFixed(1)}px`,
@@ -143,13 +130,11 @@ export const HeatMapTile = memo(function HeatMapTile({
       )}
     >
       <div className="tile-content" style={contentStyle}>
-        {/* Header row: name (left) + value (right) */}
         <div className="tile-header">
           <div className="tile-name">{node.name}</div>
           <span className="tile-value">{fullValueText}</span>
         </div>
 
-        {/* Sparkline frame (middle area, edge-to-edge horizontal) */}
         <div
           ref={sparklineRef}
           className="tile-sparkline"
@@ -164,16 +149,13 @@ export const HeatMapTile = memo(function HeatMapTile({
           )}
         </div>
 
-        {/* Badge: bottom-right in flex flow */}
         <span className="tile-badge">
-          {changeSign}{node.changePercent}%
+          {formatPercent(node.changePercent)}
         </span>
       </div>
     </div>
   );
 });
-
-// ============ Skeleton Tile ============
 
 interface SkeletonTileProps {
   x: number;

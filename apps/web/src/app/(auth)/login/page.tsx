@@ -7,8 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
-  return (
-    // Accessibility: The AuthPage component contains its own <main> and <h1> landmark.
-    <AuthPage />
-  );
+  return <AuthPage />;
 }

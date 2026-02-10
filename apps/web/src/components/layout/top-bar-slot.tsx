@@ -41,7 +41,7 @@ export function TopBarSlotProvider({ children }: { children: ReactNode }) {
 }
 
 /** Read extra nav items (used by TopNavBar) */
-export function useTopBarExtraNavItems() {
+export function useTopBarExtraNavItems(): TopBarNavItem[] {
   return useContext(TopBarSlotContext).extraNavItems;
 }
 
@@ -49,11 +49,10 @@ export function useTopBarExtraNavItems() {
  * Inject extra nav items into the top bar. Cleans up on unmount.
  * Pages use this to add route-specific tabs to the shared nav pill.
  */
-export function useSetTopBarNavItems(items: TopBarNavItem[]) {
+export function useSetTopBarNavItems(items: TopBarNavItem[]): void {
   const { setExtraNavItems } = useContext(TopBarSlotContext);
   const prevRef = useRef<TopBarNavItem[]>([]);
 
-  // Shallow compare by id to keep stable reference and avoid infinite re-render
   const changed =
     items.length !== prevRef.current.length ||
     items.some((item, i) => item.id !== prevRef.current[i]?.id);

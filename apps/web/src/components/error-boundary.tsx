@@ -34,7 +34,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   render() {
     if (this.state.hasError && this.state.error) {
-      // Custom fallback provided
       if (this.props.fallback) {
         if (typeof this.props.fallback === 'function') {
           return this.props.fallback(this.state.error);
@@ -42,7 +41,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         return this.props.fallback;
       }
 
-      // Default fallback UI
       return (
         <div className="flex min-h-screen items-center justify-center p-4 bg-background">
           <div className="text-center space-y-4 max-w-md">
@@ -52,7 +50,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 We encountered an unexpected error. Please refresh the page to try again.
               </p>
             </div>
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {process.env.NODE_ENV === 'development' && (
               <details className="text-left mt-4 p-4 bg-muted rounded-lg">
                 <summary className="cursor-pointer font-medium text-sm">
                   Error Details (Development Only)
@@ -87,7 +85,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 }
 
-// Compact error fallback for feature-level boundaries
 export function FeatureErrorFallback({
   error,
   featureName,

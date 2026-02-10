@@ -6,21 +6,17 @@ import { formatNumber, formatPercent } from "../utils/formatters";
 import { MiniSparkline } from "./widgets/mini-sparkline";
 import { cn } from "@/lib/utils";
 
-// ============ Types ============
-
 interface IndexCardProps {
   index: (typeof mockIndices)[0];
 }
 
-// ============ Sub Components ============
-
 const IndexCard = memo(function IndexCard({ index }: IndexCardProps) {
   const isUp = index.changePercent > 0;
-  const color = isUp
-    ? "var(--market-up-medium)"
-    : index.changePercent < 0
-      ? "var(--market-down-medium)"
-      : "var(--market-flat)";
+  const isDown = index.changePercent < 0;
+
+  let color = "var(--market-flat)";
+  if (isUp) color = "var(--market-up-medium)";
+  else if (isDown) color = "var(--market-down-medium)";
 
   return (
     <div
@@ -67,8 +63,6 @@ const IndexCard = memo(function IndexCard({ index }: IndexCardProps) {
     </div>
   );
 });
-
-// ============ Main Component ============
 
 export const MarketIndexSidebar = memo(function MarketIndexSidebar() {
   return (
