@@ -117,12 +117,10 @@ export function Sankey({
   const [activeLink, setActiveLink] = useState<LinkPath | null>(null);
   const [activeNode, setActiveNode] = useState<RectItem | null>(null);
 
-  // Stable ID base for gradients (SSR-safe)
   const gradientIdBase = useStableId('grad');
 
   const margin = [10, 10, 10, 10];
 
-  // Calculate view dimensions
   const dims: ViewDimensions = useMemo(() => {
     return calculateViewDimensions({
       width,
@@ -131,7 +129,6 @@ export function Sankey({
     });
   }, [width, height]);
 
-  // Build node definitions from links
   const nodeDefs = useMemo(() => {
     if (!data || data.length === 0) return [];
 
@@ -142,12 +139,10 @@ export function Sankey({
     }));
   }, [data]);
 
-  // Get domain for colors
   const domain = useMemo(() => {
     return nodeDefs.map((n) => n.name);
   }, [nodeDefs]);
 
-  // Create color helper
   const colorHelper = useMemo(() => {
     return new ColorHelper({
       scheme: colorScheme,
@@ -157,10 +152,9 @@ export function Sankey({
     });
   }, [colorScheme, domain, customColors]);
 
-  // Generate sankey layout
-  const { nodeRects, linkPaths, nodeLayerMap } = useMemo(() => {
+  const { nodeRects, linkPaths } = useMemo(() => {
     if (!data || data.length === 0 || dims.width <= 0 || dims.height <= 0) {
-      return { nodeRects: [], linkPaths: [], nodeLayerMap: new Map() };
+      return { nodeRects: [], linkPaths: [] };
     }
 
     const sankeyGenerator = sankey<any, any>()
@@ -178,7 +172,6 @@ export function Sankey({
       links: data.map((d) => ({ ...d })),
     });
 
-    // Build node rects
     const rects: RectItem[] = sankeyData.nodes.map((node: any) => {
       const label = labelFormatting ? labelFormatting(node.name) : node.name;
       return {
@@ -198,7 +191,6 @@ export function Sankey({
       };
     });
 
-    // Build link paths
     const links: LinkPath[] = sankeyData.links.map((link: any, index: number) => {
       const gradientId = `${gradientIdBase}-${index}`;
       return {
@@ -216,35 +208,10 @@ export function Sankey({
       };
     });
 
-    // Build layer map
-    const layerMap = new Map<number, any[]>();
-    sankeyData.nodes.forEach((node: any) => {
-      if (!layerMap.has(node.layer)) {
-        layerMap.set(node.layer, []);
-      }
-      layerMap.get(node.layer)!.push(node);
-    });
-
-    return { nodeRects: rects, linkPaths: links, nodeLayerMap: layerMap };
+    return { nodeRects: rects, linkPaths: links };
   }, [data, dims, nodeDefs, colorHelper, labelFormatting, truncateLabels, gradientIdBase]);
 
-  // Check if any element is active
   const hasActive = activeLink !== null || activeNode !== null;
-
-  // Event handlers
-  const handleLinkClick = useCallback(
-    (link: LinkPath) => {
-      onSelect?.(link.data);
-    },
-    [onSelect]
-  );
-
-  const handleNodeClick = useCallback(
-    (rect: RectItem) => {
-      onSelect?.(rect.data);
-    },
-    [onSelect]
-  );
 
   const handleLinkEnter = useCallback(
     (link: LinkPath) => {
@@ -280,7 +247,6 @@ export function Sankey({
     [onDeactivate]
   );
 
-  // Determine if a node is active
   const isNodeActive = useCallback(
     (rect: RectItem) => {
       if (activeNode?.data.name === rect.data.name) return true;
@@ -294,7 +260,6 @@ export function Sankey({
     [activeNode, activeLink]
   );
 
-  // Determine if a link is active
   const isLinkActive = useCallback(
     (link: LinkPath) => {
       if (activeLink?.id === link.id) return true;
@@ -343,7 +308,7 @@ export function Sankey({
                   strokeOpacity={active ? 0.5 : hasActive ? 0.1 : 0.5}
                   fill="none"
                   style={{ cursor: 'pointer' }}
-                  onClick={() => handleLinkClick(link)}
+                  onClick={() => onSelect?.(link.data)}
                   onMouseEnter={() => handleLinkEnter(link)}
                   onMouseLeave={() => handleLinkLeave(link)}
                 >
@@ -366,7 +331,7 @@ export function Sankey({
                   fill={rect.fill}
                   fillOpacity={active ? 1 : hasActive ? 0.3 : 1}
                   style={{ cursor: 'pointer' }}
-                  onClick={() => handleNodeClick(rect)}
+                  onClick={() => onSelect?.(rect.data)}
                   onMouseEnter={() => handleNodeEnter(rect)}
                   onMouseLeave={() => handleNodeLeave(rect)}
                 >

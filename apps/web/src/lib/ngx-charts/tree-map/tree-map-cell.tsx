@@ -17,8 +17,8 @@
 
 import { useMemo, useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
-import { DataItem, Gradient, BarOrientation } from '../types';
-import { trimLabel } from '../utils';
+import { DataItem, Gradient } from '../types';
+import { trimLabel, escapeLabel } from '../utils';
 import { SvgLinearGradient } from '../common/gradients';
 
 export interface TreeMapCellProps {
@@ -55,17 +55,6 @@ function invertColor(hex: string): string {
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
   return luminance > 0.5 ? '#000' : '#fff';
-}
-
-/**
- * Escapes HTML entities in a string
- */
-function escapeLabel(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 export function TreeMapCell({
