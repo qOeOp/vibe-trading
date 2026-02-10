@@ -7,15 +7,11 @@ import { cn } from "@/lib/utils";
 import { API } from "../../constants";
 import { SectionHeader } from "../shared/section-header";
 
-// ============ Constants ============
-
 const RANK_STYLES = [
   "bg-market-up-medium text-white",
   "bg-market-up-light text-white",
   "bg-mine-muted/30 text-mine-muted",
 ] as const;
-
-// ============ Sub Components ============
 
 interface ConceptTagProps {
   concept: ConceptData;
@@ -78,7 +74,9 @@ const ConceptRow = memo(function ConceptRow({ concept, rank, onClick }: ConceptR
         <span
           className={cn(
             "text-xs font-semibold w-14 text-right tabular-nums",
-            changePercent > 0 ? "text-market-up-medium" : changePercent < 0 ? "text-market-down-medium" : "text-market-flat"
+            changePercent > 0 && "text-market-up-medium",
+            changePercent < 0 && "text-market-down-medium",
+            !(changePercent > 0) && !(changePercent < 0) && "text-market-flat"
           )}
         >
           {formatPercent(changePercent)}
@@ -88,8 +86,6 @@ const ConceptRow = memo(function ConceptRow({ concept, rank, onClick }: ConceptR
   );
 });
 
-// ============ Main Component ============
-
 export const HotConcepts = memo(function HotConcepts() {
   const concepts = useMemo(() => getTopGainers(API.conceptsLimit), []);
 
@@ -97,14 +93,12 @@ export const HotConcepts = memo(function HotConcepts() {
     <div className="space-y-3">
       <SectionHeader title="热门概念" showMore />
 
-      {/* Concept Tags */}
       <div className="flex flex-wrap gap-2">
         {concepts.map((c) => (
           <ConceptTag key={c.name} concept={c} />
         ))}
       </div>
 
-      {/* Top 3 Details */}
       <div className="space-y-1.5 pt-1">
         {concepts.slice(0, 3).map((c, i) => (
           <ConceptRow key={c.name} concept={c} rank={i} />

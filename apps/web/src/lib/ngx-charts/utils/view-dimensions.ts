@@ -127,3 +127,45 @@ export const AXES_MARGINS: Margin = {
   bottom: 40,
   left: 60,
 };
+
+/**
+ * Reduces ticks to max number while maintaining even distribution
+ */
+export function reduceTicks(ticks: any[], maxTicks: number): any[] {
+  if (ticks.length <= maxTicks) {
+    return ticks;
+  }
+
+  const reduced: any[] = [];
+  const step = Math.floor(ticks.length / maxTicks);
+
+  for (let i = 0; i < ticks.length; i += step) {
+    reduced.push(ticks[i]);
+  }
+
+  return reduced;
+}
+
+/**
+ * Determines the scale type from an array of domain values.
+ * Inspects whether all values are Dates, numbers, or mixed (ordinal).
+ */
+export function getScaleType(values: unknown[]): ScaleType {
+  if (values.length === 0) return ScaleType.Ordinal;
+
+  let date = true;
+  let num = true;
+
+  for (const value of values) {
+    if (!(value instanceof Date)) {
+      date = false;
+    }
+    if (typeof value !== 'number') {
+      num = false;
+    }
+  }
+
+  if (date) return ScaleType.Time;
+  if (num) return ScaleType.Linear;
+  return ScaleType.Ordinal;
+}

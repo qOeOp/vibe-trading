@@ -18,6 +18,7 @@
 import {
   useRef,
   useEffect,
+  useMemo,
   useState,
   useCallback,
   forwardRef,
@@ -26,7 +27,7 @@ import {
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { ColorScheme, ScaleType, ViewDimensions } from '../types';
+import { ColorScheme, ScaleType } from '../types';
 import { ColorHelper } from '../utils';
 import { ChartTooltipProvider } from './tooltip';
 
@@ -90,7 +91,6 @@ export const BaseChart = forwardRef<HTMLDivElement, BaseChartProps>(function Bas
     containerHeight: fixedHeight || DEFAULT_HEIGHT,
   });
 
-  // Update dimensions based on container size
   const updateDimensions = useCallback(() => {
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
@@ -106,13 +106,16 @@ export const BaseChart = forwardRef<HTMLDivElement, BaseChartProps>(function Bas
     }
   }, [fixedWidth, fixedHeight]);
 
-  // Set up resize observer
+  useEffect(() => {
+    if (fixedWidth != null || fixedHeight != null) {
+      updateDimensions();
+    }
+  }, [fixedWidth, fixedHeight, updateDimensions]);
+
   useEffect(() => {
     updateDimensions();
 
-    const resizeObserver = new ResizeObserver(() => {
-      updateDimensions();
-    });
+    const resizeObserver = new ResizeObserver(updateDimensions);
 
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
@@ -122,17 +125,6 @@ export const BaseChart = forwardRef<HTMLDivElement, BaseChartProps>(function Bas
       resizeObserver.disconnect();
     };
   }, [updateDimensions]);
-
-  // Handle fixed dimensions changes
-  useEffect(() => {
-    if (fixedWidth !== undefined || fixedHeight !== undefined) {
-      setDimensions((prev) => ({
-        ...prev,
-        width: fixedWidth || prev.containerWidth,
-        height: fixedHeight || prev.containerHeight,
-      }));
-    }
-  }, [fixedWidth, fixedHeight]);
 
   const containerStyle: CSSProperties = {
     width: fixedWidth ? `${fixedWidth}px` : '100%',
@@ -144,7 +136,6 @@ export const BaseChart = forwardRef<HTMLDivElement, BaseChartProps>(function Bas
     <ChartTooltipProvider>
       <div
         ref={(node) => {
-          // Handle both refs
           (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
           if (typeof ref === 'function') {
             ref(node);
@@ -155,23 +146,25 @@ export const BaseChart = forwardRef<HTMLDivElement, BaseChartProps>(function Bas
         className={`ngx-charts-container ${className}`}
         style={containerStyle}
       >
-        <AnimatePresence mode="wait">
-          {animated ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}
-              style={{ width: '100%', height: '100%' }}
-            >
-              {typeof children === 'function' ? children(dimensions) : children}
-            </motion.div>
+        {(() => {
+          const content = typeof children === 'function' ? children(dimensions) : children;
+          const fullSize = { width: '100%', height: '100%' } as const;
+          return animated ? (
+            <AnimatePresence mode="wait">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
+                style={fullSize}
+              >
+                {content}
+              </motion.div>
+            </AnimatePresence>
           ) : (
-            <div style={{ width: '100%', height: '100%' }}>
-              {typeof children === 'function' ? children(dimensions) : children}
-            </div>
-          )}
-        </AnimatePresence>
+            <div style={fullSize}>{content}</div>
+          );
+        })()}
       </div>
     </ChartTooltipProvider>
   );
@@ -232,27 +225,10 @@ export function useChartColors(
   domain: string[] | number[],
   customColors?: ((value: unknown) => string) | Array<{ name: string; value: string }>
 ): ColorHelper {
-  const [colorHelper, setColorHelper] = useState<ColorHelper>(() =>
-    new ColorHelper({
-      scheme: colorScheme,
-      scaleType,
-      domain,
-      customColors,
-    })
+  return useMemo(
+    () => new ColorHelper({ scheme: colorScheme, scaleType, domain, customColors }),
+    [colorScheme, scaleType, domain, customColors]
   );
-
-  useEffect(() => {
-    setColorHelper(
-      new ColorHelper({
-        scheme: colorScheme,
-        scaleType,
-        domain,
-        customColors,
-      })
-    );
-  }, [colorScheme, scaleType, domain, customColors]);
-
-  return colorHelper;
 }
 
 /**
@@ -262,7 +238,6 @@ export function useChartAnimation(animated: boolean = true) {
   const [isInitialRender, setIsInitialRender] = useState(true);
 
   useEffect(() => {
-    // After first render, mark as not initial
     const timer = setTimeout(() => {
       setIsInitialRender(false);
     }, 600); // Match animation duration
