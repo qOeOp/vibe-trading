@@ -7,7 +7,10 @@ export default [
     {
       "ignores": [
         "**/dist",
+        "**/out",
         "**/out-tsc",
+        "**/.next",
+        "**/.next-prod",
         "**/vite.config.*.timestamp*"
       ]
     },
@@ -38,6 +41,7 @@ export default [
             ]
         }
     },
+    // TypeScript & JS quality rules (covers WebStorm-equivalent inspections)
     {
         files: [
             "**/*.ts",
@@ -49,8 +53,17 @@ export default [
             "**/*.cjs",
             "**/*.mjs"
         ],
-        // Override or add rules here
-        rules: {}
+        rules: {
+            "prefer-const": "warn",
+            "no-console": ["warn", { allow: ["warn", "error"] }],
+            "@typescript-eslint/no-unused-vars": ["warn", {
+                argsIgnorePattern: "^_",
+                varsIgnorePattern: "^_",
+                caughtErrorsIgnorePattern: "^_",
+                ignoreRestSiblings: true
+            }],
+            "@typescript-eslint/no-explicit-any": "warn"
+        }
     },
     // Enforce @/ alias for imports that cross feature/module boundaries
     {
