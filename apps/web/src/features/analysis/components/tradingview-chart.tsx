@@ -1,35 +1,21 @@
 "use client";
 
 import { useEffect, useRef, memo } from "react";
-import { useTheme } from "next-themes";
 
 interface TradingViewChartProps {
   symbol?: string;
 }
 
-// Theme-specific configurations for TradingView widget
-const THEME_CONFIG = {
-  dark: {
-    theme: "dark",
-    backgroundColor: "#1a1a1a",
-    gridColor: "rgba(255, 255, 255, 0.06)",
-    containerBg: "bg-[#1a1a1a]",
-  },
-  light: {
-    theme: "light",
-    backgroundColor: "#ffffff",
-    gridColor: "rgba(0, 0, 0, 0.06)",
-    containerBg: "bg-white",
-  },
+// TradingView widget always uses dark theme (inverted from the app's light visual theme)
+const WIDGET_CONFIG = {
+  theme: "dark",
+  backgroundColor: "#1a1a1a",
+  gridColor: "rgba(255, 255, 255, 0.06)",
+  containerBg: "bg-[#1a1a1a]",
 } as const;
 
 function TradingViewChartComponent({ symbol = "NASDAQ:AAPL" }: TradingViewChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { resolvedTheme } = useTheme();
-
-  // Default to dark theme during SSR/hydration
-  const currentTheme = resolvedTheme === "light" ? "light" : "dark";
-  const config = THEME_CONFIG[currentTheme];
 
   useEffect(() => {
     const container = containerRef.current;
@@ -51,7 +37,7 @@ function TradingViewChartComponent({ symbol = "NASDAQ:AAPL" }: TradingViewChartP
     script.type = "text/javascript";
     script.async = true;
     script.innerHTML = JSON.stringify({
-      symbol: symbol,
+      symbol,
       allow_symbol_change: true,
       calendar: false,
       details: false,
@@ -64,10 +50,10 @@ function TradingViewChartComponent({ symbol = "NASDAQ:AAPL" }: TradingViewChartP
       locale: "en",
       save_image: true,
       style: "1",
-      theme: config.theme,
+      theme: WIDGET_CONFIG.theme,
       timezone: "Asia/Shanghai",
-      backgroundColor: config.backgroundColor,
-      gridColor: config.gridColor,
+      backgroundColor: WIDGET_CONFIG.backgroundColor,
+      gridColor: WIDGET_CONFIG.gridColor,
       watchlist: [],
       withdateranges: true,
       range: "3M",
@@ -78,17 +64,14 @@ function TradingViewChartComponent({ symbol = "NASDAQ:AAPL" }: TradingViewChartP
     container.appendChild(script);
 
     return () => {
-      // Cleanup on unmount
-      if (container) {
-        container.innerHTML = "";
-      }
+      container.innerHTML = "";
     };
-  }, [symbol, config]);
+  }, [symbol]);
 
   return (
     <div
       ref={containerRef}
-      className={`tradingview-widget-container flex-1 rounded-xl overflow-hidden ${config.containerBg}`}
+      className={`tradingview-widget-container flex-1 rounded-xl overflow-hidden ${WIDGET_CONFIG.containerBg}`}
       style={{ height: "100%", width: "100%" }}
     />
   );
