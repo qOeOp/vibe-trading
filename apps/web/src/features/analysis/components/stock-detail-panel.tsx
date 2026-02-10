@@ -13,7 +13,8 @@ import {
   Edit3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getStockInfo, MOCK_ALERTS, type AlertItem } from "../data/mock-stock-data";
+import { getStockInfo, MOCK_ALERTS } from "../data/mock-stock-data";
+import type { AlertItem } from "../data/mock-stock-data";
 
 interface StockDetailPanelProps {
   symbol: string;

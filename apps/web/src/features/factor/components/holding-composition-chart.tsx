@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { curveLinear } from "d3-shape";
-import { AreaChartStacked, type MultiSeries, ScaleType } from "@/lib/ngx-charts";
+import { AreaChartStacked, ScaleType } from "@/lib/ngx-charts";
+import type { MultiSeries } from "@/lib/ngx-charts";
 import { HOLDING_SECTORS, SECTOR_COLOR_MAP } from "../types";
 import type { HoldingCompositionPoint } from "../types";
 

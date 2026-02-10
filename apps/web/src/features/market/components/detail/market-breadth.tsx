@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { mockBreadth } from "../../data/mock-indices";
+import { mockBreadth } from "@/features/market/data/mock-indices";
 import { SectionHeader } from "../shared/section-header";
 
 // ============ Types ============

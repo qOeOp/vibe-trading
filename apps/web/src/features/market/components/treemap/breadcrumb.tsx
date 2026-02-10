@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, useCallback, KeyboardEvent } from "react";
+import type { KeyboardEvent } from "react";
+import { memo, useCallback } from "react";
 import { ChevronRight, Home } from "lucide-react";
 
 // ============ Types ============

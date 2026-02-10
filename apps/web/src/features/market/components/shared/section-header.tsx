@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, type ReactNode } from "react";
+import { memo } from "react";
+import type { ReactNode } from "react";
 
 export interface SectionHeaderProps {
   /** 标题文字 */

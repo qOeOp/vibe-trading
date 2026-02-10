@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, useState, useCallback, useEffect, useRef, ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
+import { memo, useState, useCallback, useEffect, useRef } from "react";
 import { Search, X, SlidersHorizontal } from "lucide-react";
 
 // ============ Types ============

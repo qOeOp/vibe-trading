@@ -1,15 +1,16 @@
 "use client";
 
-import { memo, useMemo, useRef, useEffect, useState, type CSSProperties } from "react";
-import type { TreemapNode } from "../../types";
-import { getTileColor } from "../../utils/treemap-colors";
-import { formatPercent, formatFlow } from "../../utils/formatters";
-import { getAdaptiveStyles, getBorderRadius } from "../../hooks/use-treemap";
+import { memo, useMemo, useRef, useEffect, useState } from "react";
+import type { CSSProperties } from "react";
+import type { TreemapNode } from "@/features/market/types";
+import { getTileColor } from "@/features/market/utils/treemap-colors";
+import { formatPercent, formatFlow } from "@/features/market/utils/formatters";
+import { getAdaptiveStyles, getBorderRadius } from "@/features/market/hooks/use-treemap";
 import {
   CandlestickSparkline,
   generateMockCandles,
-  type CandleData,
 } from "./candlestick-sparkline";
+import type { CandleData } from "./candlestick-sparkline";
 import { cn } from "@/lib/utils";
 
 interface HeatMapTileProps {

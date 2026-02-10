@@ -1,10 +1,11 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { getTopGainers, type ConceptData } from "../../data/mock-concepts";
-import { formatPercent } from "../../utils/formatters";
+import { getTopGainers } from "@/features/market/data/mock-concepts";
+import type { ConceptData } from "@/features/market/data/mock-concepts";
+import { formatPercent } from "@/features/market/utils/formatters";
 import { cn } from "@/lib/utils";
-import { API } from "../../constants";
+import { API } from "@/features/market/constants";
 import { SectionHeader } from "../shared/section-header";
 
 const RANK_STYLES = [

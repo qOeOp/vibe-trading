@@ -1,16 +1,19 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import { AgGridReact, type CustomCellRendererProps } from "ag-grid-react";
+import { AgGridReact } from "ag-grid-react";
+import type { CustomCellRendererProps } from "ag-grid-react";
 import {
   AllCommunityModule,
   ModuleRegistry,
-  type ColDef,
-  type GetRowIdFunc,
-  type GetRowIdParams,
-  type ValueFormatterParams,
-  type CellClassParams,
   themeQuartz,
+} from "ag-grid-community";
+import type {
+  ColDef,
+  GetRowIdFunc,
+  GetRowIdParams,
+  ValueFormatterParams,
+  CellClassParams,
 } from "ag-grid-community";
 import type { LibraryFactor } from "../types";
 

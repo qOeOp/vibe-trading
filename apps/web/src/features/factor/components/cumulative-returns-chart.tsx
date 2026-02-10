@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { curveLinear } from "d3-shape";
-import { AreaChart, type MultiSeries } from "@/lib/ngx-charts";
+import { AreaChart } from "@/lib/ngx-charts";
+import type { MultiSeries } from "@/lib/ngx-charts";
 import type { CumulativeReturnPoint } from "../types";
 
 /** Legend items for external rendering */

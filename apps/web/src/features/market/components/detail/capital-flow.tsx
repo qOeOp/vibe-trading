@@ -1,8 +1,8 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { mockSectors } from "../../data/mock-sectors";
-import { formatFlow } from "../../utils/formatters";
+import { mockSectors } from "@/features/market/data/mock-sectors";
+import { formatFlow } from "@/features/market/utils/formatters";
 import { cn } from "@/lib/utils";
 import { SectionHeader } from "../shared/section-header";
 

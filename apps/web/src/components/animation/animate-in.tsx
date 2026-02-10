@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, type Variants, type Transition } from "motion/react";
+import { motion } from "motion/react";
+import type { Variants, Transition } from "motion/react";
 import { usePathname } from "next/navigation";
 import type { ReactNode, CSSProperties } from "react";
 

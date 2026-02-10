@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { cn } from "@/lib/utils";
-import { formatPercent } from "../../utils/formatters";
+import { formatPercent } from "@/features/market/utils/formatters";
 
 export interface ChangeIndicatorProps {
   value: number;

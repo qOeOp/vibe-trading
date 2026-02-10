@@ -1,7 +1,8 @@
 "use client";
 
 import { memo } from "react";
-import { mockLimitStats, mockLimitUpStocks, type LimitUpStock } from "../../data/mock-limit-stats";
+import { mockLimitStats, mockLimitUpStocks } from "@/features/market/data/mock-limit-stats";
+import type { LimitUpStock } from "@/features/market/data/mock-limit-stats";
 import { cn } from "@/lib/utils";
 import { SectionHeader } from "../shared/section-header";
 

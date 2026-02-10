@@ -2,9 +2,9 @@
 
 import { memo, useMemo, useCallback, useState } from "react";
 import { HeatMapContainer } from "./heatmap-container";
-import { mockSectors } from "../../data/mock-sectors";
-import { generateSyntheticChildren } from "../../data/generators";
-import type { TreemapNode } from "../../types";
+import { mockSectors } from "@/features/market/data/mock-sectors";
+import { generateSyntheticChildren } from "@/features/market/data/generators";
+import type { TreemapNode } from "@/features/market/types";
 
 function buildTreemapData(): TreemapNode[] {
   return mockSectors.map((sector) => {

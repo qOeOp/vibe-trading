@@ -14,8 +14,8 @@ import {
   WATCHLIST_SHARES,
   WATCHLIST_FUTURES,
   WATCHLIST_CRYPTO,
-  type WatchlistItem,
 } from "../data/mock-stock-data";
+import type { WatchlistItem } from "../data/mock-stock-data";
 
 interface WatchlistPanelProps {
   selectedSymbol: string;

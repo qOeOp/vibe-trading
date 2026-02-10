@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getLatestNews, type NewsItem } from "../data/mock-news";
+import { getLatestNews } from "../data/mock-news";
+import type { NewsItem } from "../data/mock-news";
 import { useChat } from "../hooks";
 
 type TabType = "news" | "chat";

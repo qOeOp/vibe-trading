@@ -8,20 +8,20 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import type { TreemapNode } from "../../types";
+import type { TreemapNode } from "@/features/market/types";
 import {
   useTreemap,
   calculateRippleLayout,
   getTargetSize,
-} from "../../hooks/use-treemap";
+} from "@/features/market/hooks/use-treemap";
 import { HeatMapTile } from "./heatmap-tile";
 import {
   Breadcrumb,
   createInitialBreadcrumb,
   addBreadcrumbItem,
   navigateToBreadcrumb,
-  type BreadcrumbItem,
 } from "./breadcrumb";
+import type { BreadcrumbItem } from "./breadcrumb";
 import { SearchBox, filterBySearch } from "./search-box";
 import {
   LoadingState,
@@ -29,8 +29,8 @@ import {
   EmptyState,
   NoResultsState,
 } from "./states";
-import { COLOR_RAMP } from "../../utils/treemap-colors";
-import { ANIMATION } from "../../constants";
+import { COLOR_RAMP } from "@/features/market/utils/treemap-colors";
+import { ANIMATION } from "@/features/market/constants";
 
 // ============ Types ============
 
