@@ -16,7 +16,16 @@
         "development": {
           "outputPath": "apps/web"
         },
-        "production": {}
+        "production": {
+          "outputPath": "dist/apps/web"
+        }
+      }
+    },
+    "build-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "NEXT_BUILD_DIR=.next-prod npx next build",
+        "cwd": "apps/web"
       }
     },
     "serve": {

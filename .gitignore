@@ -63,6 +63,7 @@ __pycache__/
 dist/
 build/
 .next
+.next-prod
 out
 
 # TypeScript build info

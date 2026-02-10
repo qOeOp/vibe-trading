@@ -54,14 +54,7 @@
       "cache": false
     }
   },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
-      "options": {
-        "cacheableOperations": ["build", "test", "lint"],
-        "parallel": 1,
-        "useDaemonProcess": false
-      }
-    }
-  }
+  "parallel": 3,
+  "useDaemonProcess": true,
+  "cacheDirectory": ".nx/cache"
 }
