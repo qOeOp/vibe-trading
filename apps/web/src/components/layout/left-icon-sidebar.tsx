@@ -52,18 +52,21 @@ export function LeftIconSidebar() {
   };
 
   return (
-    <div className="flex flex-col w-[52px] h-full items-center justify-center">
-      <div className="flex flex-col items-center gap-1 py-1 px-1.5 rounded-full bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+    <div className="flex flex-col w-[52px] flex-1 min-h-0 items-center justify-center">
+      <div className="flex flex-col items-center gap-1 py-1 px-1.5 rounded-full bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] max-h-full overflow-y-auto scrollbar-none">
         {icons.map(({ icon: Icon, label, href }) => (
           <button
+            type="button"
             key={label}
+            disabled={!href}
             onClick={() => href && router.push(href)}
             className={cn(
               "flex items-center justify-center w-10 h-10 rounded-full transition-all",
               isActive(href)
                 ? "bg-mine-nav-active text-white shadow-sm"
-                : "text-mine-text hover:bg-white/80",
-              href && "cursor-pointer"
+                : href
+                  ? "text-mine-text hover:bg-white/80 cursor-pointer"
+                  : "text-mine-muted/50 cursor-default",
             )}
             title={label}
             aria-label={label}
