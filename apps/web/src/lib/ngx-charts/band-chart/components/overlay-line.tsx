@@ -1,13 +1,16 @@
 'use client';
 
 import { useMemo, useId } from 'react';
-import { line, area, curveMonotoneX } from 'd3-shape';
+import { line, area, curveLinear } from 'd3-shape';
 import type { CurveFactory } from 'd3-shape';
 import type { ScalePoint, ScaleLinear } from 'd3-scale';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { SvgLinearGradient } from '@/lib/ngx-charts/common';
 import type { OverlaySeries } from '../hooks';
+
+/** Knockout stroke — matches page background (--color-mine-bg) for visual gap effect */
+const KNOCKOUT_COLOR = '#f5f3ef';
 
 export interface OverlayLineProps {
   overlay: OverlaySeries | null;
@@ -17,6 +20,8 @@ export interface OverlayLineProps {
   curve?: CurveFactory;
   /** Enable ink-brush effect (variable stroke-width segments). Default false */
   brushEffect?: boolean;
+  /** Hide the gradient area fill under the line. Used in selected mode where BaselineSeries handles fills. */
+  hideGradient?: boolean;
 }
 
 /* ── Brush helpers ──────────────────────────────────────────── */
@@ -63,14 +68,15 @@ export function OverlayLine({
   xScale,
   yScale,
   animated = true,
-  curve = curveMonotoneX,
+  curve = curveLinear,
   brushEffect = false,
+  hideGradient = false,
 }: OverlayLineProps) {
   const reactId = useId();
   const gradientId = `overlay-grad${reactId.replace(/:/g, '')}`;
   const shadowFilterId = `overlay-shadow${reactId.replace(/:/g, '')}`;
 
-  const BASE_STROKE = 2;
+  const BASE_STROKE = 1;
 
   const { areaPath, linePath, brushSegments } = useMemo(() => {
     if (!overlay || overlay.series.length === 0) {
@@ -139,8 +145,8 @@ export function OverlayLine({
               </filter>
             </defs>
 
-            {/* Gradient area under strategy line */}
-            {areaPath && (
+            {/* Gradient area under strategy line (hidden in selected mode) */}
+            {areaPath && !hideGradient && (
               <path
                 d={areaPath}
                 fill={`url(#${gradientId})`}
@@ -150,32 +156,59 @@ export function OverlayLine({
 
             {brushEffect ? (
               /* Brush segments — variable-width strokes for ink feel */
-              brushSegments.map((seg, i) => (
-                <path
-                  key={i}
-                  d={seg.d}
-                  fill="none"
-                  stroke={overlay.color}
-                  strokeWidth={seg.width}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  filter={`url(#${shadowFilterId})`}
-                  style={{ pointerEvents: 'none' }}
-                />
-              ))
+              <>
+                {/* White knockout backing for brush segments */}
+                {brushSegments.map((seg, i) => (
+                  <path
+                    key={`ko-${i}`}
+                    d={seg.d}
+                    fill="none"
+                    stroke={KNOCKOUT_COLOR}
+                    strokeWidth={seg.width * 2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ pointerEvents: 'none' }}
+                  />
+                ))}
+                {brushSegments.map((seg, i) => (
+                  <path
+                    key={i}
+                    d={seg.d}
+                    fill="none"
+                    stroke={overlay.color}
+                    strokeWidth={seg.width}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter={`url(#${shadowFilterId})`}
+                    style={{ pointerEvents: 'none' }}
+                  />
+                ))}
+              </>
             ) : (
-              /* Single clean path */
+              /* Single clean path with white knockout backing */
               linePath && (
-                <path
-                  d={linePath}
-                  fill="none"
-                  stroke={overlay.color}
-                  strokeWidth={BASE_STROKE}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  filter={`url(#${shadowFilterId})`}
-                  style={{ pointerEvents: 'none' }}
-                />
+                <>
+                  {/* White knockout — creates visual gap from layers below */}
+                  <path
+                    d={linePath}
+                    fill="none"
+                    stroke={KNOCKOUT_COLOR}
+                    strokeWidth={BASE_STROKE * 2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ pointerEvents: 'none' }}
+                  />
+                  <path
+                    d={linePath}
+                    fill="none"
+                    stroke={overlay.color}
+                    strokeWidth={BASE_STROKE}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter={`url(#${shadowFilterId})`}
+                    style={{ pointerEvents: 'none' }}
+                  />
+                </>
               )
             )}
           </motion.g>

@@ -36,7 +36,7 @@ export interface PolarCalendarState {
   setActiveYear: (year: number) => void;
   setSelectedMonth: (month: number | null) => void;
   setHoverStrategyId: (id: string | null) => void;
-  setSelectedStrategyId: (id: string) => void;
+  setSelectedStrategyId: (id: string | null) => void;
 }
 
 export function usePolarCalendar(): PolarCalendarState {
@@ -56,12 +56,17 @@ export function usePolarCalendar(): PolarCalendarState {
     [dataset, activeYear]
   );
 
-  // Toggle selection: click same strategy → deselect (unlock), click different → switch
-  const setSelectedStrategyId = useCallback((id: string) => {
-    setSelectedStrategyIdRaw((prev) => (prev === id ? null : id));
+  // Toggle selection: click same strategy → deselect (unlock), click different → switch.
+  // null = explicit deselect (e.g. click empty area on chart).
+  const setSelectedStrategyId = useCallback((id: string | null) => {
+    if (id === null) {
+      setSelectedStrategyIdRaw(null);
+    } else {
+      setSelectedStrategyIdRaw((prev) => (prev === id ? null : id));
+    }
   }, []);
 
-  // Detail chart data — show selected month, or full year if no month selected
+  // Detail chart data — show selected month, or full history if no month selected
   // When a month is selected, re-baseline returns to the start of that month
   // so the chart shows within-month variation (starting from 0%) instead of
   // cumulative year-to-date values that compress the visible range.
@@ -80,16 +85,15 @@ export function usePolarCalendar(): PolarCalendarState {
         return { ...dr, values: rebased };
       });
     }
-    // Show full year
-    const yd = dataset.yearData[activeYear];
-    return yd ? yd.dailyReturns : [];
+    // Show full history (5 years)
+    return dataset.fullHistoryReturns;
   }, [dataset, activeYear, selectedMonth]);
 
   const detailMonthLabel = useMemo(() => {
     if (selectedMonth !== null) {
       return `${MONTH_LABELS[selectedMonth]} ${activeYear}`;
     }
-    return `${activeYear} Full Year`;
+    return `Full History (2021-2025)`;
   }, [activeYear, selectedMonth]);
 
   return {

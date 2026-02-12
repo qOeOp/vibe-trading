@@ -90,6 +90,8 @@ export interface AxisConfig {
   ticks?: unknown[];
   minScale?: number;
   maxScale?: number;
+  /** Whether the axis is separated from the plotting area (floating style) */
+  separated?: boolean;
 }
 
 /** Legend configuration */

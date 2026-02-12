@@ -8,3 +8,5 @@ export {
   type BandConfig,
   type AuxiliaryLine,
 } from './use-band-chart';
+
+export { useAnimateZoom, type UseAnimateZoomResult } from './use-animate-zoom';

@@ -62,6 +62,10 @@ export interface YAxisTicksProps {
   showRefLines?: boolean;
   /** Whether to wrap tick labels */
   wrapTicks?: boolean;
+  /** Whether to show tick lines */
+  showTicks?: boolean;
+  /** Offset for grid lines */
+  gridLineOffset?: number;
   /** Callback when dimensions change */
   onDimensionsChanged?: (dimensions: { width: number }) => void;
 }
@@ -71,6 +75,7 @@ export function YAxisTicks({
   orient = Orientation.Left,
   tickArguments = [5],
   tickValues,
+  tickStroke = '#e0ddd8',
   trimTicks: shouldTrimTicks = true,
   maxTickLength = 16,
   tickFormatting,
@@ -81,6 +86,8 @@ export function YAxisTicks({
   referenceLines,
   showRefLabels = false,
   showRefLines = false,
+  showTicks = false,
+  gridLineOffset = 5,
   onDimensionsChanged,
 }: YAxisTicksProps) {
   const ticksRef = useRef<SVGGElement>(null);
@@ -132,7 +139,7 @@ export function YAxisTicks({
     return scale;
   }, [scale]);
 
-  const { textAnchor, x1, dy } = useMemo(() => {
+  const { textAnchor, x1, dy, tickX2 } = useMemo(() => {
     const sign = orient === Orientation.Top || orient === Orientation.Right ? -1 : 1;
 
     switch (orient) {
@@ -141,18 +148,21 @@ export function YAxisTicks({
           textAnchor: 'end' as TextAnchor,
           x1: tickSpacing * -sign,
           dy: '.32em',
+          tickX2: -6,
         };
       case Orientation.Right:
         return {
           textAnchor: 'start' as TextAnchor,
           x1: tickSpacing * -sign,
           dy: '.32em',
+          tickX2: 6,
         };
       default:
         return {
           textAnchor: 'middle' as TextAnchor,
           x1: 0,
           dy: '.71em',
+          tickX2: 0,
         };
     }
   }, [orient]);
@@ -184,7 +194,7 @@ export function YAxisTicks({
     return () => cancelAnimationFrame(rafId);
   });
 
-  const gridLineTransform = 'translate(5,0)';
+  const gridLineTransform = `translate(${gridLineOffset},0)`;
 
   return (
     <g className="y-axis-ticks">
@@ -196,6 +206,15 @@ export function YAxisTicks({
           return (
             <g key={`tick-${index}`} className="tick" transform={tickTransform(tick)}>
               <title>{formatted}</title>
+              {showTicks && (
+                <line
+                  x1={0}
+                  x2={tickX2}
+                  y1={0}
+                  y2={0}
+                  stroke={tickStroke}
+                />
+              )}
               <text
                 strokeWidth="0.01"
                 dy={dy}
@@ -228,28 +247,30 @@ export function YAxisTicks({
       {showRefLines &&
         referenceLines?.map((refLine, index) => (
           <g key={`ref-${index}`} className="ref-line" transform={tickTransform(refLine.value)}>
-            <line
-              className="refline-path gridline-path-horizontal"
-              x1={0}
-              x2={gridLineWidth}
-              stroke="#a8b2c7"
-              strokeDasharray="5"
-              strokeDashoffset={5}
-            />
-            {showRefLabels && (
-              <g>
-                <title>{tickTrim(tickFormat(refLine.value))}</title>
-                <text
-                  className="refline-label"
-                  dy={dy}
-                  y={-6}
-                  x={gridLineWidth}
-                  textAnchor={textAnchor}
-                >
-                  {refLine.name}
-                </text>
-              </g>
-            )}
+            <g transform={gridLineTransform}>
+              <line
+                className="refline-path gridline-path-horizontal"
+                x1={0}
+                x2={gridLineWidth}
+                stroke="#a8b2c7"
+                strokeDasharray="5"
+                strokeDashoffset={5}
+              />
+              {showRefLabels && (
+                <g>
+                  <title>{tickTrim(tickFormat(refLine.value))}</title>
+                  <text
+                    className="refline-label"
+                    dy={dy}
+                    y={-6}
+                    x={gridLineWidth}
+                    textAnchor={textAnchor}
+                  >
+                    {refLine.name}
+                  </text>
+                </g>
+              )}
+            </g>
           </g>
         ))}
     </g>

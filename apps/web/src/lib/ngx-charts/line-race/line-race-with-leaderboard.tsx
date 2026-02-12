@@ -32,7 +32,7 @@ import { useLineRace } from './hooks';
 import type { LineRaceSeriesData } from './hooks';
 import { LineRaceSeries, LineRaceCrosshair } from './components';
 import type { CrosshairItem } from './components';
-import { LineRaceLeaderboard } from './components/line-race-leaderboard';
+import { LineRaceLeaderboard } from '@/lib/ngx-charts';
 import { findClosestRound } from './utils';
 
 export interface LineRaceWithLeaderboardProps {

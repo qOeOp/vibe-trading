@@ -79,6 +79,7 @@ export interface PolarCalendarDataset {
   years: number[];
   yearData: Record<number, YearData>;
   strategies: Strategy[];
+  fullHistoryReturns: DailyReturn[];
 }
 
 /* ── Month labels ─────────────────────────────────────────────── */
@@ -86,13 +87,13 @@ const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "S
 
 /* ── Data generation ──────────────────────────────────────────── */
 
-function generateYearData(year: number, rng: () => number): YearData {
+function generateYearData(year: number, rng: () => number, initialCumReturns?: number[]): YearData {
   const strategyDrifts = STRATEGIES.map(() => (rng() - 0.3) * 0.15); // daily drift
   const strategyVols = STRATEGIES.map(() => 0.3 + rng() * 0.4);     // daily vol
 
   // Generate daily cumulative returns for the entire year
   const dailyReturns: DailyReturn[] = [];
-  const cumReturns: number[] = new Array(STRATEGIES.length).fill(0);
+  const cumReturns: number[] = initialCumReturns ? [...initialCumReturns] : new Array(STRATEGIES.length).fill(0);
 
   // Trading days in a year (~250)
   const startDate = new Date(year, 0, 2); // Jan 2
@@ -145,17 +146,13 @@ function generateYearData(year: number, rng: () => number): YearData {
     // Calculate monthly return for each strategy
     const firstDay = monthDays[0];
     const lastDay = monthDays[monthDays.length - 1];
+    
+    // Find the base value (last day of previous month or 0)
+    // Actually, let's just calculate difference between start and end of month
     const monthReturns: { strategyId: string; monthReturn: number }[] = STRATEGIES.map((s) => ({
       strategyId: s.id,
       monthReturn: +(lastDay.values[s.id] - (firstDay.values[s.id] || 0)).toFixed(2),
     }));
-
-    // For the first month, use absolute values
-    if (m === 0) {
-      for (const mr of monthReturns) {
-        mr.monthReturn = +lastDay.values[mr.strategyId].toFixed(2);
-      }
-    }
 
     // Sort by monthly return (descending) to assign ranks
     const sorted = [...monthReturns].sort((a, b) => b.monthReturn - a.monthReturn);
@@ -185,14 +182,23 @@ export function getPolarCalendarData(): PolarCalendarDataset {
   if (_cached) return _cached;
 
   const rng = mulberry32(777);
-  const years = [2022, 2023, 2024, 2025];
+  const years = [2021, 2022, 2023, 2024, 2025];
   const yearData: Record<number, YearData> = {};
+  let lastCumReturns: number[] | undefined;
+  const fullHistoryReturns: DailyReturn[] = [];
 
   for (const year of years) {
-    yearData[year] = generateYearData(year, rng);
+    const yd = generateYearData(year, rng, lastCumReturns);
+    yearData[year] = yd;
+    
+    // Track cumulative for next year
+    const lastDay = yd.dailyReturns[yd.dailyReturns.length - 1];
+    lastCumReturns = STRATEGIES.map(s => lastDay.values[s.id]);
+    
+    fullHistoryReturns.push(...yd.dailyReturns);
   }
 
-  _cached = { years, yearData, strategies: STRATEGIES };
+  _cached = { years, yearData, strategies: STRATEGIES, fullHistoryReturns };
   return _cached;
 }
 

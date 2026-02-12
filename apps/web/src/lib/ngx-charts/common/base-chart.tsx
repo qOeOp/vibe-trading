@@ -141,6 +141,7 @@ export const BaseChart = forwardRef<HTMLDivElement, BaseChartProps>(function Bas
         }}
         className={`ngx-charts-container ${className}`}
         style={containerStyle}
+        suppressHydrationWarning
       >
         {(() => {
           const content = typeof children === 'function' ? children(dimensions) : children;

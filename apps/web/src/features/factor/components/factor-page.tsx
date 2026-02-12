@@ -9,7 +9,7 @@ import { useSetTopBarNavItems } from "@/components/layout/top-bar-slot";
 import { ChartLegendInline } from "@/components/chart-legend-inline";
 import { BandChart } from "@/lib/ngx-charts/band-chart";
 import type { TopBarNavItem } from "@/components/layout/top-bar-slot";
-import type { BandTooltipInfo, RaceStrategy } from "@/lib/ngx-charts/band-chart/components";
+import type { BandTooltipInfo } from "@/lib/ngx-charts/band-chart/components";
 import type { HoldingCompositionPoint, FactorStatistics } from "../types";
 
 import { usePolarCalendar } from "../hooks/use-polar-calendar";
@@ -143,24 +143,11 @@ function FactorPageContent() {
 
   const polar = usePolarCalendar();
 
-  const { bandData, overlay, auxiliaryLines } = useBandData(
+  const { bandData, overlay, auxiliaryLines, baseline, excessReturn } = useBandData(
     polar.detailDailyReturns,
     polar.dataset.strategies,
-    polar.hoverStrategyId,
     polar.selectedStrategyId,
   );
-
-  // Build race strategies — only when no overlay is active (no hover/selection)
-  const raceStrategies = useMemo((): RaceStrategy[] | undefined => {
-    if (overlay) return undefined; // overlay mode takes priority
-    return polar.dataset.strategies.map((s) => ({
-      id: s.id,
-      color: s.color,
-      series: polar.detailDailyReturns
-        .filter((dr) => dr.values[s.id] !== undefined)
-        .map((dr) => ({ name: dr.date, value: dr.values[s.id] })),
-    }));
-  }, [overlay, polar.dataset.strategies, polar.detailDailyReturns]);
 
   const factors = useMemo(() => getAllFactors(), []);
 
@@ -209,6 +196,22 @@ function FactorPageContent() {
     if (!polar.selectedStrategyId) return null;
     return polar.dataset.strategies.find((s) => s.id === polar.selectedStrategyId) ?? null;
   }, [polar.selectedStrategyId, polar.dataset.strategies]);
+
+  const xZoomLabels = useMemo(() => {
+    if (polar.selectedMonth !== null) {
+      return ['W1', 'W2', 'W3', 'W4'];
+    }
+    
+    // 5-Year History: Jan (as Year), Apr, Jul, Oct for each year
+    const labels: string[] = [];
+    for (const year of polar.dataset.years) {
+      labels.push(`${year}`); // Represents Q1 (Jan)
+      labels.push('Apr');     // Q2
+      labels.push('Jul');     // Q3
+      labels.push('Oct');     // Q4
+    }
+    return labels;
+  }, [polar.selectedMonth, polar.dataset.years]);
 
   if (!factorData) {
     return (
@@ -306,20 +309,23 @@ function FactorPageContent() {
                   data={bandData}
                   overlay={overlay}
                   auxiliaryLines={auxiliaryLines}
-                  raceStrategies={raceStrategies}
-                  onHoverStrategy={polar.selectedStrategyId ? undefined : polar.setHoverStrategyId}
-                  onHoverInfo={setBandHoverInfo}
+                  baseline={baseline}
+                  excessReturn={excessReturn}
+                  onHoverInfo={polar.selectedStrategyId ? setBandHoverInfo : undefined}
+                  onSelectStrategy={polar.setSelectedStrategyId}
+                  selectedMode={!!polar.selectedStrategyId}
                   tooltipDisabled
                   monthLabel={polar.selectedMonth !== null ? polar.detailMonthLabel : undefined}
                   xAxis={{ visible: false }}
-                  yAxis={{
-                    visible: true,
-                    showGridLines: true,
-                    gridLineStrokeDasharray: "6 4",
-                    tickFormatting: (v: unknown) => `${Math.round(v as number)}%`,
-                  }}
+                  yAxis={{ visible: false }}
                   referenceLines={[{ name: "zero", value: 0, color: "#a8b2c7" }]}
                   showRefLines
+                  showDataZoom
+                  showXDataZoom
+                  xDataZoomLabels={xZoomLabels}
+                  showDrawdown={!!polar.selectedStrategyId}
+                  showMonthStripes
+                  brushZoomEnabled={!!polar.selectedStrategyId}
                 />
               </div>
             </ChartCard>

@@ -47,8 +47,8 @@ function symPow(x: number, exp: number): number {
 }
 
 /** Inverse of symPow */
-function symPowInv(x: number, exp: number): number {
-  return Math.sign(x) * Math.pow(Math.abs(x), 1 / exp);
+function symPowInv(y: number, exp: number): number {
+  return Math.sign(y) * Math.pow(Math.abs(y), 1 / exp);
 }
 
 /** Round to visually clean values based on magnitude */
@@ -63,7 +63,6 @@ function niceRound(value: number): number {
 /**
  * Generate ticks evenly spaced in the transformed (visual) space,
  * then inverse-transform and snap to nice data values.
- * Result: denser ticks near zero, sparser at extremes.
  */
 function generateSymPowTicks(
   domain: [number, number],
@@ -80,12 +79,10 @@ function generateSymPowTicks(
     raw.push(niceRound(symPowInv(t, exponent)));
   }
 
-  // Ensure zero is included when the domain spans it
   if (dMin <= 0 && dMax >= 0 && !raw.includes(0)) {
     raw.push(0);
   }
 
-  // Deduplicate, sort, filter to domain
   return [...new Set(raw)]
     .sort((a, b) => a - b)
     .filter((v) => v >= dMin && v <= dMax);
@@ -93,7 +90,6 @@ function generateSymPowTicks(
 
 /**
  * Creates a D3-compatible scale with symmetric power transformation.
- * Near-zero values get more visual space; extremes are compressed.
  */
 function createSymPowScale(
   domain: [number, number],
@@ -136,6 +132,12 @@ export interface UseBandChartConfig {
   margins?: [number, number, number, number];
   /** Power exponent for Y axis (0–1). Lower = stronger magnification near zero. Default 0.6 */
   yScaleExponent?: number;
+  /** Explicit Y domain override */
+  customYDomain?: [number, number];
+  /** Minimum Y value to clamp the domain to (e.g. -40) */
+  clampYMin?: number;
+  /** Explicit X domain override */
+  customXDomain?: string[];
 }
 
 export interface UseBandChartResult {
@@ -160,6 +162,9 @@ export function useBandChart(config: UseBandChartConfig): UseBandChartResult {
     yAxisWidth: initialYAxisWidth = 50,
     margins: customMargins,
     yScaleExponent = 0.6,
+    customYDomain,
+    clampYMin,
+    customXDomain,
   } = config;
 
   const [xAxisHeight, setXAxisHeight] = useState(initialXAxisHeight);
@@ -188,10 +193,14 @@ export function useBandChart(config: UseBandChartConfig): UseBandChartResult {
   }, [width, height, margins, showXAxis, showYAxis, xAxisHeight, yAxisWidth]);
 
   // X domain: all point names in order
-  const xDomain = useMemo(() => data.map((d) => d.name), [data]);
+  const xDomain = useMemo(() => {
+    if (customXDomain) return customXDomain;
+    return data.map((d) => d.name);
+  }, [data, customXDomain]);
 
-  // Y domain: from band min/max with 10% padding
+  // Y domain: from band min/max with padding
   const yDomain = useMemo((): [number, number] => {
+    if (customYDomain) return customYDomain;
     if (data.length === 0) return [0, 1];
     let minVal = Infinity;
     let maxVal = -Infinity;
@@ -199,9 +208,19 @@ export function useBandChart(config: UseBandChartConfig): UseBandChartResult {
       if (bp.min < minVal) minVal = bp.min;
       if (bp.max > maxVal) maxVal = bp.max;
     }
-    const range = maxVal - minVal || 1;
-    return [minVal - range * 0.05, maxVal + range * 0.05];
-  }, [data]);
+
+    let domainMin: number;
+    if (clampYMin !== undefined) {
+      // Folding: force domain bottom to clampYMin
+      domainMin = clampYMin;
+    } else {
+      const range = maxVal - minVal || 1;
+      domainMin = minVal - range * 0.05;
+    }
+
+    const finalMax = maxVal + (maxVal - domainMin) * 0.05;
+    return [domainMin, finalMax];
+  }, [data, customYDomain, clampYMin]);
 
   // X scale: scalePoint for uniform spacing (no weekend gaps)
   const xScale = useMemo(() => {

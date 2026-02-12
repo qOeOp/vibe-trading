@@ -17,3 +17,4 @@ export * from './axes';
 export * from './legend';
 export * from './tooltip';
 export * from './grid';
+export * from './data-zoom';

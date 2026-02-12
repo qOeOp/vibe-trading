@@ -59,6 +59,10 @@ export interface XAxisProps {
   xAxisOffset?: number;
   /** Whether to wrap tick labels */
   wrapTicks?: boolean;
+  /** Whether the axis is separated from the plot area */
+  separated?: boolean;
+  /** Stroke color for ticks and axis line */
+  tickStroke?: string;
   /** Callback when dimensions change */
   onDimensionsChanged?: (dimensions: { height: number }) => void;
 }
@@ -84,15 +88,18 @@ export function XAxis({
   showRefLabels = false,
   xAxisOffset = 0,
   wrapTicks = false,
+  separated = false,
+  tickStroke = '#e0ddd8',
   onDimensionsChanged,
 }: XAxisProps) {
   const [labelOffset, setLabelOffset] = useState(0);
   const lastHeightRef = useRef(0);
 
-  const transform = useMemo(
-    () => `translate(0,${xAxisOffset + 5 + dims.height})`,
-    [xAxisOffset, dims.height]
-  );
+  const transform = useMemo(() => {
+    // Increase offset if separated
+    const baseOffset = separated ? 12 : 5;
+    return `translate(0,${xAxisOffset + baseOffset + dims.height})`;
+  }, [xAxisOffset, dims.height, separated]);
 
   const tickArguments = useMemo(
     () => xAxisTickCount !== undefined ? [xAxisTickCount] : [5],
@@ -119,7 +126,7 @@ export function XAxis({
           orient={xOrient}
           tickArguments={tickArguments}
           tickValues={ticks}
-          tickStroke="#ddd"
+          tickStroke={tickStroke}
           trimTicks={trimTicks}
           maxTickLength={maxTickLength}
           tickFormatting={tickFormatting}
@@ -132,6 +139,20 @@ export function XAxis({
           showRefLines={showRefLines}
           showRefLabels={showRefLabels}
           onDimensionsChanged={handleTicksHeightChange}
+          showTicks={separated}
+          gridLineOffset={separated ? 12 : 5}
+        />
+      )}
+
+      {/* Axis line for separated style */}
+      {separated && (
+        <line
+          x1={0}
+          x2={dims.width}
+          y1={0}
+          y2={0}
+          stroke={tickStroke}
+          strokeWidth={1}
         />
       )}
 

@@ -2,7 +2,7 @@
 
 import { useMemo, useId } from 'react';
 import type { Area as D3Area, Line as D3Line} from 'd3-shape';
-import { area, line, curveMonotoneX, curveBasis } from 'd3-shape';
+import { area, line, curveLinear, curveBasis } from 'd3-shape';
 import type { CurveFactory } from 'd3-shape';
 import type { ScalePoint, ScaleLinear } from 'd3-scale';
 import { motion } from 'framer-motion';
@@ -30,7 +30,7 @@ export function BandSeries({
   yScale,
   config,
   animated = true,
-  curve = curveMonotoneX,
+  curve = curveLinear,
   hasOverlay = false,
   hideMedian = false,
 }: BandSeriesProps) {
@@ -71,7 +71,7 @@ export function BandSeries({
     }
 
     const x = (d: BandDataPoint) => xScale(d.name) ?? 0;
-    const baseY = yScale.range()[0]; // bottom of chart
+    const baseY = yScale.range()[0];
 
     // Min-Max band (outer)
     const outerArea: D3Area<BandDataPoint> = area<BandDataPoint>()
@@ -121,13 +121,13 @@ export function BandSeries({
       .y((d) => yScale(d.q1))
       .curve(curve);
 
-    // Median line — use curveBasis for extra smoothness
+    // Median line
     const medLine: D3Line<BandDataPoint> = line<BandDataPoint>()
       .x(x)
       .y((d) => yScale(d.median))
       .curve(curveBasis);
 
-    // Median area fill (median → baseline) — same smooth curve
+    // Median area fill
     const medArea: D3Area<BandDataPoint> = area<BandDataPoint>()
       .x(x)
       .y0(() => baseY)

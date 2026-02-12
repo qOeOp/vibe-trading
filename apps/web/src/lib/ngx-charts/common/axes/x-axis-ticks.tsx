@@ -61,6 +61,10 @@ export interface XAxisTicksProps {
   showRefLabels?: boolean;
   /** Show reference lines */
   showRefLines?: boolean;
+  /** Whether to show tick lines */
+  showTicks?: boolean;
+  /** Offset for grid lines */
+  gridLineOffset?: number;
   /** Callback when dimensions change */
   onDimensionsChanged?: (dimensions: { height: number }) => void;
 }
@@ -69,6 +73,7 @@ export function XAxisTicks({
   scale,
   tickArguments = [5],
   tickValues,
+  tickStroke = '#e0ddd8',
   trimTicks: shouldTrimTicks = true,
   maxTickLength = 16,
   tickFormatting,
@@ -79,6 +84,8 @@ export function XAxisTicks({
   referenceLines,
   showRefLabels = false,
   showRefLines = false,
+  showTicks = false,
+  gridLineOffset = 5,
   onDimensionsChanged,
 }: XAxisTicksProps) {
   const ticksRef = useRef<SVGGElement>(null);
@@ -202,7 +209,7 @@ export function XAxisTicks({
     [adjustedScale, verticalSpacing]
   );
 
-  const gridLineTransform = `translate(0,${-verticalSpacing - 5})`;
+  const gridLineTransform = `translate(0,${-verticalSpacing - gridLineOffset})`;
 
   return (
     <g className="x-axis-ticks">
@@ -214,6 +221,15 @@ export function XAxisTicks({
           return (
             <g key={`tick-${index}`} className="tick" transform={tickTransform(tick)}>
               <title>{formatted}</title>
+              {showTicks && (
+                <line
+                  x1={0}
+                  x2={0}
+                  y1={0}
+                  y2={6}
+                  stroke={tickStroke}
+                />
+              )}
               <text
                 strokeWidth="0.01"
                 fontSize="12px"
@@ -243,27 +259,28 @@ export function XAxisTicks({
       {showRefLines &&
         referenceLines?.map((refLine, index) => (
           <g key={`ref-${index}`} className="ref-line" transform={`translate(${adjustedScale(refLine.value)},0)`}>
-            <line
-              className="refline-path gridline-path-vertical"
-              y1={25}
-              y2={25 + gridLineHeight}
-              transform={gridLineTransform}
-              stroke="#a8b2c7"
-              strokeDasharray="5"
-              strokeDashoffset={5}
-            />
-            {showRefLabels && (
-              <g>
-                <title>{tickTrim(tickFormat(refLine.value))}</title>
-                <text
-                  className="refline-label"
-                  transform="rotate(-270) translate(5, -5)"
-                  fontSize="9px"
-                >
-                  {refLine.name}
-                </text>
-              </g>
-            )}
+            <g transform={gridLineTransform}>
+              <line
+                className="refline-path gridline-path-vertical"
+                y1={0}
+                y2={gridLineHeight}
+                stroke="#a8b2c7"
+                strokeDasharray="5"
+                strokeDashoffset={5}
+              />
+              {showRefLabels && (
+                <g>
+                  <title>{tickTrim(tickFormat(refLine.value))}</title>
+                  <text
+                    className="refline-label"
+                    transform="rotate(-270) translate(5, -5)"
+                    fontSize="9px"
+                  >
+                    {refLine.name}
+                  </text>
+                </g>
+              )}
+            </g>
           </g>
         ))}
     </g>

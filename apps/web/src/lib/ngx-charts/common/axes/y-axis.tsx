@@ -59,6 +59,10 @@ export interface YAxisProps {
   yAxisOffset?: number;
   /** Whether to wrap tick labels */
   wrapTicks?: boolean;
+  /** Whether the axis is separated from the plot area */
+  separated?: boolean;
+  /** Stroke color for ticks and axis line */
+  tickStroke?: string;
   /** Callback when dimensions change */
   onDimensionsChanged?: (dimensions: { width: number }) => void;
 }
@@ -84,17 +88,21 @@ export function YAxis({
   showRefLabels = false,
   yAxisOffset = 0,
   wrapTicks = false,
+  separated = false,
+  tickStroke = '#e0ddd8',
   onDimensionsChanged,
 }: YAxisProps) {
   const [labelOffset, setLabelOffset] = useState(15);
   const lastWidthRef = useRef(0);
 
   const transform = useMemo(() => {
-    const off = -(yAxisOffset + 5);
+    // Increase offset if separated
+    const baseOffset = separated ? 12 : 5;
+    const off = -(yAxisOffset + baseOffset);
     return yOrient === Orientation.Right
       ? `translate(${off + dims.width}, 0)`
       : `translate(${off}, 0)`;
-  }, [yAxisOffset, yOrient, dims.width]);
+  }, [yAxisOffset, yOrient, dims.width, separated]);
 
   const tickArguments = useMemo(
     () => yAxisTickCount !== undefined ? [yAxisTickCount] : [5],
@@ -120,7 +128,7 @@ export function YAxis({
           orient={yOrient}
           tickArguments={tickArguments}
           tickValues={ticks}
-          tickStroke="#ddd"
+          tickStroke={tickStroke}
           trimTicks={trimTicks}
           maxTickLength={maxTickLength}
           tickFormatting={tickFormatting}
@@ -133,6 +141,20 @@ export function YAxis({
           showRefLines={showRefLines}
           showRefLabels={showRefLabels}
           onDimensionsChanged={handleTicksWidthChange}
+          showTicks={separated}
+          gridLineOffset={separated ? 12 : 5}
+        />
+      )}
+
+      {/* Axis line for separated style */}
+      {separated && (
+        <line
+          x1={0}
+          x2={0}
+          y1={0}
+          y2={dims.height}
+          stroke={tickStroke}
+          strokeWidth={1}
         />
       )}
 
