@@ -538,7 +538,7 @@ export function BandTooltipArea({
       {brushRect && brushDayCount !== null && (
         <CrosshairXLabel
           x={brushRect.x + brushRect.width / 2}
-          y={dims.height + 25}
+          y={dims.height + 10}
           text={`${brushDayCount}D`}
         />
       )}
