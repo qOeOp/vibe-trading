@@ -311,6 +311,11 @@ export function BandTooltipArea({
     (event: MouseEvent<SVGRectElement>) => {
       if (data.length === 0) return;
 
+      // Clear day count when starting new crosshair interaction (not during brush drag)
+      if (!isDraggingRef.current && brushDayCount !== null) {
+        setBrushDayCount(null);
+      }
+
       const target = event.target as SVGRectElement;
       const rect = target.getBoundingClientRect();
       const xPos = event.clientX - rect.left;
@@ -404,7 +409,7 @@ export function BandTooltipArea({
         });
       }
     },
-    [data, xScale, yScale, dims, auxLookup, tooltipDisabled, tooltipTemplate, showTooltip, onHoverStrategy, onHoverInfo, brushZoomEnabled, hideTooltip],
+    [data, xScale, yScale, dims, auxLookup, tooltipDisabled, tooltipTemplate, showTooltip, onHoverStrategy, onHoverInfo, brushZoomEnabled, hideTooltip, brushDayCount],
   );
 
   const handleMouseUp = useCallback(
