@@ -311,9 +311,10 @@ export function BandTooltipArea({
     (event: MouseEvent<SVGRectElement>) => {
       if (data.length === 0) return;
 
-      // Clear day count when starting new crosshair interaction (not during brush drag)
-      if (!isDraggingRef.current && brushDayCount !== null) {
+      // Clear brush state when starting new crosshair interaction (not during brush drag)
+      if (!isDraggingRef.current && (brushDayCount !== null || brushRect !== null)) {
         setBrushDayCount(null);
+        setBrushRect(null);
       }
 
       const target = event.target as SVGRectElement;
@@ -409,7 +410,7 @@ export function BandTooltipArea({
         });
       }
     },
-    [data, xScale, yScale, dims, auxLookup, tooltipDisabled, tooltipTemplate, showTooltip, onHoverStrategy, onHoverInfo, brushZoomEnabled, hideTooltip, brushDayCount],
+    [data, xScale, yScale, dims, auxLookup, tooltipDisabled, tooltipTemplate, showTooltip, onHoverStrategy, onHoverInfo, brushZoomEnabled, hideTooltip, brushDayCount, brushRect],
   );
 
   const handleMouseUp = useCallback(
@@ -456,7 +457,8 @@ export function BandTooltipArea({
 
       dragStartXRef.current = null;
       isDraggingRef.current = false;
-      setBrushRect(null);
+      // Note: Do NOT clear brushRect here - it should persist after release
+      // and only be cleared on next crosshair interaction or mouse leave
     },
     [brushZoomEnabled, data, zoomData, xScale, dims.width, onBrushZoom],
   );
