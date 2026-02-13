@@ -532,6 +532,15 @@ export function BandTooltipArea({
         </>
       )}
 
+      {/* Brush day count label */}
+      {brushRect && brushDayCount !== null && (
+        <CrosshairXLabel
+          x={brushRect.x + brushRect.width / 2}
+          y={-10}
+          text={`${brushDayCount}D`}
+        />
+      )}
+
       {/* Crosshair lines + dot (semi-transparent) */}
       <g style={crosshairStyle}>
         {/* Vertical dashed line */}
