@@ -280,6 +280,7 @@ export function BandTooltipArea({
   const dragStartXRef = useRef<number | null>(null);
   const isDraggingRef = useRef(false);
   const [brushRect, setBrushRect] = useState<{ x: number; width: number } | null>(null);
+  const [brushDayCount, setBrushDayCount] = useState<number | null>(null);
 
   const { showTooltip, hideTooltip } = useChartTooltip();
 
@@ -310,6 +311,12 @@ export function BandTooltipArea({
     (event: MouseEvent<SVGRectElement>) => {
       if (data.length === 0) return;
 
+      // Clear brush state when starting new crosshair interaction (not during brush drag)
+      if (!isDraggingRef.current && (brushDayCount !== null || brushRect !== null)) {
+        setBrushDayCount(null);
+        setBrushRect(null);
+      }
+
       const target = event.target as SVGRectElement;
       const rect = target.getBoundingClientRect();
       const xPos = event.clientX - rect.left;
@@ -323,6 +330,12 @@ export function BandTooltipArea({
           const left = Math.max(0, Math.min(dragStartXRef.current, xPos));
           const right = Math.min(dims.width, Math.max(dragStartXRef.current, xPos));
           setBrushRect({ x: left, width: right - left });
+
+          // Calculate trading day count
+          const startIdx = findClosestPointIndex(left, data, xScale);
+          const endIdx = findClosestPointIndex(right, data, xScale);
+          const dayCount = Math.abs(endIdx - startIdx) + 1;
+          setBrushDayCount(dayCount);
 
           // Suppress crosshair while brushing
           setCrosshair(INITIAL_CROSSHAIR);
@@ -397,7 +410,7 @@ export function BandTooltipArea({
         });
       }
     },
-    [data, xScale, yScale, dims, auxLookup, tooltipDisabled, tooltipTemplate, showTooltip, onHoverStrategy, onHoverInfo, brushZoomEnabled, hideTooltip],
+    [data, xScale, yScale, dims, auxLookup, tooltipDisabled, tooltipTemplate, showTooltip, onHoverStrategy, onHoverInfo, brushZoomEnabled, hideTooltip, brushDayCount, brushRect],
   );
 
   const handleMouseUp = useCallback(
@@ -444,7 +457,8 @@ export function BandTooltipArea({
 
       dragStartXRef.current = null;
       isDraggingRef.current = false;
-      setBrushRect(null);
+      // Note: Do NOT clear brushRect here - it should persist after release
+      // and only be cleared on next crosshair interaction or mouse leave
     },
     [brushZoomEnabled, data, zoomData, xScale, dims.width, onBrushZoom],
   );
@@ -464,6 +478,7 @@ export function BandTooltipArea({
     dragStartXRef.current = null;
     isDraggingRef.current = false;
     setBrushRect(null);
+    setBrushDayCount(null);
   }, [hideTooltip, onHoverStrategy, onHoverInfo]);
 
   const crosshairOpacity = crosshair.visible ? 0.7 : 0;
@@ -517,6 +532,15 @@ export function BandTooltipArea({
             fill="rgba(0,0,0,0.04)" pointerEvents="none"
           />
         </>
+      )}
+
+      {/* Brush day count label */}
+      {brushRect && brushDayCount !== null && (
+        <CrosshairXLabel
+          x={brushRect.x + brushRect.width / 2}
+          y={dims.height + 10}
+          text={`${brushDayCount}D`}
+        />
       )}
 
       {/* Crosshair lines + dot (semi-transparent) */}
