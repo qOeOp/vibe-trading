@@ -280,6 +280,7 @@ export function BandTooltipArea({
   const dragStartXRef = useRef<number | null>(null);
   const isDraggingRef = useRef(false);
   const [brushRect, setBrushRect] = useState<{ x: number; width: number } | null>(null);
+  const [brushDayCount, setBrushDayCount] = useState<number | null>(null);
 
   const { showTooltip, hideTooltip } = useChartTooltip();
 
