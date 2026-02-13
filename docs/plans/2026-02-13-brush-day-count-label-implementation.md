@@ -230,11 +230,13 @@ After the closing `</>` of the brush rect overlay and before the crosshair `<g s
 {brushRect && brushDayCount !== null && (
   <CrosshairXLabel
     x={brushRect.x + brushRect.width / 2}
-    y={-10}
+    y={dims.height + 10}
     text={`${brushDayCount}D`}
   />
 )}
 ```
+
+**Note:** Position changed from `y={-10}` (above chart) to `y={dims.height + 10}` (below chart) to match crosshair positioning and avoid overlapping with range selector.
 
 The structure should be:
 
@@ -250,7 +252,7 @@ The structure should be:
 {brushRect && brushDayCount !== null && (
   <CrosshairXLabel
     x={brushRect.x + brushRect.width / 2}
-    y={-10}
+    y={dims.height + 10}
     text={`${brushDayCount}D`}
   />
 )}

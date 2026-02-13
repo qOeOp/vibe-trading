@@ -419,6 +419,7 @@ export function BandTooltipArea({
         dragStartXRef.current = null;
         isDraggingRef.current = false;
         setBrushRect(null);
+        setBrushDayCount(null);
         return;
       }
 
