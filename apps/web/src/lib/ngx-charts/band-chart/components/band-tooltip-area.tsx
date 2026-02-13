@@ -476,6 +476,7 @@ export function BandTooltipArea({
     dragStartXRef.current = null;
     isDraggingRef.current = false;
     setBrushRect(null);
+    setBrushDayCount(null);
   }, [hideTooltip, onHoverStrategy, onHoverInfo]);
 
   const crosshairOpacity = crosshair.visible ? 0.7 : 0;
