@@ -325,6 +325,12 @@ export function BandTooltipArea({
           const right = Math.min(dims.width, Math.max(dragStartXRef.current, xPos));
           setBrushRect({ x: left, width: right - left });
 
+          // Calculate trading day count
+          const startIdx = findClosestPointIndex(left, data, xScale);
+          const endIdx = findClosestPointIndex(right, data, xScale);
+          const dayCount = Math.abs(endIdx - startIdx) + 1;
+          setBrushDayCount(dayCount);
+
           // Suppress crosshair while brushing
           setCrosshair(INITIAL_CROSSHAIR);
           hideTooltip();
