@@ -188,8 +188,17 @@ npx nx reset                           # Clear Nx cache
 ### Build & Deploy
 
 ```bash
-# Build all images
+# Build all images (local only, amd64)
 ./tools/scripts/build-all.sh
+
+# Build and push multi-platform images (amd64 + arm64)
+./tools/scripts/build-all.sh <registry> <tag> true
+
+# Example: Build and push to Aliyun registry
+./tools/scripts/build-all.sh \
+  crpi-8qkmcs5mqpg6052i.cn-shanghai.personal.cr.aliyuncs.com/qoeop \
+  latest \
+  true
 
 # Deploy with local Kafka (testing)
 ./tools/scripts/deploy.sh local-kafka latest
@@ -202,6 +211,12 @@ export REDIS_URL=redis://your-redis:6379
 # Manual deployment
 docker-compose -f docker-compose.prod.yml --profile local-kafka up -d
 ```
+
+**Multi-platform Build Notes:**
+- Uses `docker buildx` to build for both linux/amd64 and linux/arm64
+- First run will create a multiplatform builder (takes a few minutes)
+- Push to registry enables both architectures to be pulled by different platforms
+- Without push flag, only builds amd64 locally (faster for testing)
 
 ## Design System
 
