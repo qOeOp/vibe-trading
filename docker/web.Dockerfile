@@ -1,5 +1,6 @@
 # Multi-stage build for web frontend
-FROM node:20-alpine AS builder
+# Use Debian slim instead of Alpine for Next.js SWC compatibility
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
