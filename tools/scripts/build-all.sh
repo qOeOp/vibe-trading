@@ -49,8 +49,6 @@ for SERVICE in "${SERVICES[@]}"; do
     docker buildx build \
       --platform linux/amd64,linux/arm64 \
       -f docker/${SERVICE}.Dockerfile \
-      -t ${IMAGE_NAME}:${TAG} \
-      -t ${IMAGE_NAME}:latest \
       -t ${FULL_IMAGE} \
       --push \
       .
