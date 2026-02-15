@@ -1,315 +1,546 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
-import { AgGridReact } from "ag-grid-react";
-import type { CustomCellRendererProps } from "ag-grid-react";
+import { useMemo, useCallback, useState, Fragment } from "react";
 import {
-  AllCommunityModule,
-  ModuleRegistry,
-  themeQuartz,
-} from "ag-grid-community";
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from "@tanstack/react-table";
 import type {
-  ColDef,
-  GetRowIdFunc,
-  GetRowIdParams,
-  ValueFormatterParams,
-  CellClassParams,
-} from "ag-grid-community";
-import type { LibraryFactor } from "../types";
+  ColumnDef,
+  SortingState,
+  RowSelectionState,
+  Row,
+} from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import type { Factor } from "../types";
+import {
+  CATEGORY_COLORS,
+  STATUS_COLORS,
+  STATUS_LABELS,
+  SOURCE_LABELS,
+  SOURCE_COLORS,
+  TYPE_LABELS,
+  TYPE_COLORS,
+} from "../types";
+import { useLibraryStore } from "../store/use-library-store";
+import { SparklineSVG } from "./sparkline-svg";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+// ─── Formatters ──────────────────────────────────────────
 
-const mineGridTheme = themeQuartz.withParams({
-  accentColor: "#2d2d2d",
-  backgroundColor: "#ffffff",
-  borderColor: "#e8e5e0",
-  borderRadius: 0,
-  browserColorScheme: "light",
-  chromeBackgroundColor: "#faf9f7",
-  foregroundColor: "#1a1a1a",
-  fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
-  fontSize: 13,
-  headerBackgroundColor: "#f5f3ef",
-  headerFontWeight: 600,
-  headerTextColor: "#6b6b6b",
-  headerFontSize: 12,
-  oddRowBackgroundColor: "#fefefe",
-  rowBorder: { color: "#f0ede8" },
-  rowHoverColor: "#f7f5f1",
-  spacing: 8,
-  wrapperBorderRadius: 0,
-  cellHorizontalPadding: 16,
-  columnBorder: false,
-});
+function formatIC(v: number | null | undefined): string {
+  if (v == null) return "";
+  return `${v >= 0 ? "+" : ""}${v.toFixed(3)}`;
+}
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "价值": "#3b82f6",
-  "质量": "#10b981",
-  "动量": "#f97316",
-  "情绪": "#a855f7",
-  "波动": "#eab308",
-  "流动性": "#06b6d4",
-  "规模": "#64748b",
-};
+function formatNum2(v: number | null | undefined): string {
+  if (v == null) return "";
+  return v.toFixed(2);
+}
 
-const STATUS_STYLES: Record<string, { color: string; fontWeight: number }> = {
-  "强有效": { color: "#F6465D", fontWeight: 600 },
-  "有效": { color: "#2EBD85", fontWeight: 500 },
-  "弱": { color: "#76808E", fontWeight: 500 },
-  "反向": { color: "#f59e0b", fontWeight: 500 },
-};
+function formatPct(v: number | null | undefined): string {
+  if (v == null) return "";
+  return `${Math.round(v)}%`;
+}
 
-function FactorNameCellRenderer({ data }: CustomCellRendererProps<LibraryFactor>) {
-  if (!data) return null;
+function formatCapacity(v: number | null | undefined): string {
+  if (v == null) return "";
+  if (v >= 10000) return `${(v / 10000).toFixed(0)}亿`;
+  return `${v.toFixed(0)}万`;
+}
+
+// ─── Cell Renderers ──────────────────────────────────────
+
+function NameCell({ factor }: { factor: Factor }) {
+  const typeColor = TYPE_COLORS[factor.factorType];
+  const typeLabel = TYPE_LABELS[factor.factorType];
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <b style={{ fontSize: 13 }}>{data.name}</b>
-      <span style={{ opacity: 0.55, fontSize: 12 }}>{data.description}</span>
+    <div className="flex items-center gap-1.5">
+      <span
+        className="inline-flex items-center justify-center shrink-0 rounded-[3px]"
+        style={{
+          width: 16,
+          height: 16,
+          backgroundColor: `${typeColor}18`,
+          color: typeColor,
+          fontSize: 9,
+          fontWeight: 700,
+          lineHeight: 1,
+        }}
+      >
+        {typeLabel[0]}
+      </span>
+      <span className="text-[13px] font-semibold text-mine-text truncate">
+        {factor.name}
+      </span>
+      <span className="text-[11px] font-mono text-mine-muted/50">
+        {factor.version}
+      </span>
     </div>
   );
 }
 
-function CategoryCellRenderer({ value }: CustomCellRendererProps<LibraryFactor>) {
-  if (!value) return null;
-  const c = CATEGORY_COLORS[value as string] ?? "#888";
+function CategoryBadge({ category }: { category: string }) {
+  const c = CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] ?? "#888";
   return (
     <span
+      className="inline-flex items-center rounded-md text-[11px] font-semibold tracking-[0.02em]"
       style={{
-        display: "inline-flex",
-        alignItems: "center",
         padding: "2px 10px",
-        fontSize: 11,
-        fontWeight: 600,
-        borderRadius: 6,
         backgroundColor: `${c}18`,
         color: c,
-        letterSpacing: "0.02em",
       }}
     >
-      {value as string}
+      {category}
     </span>
   );
 }
 
-function StatusCellRenderer({ value }: CustomCellRendererProps<LibraryFactor>) {
-  if (!value) return null;
-  const s = STATUS_STYLES[value as string] ?? { color: "#888", fontWeight: 400 };
+function StatusBadge({ status }: { status: string }) {
+  const color = STATUS_COLORS[status as keyof typeof STATUS_COLORS] ?? "#888";
+  const label = STATUS_LABELS[status as keyof typeof STATUS_LABELS] ?? status;
   return (
-    <span style={{ color: s.color, fontWeight: s.fontWeight, fontSize: 12 }}>
-      {value as string}
+    <span
+      className="inline-flex items-center rounded text-[10px] font-bold tracking-[0.05em]"
+      style={{
+        padding: "2px 8px",
+        backgroundColor: `${color}18`,
+        color: color,
+      }}
+    >
+      {label}
     </span>
   );
 }
 
-function SparklineCellRenderer({ data }: CustomCellRendererProps<LibraryFactor>) {
-  if (!data) return null;
-  const points = data.icTrend;
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const range = max - min || 1;
-  const w = 110;
-  const h = 28;
-  const isUp = points[points.length - 1] >= points[0];
-  const color = isUp ? "#2EBD85" : "#F6465D";
-
-  const d = points
-    .map((v, i) => {
-      const x = (i / (points.length - 1)) * w;
-      const y = h - ((v - min) / range) * (h - 4) - 2;
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-
+function SourceLabel({ source }: { source: string }) {
+  const label = SOURCE_LABELS[source as keyof typeof SOURCE_LABELS] ?? source;
+  const color = SOURCE_COLORS[source as keyof typeof SOURCE_COLORS] ?? "#888";
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <path d={d} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
+    <span style={{ color }} className="text-[11px] font-medium">
+      {label}
+    </span>
   );
 }
 
-function icFormatter(params: ValueFormatterParams): string {
-  if (params.value == null) return "";
-  const v = params.value as number;
-  return `${v >= 0 ? "+" : ""}${v.toFixed(3)}`;
+function PeakBadge({ factor }: { factor: Factor }) {
+  const profile = factor.universeProfile;
+  if (!profile || profile.length === 0) return null;
+
+  const defaultPool = factor.benchmarkConfig.universe;
+  const best = profile.reduce((a, b) =>
+    Math.abs(b.ic) > Math.abs(a.ic) ? b : a,
+  );
+
+  if (best.universe === defaultPool) return null;
+
+  return (
+    <span
+      className="inline-flex items-center rounded text-[10px] font-semibold tracking-[0.02em] whitespace-nowrap"
+      style={{
+        padding: "2px 8px",
+        backgroundColor: "rgba(38, 166, 154, 0.12)",
+        color: "#26a69a",
+      }}
+    >
+      {best.universe} {best.ic >= 0 ? "+" : ""}{best.ic.toFixed(3)}
+    </span>
+  );
 }
 
-function numFormatter2(params: ValueFormatterParams): string {
-  if (params.value == null) return "";
-  return (params.value as number).toFixed(2);
+// ─── Sort Header ─────────────────────────────────────────
+
+function SortableHeader({
+  label,
+  column,
+  align = "left",
+}: {
+  label: string;
+  column: { getIsSorted: () => false | "asc" | "desc"; toggleSorting: (desc?: boolean) => void };
+  align?: "left" | "right";
+}) {
+  const sorted = column.getIsSorted();
+  return (
+    <button
+      type="button"
+      onClick={() => column.toggleSorting(sorted === "asc")}
+      className={`flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-mine-muted hover:text-mine-text transition-colors select-none ${
+        align === "right" ? "ml-auto" : ""
+      }`}
+    >
+      {label}
+      {sorted === "asc" ? (
+        <ArrowUp className="w-3 h-3 text-mine-text" />
+      ) : sorted === "desc" ? (
+        <ArrowDown className="w-3 h-3 text-mine-text" />
+      ) : (
+        <ArrowUpDown className="w-3 h-3 opacity-0 group-hover/th:opacity-40 transition-opacity" />
+      )}
+    </button>
+  );
 }
 
-function pctFormatter(params: ValueFormatterParams): string {
-  if (params.value == null) return "";
-  return `${Math.round(params.value as number)}%`;
-}
-
-function drawdownFormatter(params: ValueFormatterParams): string {
-  if (params.value == null) return "";
-  return `${(params.value as number).toFixed(1)}%`;
-}
-
-const EMPTY_VALUE_FORMATTER = (): string => "";
-
-function icCellClass(params: CellClassParams): string {
-  if (params.value == null) return "";
-  return (params.value as number) >= 0 ? "ag-cell-value-up" : "ag-cell-value-down";
-}
-
-function ratioCellClass(params: CellClassParams): string {
-  if (params.value == null) return "";
-  const v = params.value as number;
-  if (v >= 1.5) return "ag-cell-value-up ag-cell-bold";
-  if (v >= 0) return "ag-cell-value-up";
-  return "ag-cell-value-down";
-}
-
-const DRAWDOWN_CELL_CLASS = "ag-cell-value-down";
+// ─── FactorGrid Component ────────────────────────────────
 
 interface FactorGridProps {
-  factors: LibraryFactor[];
+  factors: Factor[];
 }
 
 export function FactorGrid({ factors }: FactorGridProps) {
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      flex: 1,
-      filter: true,
-      sortable: true,
-      resizable: true,
-    }),
-    []
+  const selectedFactorId = useLibraryStore((s) => s.selectedFactorId);
+  const selectFactor = useLibraryStore((s) => s.selectFactor);
+  const selectAllFactors = useLibraryStore((s) => s.selectAllFactors);
+  const clearSelection = useLibraryStore((s) => s.clearSelection);
+  const storeSelectedIds = useLibraryStore((s) => s.selectedFactorIds);
+
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  // Convert store Set<string> → TanStack RowSelectionState
+  const rowSelection = useMemo<RowSelectionState>(() => {
+    const state: RowSelectionState = {};
+    for (const id of storeSelectedIds) {
+      // TanStack uses row index by default, but with getRowId we use factor.id
+      const idx = factors.findIndex((f) => f.id === id);
+      if (idx >= 0) state[String(idx)] = true;
+    }
+    return state;
+  }, [storeSelectedIds, factors]);
+
+  // Sync TanStack selection back to store
+  const onRowSelectionChange = useCallback(
+    (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => {
+      const newState = typeof updaterOrValue === "function"
+        ? updaterOrValue(rowSelection)
+        : updaterOrValue;
+      const ids = Object.keys(newState)
+        .filter((k) => newState[k])
+        .map((k) => factors[Number(k)]?.id)
+        .filter(Boolean) as string[];
+      if (ids.length === 0) {
+        clearSelection();
+      } else {
+        selectAllFactors(ids);
+      }
+    },
+    [rowSelection, factors, clearSelection, selectAllFactors],
   );
 
-  const getRowId = useCallback<GetRowIdFunc>(
-    ({ data }: GetRowIdParams) => data.id,
-    []
-  );
-
-  const columnDefs = useMemo<ColDef<LibraryFactor>[]>(
+  const columns = useMemo<ColumnDef<Factor>[]>(
     () => [
+      // Checkbox column
       {
-        headerName: "因子",
-        field: "name",
-        cellRenderer: FactorNameCellRenderer,
-        cellDataType: "text",
-        minWidth: 200,
-        flex: 2.5,
-        filter: true,
+        id: "select",
+        size: 40,
+        enableSorting: false,
+        enableResizing: false,
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="全选"
+            className="translate-y-[1px]"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="选择此因子"
+            className="translate-y-[1px]"
+            onClick={(e) => e.stopPropagation()}
+          />
+        ),
       },
+      // Name
       {
-        headerName: "类别",
-        field: "category",
-        cellRenderer: CategoryCellRenderer,
-        cellDataType: "text",
-        minWidth: 90,
-        maxWidth: 100,
-        filter: true,
+        accessorKey: "name",
+        header: ({ column }) => <SortableHeader label="因子" column={column} />,
+        size: 220,
+        minSize: 180,
+        cell: ({ row }) => <NameCell factor={row.original} />,
       },
+      // Category
       {
-        headerName: "IC均值",
-        field: "icMean",
-        cellDataType: "number",
-        valueFormatter: icFormatter,
-        cellClass: icCellClass,
-        type: "rightAligned",
-        minWidth: 100,
-        maxWidth: 110,
+        accessorKey: "category",
+        header: ({ column }) => <SortableHeader label="类别" column={column} />,
+        size: 90,
+        minSize: 85,
+        cell: ({ row }) => <CategoryBadge category={row.original.category} />,
       },
+      // Source
       {
-        headerName: "ICIR",
-        field: "icir",
-        cellDataType: "number",
-        valueFormatter: numFormatter2,
-        cellClass: ratioCellClass,
-        type: "rightAligned",
-        minWidth: 85,
-        maxWidth: 95,
+        accessorKey: "source",
+        header: ({ column }) => <SortableHeader label="来源" column={column} />,
+        size: 75,
+        minSize: 70,
+        cell: ({ row }) => <SourceLabel source={row.original.source} />,
       },
+      // IC
       {
-        headerName: "胜率",
-        field: "winRate",
-        cellDataType: "number",
-        valueFormatter: pctFormatter,
-        type: "rightAligned",
-        minWidth: 75,
-        maxWidth: 85,
+        accessorKey: "ic",
+        header: ({ column }) => (
+          <SortableHeader label="IC" column={column} align="right" />
+        ),
+        size: 90,
+        minSize: 85,
+        cell: ({ row }) => {
+          const v = row.original.ic;
+          return (
+            <span
+              className={`font-mono tabular-nums text-[13px] tracking-[-0.01em] ${
+                v >= 0 ? "text-market-down-medium" : "text-market-up-medium"
+              }`}
+            >
+              {formatIC(v)}
+            </span>
+          );
+        },
+        meta: { align: "right" },
       },
+      // Peak Badge
       {
-        headerName: "周期",
-        field: "period",
-        cellDataType: "text",
-        minWidth: 70,
-        maxWidth: 80,
-        sortable: false,
-        filter: false,
+        id: "peak",
+        header: () => (
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-mine-muted">
+            峰值
+          </span>
+        ),
+        size: 120,
+        minSize: 110,
+        enableSorting: false,
+        cell: ({ row }) => <PeakBadge factor={row.original} />,
       },
+      // IR
       {
-        headerName: "换手",
-        field: "turnover",
-        cellDataType: "number",
-        valueFormatter: pctFormatter,
-        type: "rightAligned",
-        minWidth: 75,
-        maxWidth: 85,
+        accessorKey: "ir",
+        header: ({ column }) => (
+          <SortableHeader label="IR" column={column} align="right" />
+        ),
+        size: 80,
+        minSize: 75,
+        cell: ({ row }) => {
+          const v = row.original.ir;
+          const absV = Math.abs(v);
+          const cls = absV >= 1.5
+            ? "text-market-down-medium font-semibold"
+            : absV >= 0.5
+              ? "text-market-down-medium"
+              : "text-market-up-medium";
+          return (
+            <span className={`font-mono tabular-nums text-[13px] tracking-[-0.01em] ${cls}`}>
+              {formatNum2(v)}
+            </span>
+          );
+        },
+        meta: { align: "right" },
       },
+      // Win Rate
       {
-        headerName: "最大回撤",
-        field: "maxDrawdown",
-        cellDataType: "number",
-        valueFormatter: drawdownFormatter,
-        cellClass: DRAWDOWN_CELL_CLASS,
-        type: "rightAligned",
-        minWidth: 100,
-        maxWidth: 110,
+        accessorKey: "winRate",
+        header: ({ column }) => (
+          <SortableHeader label="胜率" column={column} align="right" />
+        ),
+        size: 70,
+        minSize: 65,
+        cell: ({ row }) => (
+          <span className="font-mono tabular-nums text-[13px] text-mine-text tracking-[-0.01em]">
+            {formatPct(row.original.winRate)}
+          </span>
+        ),
+        meta: { align: "right" },
       },
+      // Turnover
       {
-        headerName: "Sharpe",
-        field: "sharpe",
-        cellDataType: "number",
-        valueFormatter: numFormatter2,
-        cellClass: ratioCellClass,
-        type: "rightAligned",
-        minWidth: 90,
-        maxWidth: 100,
+        accessorKey: "turnover",
+        header: ({ column }) => (
+          <SortableHeader label="换手" column={column} align="right" />
+        ),
+        size: 70,
+        minSize: 65,
+        cell: ({ row }) => (
+          <span className="font-mono tabular-nums text-[13px] text-mine-text tracking-[-0.01em]">
+            {formatPct(row.original.turnover)}
+          </span>
+        ),
+        meta: { align: "right" },
       },
+      // Capacity
       {
-        headerName: "IC趋势",
-        field: "icTrend",
-        cellRenderer: SparklineCellRenderer,
-        valueFormatter: EMPTY_VALUE_FORMATTER,
-        sortable: false,
-        filter: false,
-        minWidth: 140,
-        maxWidth: 160,
+        accessorKey: "capacity",
+        header: ({ column }) => (
+          <SortableHeader label="容量" column={column} align="right" />
+        ),
+        size: 75,
+        minSize: 70,
+        cell: ({ row }) => (
+          <span className="font-mono tabular-nums text-[13px] text-mine-text tracking-[-0.01em]">
+            {formatCapacity(row.original.capacity)}
+          </span>
+        ),
+        meta: { align: "right" },
       },
+      // IC Trend (Sparkline)
       {
-        headerName: "状态",
-        field: "status",
-        cellRenderer: StatusCellRenderer,
-        cellDataType: "text",
-        minWidth: 80,
-        maxWidth: 90,
-        filter: true,
+        id: "icTrend",
+        header: () => (
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-mine-muted">
+            IC趋势
+          </span>
+        ),
+        size: 130,
+        minSize: 120,
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div className="py-1">
+            <SparklineSVG data={row.original.icTrend} />
+          </div>
+        ),
+      },
+      // Status
+      {
+        accessorKey: "status",
+        header: ({ column }) => <SortableHeader label="状态" column={column} />,
+        size: 80,
+        minSize: 75,
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       },
     ],
-    []
+    [],
+  );
+
+  const table = useReactTable({
+    data: factors,
+    columns,
+    state: {
+      sorting,
+      rowSelection,
+    },
+    onSortingChange: setSorting,
+    onRowSelectionChange,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    enableRowSelection: true,
+  });
+
+  const handleRowClick = useCallback(
+    (row: Row<Factor>) => {
+      const factorId = row.original.id;
+      selectFactor(selectedFactorId === factorId ? null : factorId);
+    },
+    [selectedFactorId, selectFactor],
   );
 
   return (
-    <div className="ag-grid-mine" style={{ width: "100%" }}>
-      <AgGridReact<LibraryFactor>
-        theme={mineGridTheme}
-        rowData={factors}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        getRowId={getRowId}
-        rowHeight={46}
-        headerHeight={44}
-        animateRows
-        suppressCellFocus
-        domLayout="autoHeight"
-        enableCellTextSelection
-      />
+    <div className="mine-table w-full">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow
+              key={headerGroup.id}
+              className="border-b border-mine-border/50 bg-[#f5f3ef] hover:bg-[#f5f3ef]"
+            >
+              {headerGroup.headers.map((header) => {
+                const meta = header.column.columnDef.meta as
+                  | { align?: "left" | "right" }
+                  | undefined;
+                return (
+                  <TableHead
+                    key={header.id}
+                    className={`group/th h-10 px-4 ${
+                      meta?.align === "right" ? "text-right" : "text-left"
+                    }`}
+                    style={{
+                      width: header.getSize(),
+                      minWidth: header.column.columnDef.minSize,
+                    }}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
+                className="h-24 text-center text-mine-muted text-sm"
+              >
+                暂无数据
+              </TableCell>
+            </TableRow>
+          ) : (
+            table.getRowModel().rows.map((row, idx) => {
+              const factor = row.original;
+              const isActive = selectedFactorId === factor.id;
+              const isProbation = factor.status === "PROBATION";
+              const isRetired = factor.status === "RETIRED";
+
+              return (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() ? "selected" : undefined}
+                  onClick={() => handleRowClick(row)}
+                  className={`
+                    cursor-pointer transition-colors border-b border-[#f0ede8]
+                    ${idx % 2 === 1 ? "bg-[#fefefe]" : "bg-white"}
+                    ${isActive ? "!bg-mine-accent-teal/5 ring-1 ring-inset ring-mine-accent-teal/20" : ""}
+                    ${isProbation ? "border-l-[3px] border-l-[#f5a623]" : ""}
+                    ${isRetired ? "opacity-60 grayscale-[0.5] bg-[#f9f9f9]" : ""}
+                    hover:bg-[#f7f5f1]
+                  `}
+                  style={{ height: 44 }}
+                >
+                  {row.getVisibleCells().map((cell) => {
+                    const meta = cell.column.columnDef.meta as
+                      | { align?: "left" | "right" }
+                      | undefined;
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={`px-4 py-0 ${
+                          meta?.align === "right" ? "text-right" : "text-left"
+                        }`}
+                        style={{
+                          width: cell.column.getSize(),
+                          minWidth: cell.column.columnDef.minSize,
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }

@@ -115,6 +115,7 @@ export * from './sankey';
 export * from './polar-chart';
 export * from './line-race';
 export * from './band-chart';
+export * from './radar-chart';
 
 // Box chart - avoid BoxChartSeries/BoxChartMultiSeries conflict with types
 export {

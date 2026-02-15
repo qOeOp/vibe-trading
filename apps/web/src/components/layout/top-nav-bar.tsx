@@ -12,14 +12,15 @@ import {
   Home,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { MarketTicker } from "./market-ticker";
 import { useTopBarExtraNavItems } from "./top-bar-slot";
 
-interface NavItem {
+export interface NavItem {
   id: string;
   label: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   href?: string;
 }
 
@@ -41,7 +42,26 @@ const ROUTE_HOME_OVERRIDES: { prefix: string; label: string; icon: LucideIcon; h
 
 const DEFAULT_ACTIVE_NAV = "market";
 
-export function TopNavBar() {
+interface TopNavBarProps {
+  /** Replace left area (default: MarketTicker) */
+  leftSlot?: ReactNode;
+  /** Fully override nav pills. When set, BASE_NAV_ITEMS & extras are ignored. */
+  navItems?: NavItem[];
+  /** Custom click handler for nav pills (default: router.push) */
+  onNavClick?: (item: NavItem, index: number) => void;
+  /** Custom active pill id (default: pathname-based) */
+  activeNavId?: string;
+  /** Extra buttons after Bell */
+  trailingActions?: ReactNode;
+}
+
+export function TopNavBar({
+  leftSlot,
+  navItems: navItemsOverride,
+  onNavClick,
+  activeNavId,
+  trailingActions,
+}: TopNavBarProps = {}) {
   const [activeNav, setActiveNav] = useState(DEFAULT_ACTIVE_NAV);
   const extraNavItems = useTopBarExtraNavItems();
   const router = useRouter();
@@ -52,21 +72,28 @@ export function TopNavBar() {
     setActiveNav(DEFAULT_ACTIVE_NAV);
   }, [pathname]);
 
-  const handleNavClick = useCallback((item: NavItem) => {
-    setActiveNav(item.id);
-    if (item.href) {
-      router.push(item.href);
-    }
-  }, [router]);
+  const handleNavClick = useCallback(
+    (item: NavItem, index: number) => {
+      if (onNavClick) {
+        onNavClick(item, index);
+        return;
+      }
+      setActiveNav(item.id);
+      if (item.href) {
+        router.push(item.href);
+      }
+    },
+    [onNavClick, router],
+  );
 
-  // Apply route-specific override to the "home" nav item, then merge extras
-  const navItems = useMemo(() => {
+  // Build nav items: use override if provided, otherwise default + extras
+  const computedNavItems = useMemo(() => {
     const override = ROUTE_HOME_OVERRIDES.find((o) => pathname.startsWith(o.prefix));
     const base = override
       ? BASE_NAV_ITEMS.map((item) =>
           item.id === "market"
             ? { ...item, label: override.label, icon: override.icon, href: override.href }
-            : item
+            : item,
         )
       : BASE_NAV_ITEMS;
 
@@ -87,26 +114,32 @@ export function TopNavBar() {
     return result;
   }, [extraNavItems, pathname]);
 
+  const displayNavItems = navItemsOverride ?? computedNavItems;
+
+  const isItemActive = (item: NavItem) => {
+    if (activeNavId !== undefined) return item.id === activeNavId;
+    if (item.href) return pathname === item.href;
+    return activeNav === item.id;
+  };
+
   return (
     <header className="flex items-center h-14 bg-transparent gap-4 pr-4 shrink-0">
-      {/* 左侧：行情滚动条 */}
+      {/* Left: MarketTicker or custom slot */}
       <div className="flex-1 overflow-hidden">
-        <MarketTicker />
+        {leftSlot ?? <MarketTicker />}
       </div>
 
-      {/* 右侧：导航按钮和通知 */}
+      {/* Right: nav pills + actions */}
       <div className="flex items-center gap-4 shrink-0">
         <nav className="flex items-center gap-1 bg-white/60 backdrop-blur-sm rounded-full p-1">
-          {navItems.map((item) => {
-            const { id, label, icon: Icon, href } = item;
-            const isActive = href
-              ? pathname === href
-              : activeNav === id;
+          {displayNavItems.map((item, index) => {
+            const { id, label, icon: Icon } = item;
+            const isActive = isItemActive(item);
             return (
               <button
                 type="button"
                 key={id}
-                onClick={() => handleNavClick(item)}
+                onClick={() => handleNavClick(item, index)}
                 aria-current={isActive ? "page" : undefined}
                 className={`flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
                   isActive
@@ -114,7 +147,7 @@ export function TopNavBar() {
                     : "text-mine-text hover:bg-white/50"
                 }`}
               >
-                <Icon className="w-4 h-4" strokeWidth={1.5} />
+                {Icon && <Icon className="w-4 h-4" strokeWidth={1.5} />}
                 {label}
               </button>
             );
@@ -129,6 +162,8 @@ export function TopNavBar() {
         >
           <Bell className="w-4 h-4 text-mine-text" strokeWidth={1.5} />
         </Button>
+
+        {trailingActions}
       </div>
     </header>
   );
