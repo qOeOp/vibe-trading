@@ -6,6 +6,7 @@ import {
   DetailStatItem,
 } from "@/components/shared/detail-panel";
 import type { Factor } from "../../types";
+import { WINSORIZATION_LABELS } from "../../types";
 
 // ─── Helpers ─────────────────────────────────────────────
 
@@ -82,7 +83,7 @@ interface StatisticsSectionProps {
 
 function StatisticsSection({ factor }: StatisticsSectionProps) {
   const cfg = factor.benchmarkConfig;
-  const benchmarkSuffix = `${cfg.universe} · ${cfg.icMethod} · ${cfg.rebalanceDays}D`;
+  const benchmarkSuffix = `${cfg.universe} · ${cfg.icMethod} · ${WINSORIZATION_LABELS[cfg.winsorization]} · ${cfg.rebalanceDays}日调仓`;
 
   return (
     <DetailSection title="核心指标" suffix={benchmarkSuffix}>
