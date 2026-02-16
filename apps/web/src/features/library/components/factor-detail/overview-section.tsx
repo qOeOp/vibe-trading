@@ -71,7 +71,7 @@ export function OverviewSection({ factor }: OverviewSectionProps) {
       {/* V-Score at top */}
       <VScoreIndicator vScore={factor.vScore} />
 
-      {/* 5-dimension radar below */}
+      {/* 7-dimension radar below */}
       <div className="flex justify-center mt-3">
         <RadarChart
           labels={[...RADAR_LABELS]}

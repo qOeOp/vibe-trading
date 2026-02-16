@@ -28,8 +28,7 @@ export function FactorDetailPanel({ factor }: FactorDetailPanelProps) {
     <DetailPanel
       title="因子详情"
       onClose={() => selectFactor(null)}
-      width={360}
-      className="h-full"
+      className="h-full w-full"
     >
       <AnimatePresence mode="wait">
         <motion.div
