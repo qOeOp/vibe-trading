@@ -66,12 +66,12 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
               style={
                 isReached
                   ? {
-                      width: isCurrent ? 28 : 22,
-                      height: isCurrent ? 28 : 22,
+                      width: 22,
+                      height: 22,
                       backgroundColor: "white",
                       border: `1.5px solid ${color}`,
                       boxShadow: isCurrent
-                        ? `0 0 0 2px white, 0 0 0 4px ${color}30`
+                        ? `0 0 0 2px white, 0 0 0 3.5px ${color}40`
                         : undefined,
                     }
                   : {
@@ -85,8 +85,8 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
               <Icon
                 className="transition-colors"
                 style={{
-                  width: isCurrent ? 14 : 11,
-                  height: isCurrent ? 14 : 11,
+                  width: 11,
+                  height: 11,
                   color: isReached ? color : "#c0bdb8",
                 }}
                 strokeWidth={isReached ? 2 : 1.5}
@@ -104,8 +104,7 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
           const color = STATUS_COLORS[s];
           const label = STATUS_LABELS[s];
 
-          // Match the width of the icon above for alignment
-          const nodeW = isCurrent ? 28 : 22;
+          const nodeW = 22;
 
           return (
             <div
