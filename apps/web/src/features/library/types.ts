@@ -143,6 +143,18 @@ export interface Factor {
   binaryTestRetention: number;
   /** V-Score: 因子相对估值 (IC_current - IC_5yr_mean) / IC_5yr_std */
   vScore: number;
+  /** IC 半衰期 (天数，IC 衰减到初始 50% 所需 lag 步数) */
+  icHalfLife: number;
+  /** 因子覆盖率 (0-1，有效计算的股票占比) */
+  coverageRate: number;
+  /** 多空年化收益 (%) */
+  longShortReturn: number;
+  /** 多空累计净值曲线 (240 点日频) */
+  longShortEquityCurve: number[];
+  /** 多头收益占比 (0-1，多头贡献 / 总多空收益) */
+  longSideReturnRatio: number;
+  /** IC 分布直方图 bins (20 个 bin 的频次) */
+  icHistogramBins: number[];
   /** 状态变更历史 */
   statusHistory: StatusChangeRecord[];
 }

@@ -284,13 +284,71 @@ function generateVScore(_baseIC: number, seed: number): number {
   return Math.round(vScore * 100) / 100;
 }
 
+// ─── New Field Generators ────────────────────────────────
+
+/** Calculate IC half-life from decay profile */
+function computeICHalfLife(decayProfile: number[]): number {
+  if (decayProfile.length === 0) return 20;
+  const initial = Math.abs(decayProfile[0]);
+  if (initial === 0) return 20;
+  const halfTarget = initial * 0.5;
+  for (let i = 0; i < decayProfile.length; i++) {
+    if (Math.abs(decayProfile[i]) <= halfTarget) return i + 1;
+  }
+  return decayProfile.length; // never reached half
+}
+
+/** Generate long-short equity curve: random walk with drift from longShortReturn */
+function generateLongShortEquityCurve(
+  annualReturn: number,
+  seed: number,
+): number[] {
+  const rand = createSeededRandom(seed);
+  const dailyReturn = annualReturn / 100 / 252;
+  const dailyVol = Math.abs(dailyReturn) * 3 + 0.002;
+  const curve: number[] = [1.0];
+  for (let i = 1; i < 240; i++) {
+    const dr = dailyReturn + (rand() - 0.5) * dailyVol * 2;
+    curve.push(Math.round(curve[i - 1] * (1 + dr) * 10000) / 10000);
+  }
+  return curve;
+}
+
+/** Generate long-short annual return from IC strength */
+function generateLongShortReturn(baseIC: number, seed: number): number {
+  const rand = createSeededRandom(seed);
+  const icStrength = Math.abs(baseIC);
+  // Stronger IC → higher L/S return; typical range 5%-30%
+  const base = icStrength * 300 + 3;
+  const noise = (rand() - 0.5) * 8;
+  return Math.round((base + noise) * 100) / 100;
+}
+
+/** Generate IC histogram bins from IC time series */
+function generateICHistogramBins(icTimeSeries: number[]): number[] {
+  if (icTimeSeries.length === 0) return new Array(20).fill(0);
+  const min = Math.min(...icTimeSeries);
+  const max = Math.max(...icTimeSeries);
+  const range = max - min || 0.001;
+  const binWidth = range / 20;
+  const bins = new Array(20).fill(0);
+  for (const ic of icTimeSeries) {
+    const idx = Math.min(19, Math.floor((ic - min) / binWidth));
+    bins[idx]++;
+  }
+  return bins;
+}
+
 // ─── Build Full Factor Objects ───────────────────────────
 
 function buildFactor(seed: FactorSeed, index: number): Factor {
+  const rand = createSeededRandom(index * 3331 + 7);
   const icVol = Math.abs(seed.ic) * 0.6 + 0.005;
   const icTimeSeries = generateICSparkline(240, seed.ic, icVol, index * 4219 + 99);
   const rankTestRetention = generateRankTestRetention(seed.ic, index);
   const binaryTestRetention = generateBinaryTestRetention(rankTestRetention, index);
+  const icDecayProfile = generateICDecayProfile(seed.ic, index * 6131 + 73);
+  const longShortReturn = generateLongShortReturn(seed.ic, index * 4391 + 31);
   return {
     ...seed,
     expression: seed.expression,
@@ -303,11 +361,17 @@ function buildFactor(seed: FactorSeed, index: number): Factor {
     icTimeSeries,
     benchmarkConfig: DEFAULT_BENCHMARK_CONFIG,
     icDistribution: computeICStats(icTimeSeries),
-    icDecayProfile: generateICDecayProfile(seed.ic, index * 6131 + 73),
+    icDecayProfile,
     universeProfile: generateUniverseProfile(seed.ic, seed.ir, seed.category, index * 8837 + 53),
     rankTestRetention,
     binaryTestRetention,
     vScore: generateVScore(seed.ic, index),
+    icHalfLife: computeICHalfLife(icDecayProfile),
+    coverageRate: Math.round((0.85 + rand() * 0.13) * 100) / 100, // 85-98%
+    longShortReturn,
+    longShortEquityCurve: generateLongShortEquityCurve(longShortReturn, index * 5113 + 59),
+    longSideReturnRatio: Math.round((0.45 + rand() * 0.35) * 100) / 100, // 45-80%
+    icHistogramBins: generateICHistogramBins(icTimeSeries),
     statusHistory: [],
   };
 }
