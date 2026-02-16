@@ -68,7 +68,7 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
                   ? {
                       width: isCurrent ? 28 : 22,
                       height: isCurrent ? 28 : 22,
-                      backgroundColor: `${color}14`,
+                      backgroundColor: "white",
                       border: `1.5px solid ${color}`,
                       boxShadow: isCurrent
                         ? `0 0 0 2px white, 0 0 0 4px ${color}30`
