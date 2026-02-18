@@ -1,11 +1,13 @@
+'use client';
+
 import {
   flexRender,
   type Row,
   type Table as TanstackTable,
-} from "@tanstack/react-table";
-import type * as React from "react";
+} from '@tanstack/react-table';
+import type * as React from 'react';
 
-import { DataTablePagination } from "@/lib/data-table/components/data-table-pagination";
+import { DataTablePagination } from '@/lib/data-table/components/data-table-pagination';
 import {
   Table,
   TableBody,
@@ -13,11 +15,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { getColumnPinningStyle } from "@/lib/data-table/utils";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/table';
+import { getColumnPinningStyle } from '@/lib/data-table/utils';
+import { cn } from '@/lib/utils';
 
-interface DataTableProps<TData> extends React.ComponentProps<"div"> {
+interface DataTableProps<TData> extends React.ComponentProps<'div'> {
   table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
   /** Custom empty state content (defaults to "No results.") */
@@ -58,35 +60,39 @@ export function DataTable<TData>({
    * Table enforces a default `minSize` of 20, inflating small columns
    * (e.g. size:3 → getSize():20) and breaking percentage totals.
    */
-  const getColumnWidth = (header: (typeof headerGroups)[0]["headers"][0]) => {
+  const getColumnWidth = (header: (typeof headerGroups)[0]['headers'][0]) => {
     const defSize = header.column.columnDef.size;
     return defSize != null ? `${defSize}%` : undefined;
   };
 
   return (
     <div
-      className={cn("flex w-full flex-col gap-2.5 overflow-auto", className)}
+      className={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}
       {...props}
     >
       {children}
 
       <div className="flex-1 min-h-0 overflow-auto rounded-md border">
-        <Table className={fixedLayout ? "table-fixed" : undefined}>
+        <Table className={fixedLayout ? 'table-fixed' : undefined}>
           <TableHeader>
             {headerGroups.map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const headerAlign = (header.column.columnDef.meta as Record<string, unknown> | undefined)?.align;
+                  const headerAlign = (
+                    header.column.columnDef.meta as
+                      | Record<string, unknown>
+                      | undefined
+                  )?.align;
                   return (
                     <TableHead
                       key={header.id}
                       colSpan={header.colSpan}
                       className={cn(
-                        "group/th",
-                        headerAlign === "right"
-                          ? "text-right px-1"
-                          : headerAlign === "center"
-                            ? "text-center px-1"
+                        'group/th',
+                        headerAlign === 'right'
+                          ? 'text-right px-1'
+                          : headerAlign === 'center'
+                            ? 'text-center px-1'
                             : undefined,
                       )}
                       style={{
@@ -116,15 +122,13 @@ export function DataTable<TData>({
               table.getRowModel().rows.map((row, index) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                   className={cn(
-                    onRowClick && "cursor-pointer",
+                    onRowClick && 'cursor-pointer',
                     getRowClassName?.(row, index),
                   )}
                   onClick={
-                    onRowClick
-                      ? (event) => onRowClick(row, event)
-                      : undefined
+                    onRowClick ? (event) => onRowClick(row, event) : undefined
                   }
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -148,7 +152,7 @@ export function DataTable<TData>({
                   colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
-                  {emptyState ?? "No results."}
+                  {emptyState ?? 'No results.'}
                 </TableCell>
               </TableRow>
             )}

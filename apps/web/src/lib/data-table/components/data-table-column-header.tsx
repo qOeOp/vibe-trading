@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import type { Column } from "@tanstack/react-table";
+import type { Column } from '@tanstack/react-table';
 import {
   ChevronDown,
   ChevronsUpDown,
   ChevronUp,
   EyeOff,
   X,
-} from "lucide-react";
+} from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -15,8 +15,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 interface DataTableColumnHeaderProps<TData, TValue>
   extends React.ComponentProps<typeof DropdownMenuTrigger> {
@@ -39,23 +39,23 @@ export function DataTableColumnHeader<TData, TValue>({
   const canSort = column.getCanSort();
   const canHide = column.getCanHide();
 
-  const sortIcon = canSort
-    ? column.getIsSorted() === "desc"
-      ? <ChevronDown className="size-3.5" />
-      : column.getIsSorted() === "asc"
-        ? <ChevronUp className="size-3.5" />
-        : <ChevronsUpDown className="size-3.5" />
-    : null;
+  const sortIcon = canSort ? (
+    column.getIsSorted() === 'desc' ? (
+      <ChevronDown className="size-3.5" />
+    ) : column.getIsSorted() === 'asc' ? (
+      <ChevronUp className="size-3.5" />
+    ) : (
+      <ChevronsUpDown className="size-3.5" />
+    )
+  ) : null;
 
   // Left slot: drag handle or empty spacer (same width for alignment)
-  const leftSlot = dragHandle ?? (
-    <span className="w-3 shrink-0" aria-hidden />
-  );
+  const leftSlot = dragHandle ?? <span className="w-3 shrink-0" aria-hidden />;
 
   // Non-interactive header (no sort, no hide)
   if (!canSort && !canHide) {
     return (
-      <div className={cn("flex items-center w-full", className)}>
+      <div className={cn('flex items-center w-full', className)}>
         {leftSlot}
         <span className="flex-1 text-center truncate">{label}</span>
         <span className="w-3.5 shrink-0" aria-hidden />
@@ -64,16 +64,16 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn("flex items-center w-full", className)}>
+    <div className={cn('flex items-center w-full', className)}>
       {leftSlot}
 
       {/* Center: label as dropdown trigger for sort/hide */}
       <DropdownMenu>
         <DropdownMenuTrigger
           className={cn(
-            "flex-1 inline-flex items-center justify-center gap-1 h-8 rounded-md py-1.5 px-1 truncate",
-            "hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-white/20 data-[state=open]:bg-white/10",
-            "[&_svg]:shrink-0 [&_svg]:text-white/50",
+            'flex-1 inline-flex items-center justify-center gap-1 h-8 rounded-md py-1.5 px-1 truncate',
+            'hover:bg-mine-bg focus:outline-none focus:ring-1 focus:ring-mine-border data-[state=open]:bg-mine-bg',
+            '[&_svg]:shrink-0 [&_svg]:text-mine-muted',
           )}
           {...props}
         >
@@ -84,7 +84,7 @@ export function DataTableColumnHeader<TData, TValue>({
             <>
               <DropdownMenuCheckboxItem
                 className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
-                checked={column.getIsSorted() === "asc"}
+                checked={column.getIsSorted() === 'asc'}
                 onClick={() => column.toggleSorting(false)}
               >
                 <ChevronUp />
@@ -92,7 +92,7 @@ export function DataTableColumnHeader<TData, TValue>({
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
-                checked={column.getIsSorted() === "desc"}
+                checked={column.getIsSorted() === 'desc'}
                 onClick={() => column.toggleSorting(true)}
               >
                 <ChevronDown />
@@ -123,7 +123,7 @@ export function DataTableColumnHeader<TData, TValue>({
       </DropdownMenu>
 
       {/* Right slot: sort icon */}
-      <span className="w-3.5 shrink-0 flex items-center justify-center text-white/50">
+      <span className="w-3.5 shrink-0 flex items-center justify-center text-mine-muted">
         {sortIcon}
       </span>
     </div>
