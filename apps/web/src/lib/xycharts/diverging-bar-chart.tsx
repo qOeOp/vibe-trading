@@ -44,9 +44,17 @@ import { useState, useCallback, useMemo, memo } from 'react';
 import { BaseChart } from '../ngx-charts/common/base-chart';
 import { DivergingBarStack } from './diverging-bar-stack';
 import { SeverityBrush } from './severity-brush';
-import { useDivergingStackData, useDivergingDomain } from './use-diverging-stack';
+import {
+  useDivergingStackData,
+  useDivergingDomain,
+} from './use-diverging-stack';
 import { useBrushBarData } from './use-brush-data';
-import type { BrushBarDatum, BrushRange, ChartMargin, ReferenceLine } from './types';
+import type {
+  BrushBarDatum,
+  BrushRange,
+  ChartMargin,
+  ReferenceLine,
+} from './types';
 
 /* ── Constants ─────────────────────────────────────── */
 
@@ -139,16 +147,14 @@ export const DivergingBarChart = memo(function DivergingBarChart({
         return (
           <div style={{ width: containerWidth, height: containerHeight }}>
             {showBrush && (
-              <>
-                <SeverityBrush
-                  data={brushBarData}
-                  selectedRange={brushRange}
-                  onBrushChange={handleBrushChange}
-                  width={containerWidth}
-                  height={brushHeight}
-                  margin={{ left: margin.left, right: margin.right }}
-                />
-              </>
+              <SeverityBrush
+                data={brushBarData}
+                selectedRange={brushRange}
+                onBrushChange={handleBrushChange}
+                width={containerWidth}
+                height={brushHeight}
+                margin={{ left: margin.left, right: margin.right }}
+              />
             )}
             <div style={{ height: mainHeight }}>
               <DivergingBarStack
