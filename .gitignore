@@ -65,9 +65,15 @@ build/
 .next
 .next-prod
 out
+.gemini
+.claude
+.agent
+.agents
+skills/
 
 # TypeScript build info
 *.tsbuildinfo
 
 # Screenshots (local testing)
 screenshots/
+docs/

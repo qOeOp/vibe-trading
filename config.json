@@ -3,7 +3,6 @@
   "name": "vibe-trading",
   "slug": "vibe-trading",
   "defaults": {
-    "model": "claude-sonnet-4-5-20250929",
     "permissionMode": "safe",
     "cyclablePermissionModes": [
       "safe",
@@ -17,5 +16,5 @@
     "enabled": true
   },
   "createdAt": 1770391489441,
-  "updatedAt": 1770391489441
+  "updatedAt": 1771401352852
 }

@@ -20,7 +20,7 @@ Build Docker images for all services with multi-platform support.
 
 **Examples:**
 ```bash
-# Local build only (amd64, for testing)
+# Local build only (native architecture)
 ./tools/scripts/build-all.sh
 
 # Build and push multi-platform images (amd64 + arm64)
@@ -34,7 +34,7 @@ Build Docker images for all services with multi-platform support.
 ```
 
 **Multi-platform Support:**
-- Without `push=true`: Builds **linux/amd64** only, loads to local Docker
+- Without `push=true`: Builds for the **host's native architecture** (e.g., `linux/arm64` on Apple Silicon) and loads to local Docker.
 - With `push=true`: Builds **linux/amd64** and **linux/arm64**, pushes to registry
 - First run creates a `multiplatform` builder (one-time setup)
 - Subsequent builds reuse the existing builder

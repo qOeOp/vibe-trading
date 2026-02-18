@@ -1,10 +1,11 @@
 # Product Guidelines
 
 ## Visual Identity
-- **Theme:** Modern Dark Mode ("Violet Bloom").
-- **Aesthetic:** High-contrast, sleek dark interface with neon accents (Violet, Pink, Cyan) to minimize eye strain during long trading sessions.
-- **Data Visualization:** Use crisp, high-performance charting libraries. Color-coding must be distinct and universally understood (e.g., Green/Cyan for positive, Red/Pink for negative) but consistent with the theme's palette.
+- **Theme:** Mine - Warm beige light theme with high data readability.
+- **Aesthetic:** Clean, warm-toned interface optimized for data-dense financial dashboards. Minimizes eye strain through balanced contrast rather than dark mode.
+- **Data Visualization:** Custom ngx-charts library (D3.js + Framer Motion) with crisp, animated charts. Market colors follow A-stock convention: red for up/positive, green for down/negative.
 - **Layout:** Modular, grid-based dashboard layout allowing users to customize their workspace.
+- **Design System:** Full color system, component patterns, and spacing standards defined in root `CLAUDE.md` under "UI Design System" section.
 
 ## User Experience (UX) Principles
 - **Efficiency First:** Critical actions (placing orders, cancelling trades) must be accessible within 1-2 clicks.
@@ -17,13 +18,6 @@
     - **Medium Confidence (50-80%):** **Clinical & Objective.** Focuses on data points, probabilities, and neutral risk assessment. Presents the trade as a calculated probability.
     - **Low Confidence / Educational (<50% or Analysis Mode):** **Educational & Collaborative.** Explains the rationale, highlights conflicting signals, and focuses on the "why" to help the user understand the market nuance.
 - **Transparency:** All AI suggestions must be accompanied by the "Chain of Thought" or reasoning log to build trust.
-
-## Design System (Existing)
-- **Palette:**
-    - Primary: `#6e3ff3` (Violet)
-    - Accent: `#df3674` (Pink)
-    - Secondary: `#35b9e9` (Cyan)
-- **Typography:** Monospace fonts for data/numbers; Clean sans-serif for UI text.
 
 ---
 

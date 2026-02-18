@@ -3,19 +3,19 @@
 All development must strictly adhere to the project's [Comprehensive Coding Guidelines](../guidelines/README.md).
 
 ## Frontend
-- **Framework:** React 19 (TypeScript)
+- **Framework:** React 19 (TypeScript), Next.js 15 (App Router, static export)
 - **Documentation:** Fumadocs (Next.js 15, MDX-based SSG via Content Collections)
-- **Build Tool:** Vite (for web), Next.js (for wiki)
-- **Styling:** Tailwind CSS v4
+- **Styling:** Tailwind CSS v4 (OKLCH color space, Mine theme)
 - **Component Libraries:**
     - Radix UI / Shadcn UI (Base components)
-    - SquareUI (Specialized UI components)
+    - Lucide React (Icons)
 - **Data Visualization & Grids:**
-    - Highcharts (Advanced financial charting)
-    - Lightweight Charts (Performance-optimized trading charts)
-    - AG Grid (High-performance data grids for order books/positions)
-    - Recharts v3 (General analytics)
+    - ngx-charts (Custom D3.js + Framer Motion chart library, 13 chart types)
+    - AG Grid (High-performance data grids)
+    - Recharts v3 (Legacy, used in some market components)
+- **Animation:** Framer Motion
 - **State Management:** Zustand
+- **Validation:** Zod
 
 ## Backend (API Gateway)
 - **Runtime:** Node.js
@@ -35,7 +35,7 @@ All development must strictly adhere to the project's [Comprehensive Coding Guid
 - **Reverse Proxy:** Nginx (Static file serving & routing)
 
 ## Development Tools
-- **Monorepo Manager:** Nx (Managing JS/TS and Python projects)
+- **Monorepo Manager:** Nx 22.3.3 (Managing JS/TS and Python projects)
 - **Python Package Manager:** Poetry
-- **Node Package Manager:** npm / pnpm
-- **Linting & Formatting:** ESLint, Prettier, Black/Ruff (Python)
+- **Node Package Manager:** npm
+- **Linting & Formatting:** ESLint, Prettier, Ruff (Python)

@@ -1,4 +1,4 @@
-！#!/bin/bash
+#!/bin/bash
 set -e
 
 # Build all Docker images for Vibe Trading platform
@@ -50,20 +50,20 @@ for SERVICE in "${SERVICES[@]}"; do
       --platform linux/amd64,linux/arm64 \
       -f docker/${SERVICE}.Dockerfile \
       -t ${FULL_IMAGE} \
+      -t ${REGISTRY}/${IMAGE_NAME}:latest \
       --push \
       .
-    echo "✅ Built and pushed ${FULL_IMAGE} (amd64 + arm64)"
+    echo "✅ Built and pushed ${FULL_IMAGE} and ${REGISTRY}/${IMAGE_NAME}:latest (amd64 + arm64)"
   else
-    echo "📦 Building ${SERVICE} for linux/amd64 (local only)..."
+    echo "📦 Building ${SERVICE} for native platform (local only)..."
     docker buildx build \
-      --platform linux/amd64 \
       -f docker/${SERVICE}.Dockerfile \
       -t ${IMAGE_NAME}:${TAG} \
       -t ${IMAGE_NAME}:latest \
       -t ${FULL_IMAGE} \
       --load \
       .
-    echo "✅ Built ${FULL_IMAGE} (amd64 only, loaded locally)"
+    echo "✅ Built ${FULL_IMAGE} (native only, loaded locally)"
     echo "💡 Use './tools/scripts/build-all.sh ${REGISTRY} ${TAG} true' to build and push multi-platform images"
   fi
   echo ""
@@ -71,5 +71,7 @@ done
 
 echo "🎉 All images built successfully!"
 echo ""
-echo "Local images:"
-docker images | grep "vibe-trading"
+if [ "$PUSH" = "false" ]; then
+  echo "Local images:"
+  docker images | grep "vibe-trading"
+fi
