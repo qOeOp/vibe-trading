@@ -52,6 +52,25 @@ export interface LineSeriesProps {
   animationDuration?: number;
   /** Custom class name */
   className?: string;
+  /** Override stroke width for the line (default: 1.5) */
+  strokeWidth?: number;
+  /**
+   * Knockout stroke color for BandChart-style depth layering.
+   * When set, renders a wider backing stroke underneath.
+   */
+  knockoutColor?: string;
+  /** Multiplier for knockout width relative to strokeWidth (default: 2) */
+  knockoutWidthMultiplier?: number;
+  /** SVG filter ID for drop shadow on the line */
+  shadowFilter?: string;
+  /** Stroke line cap style */
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  /** Stroke line join style */
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  /** Stroke opacity */
+  strokeOpacity?: number;
+  /** Override area highlight opacity (default: 0.25 active, 0.05 inactive) */
+  areaFillOpacity?: number;
 }
 
 /**
@@ -92,6 +111,14 @@ export function LineSeries({
   animated = true,
   animationDuration = 750,
   className = '',
+  strokeWidth: strokeWidthProp,
+  knockoutColor = '#f5f3ef',
+  knockoutWidthMultiplier = 2,
+  shadowFilter,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  strokeOpacity,
+  areaFillOpacity,
 }: LineSeriesProps) {
   const stableGradientId = `grad${useId().replace(/:/g, '')}`;
 
@@ -197,7 +224,7 @@ export function LineSeries({
         className="line-highlight"
         d={areaPath}
         fill={fillColor}
-        opacity={isInactive ? 0.05 : 0.25}
+        opacity={isInactive ? 0.05 : (areaFillOpacity ?? 0.25)}
         style={{
           transition: 'opacity 250ms ease-in-out',
         }}
@@ -206,9 +233,16 @@ export function LineSeries({
       <Line
         path={linePath}
         stroke={stroke}
+        strokeWidth={strokeWidthProp}
         animated={animated}
         animationDuration={animationDuration}
         className={isActive ? 'active' : isInactive ? 'inactive' : ''}
+        knockoutColor={knockoutColor}
+        knockoutWidthMultiplier={knockoutWidthMultiplier}
+        shadowFilter={shadowFilter}
+        strokeLinecap={strokeLinecap}
+        strokeLinejoin={strokeLinejoin}
+        strokeOpacity={strokeOpacity}
       />
 
       {hasRange && rangePath && (

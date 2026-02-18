@@ -66,6 +66,10 @@ export interface YAxisTicksProps {
   showTicks?: boolean;
   /** Offset for grid lines */
   gridLineOffset?: number;
+  /** Text alignment override */
+  textAnchorOverride?: 'start' | 'middle' | 'end';
+  /** Whether the axis overlays the plot area (adds text halo for readability) */
+  overlay?: boolean;
   /** Callback when dimensions change */
   onDimensionsChanged?: (dimensions: { width: number }) => void;
 }
@@ -88,6 +92,8 @@ export function YAxisTicks({
   showRefLines = false,
   showTicks = false,
   gridLineOffset = 5,
+  textAnchorOverride,
+  overlay = false,
   onDimensionsChanged,
 }: YAxisTicksProps) {
   const ticksRef = useRef<SVGGElement>(null);
@@ -143,29 +149,34 @@ export function YAxisTicks({
     const sign = orient === Orientation.Top || orient === Orientation.Right ? -1 : 1;
 
     switch (orient) {
-      case Orientation.Left:
+      case Orientation.Left: {
+        // In overlay mode, default to 'start' so labels extend rightward into the
+        // visible plot area instead of leftward past the SVG boundary.
+        const defaultAnchor = overlay ? 'start' : 'end';
+        const anchor = (textAnchorOverride ?? defaultAnchor) as TextAnchor;
         return {
-          textAnchor: 'end' as TextAnchor,
-          x1: tickSpacing * -sign,
+          textAnchor: anchor,
+          x1: anchor === 'start' ? 5 : tickSpacing * -sign,
           dy: '.32em',
           tickX2: -6,
         };
+      }
       case Orientation.Right:
         return {
-          textAnchor: 'start' as TextAnchor,
-          x1: tickSpacing * -sign,
+          textAnchor: (textAnchorOverride ?? 'start') as TextAnchor,
+          x1: textAnchorOverride === 'end' ? 0 : tickSpacing * -sign,
           dy: '.32em',
           tickX2: 6,
         };
       default:
         return {
-          textAnchor: 'middle' as TextAnchor,
+          textAnchor: (textAnchorOverride ?? 'middle') as TextAnchor,
           x1: 0,
           dy: '.71em',
           tickX2: 0,
         };
     }
-  }, [orient]);
+  }, [orient, textAnchorOverride, overlay]);
 
   const tickTransform = useCallback(
     (tick: string | number | Date): string => {
@@ -216,7 +227,9 @@ export function YAxisTicks({
                 />
               )}
               <text
-                strokeWidth="0.01"
+                strokeWidth={overlay ? '3' : '0.01'}
+                stroke={overlay ? 'white' : undefined}
+                paintOrder={overlay ? 'stroke' : undefined}
                 dy={dy}
                 x={x1}
                 textAnchor={textAnchor}
@@ -245,34 +258,41 @@ export function YAxisTicks({
         ))}
 
       {showRefLines &&
-        referenceLines?.map((refLine, index) => (
-          <g key={`ref-${index}`} className="ref-line" transform={tickTransform(refLine.value)}>
-            <g transform={gridLineTransform}>
-              <line
-                className="refline-path gridline-path-horizontal"
-                x1={0}
-                x2={gridLineWidth}
-                stroke="#a8b2c7"
-                strokeDasharray="5"
-                strokeDashoffset={5}
-              />
-              {showRefLabels && (
-                <g>
-                  <title>{tickTrim(tickFormat(refLine.value))}</title>
-                  <text
-                    className="refline-label"
-                    dy={dy}
-                    y={-6}
-                    x={gridLineWidth}
-                    textAnchor={textAnchor}
-                  >
-                    {refLine.name}
-                  </text>
-                </g>
-              )}
+        referenceLines?.map((refLine, index) => {
+          // Skip reference lines outside the visible Y domain to prevent
+          // overflow:visible causing them to bleed into adjacent sections
+          const yPos = adjustedScale(refLine.value);
+          if (yPos < -1 || yPos > height + 1) return null;
+
+          return (
+            <g key={`ref-${index}`} className="ref-line" transform={tickTransform(refLine.value)}>
+              <g transform={gridLineTransform}>
+                <line
+                  className="refline-path gridline-path-horizontal"
+                  x1={0}
+                  x2={gridLineWidth}
+                  stroke="#a8b2c7"
+                  strokeDasharray="5"
+                  strokeDashoffset={5}
+                />
+                {showRefLabels && (
+                  <g>
+                    <title>{tickTrim(tickFormat(refLine.value))}</title>
+                    <text
+                      className="refline-label"
+                      dy={dy}
+                      y={-6}
+                      x={gridLineWidth}
+                      textAnchor={textAnchor}
+                    >
+                      {refLine.name}
+                    </text>
+                  </g>
+                )}
+              </g>
             </g>
-          </g>
-        ))}
+          );
+        })}
     </g>
   );
 }

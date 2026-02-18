@@ -56,6 +56,7 @@ const BarHorizontalInner = memo(function BarHorizontalInner({
   referenceLines,
   showRefLines = false,
   showRefLabels = false,
+  margins: customMargins,
   onSelect,
   onActivate,
   onDeactivate,
@@ -91,31 +92,55 @@ const BarHorizontalInner = memo(function BarHorizontalInner({
 
   // Calculate margins
   const margin = useMemo(() => {
+    if (customMargins) {
+      return [
+        customMargins.top,
+        customMargins.right,
+        customMargins.bottom,
+        customMargins.left,
+      ] as [number, number, number, number];
+    }
     return [
       10,
       20 + dataLabelMaxWidth.positive,
       10,
       20 + dataLabelMaxWidth.negative,
     ] as [number, number, number, number];
-  }, [dataLabelMaxWidth]);
+  }, [dataLabelMaxWidth, customMargins]);
 
   // Calculate view dimensions
   const dims = useMemo(() => {
-    return calculateViewDimensions({
+    const baseDims = calculateViewDimensions({
       width: containerWidth,
       height: containerHeight,
       margins: margin,
       showXAxis: xAxisConfig.visible,
       showYAxis: yAxisConfig.visible,
       xAxisHeight,
-      yAxisWidth,
+      yAxisWidth: yAxisConfig.width ?? yAxisWidth,
       showXLabel: xAxisConfig.showLabel,
       showYLabel: yAxisConfig.showLabel,
       showLegend: legend,
       legendType: 'ordinal' as ScaleType,
       legendPosition: legendPosition as LegendPosition,
+      overlayYAxis: yAxisConfig.overlay,
     });
-  }, [containerWidth, containerHeight, margin, xAxisConfig, yAxisConfig, xAxisHeight, yAxisWidth, legend, legendPosition]);
+
+    // If showing data labels, we need to carve out extra space inside the chart area
+    // to prevent labels from bleeding into the axis or off-screen.
+    if (showDataLabel) {
+      const extraLeft = dataLabelMaxWidth.negative > 0 ? dataLabelMaxWidth.negative + 4 : 0;
+      const extraRight = dataLabelMaxWidth.positive > 0 ? dataLabelMaxWidth.positive + 4 : 0;
+      
+      return {
+        ...baseDims,
+        width: Math.max(0, baseDims.width - extraLeft - extraRight),
+        xOffset: (baseDims.xOffset ?? 0) + extraLeft,
+      };
+    }
+
+    return baseDims;
+  }, [containerWidth, containerHeight, margin, xAxisConfig, yAxisConfig, xAxisHeight, yAxisWidth, legend, legendPosition, showDataLabel, dataLabelMaxWidth]);
 
   // Create scales
   const { xScale, yScale, xDomain: _xDomain, yDomain } = useHorizontalBarScales({
@@ -211,6 +236,13 @@ const BarHorizontalInner = memo(function BarHorizontalInner({
     }
   }, []);
 
+  // Calculate Y-axis transform - it should be relative to the chart group, 
+  // but shifted back left by the negative data label width to stay next to its labels.
+  const yAxisTransform = useMemo(() => {
+    const extraLeft = showDataLabel && dataLabelMaxWidth.negative > 0 ? dataLabelMaxWidth.negative + 4 : 0;
+    return `translate(${-extraLeft}, 0)`;
+  }, [showDataLabel, dataLabelMaxWidth.negative]);
+
   return (
     <>
       <svg width={containerWidth} height={containerHeight} className="ngx-charts" style={{ overflow: 'visible', fontFamily: 'var(--font-chart, Roboto, sans-serif)' }}>
@@ -235,19 +267,24 @@ const BarHorizontalInner = memo(function BarHorizontalInner({
             />
           )}
           {yAxisConfig.visible && (
-            <YAxis
-              yScale={yScale}
-              dims={dims}
-              showLabel={yAxisConfig.showLabel}
-              labelText={yAxisConfig.label}
-              trimTicks={yAxisConfig.trimTicks}
-              maxTickLength={yAxisConfig.maxTickLength}
-              tickFormatting={yAxisConfig.tickFormatting}
-              ticks={yAxisConfig.ticks}
-              yAxisOffset={dataLabelMaxWidth.negative}
-              wrapTicks={yAxisConfig.wrapTicks}
-              onDimensionsChanged={handleYAxisWidthChanged}
-            />
+            <g transform={yAxisTransform}>
+              <YAxis
+                yScale={yScale}
+                dims={dims}
+                showLabel={yAxisConfig.showLabel}
+                labelText={yAxisConfig.label}
+                trimTicks={yAxisConfig.trimTicks}
+                maxTickLength={yAxisConfig.maxTickLength}
+                tickFormatting={yAxisConfig.tickFormatting}
+                ticks={yAxisConfig.ticks}
+                yAxisOffset={0}
+                width={yAxisConfig.width}
+                tickTextAnchor={yAxisConfig.tickTextAnchor}
+                overlay={yAxisConfig.overlay}
+                wrapTicks={yAxisConfig.wrapTicks}
+                onDimensionsChanged={handleYAxisWidthChanged}
+              />
+            </g>
           )}
           <BarSeriesHorizontal
             series={data}

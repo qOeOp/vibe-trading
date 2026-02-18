@@ -90,8 +90,14 @@ export interface AxisConfig {
   ticks?: unknown[];
   minScale?: number;
   maxScale?: number;
+  /** Fixed width for the axis. If provided, overrides dynamic measurement. */
+  width?: number;
+  /** Text alignment for tick labels. */
+  tickTextAnchor?: 'start' | 'middle' | 'end';
   /** Whether the axis is separated from the plotting area (floating style) */
   separated?: boolean;
+  /** Whether the axis overlays the plotting area (no xOffset deduction) */
+  overlay?: boolean;
 }
 
 /** Legend configuration */

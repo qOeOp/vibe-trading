@@ -69,7 +69,7 @@ export const GridLines = memo(function GridLines({
   orient,
   gridLineHeight = 0,
   gridLineWidth = 0,
-  stroke = '#ddd',
+  stroke,
   strokeDasharray,
   offset = 0,
 }: GridLinesProps) {
@@ -148,7 +148,7 @@ export const VerticalGridLines = memo(function VerticalGridLines({
   ticks,
   scale,
   height,
-  stroke = '#ddd',
+  stroke,
   strokeDasharray,
 }: VerticalGridLinesProps) {
   return (
@@ -188,7 +188,7 @@ export const HorizontalGridLines = memo(function HorizontalGridLines({
   ticks,
   scale,
   width,
-  stroke = '#ddd',
+  stroke,
   strokeDasharray,
 }: HorizontalGridLinesProps) {
   return (

@@ -147,6 +147,8 @@ export interface UseBandChartResult {
   xDomain: string[];
   yDomain: [number, number];
   transform: string;
+  margins: [number, number, number, number];
+  yAxisWidth: number;
   updateXAxisHeight: (height: number) => void;
   updateYAxisWidth: (width: number) => void;
 }
@@ -250,6 +252,8 @@ export function useBandChart(config: UseBandChartConfig): UseBandChartResult {
     xDomain,
     yDomain,
     transform,
+    margins,
+    yAxisWidth,
     updateXAxisHeight,
     updateYAxisWidth,
   };

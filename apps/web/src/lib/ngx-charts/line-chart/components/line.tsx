@@ -32,6 +32,28 @@ export interface LineProps {
   animationDuration?: number;
   /** Custom class name */
   className?: string;
+  /**
+   * Knockout stroke color (typically page background).
+   * When set, renders a wider backing stroke underneath the main line
+   * to create a visual gap effect (BandChart-style depth layering).
+   */
+  knockoutColor?: string;
+  /**
+   * Multiplier for knockout stroke width relative to strokeWidth.
+   * Default: 2 (knockout is 2× the line width)
+   */
+  knockoutWidthMultiplier?: number;
+  /**
+   * SVG filter ID for drop shadow (e.g. `url(#my-shadow)`).
+   * Applied to the main line, not the knockout backing.
+   */
+  shadowFilter?: string;
+  /** Stroke line cap style */
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  /** Stroke line join style */
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  /** Stroke opacity */
+  strokeOpacity?: number;
 }
 
 /**
@@ -48,34 +70,71 @@ export function Line({
   animated = true,
   animationDuration = 1000,
   className = '',
+  knockoutColor = '#f5f3ef',
+  knockoutWidthMultiplier = 2,
+  shadowFilter,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  strokeOpacity = 1,
 }: LineProps) {
   if (!path) return null;
 
+  const commonLineProps = {
+    strokeLinecap,
+    strokeLinejoin,
+    style: { pointerEvents: 'none' as const },
+  };
+
+  /** Knockout backing — wider stroke in background color for visual separation */
+  const knockoutElement = knockoutColor ? (
+    <path
+      key="knockout"
+      className="line-knockout"
+      d={path}
+      fill="none"
+      stroke={knockoutColor}
+      strokeWidth={strokeWidth * knockoutWidthMultiplier}
+      {...commonLineProps}
+    />
+  ) : null;
+
   if (animated) {
     return (
-      <motion.path
+      <g className={`line-group ${className}`}>
+        {knockoutElement}
+        <motion.path
+          className={`line ${className}`}
+          d={path}
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeOpacity={strokeOpacity}
+          filter={shadowFilter}
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{
+            pathLength: { duration: animationDuration / 1000, ease: 'easeInOut' },
+            opacity: { duration: 0.2 },
+          }}
+          {...commonLineProps}
+        />
+      </g>
+    );
+  }
+
+  return (
+    <g className={`line-group ${className}`}>
+      {knockoutElement}
+      <path
         className={`line ${className}`}
         d={path}
         fill={fill}
         stroke={stroke}
         strokeWidth={strokeWidth}
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 1 }}
-        transition={{
-          pathLength: { duration: animationDuration / 1000, ease: 'easeInOut' },
-          opacity: { duration: 0.2 },
-        }}
+        strokeOpacity={strokeOpacity}
+        filter={shadowFilter}
+        {...commonLineProps}
       />
-    );
-  }
-
-  return (
-    <path
-      className={`line ${className}`}
-      d={path}
-      fill={fill}
-      stroke={stroke}
-      strokeWidth={strokeWidth}
-    />
+    </g>
   );
 }

@@ -57,6 +57,7 @@ const BarHorizontalGroupedInner = memo(function BarHorizontalGroupedInner({
   dataLabelFormatting,
   noBarWhenZero = true,
   activeEntries: initialActiveEntries = [],
+  margins: customMargins,
   onSelect,
   onActivate,
   onDeactivate,
@@ -91,13 +92,21 @@ const BarHorizontalGroupedInner = memo(function BarHorizontalGroupedInner({
 
   // Calculate margins
   const margin = useMemo(() => {
+    if (customMargins) {
+      return [
+        customMargins.top,
+        customMargins.right,
+        customMargins.bottom,
+        customMargins.left,
+      ] as [number, number, number, number];
+    }
     return [
       10,
       20 + dataLabelMaxWidth.positive,
       10,
       20 + dataLabelMaxWidth.negative,
     ] as [number, number, number, number];
-  }, [dataLabelMaxWidth]);
+  }, [dataLabelMaxWidth, customMargins]);
 
   // Calculate view dimensions
   const dims = useMemo(() => {
@@ -108,7 +117,7 @@ const BarHorizontalGroupedInner = memo(function BarHorizontalGroupedInner({
       showXAxis: xAxisConfig.visible,
       showYAxis: yAxisConfig.visible,
       xAxisHeight,
-      yAxisWidth,
+      yAxisWidth: yAxisConfig.width ?? yAxisWidth,
       showXLabel: xAxisConfig.showLabel,
       showYLabel: yAxisConfig.showLabel,
       showLegend: legend,
@@ -262,6 +271,8 @@ const BarHorizontalGroupedInner = memo(function BarHorizontalGroupedInner({
               tickFormatting={yAxisConfig.tickFormatting}
               ticks={yAxisConfig.ticks}
               yAxisOffset={dataLabelMaxWidth.negative}
+              width={yAxisConfig.width}
+              tickTextAnchor={yAxisConfig.tickTextAnchor}
               wrapTicks={yAxisConfig.wrapTicks}
               onDimensionsChanged={handleYAxisWidthChanged}
             />

@@ -30,6 +30,8 @@ export interface ViewDimensionsConfig {
   legendType?: ScaleType;
   legendPosition?: LegendPosition;
   columns?: number;
+  /** When true, Y-axis overlays the plot area instead of reserving xOffset space */
+  overlayYAxis?: boolean;
 }
 
 /**
@@ -51,6 +53,7 @@ export function calculateViewDimensions(config: ViewDimensionsConfig): ViewDimen
     legendType = ScaleType.Ordinal,
     legendPosition = LegendPosition.Right,
     columns: initialColumns = 12,
+    overlayYAxis = false,
   } = config;
 
   // Convert margin array to values
@@ -75,7 +78,7 @@ export function calculateViewDimensions(config: ViewDimensionsConfig): ViewDimen
   chartWidth = chartWidth - marginArray[1] - marginArray[3];
 
   if (showXAxis) {
-    chartHeight -= 5;
+    chartHeight -= 2;
     chartHeight -= xAxisHeight;
 
     if (showXLabel) {
@@ -85,11 +88,15 @@ export function calculateViewDimensions(config: ViewDimensionsConfig): ViewDimen
     }
   }
 
-  if (showYAxis) {
-    chartWidth -= 5;
+  if (showYAxis && !overlayYAxis) {
     chartWidth -= yAxisWidth;
     xOffset += yAxisWidth;
-    xOffset += 10;
+
+    // Only add spacing when axis has measurable width (labels visible)
+    if (yAxisWidth > 0) {
+      chartWidth -= 2;
+      xOffset += 9;
+    }
 
     if (showYLabel) {
       // text height + spacing between axis label and tick labels

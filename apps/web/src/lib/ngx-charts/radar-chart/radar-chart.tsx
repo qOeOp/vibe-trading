@@ -90,10 +90,14 @@ export function RadarChart({
   className,
 }: RadarChartProps) {
   const n = labels.length;
-  const labelMargin = 32;
-  const cx = size / 2;
-  const cy = size / 2;
-  const outerR = size / 2 - labelMargin;
+  // Extra padding around SVG viewBox so labels (incl. scores) never clip.
+  // CJK labels + 2-3 digit scores can extend ~55px from the anchor point,
+  // so we need generous room on all sides.
+  const viewPad = 40;
+  const svgSize = size + viewPad * 2;
+  const cx = svgSize / 2;
+  const cy = svgSize / 2;
+  const outerR = size / 2 - 14;
   const angleStep = 360 / n;
 
   // Determine if multi-series mode
@@ -139,9 +143,9 @@ export function RadarChart({
   return (
     <div className={className}>
       <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
+        width="100%"
+        viewBox={`0 0 ${svgSize} ${svgSize}`}
+        overflow="visible"
       >
         {/* Grid rings (polygon outlines) */}
         {gridPaths.map((pts, i) => (

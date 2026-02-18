@@ -484,6 +484,9 @@ function AreaChartContent({
               showRefLines={showRefLines}
               showRefLabels={showRefLabels}
               wrapTicks={wrapTicks}
+              width={yAxis.width}
+              tickTextAnchor={yAxis.tickTextAnchor}
+              overlay={yAxis.overlay}
               onDimensionsChanged={handleYAxisDimensionsChanged}
             />
           )}

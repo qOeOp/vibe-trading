@@ -7,6 +7,44 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1068 | 5:10 PM | 🔵 | React Bar Chart Uses Margin Calculation Instead of X-Axis Offset for Data Labels | ~464 |
 | #562 | 1:11 AM | 🔄 | Consolidated Bar Chart Imports Using Barrel Exports | ~352 |
+| #560 | " | 🔄 | Consolidated Imports Using Barrel Exports in Bar Vertical Stacked | ~352 |
+| #546 | 1:00 AM | 🔄 | Bar Chart Module Export Structure Reorganized for Label Helpers | ~315 |
+| #458 | 12:25 AM | 🔄 | Gradient Stops Function Made Optional Start Parameter Consistent | ~233 |
+| #457 | 12:24 AM | 🔵 | BarVertical2D Component Uses Explicit Type Annotations for Callbacks | ~293 |
+| #456 | " | 🔴 | Fixed Optional Start Parameter in getGradientStops Callback | ~272 |
+| #455 | " | 🔴 | Fixed Gradient Function Signature in Bar Vertical Normalized | ~333 |
+| #453 | " | 🔴 | Fixed Gradient Stops Function Signature to Accept Optional Start Parameter | ~227 |
+| #452 | 12:23 AM | 🔴 | Made Gradient Start Parameter Optional in BarVertical Chart | ~313 |
+| #451 | " | 🔄 | Bar Horizontal 2D Import Separates Type and Value Imports | ~232 |
+| #450 | " | 🔴 | Fixed BarOrientation Import Type Error in Vertical 2D Bar Chart | ~310 |
+| #435 | 12:20 AM | 🔴 | Fixed GridPanelSeries Props in BarHorizontalGrouped Component | ~267 |
+| #419 | 12:15 AM | 🔵 | Horizontal Normalized Bar Chart Already Implemented | ~417 |
+| #417 | " | 🔴 | Added Missing maxScale Property to BarHorizontal2D X-Axis Config | ~302 |
+| #413 | 12:14 AM | 🔴 | Added maxScale Property to X-Axis Configuration in Horizontal Stacked Bar Chart | ~322 |
+| #411 | " | 🟣 | BarVerticalGrouped (2D) Component Implemented with Group and Inner Scales | ~632 |
+| #409 | 12:13 AM | 🔴 | Fixed Y-Axis Max Scale Configuration in Bar Vertical Stacked Chart | ~327 |
+| #408 | " | 🟣 | BarVerticalStacked Component with Dynamic Data Label Margin Adjustment | ~531 |
+| #406 | 12:12 AM | 🟣 | BarVertical Component Implementation with Dynamic Layout System | ~573 |
+| #404 | " | 🔴 | Added minScale and maxScale Support to Horizontal Bar Chart X-Axis Configuration | ~247 |
+| #393 | 12:11 AM | 🟣 | Bar Chart Module Exports 8 Chart Variants with Unified API | ~460 |
+| #374 | 12:09 AM | 🟣 | Horizontal Normalized Bar Chart Component Implemented | ~421 |
+| #371 | " | 🟣 | BarVerticalNormalized Complete Chart Component Implemented | ~580 |
 | #368 | 12:08 AM | 🟣 | Implemented Horizontal Grouped Bar Chart with Dynamic Layout Management | ~674 |
+| #360 | 12:07 AM | 🟣 | Horizontal Stacked Bar Chart Component Implemented | ~661 |
+
+### Feb 6, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1837 | 5:13 PM | ✅ | Added explicit React namespace import to bar-vertical component for type compatibility | ~384 |
+| #1836 | " | 🔴 | Fixed legend layout by implementing flex container with proper SVG and legend dimensions | ~491 |
+| #1834 | 5:11 PM | 🔵 | BarVertical architecture uses BaseChart wrapper with render prop pattern and comprehensive event handling | ~661 |
+| #1757 | 3:54 PM | 🔴 | Removed scale animation from horizontal normalized bar chart to fix visual rendering issues | ~468 |
+| #1754 | " | 🔵 | Bar chart animations use Framer Motion scale transitions from 0 to 1 | ~465 |
+| #1707 | 3:27 PM | 🔴 | Fixed legend width constraint for below-positioned legends in stacked bar charts | ~381 |
+| #1596 | 1:34 PM | 🔴 | Fixed legend width bug across all 7 bar chart variants for below position | ~463 |
+| #1594 | " | 🔴 | Fixed legend width for below-positioned legends in normalized bar chart | ~419 |
+| #1591 | " | 🔴 | Fixed legend width for below position in BarVertical2D chart | ~365 |
 </claude-mem-context>

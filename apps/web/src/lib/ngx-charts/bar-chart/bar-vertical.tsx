@@ -56,6 +56,7 @@ const BarVerticalInner = memo(function BarVerticalInner({
   referenceLines,
   showRefLines = false,
   showRefLabels = false,
+  margins: customMargins,
   onSelect,
   onActivate,
   onDeactivate,
@@ -91,13 +92,21 @@ const BarVerticalInner = memo(function BarVerticalInner({
 
   // Calculate margins
   const margin = useMemo(() => {
+    if (customMargins) {
+      return [
+        customMargins.top,
+        customMargins.right,
+        customMargins.bottom,
+        customMargins.left,
+      ] as [number, number, number, number];
+    }
     return [
       10 + dataLabelMaxHeight.positive,
       20,
       10 + dataLabelMaxHeight.negative,
       20,
     ] as [number, number, number, number];
-  }, [dataLabelMaxHeight]);
+  }, [dataLabelMaxHeight, customMargins]);
 
   // Calculate view dimensions
   const dims = useMemo(() => {
@@ -108,12 +117,13 @@ const BarVerticalInner = memo(function BarVerticalInner({
       showXAxis: xAxisConfig.visible,
       showYAxis: yAxisConfig.visible,
       xAxisHeight,
-      yAxisWidth,
+      yAxisWidth: yAxisConfig.width ?? yAxisWidth,
       showXLabel: xAxisConfig.showLabel,
       showYLabel: yAxisConfig.showLabel,
       showLegend: legend,
       legendType: 'ordinal' as ScaleType,
       legendPosition: legendPosition as LegendPosition,
+      overlayYAxis: yAxisConfig.overlay,
     });
   }, [containerWidth, containerHeight, margin, xAxisConfig, yAxisConfig, xAxisHeight, yAxisWidth, legend, legendPosition]);
 
@@ -237,8 +247,8 @@ const BarVerticalInner = memo(function BarVerticalInner({
     ? Math.floor(containerWidth * 2 / 12)
     : 0;
 
-  // Wrapper style for flex layout - matches Angular ngx-charts layout behavior
-  const wrapperStyle: React.CSSProperties = legend ? {
+  // Outer wrapper style
+  const outerStyle: React.CSSProperties = legend ? {
     display: 'flex',
     flexDirection: legendPosition === 'below' ? 'column' : 'row',
     width: containerWidth,
@@ -251,85 +261,89 @@ const BarVerticalInner = memo(function BarVerticalInner({
   };
 
   return (
-    <div style={wrapperStyle}>
-      <svg
-        width={legend ? (legendPosition === 'right' ? containerWidth - legendWidth : containerWidth) : containerWidth}
-        height={legend && legendPosition === 'below' ? svgHeight : containerHeight}
-        className="ngx-charts"
-        style={{ overflow: 'visible', flexShrink: 0 }}
-      >
-        <g transform={transform} className="bar-chart chart">
-          {xAxisConfig.visible && (
-            <XAxis
+    <div style={outerStyle}>
+        <svg
+          width={legend ? (legendPosition === 'right' ? containerWidth - legendWidth : containerWidth) : containerWidth}
+          height={legend && legendPosition === 'below' ? svgHeight : containerHeight}
+          className="ngx-charts"
+          style={{ overflow: 'visible', flexShrink: 0 }}
+        >
+          <g transform={transform} className="bar-chart chart">
+            {xAxisConfig.visible && (
+              <XAxis
+                xScale={xScale}
+                dims={adjustedDims}
+                showGridLines={xAxisConfig.showGridLines}
+                showLabel={xAxisConfig.showLabel}
+                labelText={xAxisConfig.label}
+                trimTicks={xAxisConfig.trimTicks}
+                rotateTicks={xAxisConfig.rotateTicks}
+                maxTickLength={xAxisConfig.maxTickLength}
+                tickFormatting={xAxisConfig.tickFormatting}
+                ticks={xAxisConfig.ticks}
+                wrapTicks={xAxisConfig.wrapTicks}
+                xAxisOffset={dataLabelMaxHeight.negative}
+                onDimensionsChanged={handleXAxisHeightChanged}
+              />
+            )}
+            {yAxisConfig.visible && (
+              <YAxis
+                yScale={yScale}
+                dims={adjustedDims}
+                showGridLines={yAxisConfig.showGridLines}
+                showLabel={yAxisConfig.showLabel}
+                labelText={yAxisConfig.label}
+                trimTicks={yAxisConfig.trimTicks}
+                maxTickLength={yAxisConfig.maxTickLength}
+                tickFormatting={yAxisConfig.tickFormatting}
+                ticks={yAxisConfig.ticks}
+                width={yAxisConfig.width}
+                tickTextAnchor={yAxisConfig.tickTextAnchor}
+                overlay={yAxisConfig.overlay}
+                wrapTicks={yAxisConfig.wrapTicks}
+                yAxisOffset={yAxisWidth}
+                referenceLines={referenceLines}
+                showRefLines={showRefLines}
+                showRefLabels={showRefLabels}
+                onDimensionsChanged={handleYAxisWidthChanged}
+              />
+            )}
+            <BarSeriesVertical
+              series={data}
               xScale={xScale}
-              dims={adjustedDims}
-              showGridLines={xAxisConfig.showGridLines}
-              showLabel={xAxisConfig.showLabel}
-              labelText={xAxisConfig.label}
-              trimTicks={xAxisConfig.trimTicks}
-              rotateTicks={xAxisConfig.rotateTicks}
-              maxTickLength={xAxisConfig.maxTickLength}
-              tickFormatting={xAxisConfig.tickFormatting}
-              ticks={xAxisConfig.ticks}
-              wrapTicks={xAxisConfig.wrapTicks}
-              xAxisOffset={dataLabelMaxHeight.negative}
-              onDimensionsChanged={handleXAxisHeightChanged}
-            />
-          )}
-          {yAxisConfig.visible && (
-            <YAxis
               yScale={yScale}
+              getColor={(value: string) => colors.getColor(value)}
+              getGradientStops={(value: string, start?: string) => colors.getLinearGradientStops(value, start)}
               dims={adjustedDims}
-              showGridLines={yAxisConfig.showGridLines}
-              showLabel={yAxisConfig.showLabel}
-              labelText={yAxisConfig.label}
-              trimTicks={yAxisConfig.trimTicks}
-              maxTickLength={yAxisConfig.maxTickLength}
-              tickFormatting={yAxisConfig.tickFormatting}
-              ticks={yAxisConfig.ticks}
-              wrapTicks={yAxisConfig.wrapTicks}
-              referenceLines={referenceLines}
-              showRefLines={showRefLines}
-              showRefLabels={showRefLabels}
-              onDimensionsChanged={handleYAxisWidthChanged}
+              gradient={gradient}
+              activeEntries={activeEntries}
+              tooltipDisabled={tooltip?.disabled}
+              tooltipTemplate={tooltip?.template}
+              roundEdges={roundEdges}
+              animated={animated}
+              showDataLabel={showDataLabel}
+              dataLabelFormatting={dataLabelFormatting}
+              noBarWhenZero={noBarWhenZero}
+              onSelect={handleClick}
+              onActivate={handleActivate}
+              onDeactivate={handleDeactivate}
+              onDataLabelHeightChanged={handleDataLabelHeightChanged}
             />
-          )}
-          <BarSeriesVertical
-            series={data}
-            xScale={xScale}
-            yScale={yScale}
-            getColor={(value: string) => colors.getColor(value)}
-            getGradientStops={(value: string, start?: string) => colors.getLinearGradientStops(value, start)}
-            dims={adjustedDims}
-            gradient={gradient}
-            activeEntries={activeEntries}
-            tooltipDisabled={tooltip?.disabled}
-            tooltipTemplate={tooltip?.template}
-            roundEdges={roundEdges}
-            animated={animated}
-            showDataLabel={showDataLabel}
-            dataLabelFormatting={dataLabelFormatting}
-            noBarWhenZero={noBarWhenZero}
-            onSelect={handleClick}
-            onActivate={handleActivate}
-            onDeactivate={handleDeactivate}
-            onDataLabelHeightChanged={handleDataLabelHeightChanged}
+          </g>
+        </svg>
+        {legend && (
+          <Legend
+            title={legendTitle}
+            colors={colors}
+            data={xDomain}
+            height={legendPosition === 'below' ? undefined : containerHeight}
+            width={legendPosition === 'below' ? containerWidth : legendWidth}
+            horizontal={legendPosition === 'below'}
+            onLabelClick={(label: string) => handleClick({ name: label, value: 0 })}
+            onLabelActivate={(item: { name: string }) => handleActivate(item as DataItem, true)}
+            onLabelDeactivate={(item: { name: string }) => handleDeactivate(item as DataItem, true)}
           />
-        </g>
-      </svg>
-      {legend && (
-        <Legend
-          title={legendTitle}
-          colors={colors}
-          data={xDomain}
-          height={legendPosition === 'below' ? undefined : containerHeight}
-          width={legendPosition === 'below' ? containerWidth : legendWidth}
-          horizontal={legendPosition === 'below'}
-          onLabelClick={(label: string) => handleClick({ name: label, value: 0 })}
-          onLabelActivate={(item: { name: string }) => handleActivate(item as DataItem, true)}
-          onLabelDeactivate={(item: { name: string }) => handleDeactivate(item as DataItem, true)}
-        />
-      )}
+        )}
     </div>
   );
 });

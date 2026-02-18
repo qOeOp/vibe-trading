@@ -14,7 +14,7 @@
  */
 
 import type { ScaleBand, ScaleLinear } from 'd3-scale';
-import type { DataItem, StringOrNumberOrDate } from '@/lib/ngx-charts/types';
+import type { DataItem, StringOrNumberOrDate, Margin } from '@/lib/ngx-charts/types';
 import type { Gradient } from '@/lib/ngx-charts/types/common';
 
 /**
@@ -97,6 +97,8 @@ export interface BaseBarChartProps {
   width?: number;
   /** Fixed height (optional) */
   height?: number;
+  /** Chart margins */
+  margins?: Margin;
   /** Color scheme name or custom scheme */
   colorScheme?: string;
   /** Custom color mapping */
@@ -135,6 +137,12 @@ export interface BaseBarChartProps {
     wrapTicks?: boolean;
     minScale?: number;
     maxScale?: number;
+    /** Fixed width for the Y axis area */
+    width?: number;
+    /** Text anchor for tick labels */
+    tickTextAnchor?: 'start' | 'middle' | 'end';
+    /** Whether the axis overlays the plot area */
+    overlay?: boolean;
   };
   /** Tooltip configuration */
   tooltip?: {

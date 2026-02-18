@@ -16,7 +16,7 @@
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useId } from 'react';
 import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { CurveFactory} from 'd3-shape';
@@ -26,7 +26,8 @@ import type {
   MultiSeries,
   DataItem,
   Series,
-  ColorScheme} from '../types';
+  ColorScheme,
+  Margin} from '../types';
 import {
   ScaleType,
   LegendPosition,
@@ -39,7 +40,7 @@ import {
   XAxis,
   YAxis,
   Legend,
-  TooltipArea
+  TooltipArea,
 } from '../common';
 import { useLineChart } from './hooks';
 import { LineSeries, CircleSeries } from './components';
@@ -51,6 +52,8 @@ export interface LineChartProps {
   width?: number;
   /** Fixed height (optional, defaults to container height) */
   height?: number;
+  /** Chart margins */
+  margins?: Margin;
   /** Color scheme name or custom scheme */
   colorScheme?: string | ColorScheme;
   /** Scale type for color mapping */
@@ -105,6 +108,10 @@ export interface LineChartProps {
   xAxisTicks?: unknown[];
   /** Specific Y axis tick values */
   yAxisTicks?: unknown[];
+  /** Number of X axis ticks (default: 5) */
+  xAxisTickCount?: number;
+  /** Number of Y axis ticks (default: 5) */
+  yAxisTickCount?: number;
   /** Round domains to nice values */
   roundDomains?: boolean;
   /** Disable tooltips */
@@ -125,6 +132,13 @@ export interface LineChartProps {
   yScaleMax?: number;
   /** Wrap long tick labels */
   wrapTicks?: boolean;
+  /** Y axis config override (merged on top of flat props) */
+  yAxis?: {
+    width?: number;
+    tickTextAnchor?: 'start' | 'middle' | 'end';
+    overlay?: boolean;
+    [key: string]: unknown;
+  };
   /** Show timeline for time-based data */
   timeline?: boolean;
   /** Custom tooltip template for individual points */
@@ -139,6 +153,27 @@ export interface LineChartProps {
   onDeactivate?: (event: { value: unknown; entries: unknown[] }) => void;
   /** Custom CSS class name */
   className?: string;
+  /**
+   * Per-series style overrides, keyed by series name.
+   * Allows different line widths, knockout strokes, shadows, etc. per series.
+   * Used for BandChart-style rendering where different series have
+   * different visual emphasis levels.
+   */
+  seriesConfig?: Record<string, {
+    strokeWidth?: number;
+    knockoutColor?: string;
+    knockoutWidthMultiplier?: number;
+    shadowFilter?: string;
+    strokeLinecap?: 'butt' | 'round' | 'square';
+    strokeLinejoin?: 'miter' | 'round' | 'bevel';
+    strokeOpacity?: number;
+    areaFillOpacity?: number;
+  }>;
+  /**
+   * SVG filter definitions to inject into the chart's <defs> block.
+   * Useful for drop shadow filters referenced by seriesConfig.shadowFilter.
+   */
+  filterDefs?: React.ReactNode;
 }
 
 /**
@@ -185,6 +220,8 @@ export function LineChart({
   yAxisTickFormatting,
   xAxisTicks,
   yAxisTicks,
+  xAxisTickCount,
+  yAxisTickCount,
   roundDomains = false,
   tooltipDisabled = false,
   showRefLines = false,
@@ -195,6 +232,7 @@ export function LineChart({
   yScaleMin,
   yScaleMax,
   wrapTicks = false,
+  yAxis,
   timeline = false,
   tooltipTemplate,
   seriesTooltipTemplate,
@@ -202,13 +240,36 @@ export function LineChart({
   onActivate,
   onDeactivate,
   className = '',
+  seriesConfig,
+  filterDefs,
+  margins: customMargins,
 }: LineChartProps) {
   // State for hover and active entries
   const [hoveredVertical, setHoveredVertical] = useState<unknown>(null);
   const [activeEntries, setActiveEntries] = useState(initialActiveEntries);
 
+  // Stable prefix for auto-generated shadow filter IDs
+  const shadowIdPrefix = `ls${useId().replace(/:/g, '')}`;
+
   // Margins
-  const margin: [number, number, number, number] = [10, 20, 10, 20];
+  const margin: [number, number, number, number] = useMemo(() => {
+    if (customMargins) {
+      return [customMargins.top, customMargins.right, customMargins.bottom, customMargins.left];
+    }
+    return [10, 20, 10, 20];
+  }, [customMargins]);
+
+  const yAxisConfig = useMemo(() => ({
+    visible: showYAxis,
+    showLabel: showYAxisLabel,
+    showGridLines,
+    trimTicks: trimYAxisTicks,
+    maxTickLength: maxYAxisTickLength,
+    tickFormatting: yAxisTickFormatting,
+    ticks: yAxisTicks,
+    wrapTicks,
+    ...yAxis,
+  }), [showYAxis, showYAxisLabel, showGridLines, trimYAxisTicks, maxYAxisTickLength, yAxisTickFormatting, yAxisTicks, wrapTicks, yAxis]);
 
   return (
     <BaseChart
@@ -232,6 +293,7 @@ export function LineChart({
           customColors,
           xAxis: showXAxis,
           yAxis: showYAxis,
+          yAxisConfig,
           showXAxisLabel,
           showYAxisLabel,
           legend: showLegend,
@@ -260,10 +322,43 @@ export function LineChart({
           legendOptions,
           onXAxisHeightChange,
           onYAxisWidthChange,
+          yAxisWidth: measuredYAxisWidth,
           timelineXScale,
           timelineYScale,
           timelineTransform,
         } = chartState;
+
+        // Auto-generate shadow filters for each series line.
+        // Each series gets a subtle drop shadow tinted by its color.
+        // Consumers can still override via seriesConfig[name].shadowFilter.
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
+        const { autoShadowDefs, mergedSeriesConfig } = useMemo(() => {
+          const defs: React.ReactElement[] = [];
+          const merged: Record<string, { shadowFilter?: string }> = {};
+
+          for (const series of data) {
+            const name = String(series.name);
+            const userCfg = seriesConfig?.[name];
+
+            // Skip if consumer already provides a shadow filter
+            if (userCfg?.shadowFilter) {
+              merged[name] = {};
+              continue;
+            }
+
+            const filterId = `${shadowIdPrefix}-${defs.length}`;
+
+            defs.push(
+              <filter key={filterId} id={filterId} x="-20%" y="-30%" width="140%" height="160%">
+                <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" floodColor="#000" floodOpacity="0.18" />
+              </filter>
+            );
+
+            merged[name] = { shadowFilter: `url(#${filterId})` };
+          }
+
+          return { autoShadowDefs: defs, mergedSeriesConfig: merged };
+        }, [data, seriesConfig, shadowIdPrefix]);
 
         // Handlers
         // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
@@ -370,15 +465,15 @@ export function LineChart({
         };
 
         return (
-          <>
+          <div style={{ display: showLegend ? 'flex' : undefined, width: containerWidth, height: containerHeight, fontFamily: 'var(--font-chart, Roboto, sans-serif)' }}>
             {/* Main chart SVG */}
             <svg
-              width={containerWidth}
+              width={showLegend && legendPosition !== LegendPosition.Below ? containerWidth - (legendPosition === LegendPosition.Right ? Math.floor(containerWidth * 2 / 12) : 0) : containerWidth}
               height={containerHeight}
               className="ngx-charts"
-              style={{ overflow: 'visible', fontFamily: 'var(--font-chart, Roboto, sans-serif)' }}
+              style={{ overflow: 'visible' }}
             >
-              {/* Clip path definition */}
+              {/* Clip path and custom filter definitions */}
               <defs>
                 <clipPath id={clipPathId}>
                   <rect
@@ -387,6 +482,8 @@ export function LineChart({
                     transform="translate(-5, -5)"
                   />
                 </clipPath>
+                {filterDefs}
+                {autoShadowDefs}
               </defs>
 
               {/* Chart content group */}
@@ -404,6 +501,7 @@ export function LineChart({
                     maxTickLength={maxXAxisTickLength}
                     tickFormatting={xAxisTickFormatting}
                     ticks={xAxisTicks}
+                    xAxisTickCount={xAxisTickCount}
                     wrapTicks={wrapTicks}
                     onDimensionsChanged={({ height }) => onXAxisHeightChange(height)}
                   />
@@ -421,10 +519,15 @@ export function LineChart({
                     maxTickLength={maxYAxisTickLength}
                     tickFormatting={yAxisTickFormatting}
                     ticks={yAxisTicks}
+                    yAxisTickCount={yAxisTickCount}
                     referenceLines={referenceLines}
                     showRefLines={showRefLines}
                     showRefLabels={showRefLabels}
                     wrapTicks={wrapTicks}
+                    width={yAxisConfig.width}
+                    tickTextAnchor={yAxisConfig.tickTextAnchor}
+                    overlay={yAxisConfig.overlay}
+                    yAxisOffset={measuredYAxisWidth}
                     onDimensionsChanged={({ width }) => onYAxisWidthChange(width)}
                   />
                 )}
@@ -452,6 +555,8 @@ export function LineChart({
                           rangeFillOpacity={rangeFillOpacity}
                           hasRange={hasRange}
                           animated={animated}
+                          {...(mergedSeriesConfig[String(series.name)] ?? {})}
+                          {...(seriesConfig?.[String(series.name)] ?? {})}
                         />
                       </motion.g>
                     ))}
@@ -495,6 +600,7 @@ export function LineChart({
                     </g>
                   )}
                 </g>
+
               </g>
 
               {/* Timeline (for time-based charts) */}
@@ -535,7 +641,7 @@ export function LineChart({
                 onLabelDeactivate={handleLegendDeactivate}
               />
             )}
-          </>
+          </div>
         );
       }}
     </BaseChart>

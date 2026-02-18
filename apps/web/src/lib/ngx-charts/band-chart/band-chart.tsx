@@ -353,6 +353,8 @@ function BandChartContent({
     yScale,
     xDomain,
     transform,
+    margins: hookMargins,
+    yAxisWidth: measuredYAxisWidth,
     updateXAxisHeight,
     updateYAxisWidth,
   } = useBandChart({
@@ -432,16 +434,26 @@ function BandChartContent({
   }, [visibleData, xScale, yScale, curve]);
 
   return (
-    <div className="ngx-charts-outer" style={{ width: '100%', height: '100%' }}>
+    <div
+      className="ngx-charts-outer"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: dimensions.width,
+        height: dimensions.height,
+        fontFamily: 'var(--font-chart, Roboto, sans-serif)',
+      }}
+    >
       <svg
         width="100%"
-        height="100%"
+        height={dimensions.height}
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
         className="ngx-charts"
         style={{
           display: 'block',
           overflow: (xAxis.visible || yAxis.visible) ? 'visible' : 'hidden',
-          fontFamily: 'var(--font-chart, Roboto, sans-serif)',
+          flex: 1,
+          minHeight: 0,
         }}
       >
         <defs>

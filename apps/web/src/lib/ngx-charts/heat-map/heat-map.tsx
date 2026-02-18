@@ -29,6 +29,7 @@ import type {
   LegendPosition,
   ColorScheme,
   StringOrNumberOrDate,
+  Margin,
 } from '../types';
 import { ScaleType as ScaleTypeEnum } from '../types';
 
@@ -54,6 +55,7 @@ interface AxisConfig {
   tickFormatting?: (value: unknown) => string;
   ticks?: unknown[];
   wrapTicks?: boolean;
+  width?: number;
 }
 
 /** Tooltip configuration */
@@ -70,6 +72,8 @@ export interface HeatMapProps {
   width?: number;
   /** Fixed height (optional, defaults to container height) */
   height?: number;
+  /** Chart margins */
+  margins?: Margin;
   /** Color scheme name or custom scheme */
   colorScheme?: string | ColorScheme;
   /** Custom color mapping */
@@ -172,6 +176,7 @@ const HeatMapInner = memo(function HeatMapInner({
   min,
   max,
   activeEntries: initialActiveEntries = [],
+  margins: customMargins,
   onSelect,
   onActivate,
   onDeactivate,
@@ -181,7 +186,12 @@ const HeatMapInner = memo(function HeatMapInner({
   const [activeEntries, setActiveEntries] = useState<DataItem[]>(initialActiveEntries);
 
   // Default margins
-  const margin: [number, number, number, number] = useMemo(() => [10, 20, 10, 20], []);
+  const margin: [number, number, number, number] = useMemo(() => {
+    if (customMargins) {
+      return [customMargins.top, customMargins.right, customMargins.bottom, customMargins.left];
+    }
+    return [10, 20, 10, 20];
+  }, [customMargins]);
 
   // Merge axis config with defaults
   // IMPORTANT: Angular heat-map NEVER passes showGridLines to axes, so grid lines
@@ -258,7 +268,7 @@ const HeatMapInner = memo(function HeatMapInner({
       showXAxis: xAxisConfig.visible,
       showYAxis: yAxisConfig.visible,
       xAxisHeight,
-      yAxisWidth,
+      yAxisWidth: yAxisConfig.width ?? yAxisWidth,
       showXLabel: xAxisConfig.showLabel,
       showYLabel: yAxisConfig.showLabel,
       showLegend: legend,
@@ -273,6 +283,7 @@ const HeatMapInner = memo(function HeatMapInner({
     yAxisConfig.visible,
     xAxisHeight,
     yAxisWidth,
+    yAxisConfig.width,
     xAxisConfig.showLabel,
     yAxisConfig.showLabel,
     legend,
