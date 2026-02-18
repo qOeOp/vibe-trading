@@ -6,6 +6,7 @@ import {
   useState,
   useEffect,
   useRef,
+  useMemo,
 } from "react";
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
@@ -52,15 +53,14 @@ export function useTopBarExtraNavItems(): TopBarNavItem[] {
  */
 export function useSetTopBarNavItems(items: TopBarNavItem[]): void {
   const { setExtraNavItems } = useContext(TopBarSlotContext);
-  const prevRef = useRef<TopBarNavItem[]>([]);
 
-  const changed =
-    items.length !== prevRef.current.length ||
-    items.some((item, i) => item.id !== prevRef.current[i]?.id);
-  if (changed) {
-    prevRef.current = items;
-  }
-  const stableItems = prevRef.current;
+  // Memoize items based on their IDs to prevent unnecessary effect triggers
+  // and ensure the effect only runs when the actual navigation items change.
+  const stableItems = useMemo(
+    () => items,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [items.map((i) => i.id).join(",")],
+  );
 
   useEffect(() => {
     setExtraNavItems(stableItems);

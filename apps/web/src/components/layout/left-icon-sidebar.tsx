@@ -1,23 +1,9 @@
 "use client";
 
-import {
-  LayoutGrid,
-  TrendingUp,
-  BarChart3,
-  FlaskConical,
-  Gauge,
-  Gem,
-  Wallet,
-  LineChart,
-  Users,
-  Wrench,
-  Shield,
-  Bell,
-  Settings,
-} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { NAV_CONFIG } from "@/lib/navigation";
 
 export interface SidebarItem {
   icon: LucideIcon;
@@ -28,21 +14,13 @@ export interface SidebarItem {
   disabled?: boolean;
 }
 
-const DEFAULT_ICONS: SidebarItem[] = [
-  { icon: LayoutGrid, label: "Dashboard", href: "/" },
-  { icon: TrendingUp, label: "Market", href: "/market" },
-  { icon: BarChart3, label: "Analysis", href: "/analysis" },
-  { icon: FlaskConical, label: "Factor", href: "/factor" },
-  { icon: Gauge, label: "Indicators" },
-  { icon: Gem, label: "Watchlist" },
-  { icon: Wallet, label: "Portfolio" },
-  { icon: LineChart, label: "Trading" },
-  { icon: Users, label: "Social" },
-  { icon: Wrench, label: "Tools" },
-  { icon: Shield, label: "Security" },
-  { icon: Bell, label: "Alerts" },
-  { icon: Settings, label: "Settings" },
-];
+const DEFAULT_SIDEBAR_ITEMS: SidebarItem[] = NAV_CONFIG.map((mod) => ({
+  icon: mod.icon,
+  label: mod.label,
+  id: mod.id,
+  href: mod.href,
+  phase: mod.phase,
+}));
 
 interface LeftIconSidebarProps {
   items?: SidebarItem[];
@@ -60,12 +38,12 @@ export function LeftIconSidebar({
   const router = useRouter();
   const pathname = usePathname();
 
-  const displayItems = items ?? DEFAULT_ICONS;
+  const displayItems = items ?? DEFAULT_SIDEBAR_ITEMS;
 
   const isActive = (item: SidebarItem) => {
     if (activeId !== undefined) return item.id === activeId;
     if (!item.href) return false;
-    if (item.href === "/") return pathname === "/";
+    if (item.href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(item.href);
   };
 

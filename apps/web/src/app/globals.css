@@ -340,6 +340,39 @@
   background: rgba(0, 0, 0, 0.3);
 }
 
+/* ── Lab Cell (Marimo-inspired) ───────────────────────────────── */
+
+/* Tray hover zones — invisible 100px pseudo-element "wings" that keep
+   the cell toolbar visible when the mouse moves slightly outside.
+   Adapted from marimo-team/marimo frontend/src/css/app/Cell.css */
+.cell-tray {
+  position: relative;
+}
+.cell-tray::before,
+.cell-tray::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  pointer-events: auto;
+}
+.cell-tray::before {
+  right: 100%;
+}
+.cell-tray::after {
+  left: 100%;
+}
+
+/* Resize handle (react-resizable-panels) */
+[data-resize-handle] {
+  transition: background-color 200ms ease;
+}
+[data-resize-handle]:hover,
+[data-resize-handle-active] {
+  background-color: rgba(38, 166, 154, 0.15) !important;
+}
+
 /* ── Mine Table (TanStack) ────────────────────────────────────── */
 .mine-table {
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;

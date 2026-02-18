@@ -1,19 +1,12 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  Bell,
-  TrendingUp,
-  BarChart3,
-  Wallet,
-  LineChart,
-  Settings,
-  Home,
-} from "lucide-react";
+import { Bell } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { getModuleByRoute, getActiveTab } from "@/lib/navigation";
 import { MarketTicker } from "./market-ticker";
 import { useTopBarExtraNavItems } from "./top-bar-slot";
 
@@ -22,30 +15,13 @@ export interface NavItem {
   label: string;
   icon?: LucideIcon;
   href?: string;
+  disabled?: boolean;
 }
-
-const BASE_NAV_ITEMS: NavItem[] = [
-  { id: "market", label: "Market", icon: TrendingUp },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "portfolio", label: "Portfolio", icon: Wallet },
-  { id: "trading", label: "Trading", icon: LineChart },
-  { id: "settings", label: "Settings", icon: Settings },
-];
-
-/**
- * Route-prefix overrides for the first "home" nav item.
- * When pathname starts with the prefix, the "market" item transforms.
- */
-const ROUTE_HOME_OVERRIDES: { prefix: string; label: string; icon: LucideIcon; href: string }[] = [
-  { prefix: "/factor", label: "Home", icon: Home, href: "/factor/home" },
-];
-
-const DEFAULT_ACTIVE_NAV = "market";
 
 interface TopNavBarProps {
   /** Replace left area (default: MarketTicker) */
   leftSlot?: ReactNode;
-  /** Fully override nav pills. When set, BASE_NAV_ITEMS & extras are ignored. */
+  /** Fully override nav pills. When set, module tabs & extras are ignored. */
   navItems?: NavItem[];
   /** Custom click handler for nav pills (default: router.push) */
   onNavClick?: (item: NavItem, index: number) => void;
@@ -62,15 +38,9 @@ export function TopNavBar({
   activeNavId,
   trailingActions,
 }: TopNavBarProps = {}) {
-  const [activeNav, setActiveNav] = useState(DEFAULT_ACTIVE_NAV);
   const extraNavItems = useTopBarExtraNavItems();
   const router = useRouter();
   const pathname = usePathname();
-
-  // Reset local active state when pathname changes (avoids stale highlight)
-  useEffect(() => {
-    setActiveNav(DEFAULT_ACTIVE_NAV);
-  }, [pathname]);
 
   const handleNavClick = useCallback(
     (item: NavItem, index: number) => {
@@ -78,7 +48,6 @@ export function TopNavBar({
         onNavClick(item, index);
         return;
       }
-      setActiveNav(item.id);
       if (item.href) {
         router.push(item.href);
       }
@@ -86,21 +55,24 @@ export function TopNavBar({
     [onNavClick, router],
   );
 
-  // Build nav items: use override if provided, otherwise default + extras
+  // Build nav items from current module's tabs + any extra injected items
   const computedNavItems = useMemo(() => {
-    const override = ROUTE_HOME_OVERRIDES.find((o) => pathname.startsWith(o.prefix));
-    const base = override
-      ? BASE_NAV_ITEMS.map((item) =>
-          item.id === "market"
-            ? { ...item, label: override.label, icon: override.icon, href: override.href }
-            : item,
-        )
-      : BASE_NAV_ITEMS;
+    const currentModule = getModuleByRoute(pathname);
+    if (!currentModule) return [];
 
-    if (extraNavItems.length === 0) return base;
+    // Module's own tabs
+    const moduleTabs: NavItem[] = currentModule.tabs.map((tab) => ({
+      id: tab.id,
+      label: tab.label,
+      href: tab.href,
+    }));
 
-    const result = [...base];
+    // Merge extra items from page-level context (dedup by id)
+    if (extraNavItems.length === 0) return moduleTabs;
+
+    const result = [...moduleTabs];
     for (const extra of extraNavItems) {
+      if (result.some((item) => item.id === extra.id)) continue;
       const insertIdx = extra.afterId
         ? result.findIndex((item) => item.id === extra.afterId) + 1
         : result.length;
@@ -118,8 +90,13 @@ export function TopNavBar({
 
   const isItemActive = (item: NavItem) => {
     if (activeNavId !== undefined) return item.id === activeNavId;
-    if (item.href) return pathname === item.href;
-    return activeNav === item.id;
+    if (item.href && pathname === item.href) return true;
+    // Fallback: check if this is the module's active tab
+    const currentModule = getModuleByRoute(pathname);
+    if (currentModule) {
+      return item.id === getActiveTab(currentModule, pathname);
+    }
+    return false;
   };
 
   return (
@@ -131,28 +108,33 @@ export function TopNavBar({
 
       {/* Right: nav pills + actions */}
       <div className="flex items-center gap-4 shrink-0">
-        <nav className="flex items-center gap-1 bg-white/60 backdrop-blur-sm rounded-full p-1">
-          {displayNavItems.map((item, index) => {
-            const { id, label, icon: Icon } = item;
-            const isActive = isItemActive(item);
-            return (
-              <button
-                type="button"
-                key={id}
-                onClick={() => handleNavClick(item, index)}
-                aria-current={isActive ? "page" : undefined}
-                className={`flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
-                  isActive
-                    ? "bg-mine-nav-active text-white shadow-sm"
-                    : "text-mine-text hover:bg-white/50"
-                }`}
-              >
-                {Icon && <Icon className="w-4 h-4" strokeWidth={1.5} />}
-                {label}
-              </button>
-            );
-          })}
-        </nav>
+        {displayNavItems.length > 0 && (
+          <nav className="flex items-center gap-1 bg-white/60 backdrop-blur-sm rounded-full p-1">
+            {displayNavItems.map((item, index) => {
+              const { id, label, icon: Icon } = item;
+              const active = isItemActive(item);
+              return (
+                <button
+                  type="button"
+                  key={id}
+                  disabled={item.disabled}
+                  onClick={() => !item.disabled && handleNavClick(item, index)}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
+                    active
+                      ? "bg-mine-nav-active text-white shadow-sm"
+                      : item.disabled
+                        ? "text-mine-muted/50 cursor-default"
+                        : "text-mine-text hover:bg-white/50"
+                  }`}
+                >
+                  {Icon && <Icon className="w-4 h-4" strokeWidth={1.5} />}
+                  {label}
+                </button>
+              );
+            })}
+          </nav>
+        )}
 
         <Button
           variant="ghost"
