@@ -1,10 +1,10 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addMinutes, format, set } from "date-fns";
-import { type ReactNode, useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addMinutes, format, set } from 'date-fns';
+import { type ReactNode, useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
   Form,
   FormControl,
@@ -12,8 +12,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Modal,
   ModalClose,
@@ -23,20 +23,30 @@ import {
   ModalHeader,
   ModalTitle,
   ModalTrigger,
-} from "@/components/ui/responsive-modal";
+} from '@/components/ui/responsive-modal';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { COLORS } from "../constants";
-import { useCalendar } from "../contexts/calendar-context";
-import { useDisclosure } from "../hooks";
-import type { IEvent } from "../interfaces";
-import { eventSchema, type TEventFormData } from "../schemas";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { COLORS } from '../constants';
+import { useCalendar } from '../contexts/calendar-context';
+import { useDisclosure } from '../hooks';
+import type { IEvent } from '../interfaces';
+import { eventSchema, type TEventFormData } from '../schemas';
+import type { TEventColor } from '../types';
+
+const COLOR_BG_MAP: Record<TEventColor, string> = {
+  blue: 'bg-blue-600',
+  green: 'bg-green-600',
+  red: 'bg-red-600',
+  yellow: 'bg-yellow-600',
+  purple: 'bg-purple-600',
+  orange: 'bg-orange-600',
+};
 
 interface IProps {
   children: ReactNode;
@@ -45,12 +55,7 @@ interface IProps {
   event?: IEvent;
 }
 
-function AddEditEventDialog({
-  children,
-  startDate,
-  startTime,
-  event,
-}: IProps) {
+function AddEditEventDialog({ children, startDate, startTime, event }: IProps) {
   const { isOpen, onClose, onToggle } = useDisclosure();
   const { addEvent, updateEvent } = useCalendar();
   const isEditing = !!event;
@@ -81,21 +86,21 @@ function AddEditEventDialog({
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      title: event?.title ?? "",
-      description: event?.description ?? "",
+      title: event?.title ?? '',
+      description: event?.description ?? '',
       startDate: initialDates.startDate,
       endDate: initialDates.endDate,
-      color: event?.color ?? "blue",
+      color: event?.color ?? 'blue',
     },
   });
 
   useEffect(() => {
     form.reset({
-      title: event?.title ?? "",
-      description: event?.description ?? "",
+      title: event?.title ?? '',
+      description: event?.description ?? '',
       startDate: initialDates.startDate,
       endDate: initialDates.endDate,
-      color: event?.color ?? "blue",
+      color: event?.color ?? 'blue',
     });
   }, [event, initialDates, form]);
 
@@ -110,7 +115,7 @@ function AddEditEventDialog({
           ? event.user
           : {
               id: Math.floor(Math.random() * 1000000).toString(),
-              name: "Jeraidi Yassir",
+              name: 'Jeraidi Yassir',
               picturePath: null,
             },
         color: values.color,
@@ -118,17 +123,17 @@ function AddEditEventDialog({
 
       if (isEditing) {
         updateEvent(formattedEvent);
-        toast.success("Event updated successfully");
+        toast.success('Event updated successfully');
       } else {
         addEvent(formattedEvent);
-        toast.success("Event created successfully");
+        toast.success('Event created successfully');
       }
 
       onClose();
       form.reset();
     } catch (error) {
-      console.error(`Error ${isEditing ? "editing" : "adding"} event:`, error);
-      toast.error(`Failed to ${isEditing ? "edit" : "add"} event`);
+      console.error(`Error ${isEditing ? 'editing' : 'adding'} event:`, error);
+      toast.error(`Failed to ${isEditing ? 'edit' : 'add'} event`);
     }
   };
 
@@ -137,11 +142,11 @@ function AddEditEventDialog({
       <ModalTrigger asChild>{children}</ModalTrigger>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>{isEditing ? "Edit Event" : "Add New Event"}</ModalTitle>
+          <ModalTitle>{isEditing ? 'Edit Event' : 'Add New Event'}</ModalTitle>
           <ModalDescription>
             {isEditing
-              ? "Modify your existing event."
-              : "Create a new event for your calendar."}
+              ? 'Modify your existing event.'
+              : 'Create a new event for your calendar.'}
           </ModalDescription>
         </ModalHeader>
 
@@ -164,7 +169,7 @@ function AddEditEventDialog({
                       id="title"
                       placeholder="Enter a title"
                       {...field}
-                      className={fieldState.invalid ? "border-red-500" : ""}
+                      className={fieldState.invalid ? 'border-red-500' : ''}
                     />
                   </FormControl>
                   <FormMessage />
@@ -195,7 +200,7 @@ function AddEditEventDialog({
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger
                         className={`w-full ${
-                          fieldState.invalid ? "border-red-500" : ""
+                          fieldState.invalid ? 'border-red-500' : ''
                         }`}
                       >
                         <SelectValue placeholder="Select a variant" />
@@ -205,7 +210,7 @@ function AddEditEventDialog({
                           <SelectItem value={color} key={color}>
                             <div className="flex items-center gap-2">
                               <div
-                                className={`size-3.5 rounded-full bg-${color}-600`}
+                                className={`size-3.5 rounded-full ${COLOR_BG_MAP[color] ?? 'bg-gray-600'}`}
                               />
                               {color}
                             </div>
@@ -228,7 +233,7 @@ function AddEditEventDialog({
                     <Textarea
                       {...field}
                       placeholder="Enter a description"
-                      className={fieldState.invalid ? "border-red-500" : ""}
+                      className={fieldState.invalid ? 'border-red-500' : ''}
                     />
                   </FormControl>
                   <FormMessage />
@@ -244,7 +249,7 @@ function AddEditEventDialog({
             </Button>
           </ModalClose>
           <Button form="event-form" type="submit">
-            {isEditing ? "Save Changes" : "Create Event"}
+            {isEditing ? 'Save Changes' : 'Create Event'}
           </Button>
         </ModalFooter>
       </ModalContent>

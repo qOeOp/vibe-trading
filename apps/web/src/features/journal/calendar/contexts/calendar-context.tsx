@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { createContext, useContext, useState } from "react";
-import { useLocalStorage } from "../hooks";
-import type { IEvent, IUser } from "../interfaces";
-import type { TCalendarView, TEventColor } from "../types";
+import type React from 'react';
+import { createContext, useContext, useState } from 'react';
+import { useLocalStorage } from '../hooks';
+import type { IEvent, IUser } from '../interfaces';
+import type { TCalendarView, TEventColor } from '../types';
 
 interface ICalendarContext {
   selectedDate: Date;
   view: TCalendarView;
   setView: (view: TCalendarView) => void;
-  agendaModeGroupBy: "date" | "color";
-  setAgendaModeGroupBy: (groupBy: "date" | "color") => void;
+  agendaModeGroupBy: 'date' | 'color';
+  setAgendaModeGroupBy: (groupBy: 'date' | 'color') => void;
   use24HourFormat: boolean;
   toggleTimeFormat: () => void;
   setSelectedDate: (date: Date | undefined) => void;
-  selectedUserId: IUser["id"] | "all";
-  setSelectedUserId: (userId: IUser["id"] | "all") => void;
-  badgeVariant: "dot" | "colored";
-  setBadgeVariant: (variant: "dot" | "colored") => void;
+  selectedUserId: IUser['id'] | 'all';
+  setSelectedUserId: (userId: IUser['id'] | 'all') => void;
+  badgeVariant: 'dot' | 'colored';
+  setBadgeVariant: (variant: 'dot' | 'colored') => void;
   selectedColors: TEventColor[];
   filterEventsBySelectedColors: (colors: TEventColor) => void;
-  filterEventsBySelectedUser: (userId: IUser["id"] | "all") => void;
+  filterEventsBySelectedUser: (userId: IUser['id'] | 'all') => void;
   users: IUser[];
   events: IEvent[];
   addEvent: (event: IEvent) => void;
@@ -31,36 +31,36 @@ interface ICalendarContext {
 }
 
 interface CalendarSettings {
-  badgeVariant: "dot" | "colored";
+  badgeVariant: 'dot' | 'colored';
   view: TCalendarView;
   use24HourFormat: boolean;
-  agendaModeGroupBy: "date" | "color";
+  agendaModeGroupBy: 'date' | 'color';
 }
 
 const DEFAULT_SETTINGS: CalendarSettings = {
-  badgeVariant: "colored",
-  view: "day",
+  badgeVariant: 'colored',
+  view: 'day',
   use24HourFormat: true,
-  agendaModeGroupBy: "date",
+  agendaModeGroupBy: 'date',
 };
 
-const CalendarContext = createContext({} as ICalendarContext);
+const CalendarContext = createContext<ICalendarContext | null>(null);
 
 export function CalendarProvider({
   children,
   users,
   events,
-  badge = "colored",
-  view = "day",
+  badge = 'colored',
+  view = 'day',
 }: {
   children: React.ReactNode;
   users: IUser[];
   events: IEvent[];
   view?: TCalendarView;
-  badge?: "dot" | "colored";
+  badge?: 'dot' | 'colored';
 }) {
   const [settings, setSettings] = useLocalStorage<CalendarSettings>(
-    "calendar-settings",
+    'calendar-settings',
     {
       ...DEFAULT_SETTINGS,
       badgeVariant: badge,
@@ -68,7 +68,7 @@ export function CalendarProvider({
     },
   );
 
-  const [badgeVariant, setBadgeVariantState] = useState<"dot" | "colored">(
+  const [badgeVariant, setBadgeVariantState] = useState<'dot' | 'colored'>(
     settings.badgeVariant,
   );
   const [currentView, setCurrentViewState] = useState<TCalendarView>(
@@ -78,12 +78,12 @@ export function CalendarProvider({
     settings.use24HourFormat,
   );
   const [agendaModeGroupBy, setAgendaModeGroupByState] = useState<
-    "date" | "color"
+    'date' | 'color'
   >(settings.agendaModeGroupBy);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedUserId, setSelectedUserId] = useState<IUser["id"] | "all">(
-    "all",
+  const [selectedUserId, setSelectedUserId] = useState<IUser['id'] | 'all'>(
+    'all',
   );
   const [selectedColors, setSelectedColors] = useState<TEventColor[]>([]);
 
@@ -97,7 +97,7 @@ export function CalendarProvider({
     });
   };
 
-  const setBadgeVariant = (variant: "dot" | "colored") => {
+  const setBadgeVariant = (variant: 'dot' | 'colored') => {
     setBadgeVariantState(variant);
     updateSettings({ badgeVariant: variant });
   };
@@ -113,7 +113,7 @@ export function CalendarProvider({
     updateSettings({ use24HourFormat: newValue });
   };
 
-  const setAgendaModeGroupBy = (groupBy: "date" | "color") => {
+  const setAgendaModeGroupBy = (groupBy: 'date' | 'color') => {
     setAgendaModeGroupByState(groupBy);
     updateSettings({ agendaModeGroupBy: groupBy });
   };
@@ -126,7 +126,7 @@ export function CalendarProvider({
 
     if (newColors.length > 0) {
       const filtered = allEvents.filter((event) => {
-        const eventColor = event.color || "blue";
+        const eventColor = event.color || 'blue';
         return newColors.includes(eventColor);
       });
       setFilteredEvents(filtered);
@@ -137,9 +137,9 @@ export function CalendarProvider({
     setSelectedColors(newColors);
   };
 
-  const filterEventsBySelectedUser = (userId: IUser["id"] | "all") => {
+  const filterEventsBySelectedUser = (userId: IUser['id'] | 'all') => {
     setSelectedUserId(userId);
-    if (userId === "all") {
+    if (userId === 'all') {
       setFilteredEvents(allEvents);
     } else {
       const filtered = allEvents.filter((event) => event.user.id === userId);
@@ -178,7 +178,7 @@ export function CalendarProvider({
   const clearFilter = () => {
     setFilteredEvents(allEvents);
     setSelectedColors([]);
-    setSelectedUserId("all");
+    setSelectedUserId('all');
   };
 
   const value = {
@@ -215,6 +215,6 @@ export function CalendarProvider({
 export function useCalendar(): ICalendarContext {
   const context = useContext(CalendarContext);
   if (!context)
-    throw new Error("useCalendar must be used within a CalendarProvider.");
+    throw new Error('useCalendar must be used within a CalendarProvider.');
   return context;
 }
