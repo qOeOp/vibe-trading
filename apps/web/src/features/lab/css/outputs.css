@@ -1,0 +1,105 @@
+/**
+ * Outputs.css — Adapted from Marimo Outputs.css
+ *
+ * Source: marimo-team/marimo frontend/src/components/editor/output/Outputs.css
+ *
+ * Variable mapping (Marimo → Mine):
+ *   --monospace-font → var(--font-mono) (Geist Mono)
+ *   --amber-12       → mine-accent-yellow (#f5a623)
+ *   --error          → mine-accent-red (#e74c3c)
+ *   --link           → mine-accent-teal (#26a69a)
+ */
+
+.output,
+.media,
+.stdout,
+.stderr,
+.return,
+.marimo-error {
+  width: 100%;
+}
+
+/* No margin in edit mode — already have separation between cells */
+.marimo-cell.published .output-area .output {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.marimo-error a {
+  color: var(--color-mine-accent-teal);
+  text-decoration: underline;
+}
+
+.output {
+  position: relative;
+}
+
+.output > * {
+  max-width: 100%;
+}
+
+.output {
+  /* Unset max-width on .markdown so it doesn't affect UI elements */
+  .markdown {
+    max-width: unset;
+  }
+}
+
+.stdout,
+.stderr,
+.marimo-error {
+  font-family: var(--font-mono);
+}
+
+.stdout,
+.stderr {
+  font-size: 0.813rem;
+}
+
+.stderr {
+  color: var(--color-mine-accent-yellow);
+}
+
+.marimo-error {
+  background: rgba(231, 76, 60, 0.08);
+  padding: 3%;
+  font-size: 0.8125rem;
+  font-weight: bold;
+  border-radius: 20px;
+  white-space: pre-wrap;
+  color: var(--color-mine-accent-red);
+}
+
+.marimo-json-output {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  content-visibility: unset;
+  overflow: auto;
+  font-size: 12px;
+
+  .data-key-pair:not(:last-child) {
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .copy-button {
+    visibility: hidden;
+  }
+
+  .data-key-pair:hover > .copy-button {
+    visibility: visible;
+  }
+
+  .data-key-pair:hover > .data-key > .copy-button {
+    visibility: visible;
+  }
+}
+
+.traceback-cell-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.traceback-cell-link:hover {
+  font-weight: 500;
+}

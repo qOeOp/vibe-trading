@@ -1,0 +1,151 @@
+/**
+ * CodeMirror.css — Additional CM styling for Lab cells
+ *
+ * Source: Extracted from Marimo Cell.css CodeMirror section
+ * + additional Marimo CM overrides
+ *
+ * Most CM styling is in cell.css under `.marimo-cell .cm-editor`.
+ * This file contains supplementary CM styling for the lab context.
+ */
+
+/* -------- Gutters -------- */
+.marimo-cell .cm-gutters {
+  background-color: transparent;
+  border-right: none;
+  font-family: var(--font-mono);
+}
+
+.marimo-cell .cm-gutter.cm-lineNumbers {
+  min-width: 32px;
+}
+
+/* -------- Scroller -------- */
+.marimo-cell .cm-scroller {
+  min-height: 40px;
+  overflow: auto;
+}
+
+/* -------- Content padding -------- */
+.marimo-cell .cm-content {
+  padding: 8px 0;
+}
+
+/* -------- Placeholder -------- */
+.marimo-cell .cm-placeholder {
+  color: var(--color-mine-muted);
+  font-style: italic;
+}
+
+/* -------- Selection -------- */
+.marimo-cell .cm-selectionBackground {
+  background: rgba(38, 166, 154, 0.15) !important;
+}
+
+.marimo-cell .cm-editor.cm-focused .cm-selectionBackground {
+  background: rgba(38, 166, 154, 0.2) !important;
+}
+
+/* -------- Cursor -------- */
+.marimo-cell .cm-cursor {
+  border-left-color: var(--color-mine-text);
+}
+
+/* -------- Matching brackets -------- */
+.marimo-cell .cm-matchingBracket {
+  background-color: rgba(38, 166, 154, 0.2);
+  outline: 1px solid rgba(38, 166, 154, 0.4);
+}
+
+/* -------- Fold gutter -------- */
+.marimo-cell .cm-foldGutter {
+  width: 14px;
+}
+
+.marimo-cell .cm-foldGutter .cm-gutterElement {
+  color: var(--color-mine-muted);
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.marimo-cell .cm-foldGutter .cm-gutterElement:hover {
+  color: var(--color-mine-text);
+}
+
+/* -------- Search match highlighting -------- */
+.marimo-cell .cm-searchMatch {
+  background-color: rgba(245, 166, 35, 0.3);
+  border-radius: 2px;
+}
+
+.marimo-cell .cm-searchMatch.cm-searchMatch-selected {
+  background-color: rgba(245, 166, 35, 0.5);
+}
+
+/* -------- Tooltip / Autocomplete -------- */
+.cm-tooltip {
+  border: 1px solid var(--color-mine-border) !important;
+  background-color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden;
+}
+
+.cm-tooltip-autocomplete {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.cm-tooltip-autocomplete > ul > li {
+  padding: 4px 8px;
+}
+
+.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background-color: rgba(38, 166, 154, 0.1);
+  color: var(--color-mine-text);
+}
+
+/* -------- Lint (error/warning markers) -------- */
+.marimo-cell .cm-lintRange-error {
+  background-image: none;
+  border-bottom: 2px wavy var(--color-mine-accent-red);
+}
+
+.marimo-cell .cm-lintRange-warning {
+  background-image: none;
+  border-bottom: 2px wavy var(--color-mine-accent-yellow);
+}
+
+.marimo-cell .cm-lintRange-info {
+  background-image: none;
+  border-bottom: 2px dotted var(--color-mine-accent-teal);
+}
+
+/* -------- Diagnostic panel -------- */
+.cm-panel.cm-panel-lint {
+  background-color: white;
+  border-top: 1px solid var(--color-mine-border);
+}
+
+.cm-panel.cm-panel-lint ul [aria-selected] {
+  background-color: rgba(38, 166, 154, 0.1);
+}
+
+/* -------- Find/Replace panel -------- */
+.cm-panel.cm-search {
+  background-color: white;
+  border-bottom: 1px solid var(--color-mine-border);
+  padding: 4px 8px;
+}
+
+.cm-panel.cm-search input {
+  border: 1px solid var(--color-mine-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.cm-panel.cm-search button {
+  border-radius: 4px;
+  padding: 2px 8px;
+}
