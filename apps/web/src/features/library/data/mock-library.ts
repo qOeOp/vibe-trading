@@ -339,25 +339,144 @@ function generateICHistogramBins(icTimeSeries: number[]): number[] {
   return bins;
 }
 
+// ─── Shenwan L1 Industry Names ───────────────────────────
+
+const SHENWAN_L1_INDUSTRIES = [
+  "农林牧渔", "基础化工", "钢铁", "有色金属", "电子",
+  "汽车", "家用电器", "食品饮料", "纺织服饰", "轻工制造",
+  "医药生物", "公用事业", "交通运输", "房地产", "商贸零售",
+  "社会服务", "银行", "非银金融", "综合", "建筑材料",
+  "建筑装饰", "电力设备", "国防军工", "计算机", "传媒",
+  "通信", "煤炭", "石油石化",
+] as const;
+
+// ─── New IC Visualization Generators ─────────────────────
+
+/** Generate Q1-Q5 cumulative return curves (240 points each, start=1.0) */
+function generateQuantileCumulativeReturns(
+  quantileReturns: [number, number, number, number, number],
+  seed: number,
+): [number[], number[], number[], number[], number[]] {
+  const result: [number[], number[], number[], number[], number[]] = [[], [], [], [], []];
+  for (let q = 0; q < 5; q++) {
+    const rand = createSeededRandom(seed * 2741 + q * 1031);
+    const dailyDrift = quantileReturns[q] / 100 / 252; // annualize to daily
+    const vol = Math.abs(dailyDrift) * 2.5 + 0.003;
+    const curve: number[] = [1.0];
+    for (let d = 1; d < 240; d++) {
+      const dr = dailyDrift + (rand() - 0.5) * vol * 2;
+      curve.push(Math.round(curve[d - 1] * (1 + dr) * 10000) / 10000);
+    }
+    result[q] = curve;
+  }
+  return result;
+}
+
+/** Generate IC monthly heatmap: 3 years × 12 months */
+function generateICMonthlyHeatmap(
+  baseIC: number,
+  status: string,
+  seed: number,
+): Array<{ name: string; series: Array<{ name: string; value: number }> }> {
+  const rand = createSeededRandom(seed * 4517 + 83);
+  const months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+  const years = ["2023", "2024", "2025"];
+  const isProbOrRetired = status === "PROBATION" || status === "RETIRED";
+
+  // X axis = months (12 columns), Y axis = years (3 rows)
+  // ngx-charts HeatMap: outer .name → X domain, inner series[].name → Y domain
+  return months.map((month) => ({
+    name: month,
+    series: years.map((year, yearIdx) => {
+      const yearDecay = isProbOrRetired ? 1 - yearIdx * 0.25 : 1 - yearIdx * 0.05;
+      const seasonalNoise = (rand() - 0.5) * Math.abs(baseIC) * 0.6;
+      const icValue = baseIC * yearDecay + seasonalNoise;
+      return {
+        name: year,
+        value: Math.round(icValue * 10000) / 10000,
+      };
+    }),
+  }));
+}
+
+/** Generate per-industry IC values (Shenwan L1, 28 industries) */
+function generateICByIndustry(
+  baseIC: number,
+  seed: number,
+): Array<{ name: string; value: number }> {
+  const rand = createSeededRandom(seed * 3389 + 47);
+  return SHENWAN_L1_INDUSTRIES.map((name) => {
+    const multiplier = 0.5 + rand() * 1.0; // 0.5x ~ 1.5x
+    const noise = (rand() - 0.5) * Math.abs(baseIC) * 0.3;
+    return {
+      name,
+      value: Math.round((baseIC * multiplier + noise) * 10000) / 10000,
+    };
+  });
+}
+
+/** Generate rank autocorrelation time series (240 points, range 0.3-0.95) */
+function generateRankAutoCorrelation(
+  baseIC: number,
+  seed: number,
+): number[] {
+  const rand = createSeededRandom(seed * 6173 + 29);
+  const icStrength = Math.min(Math.abs(baseIC) / 0.05, 1);
+  // Higher IC → higher autocorrelation (more stable rankings)
+  const meanLevel = 0.4 + icStrength * 0.35; // 0.4-0.75
+  const data: number[] = [];
+  let value = meanLevel + (rand() - 0.5) * 0.1;
+  for (let i = 0; i < 240; i++) {
+    const reversion = (meanLevel - value) * 0.08;
+    value += reversion + (rand() - 0.5) * 0.04;
+    data.push(Math.round(Math.max(0.15, Math.min(0.98, value)) * 10000) / 10000);
+  }
+  return data;
+}
+
+/** Generate quantile turnover: top (Q5) and bottom (Q1) daily turnover series */
+function generateQuantileTurnover(
+  baseTurnover: number,
+  seed: number,
+): { top: number[]; bottom: number[] } {
+  const randTop = createSeededRandom(seed * 5501 + 11);
+  const randBot = createSeededRandom(seed * 7717 + 37);
+  // Convert monthly turnover (0-100) to daily fraction
+  const dailyBase = baseTurnover / 100 / 21; // ~21 trading days/month
+  const top: number[] = [];
+  const bottom: number[] = [];
+  let topVal = dailyBase * (0.8 + randTop() * 0.4);
+  let botVal = dailyBase * (1.0 + randBot() * 0.6); // bottom quantile typically higher turnover
+
+  for (let i = 0; i < 240; i++) {
+    topVal += (dailyBase * 0.9 - topVal) * 0.05 + (randTop() - 0.5) * dailyBase * 0.3;
+    botVal += (dailyBase * 1.2 - botVal) * 0.05 + (randBot() - 0.5) * dailyBase * 0.3;
+    top.push(Math.round(Math.max(0.001, topVal) * 10000) / 10000);
+    bottom.push(Math.round(Math.max(0.001, botVal) * 10000) / 10000);
+  }
+  return { top, bottom };
+}
+
 // ─── Build Full Factor Objects ───────────────────────────
 
 function buildFactor(seed: FactorSeed, index: number): Factor {
   const rand = createSeededRandom(index * 3331 + 7);
-  const icVol = Math.abs(seed.ic) * 0.6 + 0.005;
+  const icVol = Math.abs(seed.ic) * 3.0 + 0.02;
   const icTimeSeries = generateICSparkline(240, seed.ic, icVol, index * 4219 + 99);
   const rankTestRetention = generateRankTestRetention(seed.ic, index);
   const binaryTestRetention = generateBinaryTestRetention(rankTestRetention, index);
   const icDecayProfile = generateICDecayProfile(seed.ic, index * 6131 + 73);
   const longShortReturn = generateLongShortReturn(seed.ic, index * 4391 + 31);
+  const quantileReturns = generateQuantileReturns(
+    seed.ic,
+    seed.expectedDirection,
+    index * 3571 + 17,
+  );
   return {
     ...seed,
     expression: seed.expression,
     icTrend: generateICSparkline(30, seed.ic, icVol, index * 7919 + 42),
-    quantileReturns: generateQuantileReturns(
-      seed.ic,
-      seed.expectedDirection,
-      index * 3571 + 17,
-    ),
+    quantileReturns,
     icTimeSeries,
     benchmarkConfig: DEFAULT_BENCHMARK_CONFIG,
     icDistribution: computeICStats(icTimeSeries),
@@ -372,6 +491,14 @@ function buildFactor(seed: FactorSeed, index: number): Factor {
     longShortEquityCurve: generateLongShortEquityCurve(longShortReturn, index * 5113 + 59),
     longSideReturnRatio: Math.round((0.45 + rand() * 0.35) * 100) / 100, // 45-80%
     icHistogramBins: generateICHistogramBins(icTimeSeries),
+    quantileCumulativeReturns: generateQuantileCumulativeReturns(
+      quantileReturns,
+      index * 8219 + 41,
+    ),
+    icMonthlyHeatmap: generateICMonthlyHeatmap(seed.ic, seed.status, index * 9413 + 67),
+    icByIndustry: generateICByIndustry(seed.ic, index * 7321 + 53),
+    rankAutoCorrelation: generateRankAutoCorrelation(seed.ic, index * 6529 + 79),
+    quantileTurnover: generateQuantileTurnover(seed.turnover, index * 4871 + 23),
     statusHistory: [],
   };
 }

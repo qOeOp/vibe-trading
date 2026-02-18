@@ -1,35 +1,38 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   DetailSection,
   DetailStatGrid,
   DetailStatItem,
 } from "@/components/shared/detail-panel";
+import { BarHorizontal } from "@/lib/ngx-charts/bar-chart";
+import type { DataItem } from "@/lib/ngx-charts/types";
 import type { Factor } from "../../types";
 import { WINSORIZATION_LABELS } from "../../types";
 
 // ─── Helpers ─────────────────────────────────────────────
 
 function icColor(ic: number): "up" | "down" | "flat" {
-  // positive IC = good = green (down token), negative = bad = red (up token)
-  if (ic > 0) return "down";
-  if (ic < 0) return "up";
+  // positive IC = good = red (up token), negative = bad = green (down token)
+  if (ic > 0) return "up";
+  if (ic < 0) return "down";
   return "flat";
 }
 
 function irColor(ir: number): "down" | "flat" | "up" {
   const abs = Math.abs(ir);
-  if (abs >= 1.5) return "down"; // excellent → green
+  if (abs >= 1.5) return "up"; // excellent → red
   if (abs >= 0.5) return "flat"; // ok → gray
-  return "up"; // weak → red
+  return "down"; // weak → green
 }
 
 function tStatColor(t: number): "down" | "up" {
-  return Math.abs(t) >= 2 ? "down" : "up";
+  return Math.abs(t) >= 2 ? "up" : "down";
 }
 
-function winRateColor(wr: number): "down" | "flat" {
-  return wr >= 55 ? "down" : "flat";
+function winRateColor(wr: number): "up" | "flat" {
+  return wr >= 55 ? "up" : "flat";
 }
 
 function fmtIC(v: number): string {
@@ -40,37 +43,51 @@ function fmtCapacity(cap: number): string {
   return cap >= 10000 ? `${(cap / 10000).toFixed(0)}亿` : `${cap}万`;
 }
 
-// ─── Quantile Bar ────────────────────────────────────────
+// ─── Quantile Colors (A股红涨绿跌: worst=green → best=red) ───────
+
+const QUANTILE_COLORS: Array<{ name: string; value: string }> = [
+  { name: "Q1", value: "#0B8C5F" },
+  { name: "Q2", value: "#58CEAA" },
+  { name: "Q3", value: "#76808E" },
+  { name: "Q4", value: "#E8626F" },
+  { name: "Q5", value: "#CF304A" },
+];
+
+function useQuantileData(
+  returns: [number, number, number, number, number],
+): DataItem[] {
+  return useMemo(
+    () =>
+      returns.map((r, i) => ({
+        name: `Q${i + 1}`,
+        value: r,
+      })),
+    [returns],
+  );
+}
 
 function QuantileBar({
   returns,
 }: {
   returns: [number, number, number, number, number];
 }) {
-  const labels = ["Q1", "Q2", "Q3", "Q4", "Q5"];
-  const maxAbs = Math.max(...returns.map(Math.abs), 0.01);
+  const data = useQuantileData(returns);
 
   return (
-    <div data-slot="quantile-bar" className="flex items-end gap-1 h-[48px]">
-      {returns.map((r, i) => {
-        const height = Math.max(4, (Math.abs(r) / maxAbs) * 40);
-        const isPositive = r >= 0;
-        return (
-          <div
-            key={labels[i]}
-            className="flex-1 flex flex-col items-center gap-0.5"
-          >
-            <div
-              className={`w-full rounded-sm ${isPositive ? "bg-market-down-medium" : "bg-market-up-medium"}`}
-              style={{
-                height: `${height}px`,
-                opacity: 0.7 + (i / 4) * 0.3,
-              }}
-            />
-            <span className="text-[8px] text-mine-muted">{labels[i]}</span>
-          </div>
-        );
-      })}
+    <div data-slot="quantile-bar" className="h-[150px]">
+      <BarHorizontal
+        data={data}
+        customColors={QUANTILE_COLORS}
+        roundEdges
+        animated
+        barPadding={12}
+        xAxis={{ visible: false }}
+        yAxis={{ visible: true, showGridLines: false }}
+        margins={{ top: 5, right: 10, bottom: 5, left: 0 }}
+        tooltip={{ disabled: true }}
+        showDataLabel
+        dataLabelFormatting={(v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`}
+      />
     </div>
   );
 }
@@ -128,8 +145,8 @@ function StatisticsSection({ factor }: StatisticsSectionProps) {
       </DetailStatGrid>
 
       {/* Quantile returns bar */}
-      <div className="mt-3">
-        <div className="text-[10px] text-mine-muted mb-1">
+      <div className="mt-4 pt-3 border-t border-mine-border/40">
+        <div className="text-xs font-medium text-mine-muted mb-2">
           分位收益 (Q1-Q5)
         </div>
         <QuantileBar returns={factor.quantileReturns} />

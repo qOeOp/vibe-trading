@@ -1,81 +1,67 @@
 "use client";
 
 import { useMemo } from "react";
-import { DetailSection, DetailChartBox } from "@/components/shared/detail-panel";
+import { DetailSection } from "@/components/shared/detail-panel";
+import { LineChart } from "@/lib/ngx-charts/line-chart";
+import type { MultiSeries } from "@/lib/ngx-charts/types";
 import type { Factor } from "../../../types";
+
+/* ── Visual constants ──────────────────────────────────────── */
+
+const EQUITY_COLORS: Array<{ name: string; value: string }> = [
+  { name: "净值", value: "#6366f1" },
+];
+
+const SERIES_CONFIG = {
+  "净值": { strokeWidth: 2, areaFillOpacity: 0.12 },
+};
+
+/* ── Chart Component ──────────────────────────────────────── */
 
 function EquityCurveChart({ curve }: { curve: number[] }) {
   if (!curve || curve.length < 2) return null;
 
-  const w = 320;
-  const h = 80;
-  const padding = { top: 4, right: 4, bottom: 4, left: 4 };
-  const plotW = w - padding.left - padding.right;
-  const plotH = h - padding.top - padding.bottom;
+  const chartData: MultiSeries = useMemo(
+    () => [
+      {
+        name: "净值",
+        series: curve.map((v, i) => ({
+          name: i as number,
+          value: v,
+        })),
+      },
+    ],
+    [curve],
+  );
 
-  const min = Math.min(...curve);
-  const max = Math.max(...curve);
-  const range = max - min || 0.001;
-
-  const toY = (v: number) => padding.top + plotH - ((v - min) / range) * plotH;
-  const toX = (i: number) => padding.left + (i / (curve.length - 1)) * plotW;
-
-  const linePath = curve
-    .map((v, i) => `${i === 0 ? "M" : "L"}${toX(i).toFixed(1)},${toY(v).toFixed(1)}`)
-    .join(" ");
-
-  // Find MaxDD period
-  let peak = curve[0];
-  let maxDD = 0;
-  let maxDDStart = 0;
-  let maxDDEnd = 0;
-  let currentPeakIdx = 0;
-  for (let i = 1; i < curve.length; i++) {
-    if (curve[i] > peak) {
-      peak = curve[i];
-      currentPeakIdx = i;
-    }
-    const dd = (peak - curve[i]) / peak;
-    if (dd > maxDD) {
-      maxDD = dd;
-      maxDDStart = currentPeakIdx;
-      maxDDEnd = i;
-    }
-  }
-
-  const ddAreaPath = maxDD > 0.01
-    ? curve
-        .slice(maxDDStart, maxDDEnd + 1)
-        .map((v, i) => {
-          const idx = maxDDStart + i;
-          return `${i === 0 ? "M" : "L"}${toX(idx).toFixed(1)},${toY(v).toFixed(1)}`;
-        })
-        .join(" ") +
-      ` L${toX(maxDDEnd).toFixed(1)},${(padding.top + plotH).toFixed(1)}` +
-      ` L${toX(maxDDStart).toFixed(1)},${(padding.top + plotH).toFixed(1)} Z`
-    : null;
+  const referenceLines = useMemo(
+    () => [{ name: "基准", value: 1.0 }],
+    [],
+  );
 
   return (
-    <svg width="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
-      <line
-        x1={padding.left} y1={toY(1.0)}
-        x2={w - padding.right} y2={toY(1.0)}
-        className="stroke-mine-border" strokeWidth={0.5} strokeDasharray="3 2"
-      />
-      {ddAreaPath && (
-        <path
-          d={ddAreaPath}
-          className="fill-market-up-medium" opacity={0.08}
-        />
-      )}
-      <path
-        d={linePath} fill="none"
-        stroke="#6366f1" strokeWidth={1.5}
-        strokeLinejoin="round" strokeLinecap="round"
-      />
-    </svg>
+    <LineChart
+      data={chartData}
+      customColors={EQUITY_COLORS}
+      animated
+      showXAxis
+      showYAxis
+      showGridLines
+      showLegend={false}
+      autoScale
+      tooltipDisabled={false}
+      showRefLines
+      showRefLabels={false}
+      referenceLines={referenceLines}
+      roundDomains
+      seriesConfig={SERIES_CONFIG}
+      yAxis={{ overlay: false }}
+      margins={{ top: 10, right: 10, bottom: 20, left: 0 }}
+    />
   );
 }
+
+/* ── Section Export ────────────────────────────────────────── */
 
 interface LongShortEquitySectionProps {
   factor: Factor;
@@ -108,11 +94,14 @@ export function LongShortEquitySection({ factor }: LongShortEquitySectionProps) 
   }, [factor.longShortEquityCurve]);
 
   return (
-    <DetailSection title="多空净值曲线">
-      <DetailChartBox>
+    <DetailSection>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium text-mine-muted">多空净值曲线</span>
+      </div>
+      <div className="h-[170px]">
         <EquityCurveChart curve={factor.longShortEquityCurve} />
-      </DetailChartBox>
-      <div className="flex items-center gap-3 text-[10px] mt-2">
+      </div>
+      <div className="flex items-center gap-4 text-[11px] mt-4 ml-12">
         <span>
           <span className="text-mine-muted">年化</span>{" "}
           <span className={`font-semibold tabular-nums font-mono ${factor.longShortReturn >= 0 ? "text-market-down-medium" : "text-market-up-medium"}`}>

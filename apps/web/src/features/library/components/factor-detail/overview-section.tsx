@@ -71,12 +71,12 @@ export function OverviewSection({ factor }: OverviewSectionProps) {
       {/* V-Score at top */}
       <VScoreIndicator vScore={factor.vScore} />
 
-      {/* 7-dimension radar below */}
-      <div className="flex justify-center mt-3">
+      {/* 7-dimension radar below — full width of panel */}
+      <div className="mt-3">
         <RadarChart
           labels={[...RADAR_LABELS]}
           values={values}
-          size={200}
+          size={320}
           fillColor="#26a69a"
           fillOpacity={0.18}
           strokeColor="#26a69a"

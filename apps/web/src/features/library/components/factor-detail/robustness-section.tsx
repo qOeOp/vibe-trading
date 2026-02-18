@@ -30,7 +30,10 @@ export function RobustnessSection({ factor }: RobustnessSectionProps) {
   const binaryPct = Math.round(factor.binaryTestRetention * 100);
 
   return (
-    <DetailSection title="鲁棒性检验">
+    <DetailSection>
+      <div className="text-xs font-medium text-mine-muted mb-3 uppercase tracking-wider">
+        鲁棒性检验
+      </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

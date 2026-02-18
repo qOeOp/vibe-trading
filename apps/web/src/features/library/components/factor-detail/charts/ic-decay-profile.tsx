@@ -1,66 +1,84 @@
 "use client";
 
-import { DetailSection, DetailChartBox } from "@/components/shared/detail-panel";
+import { useMemo } from "react";
+import { DetailSection } from "@/components/shared/detail-panel";
+import { BarVertical } from "@/lib/ngx-charts/bar-chart";
+import type { DataItem } from "@/lib/ngx-charts/types";
 import type { Factor } from "../../../types";
+
+/* ── Visual constants ──────────────────────────────────────── */
+
+/** Blue for positive IC, red for negative — lightness graded by magnitude (solid colors) */
+function buildDecayColors(data: number[]): Array<{ name: string; value: string }> {
+  const maxAbs = Math.max(...data.map(Math.abs), 0.001);
+  return data.map((ic, i) => {
+    // t ranges 0→1 where 1 = strongest magnitude
+    const t = Math.abs(ic) / maxAbs;
+    // Interpolate lightness: weak values → lighter, strong values → more saturated
+    // Blue: from hsl(217, 91%, 82%) to hsl(217, 91%, 60%)
+    // Red:  from hsl(352, 90%, 78%) to hsl(352, 90%, 58%)
+    const lightness = ic >= 0
+      ? Math.round(82 - t * 22)   // blue: 82% → 60%
+      : Math.round(78 - t * 20);  // red:  78% → 58%
+    return {
+      name: `T+${i + 1}`,
+      value: ic >= 0
+        ? `hsl(217, 91%, ${lightness}%)`
+        : `hsl(352, 90%, ${lightness}%)`,
+    };
+  });
+}
+
+/* ── Chart Component ──────────────────────────────────────── */
 
 function ICDecayChart({ data }: { data: number[] }) {
   if (!data || data.length === 0) return null;
 
-  const w = 320;
-  const h = 70;
-  const padding = { top: 6, right: 8, bottom: 14, left: 8 };
-  const plotW = w - padding.left - padding.right;
-  const plotH = h - padding.top - padding.bottom;
+  const chartData: DataItem[] = useMemo(
+    () =>
+      data.map((ic, i) => ({
+        name: `T+${i + 1}`,
+        value: ic,
+      })),
+    [data],
+  );
 
-  const maxAbs = Math.max(...data.map(Math.abs), 0.001);
-  const barCount = data.length;
-  const gap = 2;
-  const barWidth = (plotW - (barCount - 1) * gap) / barCount;
-  const baselineY = padding.top + plotH / 2;
-  const labelIndices = [0, 5, 10, 15, 19];
+  const customColors = useMemo(() => buildDecayColors(data), [data]);
+
+  /** Show sparse tick labels at T+1, T+5, T+10, T+15, T+20 */
+  const xAxisTicks = useMemo(() => {
+    const indices = [0, 4, 9, 14, 19];
+    return indices
+      .filter((i) => i < data.length)
+      .map((i) => `T+${i + 1}`);
+  }, [data.length]);
 
   return (
-    <svg width="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet">
-      <line
-        x1={padding.left} y1={baselineY}
-        x2={w - padding.right} y2={baselineY}
-        className="stroke-mine-border" strokeWidth={0.5}
-      />
-      {data.map((ic, i) => {
-        const x = padding.left + i * (barWidth + gap);
-        const barH = (Math.abs(ic) / maxAbs) * (plotH / 2);
-        const y = ic >= 0 ? baselineY - barH : baselineY;
-        return (
-          <rect
-            key={`bar-${i}`}
-            x={x} y={y}
-            width={barWidth}
-            height={Math.max(barH, 0.5)}
-            fill={ic >= 0 ? "#3b82f6" : undefined}
-            className={ic < 0 ? "fill-market-up-medium" : undefined}
-            opacity={0.75}
-            rx={1}
-          />
-        );
-      })}
-      {labelIndices.map((idx) => {
-        if (idx >= barCount) return null;
-        const x = padding.left + idx * (barWidth + gap) + barWidth / 2;
-        return (
-          <text
-            key={`label-${idx}`}
-            x={x} y={h - 2}
-            textAnchor="middle"
-            className="fill-mine-muted"
-            fontSize={7}
-          >
-            T+{idx + 1}
-          </text>
-        );
-      })}
-    </svg>
+    <BarVertical
+      data={chartData}
+      customColors={customColors}
+      animated
+      roundEdges
+      barPadding={4}
+      xAxis={{
+        visible: true,
+        showGridLines: false,
+        ticks: xAxisTicks,
+        rotateTicks: false,
+      }}
+      yAxis={{
+        visible: true,
+        showGridLines: true,
+        overlay: false,
+      }}
+      margins={{ top: 10, right: 10, bottom: 20, left: 0 }}
+      tooltip={{ disabled: false }}
+      noBarWhenZero={false}
+    />
   );
 }
+
+/* ── Section Export ────────────────────────────────────────── */
 
 interface ICDecayProfileSectionProps {
   factor: Factor;
@@ -68,10 +86,14 @@ interface ICDecayProfileSectionProps {
 
 export function ICDecayProfileSection({ factor }: ICDecayProfileSectionProps) {
   return (
-    <DetailSection title="IC 衰减剖面" suffix="Lag T+1 ~ T+20">
-      <DetailChartBox>
+    <DetailSection>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium text-mine-muted">IC 衰减剖面</span>
+        <span className="text-[10px] text-mine-muted">Lag T+1 ~ T+20</span>
+      </div>
+      <div className="h-[150px]">
         <ICDecayChart data={factor.icDecayProfile} />
-      </DetailChartBox>
+      </div>
     </DetailSection>
   );
 }

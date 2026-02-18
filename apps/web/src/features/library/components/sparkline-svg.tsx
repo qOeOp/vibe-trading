@@ -2,19 +2,24 @@
 
 interface SparklineSVGProps {
   data: number[];
-  width?: number;
-  height?: number;
+  /** Internal viewBox width (default 120) */
+  viewBoxWidth?: number;
+  /** Internal viewBox height (default 26) */
+  viewBoxHeight?: number;
   color?: string;
   /** Auto-color: green if last > first, red otherwise */
   autoColor?: boolean;
+  /** CSS class for the svg element — use w-full h-[26px] for responsive sizing */
+  className?: string;
 }
 
 export function SparklineSVG({
   data,
-  width = 100,
-  height = 26,
+  viewBoxWidth = 120,
+  viewBoxHeight = 26,
   color,
   autoColor = true,
+  className,
 }: SparklineSVGProps) {
   if (!data || data.length === 0) return null;
 
@@ -22,27 +27,37 @@ export function SparklineSVG({
   const max = Math.max(...data);
   const range = max - min || 0.001;
   const isUp = data[data.length - 1] >= data[0];
-  const strokeColor =
-    color ?? (autoColor ? (isUp ? "#2EBD85" : "#F6465D") : "#8a8a8a");
+  const fillColor =
+    color ?? (autoColor ? (isUp ? "#F6465D" : "#2EBD85") : "#8a8a8a");
 
-  const d = data
-    .map((v, i) => {
-      const x = (i / (data.length - 1)) * width;
-      const y = height - ((v - min) / range) * (height - 4) - 2;
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
+  const barCount = data.length;
+  const gap = 1;
+  const barWidth = Math.max(1, (viewBoxWidth - gap * (barCount - 1)) / barCount);
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      <path
-        d={d}
-        fill="none"
-        stroke={strokeColor}
-        strokeWidth={1.5}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
+    <svg
+      viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+      preserveAspectRatio="none"
+      className={className}
+      style={!className ? { width: viewBoxWidth, height: viewBoxHeight } : undefined}
+    >
+      {data.map((v, i) => {
+        const barHeight = Math.max(1, ((v - min) / range) * (viewBoxHeight - 2));
+        const x = i * (barWidth + gap);
+        const y = viewBoxHeight - barHeight;
+        return (
+          <rect
+            key={i}
+            x={x}
+            y={y}
+            width={barWidth}
+            height={barHeight}
+            fill={fillColor}
+            opacity={0.85}
+            rx={0.5}
+          />
+        );
+      })}
     </svg>
   );
 }

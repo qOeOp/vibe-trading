@@ -32,6 +32,10 @@ interface LibraryState extends LibraryFilters {
   selectedFactorId: string | null;
   /** Batch-selected factor IDs for multi-select operations */
   selectedFactorIds: Set<string>;
+  /** Row grouping: ordered array of column IDs to group by */
+  grouping: string[];
+  /** Expanded state for grouped rows (true = all expanded by default) */
+  expanded: Record<string, boolean> | boolean;
 
   // Filter actions
   toggleStatus: (status: FactorLifecycleStatus) => void;
@@ -46,6 +50,15 @@ interface LibraryState extends LibraryFilters {
   toggleFactorSelection: (id: string) => void;
   selectAllFactors: (ids: string[]) => void;
   clearSelection: () => void;
+
+  // Grouping actions
+  setGrouping: (grouping: string[]) => void;
+  addGrouping: (columnId: string) => void;
+  removeGrouping: (columnId: string) => void;
+  reorderGrouping: (columnId: string, newIndex: number) => void;
+  setExpanded: (expanded: Record<string, boolean> | boolean) => void;
+  expandAllGroups: () => void;
+  collapseAllGroups: () => void;
 
   // Mutation actions
   updateFactorStatus: (
@@ -72,6 +85,8 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
   factors: getLibraryFactors(),
   selectedFactorId: null,
   selectedFactorIds: new Set<string>(),
+  grouping: [],
+  expanded: true,
 
   // ─── Filter Actions ──────────────────────────────────
 
@@ -113,6 +128,37 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
 
   clearSelection: () =>
     set({ selectedFactorIds: new Set<string>() }),
+
+  // ─── Grouping Actions ───────────────────────────────
+
+  setGrouping: (grouping) => set({ grouping, expanded: true }),
+
+  addGrouping: (columnId) =>
+    set((state) => {
+      if (state.grouping.includes(columnId)) return state;
+      return { grouping: [...state.grouping, columnId], expanded: true };
+    }),
+
+  removeGrouping: (columnId) =>
+    set((state) => ({
+      grouping: state.grouping.filter((id) => id !== columnId),
+    })),
+
+  reorderGrouping: (columnId, newIndex) =>
+    set((state) => {
+      const currentIndex = state.grouping.indexOf(columnId);
+      if (currentIndex < 0) return state;
+      const next = [...state.grouping];
+      next.splice(currentIndex, 1);
+      next.splice(newIndex, 0, columnId);
+      return { grouping: next };
+    }),
+
+  setExpanded: (expanded) => set({ expanded }),
+
+  expandAllGroups: () => set({ expanded: true }),
+
+  collapseAllGroups: () => set({ expanded: {} }),
 
   // ─── Mutation Actions ────────────────────────────────
 

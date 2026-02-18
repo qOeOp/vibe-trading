@@ -159,6 +159,126 @@ export function computeRollingMA(
   return result;
 }
 
+/**
+ * IC 累计求和 — 将日IC积分为趋势曲线
+ *
+ * 累计IC持续向上 = 因子长期有效
+ * 走平 = 预测力消失
+ * 掉头向下 = 因子反转
+ *
+ * @param icSeries - IC 日值数组
+ * @returns 等长的前缀和数组
+ */
+export function computeCumulativeIC(icSeries: number[]): number[] {
+  const result: number[] = [];
+  let sum = 0;
+  for (const ic of icSeries) {
+    sum += ic;
+    result.push(round6(sum));
+  }
+  return result;
+}
+
+/**
+ * Q-Q 正态检验数据 — 用于 IC Q-Q 图散点
+ *
+ * 将 IC 经验分布与标准正态分布对比:
+ * - 散点沿 45° 对角线 = 完美正态
+ * - 尾部偏离 = 厚尾/薄尾
+ * - S 形偏移 = 偏度
+ *
+ * @param icSeries - IC 日值数组
+ * @returns {theoretical, empirical}[] 理论分位数 vs 经验分位数
+ */
+export function computeQQPlotData(
+  icSeries: number[],
+): Array<{ theoretical: number; empirical: number }> {
+  const n = icSeries.length;
+  if (n < 3) return [];
+
+  const sorted = [...icSeries].sort((a, b) => a - b);
+
+  const mean = sorted.reduce((a, b) => a + b, 0) / n;
+  const std = Math.sqrt(
+    sorted.reduce((a, v) => a + (v - mean) ** 2, 0) / (n - 1),
+  );
+  if (std === 0) return [];
+
+  const result: Array<{ theoretical: number; empirical: number }> = [];
+
+  for (let i = 0; i < n; i++) {
+    // Hazen plotting position: (i + 0.5) / n
+    const p = (i + 0.5) / n;
+    const theoretical = inverseNormalCDF(p);
+    const empirical = (sorted[i] - mean) / std;
+    result.push({
+      theoretical: round4(theoretical),
+      empirical: round4(empirical),
+    });
+  }
+
+  return result;
+}
+
+// ─── Inverse Normal CDF (Rational Approximation) ────────
+
+/**
+ * Beasley-Springer-Moro 标准正态逆 CDF
+ * 精度: |误差| < 1.5e-9 for p ∈ (0, 1)
+ */
+function inverseNormalCDF(p: number): number {
+  if (p <= 0) return -8;
+  if (p >= 1) return 8;
+
+  // Rational approximation for central region
+  const a = [
+    -3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2,
+    1.383577518672690e2, -3.066479806614716e1, 2.506628277459239e0,
+  ];
+  const b = [
+    -5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2,
+    6.680131188771972e1, -1.328068155288572e1,
+  ];
+  const c = [
+    -7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838e0,
+    -2.549732539343734e0, 4.374664141464968e0, 2.938163982698783e0,
+  ];
+  const d = [
+    7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996e0,
+    3.754408661907416e0,
+  ];
+
+  const pLow = 0.02425;
+  const pHigh = 1 - pLow;
+
+  let q: number;
+  let r: number;
+
+  if (p < pLow) {
+    // Lower tail
+    q = Math.sqrt(-2 * Math.log(p));
+    return (
+      (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+      ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1)
+    );
+  } else if (p <= pHigh) {
+    // Central region
+    q = p - 0.5;
+    r = q * q;
+    return (
+      ((((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q) /
+      (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1)
+    );
+  } else {
+    // Upper tail
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(
+      (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+      ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1)
+    );
+  }
+}
+
 // ─── Helpers ────────────────────────────────────────────
 
 function round4(v: number): number {

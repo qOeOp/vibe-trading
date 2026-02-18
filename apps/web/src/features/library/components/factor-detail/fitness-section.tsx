@@ -32,7 +32,10 @@ export function FitnessSection({ factor }: FitnessSectionProps) {
   );
 
   return (
-    <DetailSection title="多池适用性">
+    <DetailSection>
+      <div className="text-xs font-medium text-mine-muted mb-3 uppercase tracking-wider">
+        多池适用性
+      </div>
       <table className="w-full text-[11px]">
         <thead>
           <tr className="text-[9px] text-mine-muted uppercase tracking-wider bg-mine-bg/50">

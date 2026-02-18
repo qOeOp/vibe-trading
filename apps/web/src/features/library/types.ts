@@ -155,6 +155,16 @@ export interface Factor {
   longSideReturnRatio: number;
   /** IC 分布直方图 bins (20 个 bin 的频次) */
   icHistogramBins: number[];
+  /** Q1-Q5 分组累计收益曲线 (每组 240 点日频, 起始=1.0) */
+  quantileCumulativeReturns: [number[], number[], number[], number[], number[]];
+  /** IC 月度热力图: 行=年份, 列=月份, 值=月均IC */
+  icMonthlyHeatmap: Array<{ name: string; series: Array<{ name: string; value: number }> }>;
+  /** 分行业 IC: 申万一级 28 个行业的截面 IC */
+  icByIndustry: Array<{ name: string; value: number }>;
+  /** 因子排名自相关时序 (240 点日频) */
+  rankAutoCorrelation: number[];
+  /** 分位换手率: top(Q5) 和 bottom(Q1) 组的日频换手率 (各 240 点) */
+  quantileTurnover: { top: number[]; bottom: number[] };
   /** 状态变更历史 */
   statusHistory: StatusChangeRecord[];
 }

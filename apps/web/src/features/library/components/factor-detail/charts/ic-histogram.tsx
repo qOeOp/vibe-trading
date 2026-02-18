@@ -1,67 +1,84 @@
 "use client";
 
-import { DetailSection, DetailChartBox } from "@/components/shared/detail-panel";
+import { useMemo } from "react";
+import { DetailSection } from "@/components/shared/detail-panel";
+import { BarVertical } from "@/lib/ngx-charts/bar-chart";
+import type { DataItem } from "@/lib/ngx-charts/types";
 import type { Factor } from "../../../types";
+
+/* ── Visual constants ──────────────────────────────────────── */
+
+/** Teal with lightness graded by distance from center — emphasises distribution tails (solid colors) */
+function buildBinColors(binCount: number): Array<{ name: string; value: string }> {
+  const colors: Array<{ name: string; value: string }> = [];
+  for (let i = 0; i < binCount; i++) {
+    const distFromCenter = Math.abs(i - binCount / 2) / (binCount / 2);
+    // Center bins → lighter teal, tail bins → deeper teal
+    // Lightness from 75% (center) to 42% (tails)
+    const lightness = Math.round(75 - distFromCenter * 33);
+    colors.push({
+      name: String(i + 1),
+      value: `hsl(174, 63%, ${lightness}%)`,
+    });
+  }
+  return colors;
+}
+
+/* ── Chart Component ──────────────────────────────────────── */
 
 function ICHistogramChart({
   bins,
-  icMean,
 }: {
   bins: number[];
-  icMean: number;
 }) {
   if (!bins || bins.length === 0) return null;
 
-  const w = 320;
-  const h = 80;
-  const padding = { top: 4, right: 8, bottom: 4, left: 8 };
-  const plotW = w - padding.left - padding.right;
-  const plotH = h - padding.top - padding.bottom;
+  const chartData: DataItem[] = useMemo(
+    () =>
+      bins.map((count, i) => ({
+        name: String(i + 1),
+        value: count,
+      })),
+    [bins],
+  );
 
-  const maxCount = Math.max(...bins, 1);
-  const barCount = bins.length;
-  const gap = 1;
-  const barWidth = (plotW - (barCount - 1) * gap) / barCount;
+  const customColors = useMemo(() => buildBinColors(bins.length), [bins.length]);
+
+  /** Sparse X ticks — show every 5th bin */
+  const xAxisTicks = useMemo(() => {
+    const ticks: string[] = [];
+    for (let i = 0; i < bins.length; i += 5) {
+      ticks.push(String(i + 1));
+    }
+    return ticks;
+  }, [bins.length]);
 
   return (
-    <svg width="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet">
-      {bins.map((count, i) => {
-        const barH = (count / maxCount) * plotH;
-        const x = padding.left + i * (barWidth + gap);
-        const y = padding.top + plotH - barH;
-        const distFromCenter = Math.abs(i - barCount / 2) / (barCount / 2);
-        const opacity = 0.4 + distFromCenter * 0.4;
-        return (
-          <rect
-            key={`bin-${i}`}
-            x={x} y={y}
-            width={barWidth}
-            height={Math.max(barH, 0.5)}
-            className="fill-mine-accent-teal"
-            opacity={opacity}
-            rx={1}
-          />
-        );
-      })}
-      {icMean !== 0 && (
-        <>
-          <line
-            x1={w / 2} y1={padding.top}
-            x2={w / 2} y2={padding.top + plotH}
-            stroke="#a8b2c7" strokeWidth={0.8} strokeDasharray="3 2"
-          />
-          <text
-            x={w / 2 + 3} y={padding.top + 8}
-            fill="#a8b2c7" fontSize={7}
-          >
-            {"μ="}
-            {icMean.toFixed(3)}
-          </text>
-        </>
-      )}
-    </svg>
+    <BarVertical
+      data={chartData}
+      customColors={customColors}
+      animated
+      roundEdges
+      barPadding={2}
+      xAxis={{
+        visible: true,
+        showGridLines: false,
+        ticks: xAxisTicks,
+        rotateTicks: false,
+      }}
+      yAxis={{
+        visible: true,
+        showGridLines: true,
+        overlay: false,
+      }}
+      margins={{ top: 10, right: 10, bottom: 20, left: 0 }}
+      tooltip={{ disabled: false }}
+      noBarWhenZero={false}
+    />
   );
 }
+
+/* ── Section Export ────────────────────────────────────────── */
 
 interface ICHistogramSectionProps {
   factor: Factor;
@@ -69,13 +86,14 @@ interface ICHistogramSectionProps {
 
 export function ICHistogramSection({ factor }: ICHistogramSectionProps) {
   return (
-    <DetailSection title="IC 分布直方图" suffix="20-bin">
-      <DetailChartBox>
-        <ICHistogramChart
-          bins={factor.icHistogramBins}
-          icMean={factor.icDistribution.icMean}
-        />
-      </DetailChartBox>
+    <DetailSection>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium text-mine-muted">IC 分布直方图</span>
+        <span className="text-[10px] text-mine-muted">20-bin</span>
+      </div>
+      <div className="h-[150px]">
+        <ICHistogramChart bins={factor.icHistogramBins} />
+      </div>
     </DetailSection>
   );
 }

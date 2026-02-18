@@ -3,13 +3,14 @@
 import type { Factor } from "../types";
 import { CATEGORY_COLORS, STATUS_COLORS, STATUS_LABELS } from "../types";
 import { useLibraryStore } from "../store/use-library-store";
+import { cn } from "@/lib/utils";
 import { SparklineSVG } from "./sparkline-svg";
 
-interface FactorCardProps {
+interface FactorCardProps extends React.HTMLAttributes<HTMLDivElement> {
   factor: Factor;
 }
 
-export function FactorCard({ factor }: FactorCardProps) {
+export function FactorCard({ factor, className, ...props }: FactorCardProps) {
   const selectedFactorId = useLibraryStore((s) => s.selectedFactorId);
   const selectFactor = useLibraryStore((s) => s.selectFactor);
   const toggleFactorSelection = useLibraryStore(
@@ -22,17 +23,25 @@ export function FactorCard({ factor }: FactorCardProps) {
   const statusLabel = STATUS_LABELS[factor.status];
   const isSelected = selectedFactorId === factor.id;
   const isBatchSelected = selectedFactorIds.has(factor.id);
-  const icColor = factor.ic >= 0 ? "#2EBD85" : "#F6465D";
+  const icColor = factor.ic >= 0 ? "#F6465D" : "#2EBD85";
 
   return (
     <div
+      data-slot="factor-card"
       onClick={() => selectFactor(isSelected ? null : factor.id)}
-      className="bg-white shadow-sm border rounded-xl cursor-pointer transition-all hover:shadow-md overflow-hidden"
+      className={cn(
+        "bg-white shadow-sm rounded-xl cursor-pointer transition-all hover:shadow-md overflow-hidden",
+        className,
+      )}
       style={{
-        borderColor: isSelected ? statusColor : "#e0ddd8",
-        borderLeftWidth: 3,
+        borderWidth: "1px 1px 1px 3px",
+        borderStyle: "solid",
+        borderTopColor: isSelected ? statusColor : "#e0ddd8",
+        borderRightColor: isSelected ? statusColor : "#e0ddd8",
+        borderBottomColor: isSelected ? statusColor : "#e0ddd8",
         borderLeftColor: statusColor,
       }}
+      {...props}
     >
       <div className="px-3 py-2.5">
         {/* Row 1: Name + Status */}
@@ -78,7 +87,7 @@ export function FactorCard({ factor }: FactorCardProps) {
 
         {/* Row 3: Sparkline */}
         <div className="mb-2">
-          <SparklineSVG data={factor.icTrend} width={160} height={30} />
+          <SparklineSVG data={factor.icTrend} viewBoxWidth={160} viewBoxHeight={30} className="w-full h-[30px]" />
         </div>
 
         {/* Row 4: Key metrics */}
@@ -86,8 +95,12 @@ export function FactorCard({ factor }: FactorCardProps) {
           <div>
             <span className="text-mine-muted">IC </span>
             <span
-              className="font-mono tabular-nums font-semibold"
-              style={{ color: icColor }}
+              className={cn(
+                "font-mono tabular-nums font-semibold",
+                factor.ic >= 0
+                  ? "text-market-down-strong"
+                  : "text-market-up-strong",
+              )}
             >
               {factor.ic >= 0 ? "+" : ""}
               {factor.ic.toFixed(3)}
