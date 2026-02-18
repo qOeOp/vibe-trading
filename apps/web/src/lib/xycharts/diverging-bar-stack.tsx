@@ -32,6 +32,7 @@ import type { DivergingBarDatum, ChartMargin, ReferenceLine } from './types';
 /* ── Constants ─────────────────────────────────────── */
 
 const DEFAULT_MARGIN: ChartMargin = { top: 6, right: 4, bottom: 6, left: 0 };
+const DEFAULT_REFERENCE_LINE_COLOR = '#2563eb'; // Royal blue for visibility over red/green bars
 
 /* ── Bar Rect Type ─────────────────────────────────── */
 // ... (rest of imports and BarItem interface)
@@ -207,7 +208,10 @@ const DivergingBarStackInner = memo(function DivergingBarStackInner({
       width={containerWidth}
       height={containerHeight}
       className="xycharts"
-      style={{ overflow: 'visible', fontFamily: 'var(--font-chart, Roboto, sans-serif)' }}
+      style={{
+        overflow: 'visible',
+        fontFamily: 'var(--font-chart, Roboto, sans-serif)',
+      }}
     >
       <Group left={xOffset} top={margin.top}>
         {/* Y Axis integration */}
@@ -246,7 +250,7 @@ const DivergingBarStackInner = memo(function DivergingBarStackInner({
               y1={refY}
               x2={innerWidth}
               y2={refY}
-              stroke={ref.color ?? '#2563eb'}
+              stroke={ref.color ?? DEFAULT_REFERENCE_LINE_COLOR}
               strokeWidth={ref.strokeWidth ?? 0.75}
               opacity={ref.opacity ?? 1}
               strokeDasharray={ref.strokeDasharray ?? '4 2'}

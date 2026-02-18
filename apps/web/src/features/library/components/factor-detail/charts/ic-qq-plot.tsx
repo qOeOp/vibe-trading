@@ -1,23 +1,27 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { scaleLinear } from "d3-scale";
-import { motion } from "framer-motion";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { BaseChart } from "@/lib/ngx-charts/common/base-chart";
-import { computeQQPlotData } from "../../../utils/compute-ic-stats";
-import type { Factor } from "../../../types";
+import { useMemo } from 'react';
+import { scaleLinear } from 'd3-scale';
+import { motion } from 'framer-motion';
+import { DetailSection } from '@/components/shared/detail-panel';
+import { BaseChart } from '@/lib/ngx-charts/common/base-chart';
+import { computeQQPlotData } from '../../../utils/compute-ic-stats';
+import type { Factor } from '../../../types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 
-const DOT_COLOR = "#6366f1";
+const DOT_COLOR = '#6366f1';
 const DOT_RADIUS = 1.5;
-const REF_LINE_COLOR = "#e0ddd8";
+const REF_LINE_COLOR = '#e0ddd8';
 const MARGINS = { top: 8, right: 8, bottom: 20, left: 0 };
 
 /* ── Chart Component ──────────────────────────────────────── */
 
-function QQPlotContent({ data, width, height }: {
+function QQPlotContent({
+  data,
+  width,
+  height,
+}: {
   data: Array<{ theoretical: number; empirical: number }>;
   width: number;
   height: number;
@@ -58,23 +62,33 @@ function QQPlotContent({ data, width, height }: {
 
         {/* X axis line */}
         <line
-          x1={0} y1={plotH}
-          x2={plotW} y2={plotH}
-          stroke="#e0ddd8" strokeWidth={0.5}
+          x1={0}
+          y1={plotH}
+          x2={plotW}
+          y2={plotH}
+          stroke={REF_LINE_COLOR}
+          strokeWidth={0.5}
         />
         <text
-          x={plotW / 2} y={plotH + 14}
-          textAnchor="middle" fill="#666" fontSize={9}
-          fontFamily="var(--font-chart)" fontWeight={300}
+          x={plotW / 2}
+          y={plotH + 14}
+          textAnchor="middle"
+          fill="#666"
+          fontSize={9}
+          fontFamily="var(--font-chart)"
+          fontWeight={300}
         >
           理论分位数
         </text>
 
         {/* Y axis line */}
         <line
-          x1={0} y1={0}
-          x2={0} y2={plotH}
-          stroke="#e0ddd8" strokeWidth={0.5}
+          x1={0}
+          y1={0}
+          x2={0}
+          y2={plotH}
+          stroke={REF_LINE_COLOR}
+          strokeWidth={0.5}
         />
 
         {/* Scatter dots */}
@@ -121,9 +135,7 @@ export function ICQQPlotSection({ factor }: ICQQPlotSectionProps) {
   return (
     <DetailSection>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-mine-muted">
-          IC Q-Q 图
-        </span>
+        <span className="text-xs font-medium text-mine-muted">IC Q-Q 图</span>
         <span className="text-[10px] text-mine-muted">正态检验</span>
       </div>
       <div className="h-[150px]">

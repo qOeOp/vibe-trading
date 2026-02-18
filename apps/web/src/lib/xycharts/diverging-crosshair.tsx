@@ -64,7 +64,14 @@ interface CrosshairState {
   datum: DivergingBarDatum | null;
 }
 
-const INITIAL: CrosshairState = { x: 0, y: 0, value: 0, t: 0, visible: false, datum: null };
+const INITIAL: CrosshairState = {
+  x: 0,
+  y: 0,
+  value: 0,
+  t: 0,
+  visible: false,
+  datum: null,
+};
 
 /* ── Helpers ───────────────────────────────────────── */
 
@@ -98,7 +105,11 @@ function findClosestDatum(
   let bestDist = Infinity;
 
   // Check neighbors
-  for (let i = Math.max(0, clamped - 1); i <= Math.min(data.length - 1, clamped + 1); i++) {
+  for (
+    let i = Math.max(0, clamped - 1);
+    i <= Math.min(data.length - 1, clamped + 1);
+    i++
+  ) {
     const barCenter = (xScale(data[i].t) ?? 0) + xScale.bandwidth() / 2;
     const dist = Math.abs(barCenter - xPos);
     if (dist < bestDist) {
@@ -117,7 +128,14 @@ function XAxisLabel({ x, y, text }: { x: number; y: number; text: string }) {
   const w = Math.max(36, text.length * 6.5 + 10);
   return (
     <g style={{ pointerEvents: 'none' }}>
-      <rect x={x - w / 2} y={y - h / 2} width={w} height={h} rx={3} fill="#000" />
+      <rect
+        x={x - w / 2}
+        y={y - h / 2}
+        width={w}
+        height={h}
+        rx={3}
+        fill="rgba(0,0,0,0.85)"
+      />
       <text
         x={x}
         y={y + 0.5}
@@ -140,7 +158,14 @@ function YAxisLabel({ x, y, text }: { x: number; y: number; text: string }) {
   // Right-aligned: rect's right edge aligns to x, extends leftward into chart area
   return (
     <g style={{ pointerEvents: 'none' }}>
-      <rect x={x - w} y={y - h / 2} width={w} height={h} rx={3} fill="rgba(0, 0, 0, 0.85)" />
+      <rect
+        x={x - w}
+        y={y - h / 2}
+        width={w}
+        height={h}
+        rx={3}
+        fill="rgba(0, 0, 0, 0.85)"
+      />
       <text
         x={x - w / 2}
         y={y + 0.5}
@@ -172,10 +197,12 @@ function CrosshairTooltip({
 }) {
   return (
     <div
-      className="backdrop-blur-xl bg-white/85 border border-mine-border/50 rounded-lg px-2.5 py-2 text-[10px] shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+      className="backdrop-blur-xl bg-mine-card/85 border border-mine-border/50 rounded-lg px-2.5 py-2 text-[10px] shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
       style={{ minWidth: 100, pointerEvents: 'none' }}
     >
-      <div className="text-mine-muted font-mono tabular-nums mb-1">T{datum.t}</div>
+      <div className="text-mine-muted font-mono tabular-nums mb-1">
+        T{datum.t}
+      </div>
       <div className="space-y-0.5">
         {datum.deltas.map((d, i) => (
           <div key={i} className="flex items-center justify-between gap-3">
@@ -188,7 +215,12 @@ function CrosshairTooltip({
             </span>
             <span
               className="font-mono tabular-nums"
-              style={{ color: d >= 0 ? '#CF304A' : '#0B8C5F' }}
+              style={{
+                color:
+                  d >= 0
+                    ? 'var(--color-market-up)'
+                    : 'var(--color-market-down)',
+              }}
             >
               {fv(d)}
             </span>
@@ -215,7 +247,9 @@ export function DivergingCrosshair({
   yLabelX,
 }: DivergingCrosshairProps) {
   const [crosshair, setCrosshair] = useState<CrosshairState>(INITIAL);
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const containerRef = useRef<SVGGElement>(null);
 
   const labels = useMemo(
@@ -277,7 +311,10 @@ export function DivergingCrosshair({
           y={0}
           width={innerWidth}
           height={innerHeight}
-          style={{ opacity: 0, cursor: dotOverlapsLabel ? 'none' : 'crosshair' }}
+          style={{
+            opacity: 0,
+            cursor: dotOverlapsLabel ? 'none' : 'crosshair',
+          }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         />
@@ -298,7 +335,7 @@ export function DivergingCrosshair({
                 y1={0}
                 x2={crosshair.x}
                 y2={innerHeight}
-                stroke="#1a1a1a"
+                stroke="var(--color-mine-text)"
                 strokeWidth={0.5}
                 strokeDasharray="4 3"
               />
@@ -308,7 +345,7 @@ export function DivergingCrosshair({
                 y1={crosshair.y}
                 x2={innerWidth}
                 y2={crosshair.y}
-                stroke="#1a1a1a"
+                stroke="var(--color-mine-text)"
                 strokeWidth={0.5}
                 strokeDasharray="4 3"
               />
@@ -319,8 +356,8 @@ export function DivergingCrosshair({
               cx={crosshair.x}
               cy={crosshair.y}
               r={3}
-              fill="white"
-              stroke="#1a1a1a"
+              fill="var(--color-mine-card)"
+              stroke="var(--color-mine-text)"
               strokeWidth={1.2}
               style={{
                 opacity: dotOverlapsLabel ? 0 : 0.7,

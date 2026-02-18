@@ -47,7 +47,7 @@ export interface BrushRange {
 export interface ReferenceLine {
   /** The Y-axis value where the line should be drawn (in delta space, i.e. after baseline subtraction) */
   value: number;
-  /** Line color (default: '#2563eb' — royal blue, visible above both red/green bars and gray zero line) */
+  /** Line color (default: DEFAULT_REFERENCE_LINE_COLOR from diverging-bar-stack.tsx — royal blue for visibility over market-colored bars) */
   color?: string;
   /** Line opacity (default: 1.0 — fully opaque for maximum visibility) */
   opacity?: number;
