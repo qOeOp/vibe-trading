@@ -185,9 +185,9 @@ export function BlueprintSection({ doc }: BlueprintSectionProps) {
   const lastCardId = meta.cards[meta.cards.length - 1]?.id;
 
   return (
-    <div className="p-4 space-y-3">
+    <div className="h-full flex flex-col p-4">
       {/* Page title */}
-      <div className="flex items-center gap-2 px-1 mb-1">
+      <div className="flex items-center gap-2 px-1 mb-3 shrink-0">
         <PageIcon className="w-4 h-4 text-mine-accent-teal" />
         <h2 className="font-semibold text-[15px] text-mine-text">
           {meta.title}
@@ -195,61 +195,64 @@ export function BlueprintSection({ doc }: BlueprintSectionProps) {
         <span className="text-[11px] text-mine-muted">{meta.subtitle}</span>
       </div>
 
-      {/* Card rows */}
-      {sortedRows.map(([rowNum, rowCards], rowIdx) => {
-        const rowStyle = meta.rows?.[rowIdx];
-        const height = rowStyle?.height ?? "520px";
+      {/* Card rows container */}
+      <div className="flex-1 flex flex-col gap-3 min-h-0">
+        {sortedRows.map(([rowNum, rowCards], rowIdx) => {
+          const rowStyle = meta.rows?.[rowIdx];
+          const heightConfig = rowStyle?.height ?? "520px";
+          const isFullHeight = heightConfig === "h-full";
 
-        return (
-          <div
-            key={rowNum}
-            className="flex gap-3 items-stretch"
-            style={{ height }}
-          >
-            {rowCards.map(({ cardMeta, cardContent }) => {
-              const isLastCard = cardMeta.id === lastCardId;
-              const linksForCard = isLastCard ? meta.links : undefined;
+          return (
+            <div
+              key={rowNum}
+              className={`flex gap-3 items-stretch min-h-0 ${isFullHeight ? 'flex-1' : ''}`}
+              style={isFullHeight ? undefined : { height: heightConfig }}
+            >
+              {rowCards.map(({ cardMeta, cardContent }) => {
+                const isLastCard = cardMeta.id === lastCardId;
+                const linksForCard = isLastCard ? meta.links : undefined;
 
-              return (
-                <div
-                  key={cardMeta.id}
-                  className="min-w-0"
-                  style={{ flex: cardMeta.flex ?? 1 }}
-                >
-                  <MineCard
-                    title={cardMeta.title}
-                    subtitle={cardMeta.subtitle}
-                    expandable={
-                      Boolean(cardContent.expand) ||
-                      Boolean(linksForCard?.length) ||
-                      cardMeta.render === "placeholder" ||
-                      cardMeta.render === "component"
-                    }
-                    expandTitle={cardMeta.expandTitle}
-                    expandSubtitle={cardMeta.expandSubtitle}
-                    expandContent={buildExpandContent(
-                      cardMeta,
-                      cardContent,
-                      linksForCard,
-                    )}
-                    className="h-full"
-                    actions={<Badge badge={cardMeta.badge} />}
+                return (
+                  <div
+                    key={cardMeta.id}
+                    className="min-w-0"
+                    style={{ flex: cardMeta.flex ?? 1 }}
                   >
-                    <CardBody
-                      cardMeta={cardMeta}
-                      cardContent={cardContent}
-                    />
-                  </MineCard>
-                </div>
-              );
-            })}
-          </div>
-        );
-      })}
+                    <MineCard
+                      title={cardMeta.title}
+                      subtitle={cardMeta.subtitle}
+                      expandable={
+                        Boolean(cardContent.expand) ||
+                        Boolean(linksForCard?.length) ||
+                        cardMeta.render === "placeholder" ||
+                        cardMeta.render === "component"
+                      }
+                      expandTitle={cardMeta.expandTitle}
+                      expandSubtitle={cardMeta.expandSubtitle}
+                      expandContent={buildExpandContent(
+                        cardMeta,
+                        cardContent,
+                        linksForCard,
+                      )}
+                      className="h-full"
+                      actions={<Badge badge={cardMeta.badge} />}
+                    >
+                      <CardBody
+                        cardMeta={cardMeta}
+                        cardContent={cardContent}
+                      />
+                    </MineCard>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
 
       {/* Footer */}
       {meta.footer && (
-        <div className="flex items-center gap-2 px-1 text-[10px] text-mine-muted">
+        <div className="flex items-center gap-2 px-1 pt-3 text-[10px] text-mine-muted shrink-0">
           <Info className="w-3 h-3 shrink-0" />
           <span>{meta.footer}</span>
         </div>

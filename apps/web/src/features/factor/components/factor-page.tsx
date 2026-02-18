@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimateIn, AnimateHeavy } from "@/components/animation";
 import { ErrorBoundary, FeatureErrorFallback } from "@/components/error-boundary";
-import { useSetTopBarNavItems } from "@/components/layout/top-bar-slot";
 import { ChartLegendInline } from "@/components/chart-legend-inline";
 import { BandChart } from "@/lib/ngx-charts/band-chart";
-import type { TopBarNavItem } from "@/components/layout/top-bar-slot";
 import type { BandTooltipInfo } from "@/lib/ngx-charts/band-chart/components";
 import type { HoldingCompositionPoint, FactorStatistics } from "../types";
 
@@ -121,10 +118,6 @@ function BandHoverHeader({ info }: { info: BandTooltipInfo }) {
   );
 }
 
-const FACTOR_NAV_ITEMS: TopBarNavItem[] = [
-  { id: "library", label: "Library", icon: BookOpen, afterId: "market", href: "/factor/library" },
-];
-
 const STRATEGY_TO_FACTOR: Record<string, string> = {
   ml_multi:   "momentum_12m",
   momentum:   "momentum_12m",
@@ -139,8 +132,6 @@ const STRATEGY_TO_FACTOR: Record<string, string> = {
 };
 
 function FactorPageContent() {
-  useSetTopBarNavItems(FACTOR_NAV_ITEMS);
-
   const polar = usePolarCalendar();
 
   const { bandData, overlay, auxiliaryLines, baseline, excessReturn } = useBandData(

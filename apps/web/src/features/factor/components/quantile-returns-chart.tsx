@@ -9,13 +9,13 @@ interface QuantileReturnsChartProps {
   period: "1D" | "5D" | "10D" | "20D";
 }
 
-// Colors from worst (Q1) to best (Q5)
+// Colors from worst (Q1) to best (Q5) — A股红涨绿跌
 const QUANTILE_COLORS = [
-  { id: "q1", color: "#CF304A", light: "#fecaca" },  // Q1 - worst (red)
-  { id: "q2", color: "#E8626F", light: "#fecdd3" },  // Q2
+  { id: "q1", color: "#0B8C5F", light: "#86efac" },  // Q1 - worst (green/跌)
+  { id: "q2", color: "#58CEAA", light: "#a7f3d0" },  // Q2
   { id: "q3", color: "#76808E", light: "#d1d5db" },  // Q3 - neutral
-  { id: "q4", color: "#58CEAA", light: "#a7f3d0" },  // Q4
-  { id: "q5", color: "#0B8C5F", light: "#86efac" },  // Q5 - best (green)
+  { id: "q4", color: "#E8626F", light: "#fecdd3" },  // Q4
+  { id: "q5", color: "#CF304A", light: "#fecaca" },  // Q5 - best (red/涨)
 ];
 
 const COLORS = {

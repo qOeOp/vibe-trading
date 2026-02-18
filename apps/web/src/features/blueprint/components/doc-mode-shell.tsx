@@ -148,7 +148,7 @@ export function DocModeShell({
           trailingActions={docToggleButton}
         />
         <div className="flex-1 flex gap-4 pr-4 pb-4 overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 flex flex-col overflow-hidden">
             <DocContent />
           </div>
         </div>

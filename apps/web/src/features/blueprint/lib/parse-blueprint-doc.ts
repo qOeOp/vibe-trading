@@ -57,7 +57,7 @@ export function parseBlueprintDoc(raw: string): BlueprintDoc {
   const meta = data as BlueprintMeta;
 
   // Collect all card delimiter positions
-  const delimiterRegex = /<!--\s*card:\s*([\w-]+)(?::expand)?\s*-->/g;
+  const delimiterRegex = /<!--\s*card:\s*([^: ]+)(?::expand)?\s*-->/g;
   const segments: { id: string; isExpand: boolean; start: number; end: number }[] = [];
 
   let match;
