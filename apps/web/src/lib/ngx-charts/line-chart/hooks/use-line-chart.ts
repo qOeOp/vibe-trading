@@ -23,15 +23,21 @@ import type {
   MultiSeries,
   DataItem,
   ViewDimensions,
-  ColorScheme} from '@/lib/ngx-charts/types';
-import {
-  ScaleType,
-  LegendPosition,
+  ColorScheme,
+  AxisConfig,
 } from '@/lib/ngx-charts/types';
-import { ColorHelper, calculateViewDimensions, useStableId } from '@/lib/ngx-charts/utils';
+import { ScaleType, LegendPosition } from '@/lib/ngx-charts/types';
+import {
+  ColorHelper,
+  calculateViewDimensions,
+  useStableId,
+} from '@/lib/ngx-charts/utils';
 
 /** X Scale type union */
-export type XScale = ScaleTime<number, number> | ScaleLinear<number, number> | ScalePoint<string>;
+export type XScale =
+  | ScaleTime<number, number>
+  | ScaleLinear<number, number>
+  | ScalePoint<string>;
 
 /** Y Scale type */
 export type YScale = ScaleLinear<number, number>;
@@ -48,11 +54,15 @@ export interface UseLineChartConfig {
   /** Scale type for colors */
   schemeType?: ScaleType;
   /** Custom colors */
-  customColors?: ((value: unknown) => string) | Array<{ name: string; value: string }>;
+  customColors?:
+    | ((value: unknown) => string)
+    | Array<{ name: string; value: string }>;
   /** Show X axis */
   xAxis?: boolean;
   /** Show Y axis */
   yAxis?: boolean;
+  /** Y axis configuration */
+  yAxisConfig?: AxisConfig;
   /** Show X axis label */
   showXAxisLabel?: boolean;
   /** Show Y axis label */
@@ -151,7 +161,9 @@ function getScaleType(values: unknown[]): ScaleType {
   }
 
   // Check if all values are numbers
-  const allNumbers = values.every((v) => typeof v === 'number' || !isNaN(Number(v)));
+  const allNumbers = values.every(
+    (v) => typeof v === 'number' || !isNaN(Number(v)),
+  );
   if (allNumbers) {
     return ScaleType.Linear;
   }
@@ -189,6 +201,7 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
     customColors,
     xAxis = true,
     yAxis = true,
+    yAxisConfig,
     showXAxisLabel = false,
     showYAxisLabel = false,
     legend = false,
@@ -207,12 +220,17 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
   // State for axis dimensions
   const [xAxisHeight, setXAxisHeight] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
-  const [filteredDomain, setFilteredDomain] = useState<unknown[] | undefined>(undefined);
+  const [filteredDomain, setFilteredDomain] = useState<unknown[] | undefined>(
+    undefined,
+  );
 
   // Callbacks for axis dimension updates
   const onXAxisHeightChange = useCallback((h: number) => setXAxisHeight(h), []);
   const onYAxisWidthChange = useCallback((w: number) => setYAxisWidth(w), []);
-  const updateDomain = useCallback((domain: unknown[]) => setFilteredDomain(domain), []);
+  const updateDomain = useCallback(
+    (domain: unknown[]) => setFilteredDomain(domain),
+    [],
+  );
 
   // Stable ID for clip path (SSR-safe)
   const stableId = useStableId('clip');
@@ -227,12 +245,13 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
       showXAxis: xAxis,
       showYAxis: yAxis,
       xAxisHeight,
-      yAxisWidth,
+      yAxisWidth: yAxisConfig?.width ?? yAxisWidth,
       showXLabel: showXAxisLabel,
       showYLabel: showYAxisLabel,
       showLegend: legend,
       legendType: schemeType,
       legendPosition,
+      overlayYAxis: yAxisConfig?.overlay,
     });
 
     // Adjust for timeline
@@ -252,15 +271,29 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
     let xSet: unknown[];
 
     if (scaleType === ScaleType.Time) {
-      const dateValues = xValues.map((v) => (v instanceof Date ? v : new Date(v as string)));
-      const min = xScaleMin instanceof Date ? xScaleMin : new Date(Math.min(...dateValues.map((d) => d.getTime())));
-      const max = xScaleMax instanceof Date ? xScaleMax : new Date(Math.max(...dateValues.map((d) => d.getTime())));
+      const dateValues = xValues.map((v) =>
+        v instanceof Date ? v : new Date(v as string),
+      );
+      const min =
+        xScaleMin instanceof Date
+          ? xScaleMin
+          : new Date(Math.min(...dateValues.map((d) => d.getTime())));
+      const max =
+        xScaleMax instanceof Date
+          ? xScaleMax
+          : new Date(Math.max(...dateValues.map((d) => d.getTime())));
       xDomain = filteredDomain ?? [min, max];
       xSet = [...dateValues].sort((a, b) => a.getTime() - b.getTime());
     } else if (scaleType === ScaleType.Linear) {
       const numValues = xValues.map((v) => Number(v));
-      const min = xScaleMin !== undefined ? (xScaleMin as number) : Math.min(...numValues);
-      const max = xScaleMax !== undefined ? (xScaleMax as number) : Math.max(...numValues);
+      const min =
+        xScaleMin !== undefined
+          ? (xScaleMin as number)
+          : Math.min(...numValues);
+      const max =
+        xScaleMax !== undefined
+          ? (xScaleMax as number)
+          : Math.max(...numValues);
       xDomain = filteredDomain ?? [min, max];
       xSet = [...numValues].sort((a, b) => a - b);
     } else {
@@ -300,9 +333,13 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
     // Create X scale
     let xScale: XScale;
     if (scaleType === ScaleType.Time) {
-      xScale = scaleTime().range([0, dims.width]).domain(xDomain as [Date, Date]);
+      xScale = scaleTime()
+        .range([0, dims.width])
+        .domain(xDomain as [Date, Date]);
     } else if (scaleType === ScaleType.Linear) {
-      xScale = scaleLinear().range([0, dims.width]).domain(xDomain as [number, number]);
+      xScale = scaleLinear()
+        .range([0, dims.width])
+        .domain(xDomain as [number, number]);
       if (roundDomains) {
         xScale = xScale.nice();
       }
@@ -320,7 +357,8 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
     }
 
     // Create colors
-    const colorDomain = schemeType === ScaleType.Ordinal ? seriesDomain : yDomain;
+    const colorDomain =
+      schemeType === ScaleType.Ordinal ? seriesDomain : yDomain;
     const colors = new ColorHelper({
       scheme: colorScheme,
       scaleType: schemeType,
@@ -355,10 +393,15 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
       const timelineDomain = getUniqueXDomainValues(data);
 
       if (scaleType === ScaleType.Time) {
-        const dateValues = timelineDomain.map((v) => (v instanceof Date ? v : new Date(v as string)));
+        const dateValues = timelineDomain.map((v) =>
+          v instanceof Date ? v : new Date(v as string),
+        );
         timelineXScale = scaleTime()
           .range([0, timelineWidth])
-          .domain([new Date(Math.min(...dateValues.map((d) => d.getTime()))), new Date(Math.max(...dateValues.map((d) => d.getTime())))]);
+          .domain([
+            new Date(Math.min(...dateValues.map((d) => d.getTime()))),
+            new Date(Math.max(...dateValues.map((d) => d.getTime()))),
+          ]);
       } else {
         const numValues = timelineDomain.map((v) => Number(v));
         timelineXScale = scaleLinear()
@@ -414,6 +457,8 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
     margin,
     xAxisHeight,
     yAxisWidth,
+    yAxisConfig?.width,
+    yAxisConfig?.overlay,
     filteredDomain,
     stableId,
   ]);
@@ -435,14 +480,16 @@ export function useLineChart(config: UseLineChartConfig): LineChartState {
 export function sortLineData(
   data: DataItem[],
   scaleType: ScaleType,
-  xScale?: XScale
+  xScale?: XScale,
 ): DataItem[] {
   if (scaleType === ScaleType.Linear) {
     return [...data].sort((a, b) => Number(a.name) - Number(b.name));
   } else if (scaleType === ScaleType.Time) {
     return [...data].sort((a, b) => {
-      const aDate = a.name instanceof Date ? a.name : new Date(a.name as string);
-      const bDate = b.name instanceof Date ? b.name : new Date(b.name as string);
+      const aDate =
+        a.name instanceof Date ? a.name : new Date(a.name as string);
+      const bDate =
+        b.name instanceof Date ? b.name : new Date(b.name as string);
       return aDate.getTime() - bDate.getTime();
     });
   } else if (xScale && 'domain' in xScale) {

@@ -57,10 +57,16 @@ export interface YAxisProps {
   showRefLabels?: boolean;
   /** Y-axis offset */
   yAxisOffset?: number;
+  /** Fixed width for the axis. If provided, overrides dynamic measurement. */
+  width?: number;
+  /** Text alignment for tick labels. */
+  tickTextAnchor?: 'start' | 'middle' | 'end';
   /** Whether to wrap tick labels */
   wrapTicks?: boolean;
   /** Whether the axis is separated from the plot area */
   separated?: boolean;
+  /** Whether the axis overlays the plot area (no negative translate) */
+  overlay?: boolean;
   /** Stroke color for ticks and axis line */
   tickStroke?: string;
   /** Callback when dimensions change */
@@ -87,37 +93,45 @@ export function YAxis({
   showRefLines = false,
   showRefLabels = false,
   yAxisOffset = 0,
+  width,
+  tickTextAnchor,
   wrapTicks = false,
   separated = false,
+  overlay = false,
   tickStroke = '#e0ddd8',
   onDimensionsChanged,
 }: YAxisProps) {
   const [labelOffset, setLabelOffset] = useState(15);
   const lastWidthRef = useRef(0);
 
-  const transform = useMemo(() => {
-    // Increase offset if separated
-    const baseOffset = separated ? 12 : 5;
-    const off = -(yAxisOffset + baseOffset);
-    return yOrient === Orientation.Right
-      ? `translate(${off + dims.width}, 0)`
-      : `translate(${off}, 0)`;
-  }, [yAxisOffset, yOrient, dims.width, separated]);
+  // The axis offset is always 0 — the parent xOffset handles axis space.
+  const axisOffset = 0;
+
+  const transform = useMemo(
+    () =>
+      yOrient === Orientation.Right
+        ? `translate(${dims.width}, 0)`
+        : 'translate(0, 0)',
+    [yOrient, dims.width],
+  );
 
   const tickArguments = useMemo(
-    () => yAxisTickCount !== undefined ? [yAxisTickCount] : [5],
-    [yAxisTickCount]
+    () => (yAxisTickCount !== undefined ? [yAxisTickCount] : [5]),
+    [yAxisTickCount],
   );
 
   const handleTicksWidthChange = useCallback(
-    ({ width }: { width: number }) => {
-      if (width !== lastWidthRef.current) {
-        lastWidthRef.current = width;
-        setLabelOffset(yOrient === Orientation.Right ? width + 15 : width);
-        onDimensionsChanged?.({ width });
+    ({ width: measuredWidth }: { width: number }) => {
+      if (measuredWidth !== lastWidthRef.current) {
+        lastWidthRef.current = measuredWidth;
+        const currentWidth = width ?? measuredWidth;
+        setLabelOffset(
+          yOrient === Orientation.Right ? currentWidth + 15 : currentWidth,
+        );
+        onDimensionsChanged?.({ width: currentWidth });
       }
     },
-    [yOrient, onDimensionsChanged]
+    [yOrient, onDimensionsChanged, width],
   );
 
   return (
@@ -142,7 +156,9 @@ export function YAxis({
           showRefLabels={showRefLabels}
           onDimensionsChanged={handleTicksWidthChange}
           showTicks={separated}
-          gridLineOffset={separated ? 12 : 5}
+          gridLineOffset={axisOffset}
+          textAnchorOverride={tickTextAnchor}
+          overlay={overlay}
         />
       )}
 

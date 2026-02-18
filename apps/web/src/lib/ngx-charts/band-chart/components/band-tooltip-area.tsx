@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-} from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import type { ReactNode, MouseEvent } from 'react';
 import type { ScalePoint, ScaleLinear } from 'd3-scale';
 
@@ -62,11 +57,30 @@ interface CrosshairState {
   visible: boolean;
 }
 
-const INITIAL_CROSSHAIR: CrosshairState = { x: 0, y: 0, value: 0, date: '', visible: false };
+const INITIAL_CROSSHAIR: CrosshairState = {
+  x: 0,
+  y: 0,
+  value: 0,
+  date: '',
+  visible: false,
+};
 
 /* ── Helpers ───────────────────────────────────────────────── */
 
-const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const SHORT_MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 function formatDateShort(dateStr: string): string {
   const parts = dateStr.split('-');
@@ -86,7 +100,7 @@ function formatValue(v: number): string {
 function findClosestPointIndex(
   xPos: number,
   data: BandDataPoint[],
-  xScale: ScalePoint<string>
+  xScale: ScalePoint<string>,
 ): number {
   if (data.length === 0) return 0;
 
@@ -99,7 +113,11 @@ function findClosestPointIndex(
     const estimated = Math.round(xPos / step);
     const clamped = Math.max(0, Math.min(data.length - 1, estimated));
     // Check neighbors for the true closest
-    for (let i = Math.max(0, clamped - 1); i <= Math.min(data.length - 1, clamped + 1); i++) {
+    for (
+      let i = Math.max(0, clamped - 1);
+      i <= Math.min(data.length - 1, clamped + 1);
+      i++
+    ) {
       const px = xScale(data[i].name) ?? 0;
       const diff = Math.abs(px - xPos);
       if (diff < minDiff) {
@@ -131,13 +149,20 @@ function DefaultBandTooltip({ info }: { info: BandTooltipInfo }) {
       className="backdrop-blur-xl bg-white/75 border border-mine-border/50 rounded-xl px-3 py-2.5 text-xs shadow-[0_4px_24px_rgba(0,0,0,0.08)]"
       style={{ minWidth: 140, pointerEvents: 'none' }}
     >
-      <div className="text-mine-muted font-mono tabular-nums text-[10px] mb-1.5">{info.date}</div>
+      <div className="text-mine-muted font-mono tabular-nums text-[10px] mb-1.5">
+        {info.date}
+      </div>
 
       {info.closestStrategy && (
         <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-mine-border/40">
-          <span className="text-mine-text font-medium">{info.closestStrategy.id}</span>
-          <span className={`font-mono tabular-nums text-right ${info.closestStrategy.value >= 0 ? 'text-[#CF304A]' : 'text-[#0B8C5F]'}`}>
-            {info.closestStrategy.value > 0 ? '+' : ''}{info.closestStrategy.value.toFixed(1)}%
+          <span className="text-mine-text font-medium">
+            {info.closestStrategy.id}
+          </span>
+          <span
+            className={`font-mono tabular-nums text-right ${info.closestStrategy.value >= 0 ? 'text-market-up' : 'text-market-down'}`}
+          >
+            {info.closestStrategy.value > 0 ? '+' : ''}
+            {info.closestStrategy.value.toFixed(1)}%
           </span>
         </div>
       )}
@@ -153,21 +178,41 @@ function DefaultBandTooltip({ info }: { info: BandTooltipInfo }) {
   );
 }
 
-function BandRow({ label, value, accent, highlight }: {
-  label: string; value: number; accent?: boolean; highlight?: boolean;
+function BandRow({
+  label,
+  value,
+  accent,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  accent?: boolean;
+  highlight?: boolean;
 }) {
   return (
-    <div className={`flex items-center justify-between ${highlight ? 'text-mine-text font-medium' : ''}`}>
-      <span className={`w-7 text-[10px] ${accent ? 'text-mine-text/70' : 'text-mine-muted'}`}>{label}</span>
-      <span className={`font-mono tabular-nums text-right ${value >= 0 ? 'text-[#CF304A]' : 'text-[#0B8C5F]'}`}>
-        {value > 0 ? '+' : ''}{value.toFixed(1)}%
+    <div
+      className={`flex items-center justify-between ${highlight ? 'text-mine-text font-medium' : ''}`}
+    >
+      <span
+        className={`w-7 text-[10px] ${accent ? 'text-mine-text/70' : 'text-mine-muted'}`}
+      >
+        {label}
+      </span>
+      <span
+        className={`font-mono tabular-nums text-right ${value >= 0 ? 'text-market-up' : 'text-market-down'}`}
+      >
+        {value > 0 ? '+' : ''}
+        {value.toFixed(1)}%
       </span>
     </div>
   );
 }
 
 /** Detect the month range containing the clicked data index */
-function getMonthRange(data: BandDataPoint[], clickedIndex: number): [number, number] {
+function getMonthRange(
+  data: BandDataPoint[],
+  clickedIndex: number,
+): [number, number] {
   if (clickedIndex < 0 || clickedIndex >= data.length) {
     return [0, Math.max(0, data.length - 1)];
   }
@@ -180,7 +225,11 @@ function getMonthRange(data: BandDataPoint[], clickedIndex: number): [number, nu
 }
 
 /** Convert data index range to zoom percentage (0-100) */
-function indexRangeToPercent(startIdx: number, endIdx: number, total: number): { start: number; end: number } {
+function indexRangeToPercent(
+  startIdx: number,
+  endIdx: number,
+  total: number,
+): { start: number; end: number } {
   const pad = 0.5; // half-step padding so edge points aren't clipped
   return {
     start: Math.max(0, ((startIdx - pad) / total) * 100),
@@ -193,7 +242,15 @@ const SNAP_Y_THRESHOLD = 40; // px — max distance from mouse to strategy line 
 
 /* ── Axis label sub-components (TradingView-style dark tags) ── */
 
-function CrosshairXLabel({ x, y, text }: { x: number; y: number; text: string }) {
+function CrosshairXLabel({
+  x,
+  y,
+  text,
+}: {
+  x: number;
+  y: number;
+  text: string;
+}) {
   const h = 16;
   const w = Math.max(42, text.length * 6.5 + 12);
   return (
@@ -222,19 +279,22 @@ function CrosshairXLabel({ x, y, text }: { x: number; y: number; text: string })
   );
 }
 
-function CrosshairYLabel({ x, y, text, width }: { x: number; y: number; text: string; width?: number }) {
+function CrosshairYLabel({
+  x,
+  y,
+  text,
+  width,
+}: {
+  x: number;
+  y: number;
+  text: string;
+  width?: number;
+}) {
   const h = 18;
   const w = width ?? Math.max(46, text.length * 6.5 + 12);
   return (
     <g style={{ pointerEvents: 'none' }}>
-      <rect
-        x={x}
-        y={y - h / 2}
-        width={w}
-        height={h}
-        rx={3}
-        fill="#000"
-      />
+      <rect x={x} y={y - h / 2} width={w} height={h} rx={3} fill="#000" />
       <text
         x={x + w / 2}
         y={y + 0.5}
@@ -279,7 +339,10 @@ export function BandTooltipArea({
   // Brush-zoom state
   const dragStartXRef = useRef<number | null>(null);
   const isDraggingRef = useRef(false);
-  const [brushRect, setBrushRect] = useState<{ x: number; width: number } | null>(null);
+  const [brushRect, setBrushRect] = useState<{
+    x: number;
+    width: number;
+  } | null>(null);
   const [brushDayCount, setBrushDayCount] = useState<number | null>(null);
 
   const { showTooltip, hideTooltip } = useChartTooltip();
@@ -312,7 +375,10 @@ export function BandTooltipArea({
       if (data.length === 0) return;
 
       // Clear brush state when starting new crosshair interaction (not during brush drag)
-      if (!isDraggingRef.current && (brushDayCount !== null || brushRect !== null)) {
+      if (
+        !isDraggingRef.current &&
+        (brushDayCount !== null || brushRect !== null)
+      ) {
         setBrushDayCount(null);
         setBrushRect(null);
       }
@@ -328,7 +394,10 @@ export function BandTooltipArea({
         if (dragDist > DRAG_THRESHOLD) {
           isDraggingRef.current = true;
           const left = Math.max(0, Math.min(dragStartXRef.current, xPos));
-          const right = Math.min(dims.width, Math.max(dragStartXRef.current, xPos));
+          const right = Math.min(
+            dims.width,
+            Math.max(dragStartXRef.current, xPos),
+          );
           setBrushRect({ x: left, width: right - left });
 
           // Calculate trading day count
@@ -396,9 +465,11 @@ export function BandTooltipArea({
 
       // Show floating tooltip (unless disabled)
       if (anchorRef.current && !tooltipDisabled) {
-        const content = tooltipTemplate
-          ? tooltipTemplate(info)
-          : <DefaultBandTooltip info={info} />;
+        const content = tooltipTemplate ? (
+          tooltipTemplate(info)
+        ) : (
+          <DefaultBandTooltip info={info} />
+        );
 
         showTooltip({
           content,
@@ -410,7 +481,22 @@ export function BandTooltipArea({
         });
       }
     },
-    [data, xScale, yScale, dims, auxLookup, tooltipDisabled, tooltipTemplate, showTooltip, onHoverStrategy, onHoverInfo, brushZoomEnabled, hideTooltip, brushDayCount, brushRect],
+    [
+      data,
+      xScale,
+      yScale,
+      dims,
+      auxLookup,
+      tooltipDisabled,
+      tooltipTemplate,
+      showTooltip,
+      onHoverStrategy,
+      onHoverInfo,
+      brushZoomEnabled,
+      hideTooltip,
+      brushDayCount,
+      brushRect,
+    ],
   );
 
   const handleMouseUp = useCallback(
@@ -431,28 +517,40 @@ export function BandTooltipArea({
         // Drag release → map visible pixel positions to visible data names, then to full-data indices
         const left = Math.min(dragStartXRef.current, xPos);
         const right = Math.max(dragStartXRef.current, xPos);
-        const visStartIdx = findClosestPointIndex(Math.max(0, left), data, xScale);
-        const visEndIdx = findClosestPointIndex(Math.min(dims.width, right), data, xScale);
+        const visStartIdx = findClosestPointIndex(
+          Math.max(0, left),
+          data,
+          xScale,
+        );
+        const visEndIdx = findClosestPointIndex(
+          Math.min(dims.width, right),
+          data,
+          xScale,
+        );
         const startName = data[Math.min(visStartIdx, visEndIdx)].name;
         const endName = data[Math.max(visStartIdx, visEndIdx)].name;
         // Find corresponding indices in the full data array
-        const fullStart = zoomData.findIndex(d => d.name === startName);
-        const fullEnd = zoomData.findIndex(d => d.name === endName);
+        const fullStart = zoomData.findIndex((d) => d.name === startName);
+        const fullEnd = zoomData.findIndex((d) => d.name === endName);
         if (fullStart >= 0 && fullEnd >= 0) {
-          onBrushZoom?.(indexRangeToPercent(
-            Math.min(fullStart, fullEnd),
-            Math.max(fullStart, fullEnd),
-            zoomData.length,
-          ));
+          onBrushZoom?.(
+            indexRangeToPercent(
+              Math.min(fullStart, fullEnd),
+              Math.max(fullStart, fullEnd),
+              zoomData.length,
+            ),
+          );
         }
       } else if (data.length > 0) {
         // Click → find visible point, map to full-data index, zoom to its month
         const visIdx = findClosestPointIndex(xPos, data, xScale);
         const clickedName = data[visIdx].name;
-        const fullIdx = zoomData.findIndex(d => d.name === clickedName);
+        const fullIdx = zoomData.findIndex((d) => d.name === clickedName);
         if (fullIdx >= 0) {
           const [monthStart, monthEnd] = getMonthRange(zoomData, fullIdx);
-          onBrushZoom?.(indexRangeToPercent(monthStart, monthEnd, zoomData.length));
+          onBrushZoom?.(
+            indexRangeToPercent(monthStart, monthEnd, zoomData.length),
+          );
         }
       }
 
@@ -490,7 +588,7 @@ export function BandTooltipArea({
       pointerEvents: 'none' as const,
       transition: 'opacity 200ms ease-in-out',
     }),
-    [crosshairOpacity]
+    [crosshairOpacity],
   );
 
   const dateLabel = crosshair.visible ? formatDateShort(crosshair.date) : '';
@@ -517,20 +615,31 @@ export function BandTooltipArea({
       {brushRect && (
         <>
           <rect
-            x={0} y={0}
-            width={brushRect.x} height={dims.height}
-            fill="rgba(0,0,0,0.04)" pointerEvents="none"
+            x={0}
+            y={0}
+            width={brushRect.x}
+            height={dims.height}
+            fill="rgba(0,0,0,0.04)"
+            pointerEvents="none"
           />
           <rect
-            x={brushRect.x} y={0}
-            width={brushRect.width} height={dims.height}
-            fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.3)"
-            strokeWidth={1} rx={2} pointerEvents="none"
+            x={brushRect.x}
+            y={0}
+            width={brushRect.width}
+            height={dims.height}
+            fill="rgba(99,102,241,0.08)"
+            stroke="rgba(99,102,241,0.3)"
+            strokeWidth={1}
+            rx={2}
+            pointerEvents="none"
           />
           <rect
-            x={brushRect.x + brushRect.width} y={0}
-            width={Math.max(0, dims.width - brushRect.x - brushRect.width)} height={dims.height}
-            fill="rgba(0,0,0,0.04)" pointerEvents="none"
+            x={brushRect.x + brushRect.width}
+            y={0}
+            width={Math.max(0, dims.width - brushRect.x - brushRect.width)}
+            height={dims.height}
+            fill="rgba(0,0,0,0.04)"
+            pointerEvents="none"
           />
         </>
       )}
