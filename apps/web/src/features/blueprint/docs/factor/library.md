@@ -307,3 +307,9 @@ Detail Panel is a standalone `FactorDetailPanel` component. Each section is wrap
 | < -1 | Undervalued | Blue |
 | -1 to 1 | Fair | Green |
 | > +1 | Overvalued | Orange |
+
+---
+
+## Theme Compliance
+
+All table header text and drag-handle icons must use Mine theme tokens (`text-mine-text`, `text-mine-muted`) instead of dark-theme colors (`text-white`, `text-white/70`, `text-white/30`). The table renders on a light background; dark-theme text classes produce invisible or low-contrast text.
