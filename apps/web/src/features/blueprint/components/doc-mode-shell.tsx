@@ -1,8 +1,7 @@
 'use client';
 
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback } from 'react';
 import { BookOpen, X } from 'lucide-react';
-import { motion } from 'motion/react';
 
 import { TopNavBar } from '@/components/layout/top-nav-bar';
 import type { NavItem } from '@/components/layout/top-nav-bar';
@@ -10,10 +9,7 @@ import { LeftIconSidebar } from '@/components/layout/left-icon-sidebar';
 import type { SidebarItem } from '@/components/layout/left-icon-sidebar';
 import { UserCapsule } from '@/components/layout/user-capsule';
 import { PageTransition } from '@/components/layout/page-transition';
-import { LabCollapsedSidebar } from '@/components/layout/lab-collapsed-sidebar';
-import { LabCollapsedTopbar } from '@/components/layout/lab-collapsed-topbar';
 import { Button } from '@/components/ui/button';
-import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 
 import {
   useDocModeState,
@@ -22,26 +18,14 @@ import {
 import { MODULES } from '../data/modules';
 import { DocContent } from './doc-content';
 
-const TRANSITION = { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const };
-
 /**
- * Root layout shell with three modes:
- * - Normal: standard sidebar + topbar + content
+ * Root layout shell with two modes:
+ * - Normal: standard sidebar + topbar + content (always static, all pages including lab)
  * - Doc: blueprint sidebar + topbar + doc content (early return)
- * - Lab: collapsed sidebar + collapsed topbar + editor content
- *
- * Normal and Lab share the same React tree so {children} never remount.
  */
 export function DocModeShell({ children }: { children: React.ReactNode }) {
   const { docMode, activeModule, activeTab } = useDocModeState();
   const { toggleDocMode, setActiveModule, setActiveTab } = useDocModeActions();
-  const labMode = useLabModeStore((s) => s.mode);
-  const isLabActive = labMode === 'active';
-
-  // Hover state from sidebar/topbar — controls UserCapsule visibility in lab mode
-  const [sidebarHover, setSidebarHover] = useState(false);
-  const [topbarHover, setTopbarHover] = useState(false);
-  const showUserCapsule = sidebarHover || topbarHover;
 
   // ── Doc mode data ──
   const docSidebarItems: SidebarItem[] = useMemo(
@@ -149,62 +133,19 @@ export function DocModeShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // ── Normal + Lab: unified tree (children never remount) ──
+  // ── Normal: standard layout (always static, including lab pages) ──
   return (
     <div className="h-screen w-screen min-w-0 bg-mine-page-bg flex">
-      {/* ═══ Sidebar column ═══
-          - z-20 ensures sidebar renders above editor content (helperPanel, etc.)
-          - w-[52px] in lab mode for collapsed sidebar
-       */}
-      <div
-        className={
-          isLabActive
-            ? 'flex flex-col items-center pt-3 pb-4 px-3 gap-3 shrink-0 min-h-0 relative z-20'
-            : 'flex flex-col items-center pt-3 pb-4 px-3 gap-3 shrink-0 min-h-0'
-        }
-      >
-        {isLabActive ? (
-          <>
-            {/* Invisible spacer matching UserCapsule height so justify-center
-                produces the same Factor Y as normal mode */}
-            <div className="h-8 shrink-0" />
-            {/* UserCapsule: absolutely positioned so it never affects layout */}
-            <motion.div
-              className="absolute top-3 left-1/2 -translate-x-1/2 z-40"
-              animate={{ opacity: showUserCapsule ? 1 : 0 }}
-              initial={false}
-              transition={TRANSITION}
-              style={{ pointerEvents: showUserCapsule ? 'auto' : 'none' }}
-            >
-              <UserCapsule />
-            </motion.div>
-            <LabCollapsedSidebar onHoverChange={setSidebarHover} />
-          </>
-        ) : (
-          <>
-            <UserCapsule />
-            <LeftIconSidebar />
-          </>
-        )}
+      {/* ═══ Sidebar column ═══ */}
+      <div className="flex flex-col items-center pt-3 pb-4 px-3 gap-3 shrink-0 min-h-0">
+        <UserCapsule />
+        <LeftIconSidebar />
       </div>
 
       {/* ═══ Main column ═══ */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Topbar */}
-        {isLabActive ? (
-          <LabCollapsedTopbar onHoverChange={setTopbarHover} />
-        ) : (
-          <TopNavBar trailingActions={docToggleButton} />
-        )}
-
-        {/* Content — ALWAYS at same tree position */}
-        <div
-          className={
-            isLabActive
-              ? 'flex-1 flex overflow-hidden'
-              : 'flex-1 flex gap-4 pr-4 pb-4 overflow-hidden'
-          }
-        >
+        <TopNavBar trailingActions={docToggleButton} />
+        <div className="flex-1 flex gap-4 pr-4 pb-4 overflow-hidden">
           <PageTransition>{children}</PageTransition>
         </div>
       </div>

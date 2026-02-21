@@ -5,6 +5,14 @@ import { create } from 'zustand';
 
 type PanelLayout = 'default' | 'full-width';
 
+export type SidebarPanelType =
+  | 'files'
+  | 'variables'
+  | 'dependencies'
+  | 'outline'
+  | string;
+export type DeveloperPanelTab = 'errors' | 'logs' | 'terminal' | string;
+
 interface LabChromeState {
   // Sidebar
   isSidebarOpen: boolean;

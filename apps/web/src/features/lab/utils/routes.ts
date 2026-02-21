@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import {
-  type Match,
-  type MatchFunction,
-  match,
-  type ParamData,
-} from "path-to-regexp";
+// @ts-expect-error — path-to-regexp v8 removed named type exports
+import { match } from 'path-to-regexp';
+
+type ParamData = Record<string, string | string[]>;
+type MatchFunction<T> = (path: string) => false | Match<T>;
+type Match<T> = { params: T; path: string; index: number };
 
 export class TinyRouter {
   private routes: {

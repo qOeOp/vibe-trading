@@ -215,7 +215,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     setIsDeveloperPanelOpen,
   ]);
 
-  // Sync Zustand (LabCollapsedSidebar) → Jotai (Marimo chrome state) in lab mode
+  // Sync Zustand (lab chrome store) → Jotai (Marimo chrome state) in lab mode
   const labChromePanel = useLabChromeStore((s) => s.selectedPanel);
   const labChromeSidebarOpen = useLabChromeStore((s) => s.isSidebarOpen);
   const hasOpenPanels = useLabChromeStore((s) => s.openPanels.length > 0);
@@ -284,6 +284,8 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     snippets: <LazyDataCatalogPanel />,
     errors: <LazyErrorsPanel />,
     validation: <LazyValidationPanel />,
+    terminal: null,
+    documentation: null,
   };
 
   const helpPaneBody = (

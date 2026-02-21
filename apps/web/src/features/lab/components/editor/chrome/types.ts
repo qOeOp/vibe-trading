@@ -22,7 +22,9 @@ export type PanelType =
   | 'ai'
   | 'snippets'
   | 'errors'
-  | 'validation';
+  | 'validation'
+  | 'terminal'
+  | 'documentation';
 
 export type PanelSection = 'sidebar' | 'developer-panel';
 
