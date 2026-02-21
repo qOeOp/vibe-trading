@@ -21,10 +21,10 @@ import {
   PANELS,
   type PanelDescriptor,
 } from '../types';
-import { useLabFullscreen } from '../../../lab-fullscreen-context';
+import { useLabMode } from '../../../lab-mode-context';
 
 export const Sidebar: React.FC = () => {
-  const { isFullscreen } = useLabFullscreen();
+  const { isLabMode } = useLabMode();
   const { selectedPanel, selectedDeveloperPanelTab, isSidebarOpen } =
     useChromeState();
   const { toggleApplication, openApplication, setIsSidebarOpen } =
@@ -107,7 +107,7 @@ export const Sidebar: React.FC = () => {
   ]);
 
   // ── Fullscreen mode: vertical stack of standalone floating circles ──
-  if (isFullscreen) {
+  if (isLabMode) {
     return (
       <div className="flex flex-col gap-2 pt-3 pl-2 z-50 print:hidden">
         {sidebarItems.map((panel) => (

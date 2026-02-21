@@ -3,11 +3,7 @@ import { closeCompletion, completionStatus } from '@codemirror/autocomplete';
 import type { EditorView } from '@codemirror/view';
 import clsx from 'clsx';
 import { useAtomValue, useSetAtom } from 'jotai';
-import {
-  HelpCircleIcon,
-  MoreHorizontalIcon,
-  SquareFunctionIcon,
-} from 'lucide-react';
+import { HelpCircleIcon, MoreHorizontalIcon } from 'lucide-react';
 import {
   type FocusEvent,
   forwardRef,
@@ -86,6 +82,8 @@ import {
 import { type OnRefactorWithAI, OutputArea } from './Output';
 import { ConsoleOutput } from './output/console/ConsoleOutput';
 import { CellDragHandle, SortableCell } from './SortableCell';
+import { useLabMode } from '../lab-mode-context';
+import { MineEditableCell } from './mine-editable-cell';
 
 /**
  * Hook for handling cell completion logic
@@ -264,6 +262,7 @@ export interface CellProps {
 const CellComponent = (props: CellProps) => {
   const { cellId, mode } = props;
   const ref = useCellHandle(cellId);
+  const { isLabMode } = useLabMode();
 
   useCellRenderCount().countRender();
 
@@ -299,6 +298,19 @@ const CellComponent = (props: CellProps) => {
   }
 
   if (mode === 'edit') {
+    // Lab mode: use MineCell visual shell instead of marimo chrome
+    if (isLabMode) {
+      return (
+        <MineEditableCell
+          {...props}
+          cellId={cellId}
+          editorView={editorView}
+          setEditorView={(ev) => {
+            editorView.current = ev;
+          }}
+        />
+      );
+    }
     return (
       <EditableCellComponent
         {...props}
@@ -593,8 +605,6 @@ const EditableCellComponent = ({
     return undefined;
   };
 
-  const isToplevel = cellRuntime.serialization?.toLowerCase() === 'valid';
-
   return (
     <TooltipProvider>
       <CellActionsContextMenu cellId={cellId} getEditorView={getEditorView}>
@@ -715,64 +725,6 @@ const EditableCellComponent = ({
               hide={cellRuntime.errored && !isStaleCell}
             />
             {cellOutput === 'below' && (outputArea || emptyMarkdownPlaceholder)}
-            {cellRuntime.serialization && (
-              <div className="py-1 px-2 flex items-center justify-end gap-2 last:rounded-b">
-                {isToplevel && (
-                  <a
-                    href="https://links.marimo.app/reusable-definitions"
-                    target="_blank"
-                    className="hover:underline text-muted-foreground text-xs font-bold"
-                    rel="noopener"
-                  >
-                    reusable
-                  </a>
-                )}
-                <Tooltip
-                  content={
-                    <span className="max-w-16 text-xs">
-                      {(isToplevel &&
-                        'This function or class can be imported into other Python notebooks or modules.') || (
-                        <>
-                          This definition can't be reused in other Python
-                          modules:
-                          <br />
-                          <br />
-                          <pre>{cellRuntime.serialization}</pre>
-                          <br />
-                          Click this icon to learn more.
-                        </>
-                      )}
-                    </span>
-                  }
-                >
-                  {isToplevel ? (
-                    <a
-                      href="https://links.marimo.app/reusable-definitions"
-                      target="_blank"
-                      rel="noopener"
-                    >
-                      <SquareFunctionIcon
-                        size={16}
-                        strokeWidth={1.5}
-                        className="rounded-lg text-muted-foreground"
-                      />
-                    </a>
-                  ) : (
-                    <a
-                      href="https://links.marimo.app/reusable-definitions"
-                      target="_blank"
-                      rel="noopener"
-                    >
-                      <HelpCircleIcon
-                        size={16}
-                        strokeWidth={1.5}
-                        className="rounded-lg text-muted-foreground"
-                      />
-                    </a>
-                  )}
-                </Tooltip>
-              </div>
-            )}
             <ConsoleOutput
               consoleOutputs={cellRuntime.consoleOutputs}
               stale={consoleOutputStale}

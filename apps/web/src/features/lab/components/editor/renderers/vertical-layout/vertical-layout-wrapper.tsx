@@ -1,7 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import type { PropsWithChildren } from "react";
-import type { AppConfig } from "../../../../core/config/config-schema";
-import { cn } from "../../../../utils/cn";
+import type { PropsWithChildren } from 'react';
+import type { AppConfig } from '../../../../core/config/config-schema';
+import { cn } from '../../../../utils/cn';
+import { useLabMode } from '../../../../components/lab-mode-context';
 
 interface Props {
   className?: string;
@@ -17,28 +18,33 @@ export const VerticalLayoutWrapper: React.FC<PropsWithChildren<Props>> = ({
   children,
   innerClassName,
 }) => {
+  const { isLabMode } = useLabMode();
+
   return (
     <div
       className={cn(
-        "px-1 sm:px-16 md:px-20 xl:px-24 print:px-0 print:pb-0",
-        // Large mobile bottom padding due to mobile browser navigation bar
-        "pb-24 sm:pb-12",
+        isLabMode
+          ? 'px-2 pb-4'
+          : 'px-1 sm:px-16 md:px-20 xl:px-24 print:px-0 print:pb-0 pb-24 sm:pb-12',
         className,
       )}
     >
       <div
         className={cn(
-          "m-auto",
-          // This padding needs to be the same from above to be correctly applied
-          "pb-24 sm:pb-12",
-          appConfig.width === "compact" &&
-            "max-w-(--content-width) min-w-[400px]",
-          appConfig.width === "medium" &&
-            "max-w-(--content-width-medium) min-w-[400px]",
-          appConfig.width === "columns" && "w-fit",
-          appConfig.width === "full" && "max-w-full",
+          isLabMode
+            ? 'max-w-full'
+            : cn(
+                'm-auto',
+                'pb-24 sm:pb-12',
+                appConfig.width === 'compact' &&
+                  'max-w-(--content-width) min-w-[400px]',
+                appConfig.width === 'medium' &&
+                  'max-w-(--content-width-medium) min-w-[400px]',
+                appConfig.width === 'columns' && 'w-fit',
+                appConfig.width === 'full' && 'max-w-full',
+              ),
           // Hide the cells for a fake loading effect, to avoid flickering
-          invisible && "invisible",
+          invisible && 'invisible',
           innerClassName,
         )}
       >

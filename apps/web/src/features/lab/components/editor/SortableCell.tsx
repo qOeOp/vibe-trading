@@ -1,15 +1,15 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { DraggableAttributes } from "@dnd-kit/core";
-import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS, type Transform } from "@dnd-kit/utilities";
-import { GripVerticalIcon } from "lucide-react";
-import React, { memo, use } from "react";
-import type { CellId } from "../../core/cells/ids";
-import { cn } from "../../utils/cn";
-import { Events } from "../../utils/events";
-import { mergeRefs } from "../../utils/mergeRefs";
+import type { DraggableAttributes } from '@dnd-kit/core';
+import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS, type Transform } from '@dnd-kit/utilities';
+import { GripVerticalIcon } from 'lucide-react';
+import React, { memo, use } from 'react';
+import type { CellId } from '../../core/cells/ids';
+import { cn } from '../../utils/cn';
+import { Events } from '../../utils/events';
+import { mergeRefs } from '../../utils/mergeRefs';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -26,7 +26,21 @@ export const CellDragHandle: React.FC = memo(() => {
   // Slot for drag handle
   return use(DragHandleSlot);
 });
-CellDragHandle.displayName = "DragHandle";
+CellDragHandle.displayName = 'DragHandle';
+
+/**
+ * Context for raw drag listeners — lets custom cells make any element draggable
+ */
+interface DragHandleProps {
+  attributes: DraggableAttributes;
+  listeners: SyntheticListenerMap | undefined;
+}
+
+const DragPropsContext = React.createContext<DragHandleProps | null>(null);
+
+export function useCellDragProps() {
+  return React.useContext(DragPropsContext);
+}
 
 function isTransformNoop(transform: Transform | null) {
   if (!transform) {
@@ -80,7 +94,7 @@ export const SortableCell = React.forwardRef(
     );
   },
 );
-SortableCell.displayName = "SortableCell";
+SortableCell.displayName = 'SortableCell';
 
 interface SortableCellInternalProps extends Props {
   children: React.ReactNode;
@@ -119,7 +133,7 @@ const SortableCellInternal = React.forwardRef(
         : undefined,
       transition,
       zIndex: isDragging ? 2 : undefined,
-      position: "relative",
+      position: 'relative',
     };
 
     const dragHandle = (
@@ -146,16 +160,18 @@ const SortableCellInternal = React.forwardRef(
         data-is-dragging={isDragging}
         className={cn(
           props.className,
-          isMoving && "is-moving",
-          "outline-hidden rounded-lg",
+          isMoving && 'is-moving',
+          'outline-hidden rounded-lg',
         )}
         style={style}
       >
-        <DragHandleSlot.Provider value={dragHandle}>
-          {children}
-        </DragHandleSlot.Provider>
+        <DragPropsContext.Provider value={{ attributes, listeners }}>
+          <DragHandleSlot.Provider value={dragHandle}>
+            {children}
+          </DragHandleSlot.Provider>
+        </DragPropsContext.Provider>
       </div>
     );
   },
 );
-SortableCellInternal.displayName = "SortableCellInternal";
+SortableCellInternal.displayName = 'SortableCellInternal';

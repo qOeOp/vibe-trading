@@ -1,40 +1,40 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { history } from "@codemirror/commands";
+import { history } from '@codemirror/commands';
 import {
   Compartment,
   EditorSelection,
   StateEffect,
   StateField,
-} from "@codemirror/state";
-import { type EditorView, keymap, showPanel } from "@codemirror/view";
-import type { CellId } from "../../cells/ids";
+} from '@codemirror/state';
+import { type EditorView, keymap, showPanel } from '@codemirror/view';
+import type { CellId } from '../../cells/ids';
 import type {
   CompletionConfig,
   DiagnosticsConfig,
   LSPConfig,
-} from "../../config/config-schema";
-import type { HotkeyProvider } from "../../hotkeys/hotkeys";
-import { Logger } from "../../../utils/Logger";
-import { clamp } from "../../../utils/math";
+} from '../../config/config-schema';
+import type { HotkeyProvider } from '../../hotkeys/hotkeys';
+import { Logger } from '../../../utils/Logger';
+import { clamp } from '../../../utils/math';
 import {
   cellIdState,
   completionConfigState,
   hotkeysProviderState,
   lspConfigState,
   placeholderState,
-} from "../config/extension";
-import type { PlaceholderType } from "../config/types";
-import { historyCompartment } from "../editing/extensions";
-import { formattingChangeEffect } from "../format";
-import { createPanel } from "../react-dom/createPanel";
-import { getLanguageAdapters, LanguageAdapters } from "./LanguageAdapters";
-import { initializeSQLDialect } from "./languages/sql/sql";
-import type { LanguageMetadata } from "./metadata";
-import { languageMetadataField, setLanguageMetadata } from "./metadata";
-import { LanguagePanelComponent } from "./panel/panel";
-import type { LanguageAdapter } from "./types";
-import { getEditorCodeAsPython } from "./utils";
+} from '../config/extension';
+import type { PlaceholderType } from '../config/types';
+import { historyCompartment } from '../editing/extensions';
+import { formattingChangeEffect } from '../format';
+import { createPanel } from '../react-dom/createPanel';
+import { getLanguageAdapters, LanguageAdapters } from './LanguageAdapters';
+import { initializeSQLDialect } from './languages/sql/sql';
+import type { LanguageMetadata } from './metadata';
+import { languageMetadataField, setLanguageMetadata } from './metadata';
+import { LanguagePanelComponent } from './panel/panel';
+import type { LanguageAdapter } from './types';
+import { getEditorCodeAsPython } from './utils';
 
 /**
  * Compartment to keep track of the current language and extension.
@@ -62,13 +62,14 @@ export const languageAdapterState = StateField.define<LanguageAdapter>({
     }
     return value;
   },
-  // Only show the panel if the language is not python
+  // Only show the panel for SQL (needs engine/output config).
+  // Python and Markdown panels are removed — language toggle is in MineCell toolbar.
   provide: (field) =>
     showPanel.from(field, (value) => {
-      if (value.type === "python") {
-        return null;
+      if (value.type === 'sql') {
+        return (view) => createPanel(view, LanguagePanelComponent);
       }
-      return (view) => createPanel(view, LanguagePanelComponent);
+      return null;
     }),
 });
 
@@ -89,7 +90,7 @@ function languageToggleKeymaps() {
   return [
     keymap.of([
       {
-        key: "F4",
+        key: 'F4',
         preventDefault: true,
         run: (cm) => {
           // Find the next language
@@ -196,7 +197,7 @@ function updateLanguageAdapterAndCode({
   });
 
   // Initialize SQL dialect if switching to SQL
-  if (nextLanguage.type === "sql") {
+  if (nextLanguage.type === 'sql') {
     initializeSQLDialect(view);
   }
 }
@@ -234,7 +235,7 @@ export function adaptiveLanguageConfiguration(opts: {
 /**
  * Get the best language given the editors current code.
  */
-export function getInitialLanguageAdapter(state: EditorView["state"]) {
+export function getInitialLanguageAdapter(state: EditorView['state']) {
   const doc = getEditorCodeAsPython({ state }).trim();
   return languageAdapterFromCode(doc);
 }
@@ -270,7 +271,7 @@ export function languageAdapterFromCode(doc: string): LanguageAdapter {
 export function switchLanguage(
   view: EditorView,
   opts: {
-    language: LanguageAdapter["type"];
+    language: LanguageAdapter['type'];
     keepCodeAsIs?: boolean;
   },
 ) {
@@ -313,13 +314,13 @@ export function reconfigureLanguageEffect(
   const cellId = view.state.facet(cellIdState);
 
   if (cellId === undefined) {
-    Logger.error("Cell ID is undefined in reconfigureLanguageEffect");
+    Logger.error('Cell ID is undefined in reconfigureLanguageEffect');
   }
   if (placeholderType === undefined) {
-    Logger.error("Placeholder type is undefined in reconfigureLanguageEffect");
+    Logger.error('Placeholder type is undefined in reconfigureLanguageEffect');
   }
   if (completionConfig === undefined) {
-    Logger.error("Completion config is undefined in reconfigureLanguageEffect");
+    Logger.error('Completion config is undefined in reconfigureLanguageEffect');
   }
 
   return languageCompartment.reconfigure(

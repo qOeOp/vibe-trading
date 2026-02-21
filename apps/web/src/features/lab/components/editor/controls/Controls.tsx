@@ -37,7 +37,7 @@ import { useShouldShowInterrupt } from '../cell/useShouldShowInterrupt';
 import { HideInKioskMode } from '../kiosk-mode';
 import { LayoutSelect } from '../renderers/layout-select';
 import { CommandPaletteButton } from './command-palette-button';
-import { useLabFullscreen } from '../../lab-fullscreen-context';
+import { useLabMode } from '../../lab-mode-context';
 import { LogOutIcon } from 'lucide-react';
 import { useLabModeStore } from '../../../store/use-lab-mode-store';
 
@@ -59,7 +59,7 @@ export const Controls = ({
   connectionState,
   running,
 }: ControlsProps): JSX.Element => {
-  const { isFullscreen, onExit } = useLabFullscreen();
+  const { isLabMode, onExit } = useLabMode();
   const labMode = useLabModeStore((s) => s.mode);
   const hideTopRight = labMode === 'active';
   const undoAvailable = useAtomValue(canUndoDeletesAtom);
@@ -106,7 +106,7 @@ export const Controls = ({
             disabled={disabled}
             tooltip={connectionTooltip}
           />
-          {isFullscreen && onExit && (
+          {isLabMode && onExit && (
             <Tooltip content="Exit Lab">
               <Button
                 aria-label="Exit Lab"

@@ -1,7 +1,7 @@
 'use client';
 
 import type { PropsWithChildren } from 'react';
-import { LabFullscreenContext } from '../lab-fullscreen-context';
+import { LabModeContext } from '../lab-mode-context';
 import { MineFileTree } from './mine-file-tree';
 import { MineTabBar } from './mine-tab-bar';
 
@@ -16,7 +16,7 @@ import { MineTabBar } from './mine-tab-bar';
 
 function MineAppChrome({ children }: PropsWithChildren) {
   return (
-    <LabFullscreenContext.Provider value={{ isFullscreen: true, onExit: null }}>
+    <LabModeContext.Provider value={{ isLabMode: true, onExit: null }}>
       <div
         data-slot="mine-app-chrome"
         className="flex-1 flex overflow-hidden h-full"
@@ -42,7 +42,7 @@ function MineAppChrome({ children }: PropsWithChildren) {
           </div>
         </div>
       </div>
-    </LabFullscreenContext.Provider>
+    </LabModeContext.Provider>
   );
 }
 
