@@ -58,6 +58,11 @@ const LazyFileExplorerPanel = React.lazy(
 );
 const LazyPackagesPanel = React.lazy(() => import('../panels/packages-panel'));
 const LazySnippetsPanel = React.lazy(() => import('../panels/snippets-panel'));
+const LazyDataCatalogPanel = React.lazy(() =>
+  import('../panels/data-catalog/data-catalog-panel').then((m) => ({
+    default: m.DataCatalogPanel,
+  })),
+);
 const LazyValidationPanel = React.lazy(
   () => import('../panels/validation-panel'),
 );
@@ -276,7 +281,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     variables: <LazySessionPanel />,
     packages: <LazyPackagesPanel />,
     ai: renderAiPanel(),
-    snippets: <LazySnippetsPanel />,
+    snippets: <LazyDataCatalogPanel />,
     errors: <LazyErrorsPanel />,
     validation: <LazyValidationPanel />,
   };
