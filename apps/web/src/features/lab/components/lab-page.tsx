@@ -21,6 +21,14 @@ import {
   FileCode2,
   Database,
   BarChart3,
+  ChevronRight,
+  Lock,
+  Share,
+  Plus,
+  Columns2,
+  ChevronDown,
+  File,
+  Play,
 } from 'lucide-react';
 import { AnimateHeavy } from '@/components/animation';
 import {
@@ -102,36 +110,76 @@ const MARIMO_COMMAND = `marimo edit --headless --port ${MARIMO_KERNEL_PORT} --no
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 
-/** macOS-style device frame showing a preview of the Factor Lab editor */
+/** Browser-style device frame — AlignUI landing page pattern */
 function DeviceFrame() {
+  const FILE_TREE = [
+    { name: 'vt-lab.py', active: true },
+    { name: 'backtest.py', active: false },
+    { name: 'factor_lib.py', active: false },
+    { name: 'universe.py', active: false },
+  ];
+
   return (
     <div
       data-slot="device-frame"
-      className="w-full max-w-[520px] rounded-xl border border-black/10 overflow-hidden"
+      className="w-full max-w-[600px] rounded-xl border border-black/8 overflow-hidden"
       style={{
-        boxShadow: '0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.04)',
       }}
     >
-      {/* ── Title bar ── */}
-      <div className="flex items-center px-3.5 py-2.5 bg-[#2d2d2d] border-b border-white/5">
+      {/* ── Browser chrome: traffic lights + address bar + actions ── */}
+      <div className="flex items-center gap-3 px-3.5 py-2 bg-[#f5f5f5] border-b border-black/5">
         <div className="flex items-center gap-1.5">
           <div className="w-[10px] h-[10px] rounded-full bg-[#ff5f57]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#febc2e]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#28c840]" />
         </div>
-        <span className="flex-1 text-center text-[11px] text-[#888] font-medium tracking-wide">
-          Factor Lab
-        </span>
-        <div className="w-[52px]" />
+        {/* Address bar */}
+        <div className="flex-1 flex items-center justify-center gap-1.5 bg-white rounded-md px-3 py-1 border border-black/6">
+          <Lock className="w-3 h-3 text-[#999]" strokeWidth={2} />
+          <span className="text-[11px] text-[#666] font-medium">
+            vibe-trading.app/lab
+          </span>
+        </div>
+        {/* Window actions */}
+        <div className="flex items-center gap-1.5">
+          <Share className="w-3 h-3 text-[#bbb]" strokeWidth={1.5} />
+          <Plus className="w-3 h-3 text-[#bbb]" strokeWidth={1.5} />
+          <Columns2 className="w-3 h-3 text-[#bbb]" strokeWidth={1.5} />
+        </div>
       </div>
 
-      {/* ── Body: sidebar + code area ── */}
+      {/* ── Tab bar ── */}
+      <div className="flex items-center bg-[#2d2d2d] px-2 pt-1.5 border-b border-white/5">
+        <div className="flex items-center gap-1 px-3 py-1.5 bg-[#1e1e1e] rounded-t-md text-[11px] text-[#ccc] font-medium">
+          <FileCode2 className="w-3 h-3 text-[#888]" strokeWidth={1.5} />
+          vt-lab.py
+        </div>
+        <div className="flex items-center gap-1 px-3 py-1.5 text-[11px] text-[#666] font-medium">
+          <Play className="w-3 h-3 text-[#555]" strokeWidth={1.5} />
+          preview
+        </div>
+      </div>
+
+      {/* ── Body: file tree + code area ── */}
       <div className="flex bg-[#1e1e1e]">
-        {/* Mini sidebar */}
-        <div className="w-10 shrink-0 flex flex-col items-center gap-3 pt-4 pb-3 border-r border-white/5">
-          <FileCode2 className="w-4 h-4 text-[#888]" strokeWidth={1.5} />
-          <Database className="w-4 h-4 text-[#555]" strokeWidth={1.5} />
-          <BarChart3 className="w-4 h-4 text-[#555]" strokeWidth={1.5} />
+        {/* File tree sidebar */}
+        <div className="w-[140px] shrink-0 border-r border-white/5 pt-2 pb-3">
+          <div className="flex items-center gap-1 px-3 py-1 text-[11px] text-[#888] font-medium">
+            <ChevronDown className="w-3 h-3" strokeWidth={2} />
+            notebooks
+          </div>
+          {FILE_TREE.map((f) => (
+            <div
+              key={f.name}
+              className={`flex items-center gap-1.5 px-3 py-1 ml-2 text-[11px] ${
+                f.active ? 'text-[#e0e0e0] bg-white/5 rounded' : 'text-[#666]'
+              }`}
+            >
+              <File className="w-3 h-3 shrink-0" strokeWidth={1.5} />
+              <span className="truncate">{f.name}</span>
+            </div>
+          ))}
         </div>
 
         {/* Code area */}
@@ -208,44 +256,50 @@ function DeviceFrame() {
 
           {/* DataFrame table preview */}
           <div className="px-4 pt-3 pb-4">
-            <table className="w-full text-[11px] font-mono border-collapse">
-              <thead>
-                <tr className="text-[#888] border-b border-white/8">
-                  <th className="py-1 px-2 text-left font-medium">date</th>
-                  <th className="py-1 px-2 text-right font-medium">open</th>
-                  <th className="py-1 px-2 text-right font-medium">close</th>
-                  <th className="py-1 px-2 text-right font-medium">high</th>
-                  <th className="py-1 px-2 text-right font-medium">low</th>
-                </tr>
-              </thead>
-              <tbody className="text-[#c0c0c0]">
-                <tr className="border-b border-white/5">
-                  <td className="py-1 px-2">2024-01-02</td>
-                  <td className="py-1 px-2 text-right">9.82</td>
-                  <td className="py-1 px-2 text-right">9.91</td>
-                  <td className="py-1 px-2 text-right">9.95</td>
-                  <td className="py-1 px-2 text-right">9.78</td>
-                </tr>
-                <tr className="border-b border-white/5">
-                  <td className="py-1 px-2">2024-01-03</td>
-                  <td className="py-1 px-2 text-right">9.88</td>
-                  <td className="py-1 px-2 text-right">9.75</td>
-                  <td className="py-1 px-2 text-right">9.92</td>
-                  <td className="py-1 px-2 text-right">9.71</td>
-                </tr>
-                <tr>
-                  <td className="py-1 px-2">2024-01-04</td>
-                  <td className="py-1 px-2 text-right">9.73</td>
-                  <td className="py-1 px-2 text-right">9.80</td>
-                  <td className="py-1 px-2 text-right">9.85</td>
-                  <td className="py-1 px-2 text-right">9.68</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="rounded border border-white/8 overflow-hidden">
+              <div className="bg-white/5 px-2.5 py-1 flex items-center gap-2 text-[10px] text-[#777] font-medium border-b border-white/5">
+                <span>DataFrame</span>
+                <span className="text-[#555]">2640 × 5</span>
+              </div>
+              <table className="w-full text-[11px] font-mono border-collapse">
+                <thead>
+                  <tr className="text-[#888] border-b border-white/8">
+                    <th className="py-1 px-2 text-left font-medium">date</th>
+                    <th className="py-1 px-2 text-right font-medium">open</th>
+                    <th className="py-1 px-2 text-right font-medium">close</th>
+                    <th className="py-1 px-2 text-right font-medium">high</th>
+                    <th className="py-1 px-2 text-right font-medium">low</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[#c0c0c0]">
+                  <tr className="border-b border-white/5">
+                    <td className="py-1 px-2">2024-01-02</td>
+                    <td className="py-1 px-2 text-right">9.82</td>
+                    <td className="py-1 px-2 text-right">9.91</td>
+                    <td className="py-1 px-2 text-right">9.95</td>
+                    <td className="py-1 px-2 text-right">9.78</td>
+                  </tr>
+                  <tr className="border-b border-white/5">
+                    <td className="py-1 px-2">2024-01-03</td>
+                    <td className="py-1 px-2 text-right">9.88</td>
+                    <td className="py-1 px-2 text-right">9.75</td>
+                    <td className="py-1 px-2 text-right">9.92</td>
+                    <td className="py-1 px-2 text-right">9.71</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1 px-2">2024-01-04</td>
+                    <td className="py-1 px-2 text-right">9.73</td>
+                    <td className="py-1 px-2 text-right">9.80</td>
+                    <td className="py-1 px-2 text-right">9.85</td>
+                    <td className="py-1 px-2 text-right">9.68</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Gradient fade at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#1e1e1e] to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1e1e1e] to-transparent pointer-events-none" />
         </div>
       </div>
     </div>
@@ -291,18 +345,88 @@ function ConnectScreen({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: EASE, delay: 0.2 }}
       >
-        {/* Icon + heading */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-mine-nav-active/8 flex items-center justify-center">
+        {/* Icon + heading + CTA button */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-mine-nav-active/8 flex items-center justify-center">
             <FlaskConical
               className="w-5 h-5 text-mine-nav-active"
               strokeWidth={1.5}
             />
           </div>
-          <h1 className="text-lg font-bold text-mine-text">Start Lab</h1>
+          <h1 className="text-lg font-bold text-mine-text">Try live editor</h1>
           <p className="text-sm text-mine-muted">
             连接本地 Kernel 开始因子研究
           </p>
+          {/* Dark CTA button — Figma AlignUI style */}
+          <AnimatePresence mode="wait">
+            {step === 'start' && !error && (
+              <motion.div
+                key="cta"
+                className="flex items-center gap-2 px-5 py-2.5 bg-mine-nav-active text-white text-sm font-medium rounded-lg shadow-sm mt-1"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="relative w-2 h-2 mr-1">
+                  <div className="absolute inset-0 rounded-full bg-white/40 animate-ping" />
+                  <div className="absolute inset-0 rounded-full bg-white/70" />
+                </div>
+                Waiting for kernel
+                <ChevronRight className="w-4 h-4 opacity-60" strokeWidth={2} />
+              </motion.div>
+            )}
+            {step === 'connecting' && (
+              <motion.div
+                key="connecting-btn"
+                className="flex items-center gap-2 px-5 py-2.5 bg-mine-accent-teal text-white text-sm font-medium rounded-lg shadow-sm mt-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+              >
+                <Loader2
+                  className="w-4 h-4 animate-spin"
+                  strokeWidth={2}
+                  style={{ animationDuration: '1.5s' }}
+                />
+                Connecting...
+              </motion.div>
+            )}
+            {step === 'ready' && (
+              <motion.div
+                key="ready-btn"
+                className="flex items-center gap-2 px-5 py-2.5 bg-mine-accent-green text-white text-sm font-medium rounded-lg shadow-sm mt-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+              >
+                <Check className="w-4 h-4" strokeWidth={2} />
+                Entering editor...
+              </motion.div>
+            )}
+            {error && (
+              <motion.div
+                key="error-cta"
+                className="flex flex-col items-center gap-2 mt-1"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                <p className="text-xs text-mine-accent-red">{error}</p>
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-mine-nav-active text-white text-sm font-medium rounded-lg hover:bg-mine-nav-active/90 transition-colors cursor-pointer"
+                >
+                  Retry
+                  <ChevronRight
+                    className="w-4 h-4 opacity-60"
+                    strokeWidth={2}
+                  />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Collapsible terminal command */}
@@ -352,73 +476,6 @@ function ConnectScreen({
             </div>
           </div>
         </details>
-
-        {/* Status indicator */}
-        <AnimatePresence mode="wait">
-          {step === 'start' && !error && (
-            <motion.div
-              key="waiting"
-              className="flex items-center gap-2 text-mine-muted"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="relative w-2 h-2">
-                <div className="absolute inset-0 rounded-full bg-mine-muted/30 animate-ping" />
-                <div className="absolute inset-0 rounded-full bg-mine-muted/50" />
-              </div>
-              <span className="text-xs">等待 Kernel 启动...</span>
-            </motion.div>
-          )}
-          {step === 'connecting' && (
-            <motion.div
-              key="connecting"
-              className="flex items-center gap-2 text-mine-nav-active"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <Loader2
-                className="w-3.5 h-3.5 animate-spin"
-                strokeWidth={2}
-                style={{ animationDuration: '1.5s' }}
-              />
-              <span className="text-xs font-medium">正在建立连接...</span>
-            </motion.div>
-          )}
-          {step === 'ready' && (
-            <motion.div
-              key="ready"
-              className="flex items-center gap-2 text-mine-accent-teal"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <Check className="w-3.5 h-3.5" strokeWidth={2} />
-              <span className="text-xs font-medium">
-                连接就绪，正在进入编辑器...
-              </span>
-            </motion.div>
-          )}
-          {error && (
-            <motion.div
-              key="error"
-              className="flex flex-col items-center gap-2"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-            >
-              <p className="text-xs text-mine-accent-red">{error}</p>
-              <button
-                type="button"
-                onClick={onRetry}
-                className="text-xs text-mine-accent-teal hover:underline cursor-pointer"
-              >
-                重试
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
     </div>
   );
