@@ -19,8 +19,6 @@ import {
   Loader2,
   Copy,
   FileCode2,
-  Database,
-  BarChart3,
   ChevronRight,
   Lock,
   Share,
@@ -29,6 +27,7 @@ import {
   ChevronDown,
   File,
   Play,
+  Code2,
 } from 'lucide-react';
 import { AnimateHeavy } from '@/components/animation';
 import {
@@ -110,7 +109,95 @@ const MARIMO_COMMAND = `marimo edit --headless --port ${MARIMO_KERNEL_PORT} --no
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 
-/** Browser-style device frame — AlignUI landing page pattern */
+/** Step arrow connector SVG — AlignUI stepper pattern */
+function StepArrow({ muted }: { muted?: boolean }) {
+  return (
+    <svg
+      width="48"
+      height="18"
+      viewBox="0 0 48 18"
+      fill="none"
+      className="shrink-0"
+    >
+      <path
+        d="M0 9h42m0 0-5-4.5M42 9l-5 4.5"
+        stroke={muted ? '#e0e0e0' : '#ccc'}
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** Connection stepper — AlignUI pill style (798:1649) */
+function ConnectionStepper({ step }: { step: ConnectStep }) {
+  const stepIndex = step === 'start' ? 0 : step === 'connecting' ? 1 : 2;
+
+  const steps = [
+    { label: 'Start kernel', icon: Terminal },
+    { label: 'Connecting', icon: Loader2 },
+    { label: 'Ready', icon: Check },
+  ];
+
+  return (
+    <div
+      data-slot="connection-stepper"
+      className="flex items-center justify-center gap-1"
+    >
+      {steps.map((s, i) => {
+        const isActive = i === stepIndex;
+        const isDone = i < stepIndex;
+        const Icon = s.icon;
+        return (
+          <div key={s.label} className="flex items-center gap-1">
+            {i > 0 && <StepArrow muted={!isDone && !isActive} />}
+            <div
+              className={`flex items-center gap-2 h-[44px] px-4 rounded-full text-[14px] font-semibold tracking-[-0.28px] leading-5 transition-all duration-300 ${
+                isActive
+                  ? 'bg-white text-[#525252] shadow-[0px_4px_8px_rgba(41,41,41,0.06),0px_2px_4px_rgba(41,41,41,0.04),0px_1px_2px_rgba(41,41,41,0.04)]'
+                  : isDone
+                    ? 'bg-white text-[#525252] shadow-[0px_4px_8px_rgba(41,41,41,0.06),0px_2px_4px_rgba(41,41,41,0.04),0px_1px_2px_rgba(41,41,41,0.04)]'
+                    : 'bg-[#f2f2f2] text-[#8f8f8f]'
+              }`}
+              style={
+                !isActive && !isDone
+                  ? {
+                      boxShadow:
+                        'inset 0px 0px 0px 0px white, inset 0px 0px 0px 1px #e0e0e0',
+                    }
+                  : isActive || isDone
+                    ? {
+                        boxShadow:
+                          '0px 4px 8px rgba(41,41,41,0.06), 0px 2px 4px rgba(41,41,41,0.04), 0px 1px 2px rgba(41,41,41,0.04), inset 0px -0.5px 0.5px rgba(41,41,41,0.08)',
+                      }
+                    : undefined
+              }
+            >
+              <Icon
+                className={`w-4 h-4 ${
+                  isActive && step === 'connecting' ? 'animate-spin' : ''
+                }`}
+                strokeWidth={2}
+                style={
+                  isActive && step === 'connecting'
+                    ? { animationDuration: '1.5s' }
+                    : undefined
+                }
+              />
+              {s.label}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Browser-style device frame — AlignUI pattern
+ * Matches Figma nodes: 798:1155 (shadow/border), 798:864 (chrome bar)
+ */
 function DeviceFrame() {
   const FILE_TREE = [
     { name: 'vt-lab.py', active: true },
@@ -122,30 +209,52 @@ function DeviceFrame() {
   return (
     <div
       data-slot="device-frame"
-      className="w-full max-w-[600px] rounded-xl border border-black/8 overflow-hidden"
+      className="w-full max-w-[600px] rounded-[26px] overflow-hidden relative"
       style={{
-        boxShadow: '0 8px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.04)',
+        boxShadow:
+          '0px 12px 12px -6px rgba(41,41,41,0.04), 0px 24px 24px -12px rgba(41,41,41,0.04), 0px 48px 48px -24px rgba(41,41,41,0.04), 0px 0px 0px 1px #0f0f0f',
       }}
     >
-      {/* ── Browser chrome: traffic lights + address bar + actions ── */}
-      <div className="flex items-center gap-3 px-3.5 py-2 bg-[#f5f5f5] border-b border-black/5">
-        <div className="flex items-center gap-1.5">
-          <div className="w-[10px] h-[10px] rounded-full bg-[#ff5f57]" />
-          <div className="w-[10px] h-[10px] rounded-full bg-[#febc2e]" />
-          <div className="w-[10px] h-[10px] rounded-full bg-[#28c840]" />
+      {/* Inner highlight — Figma inset shadow */}
+      <div
+        className="absolute inset-0 rounded-[inherit] pointer-events-none z-10"
+        style={{
+          boxShadow: 'inset 0px 1px 2px rgba(255,255,255,0.12)',
+        }}
+      />
+
+      {/* ── Browser chrome (798:864) ── */}
+      <div className="flex items-center px-6 py-4 bg-[#f7f7f7]">
+        {/* Traffic lights — with inner shadow matching Figma */}
+        <div className="flex-1 flex items-center gap-2">
+          {[{ bg: '#ed6a5e' }, { bg: '#f4bf4e' }, { bg: '#61c655' }].map(
+            (dot, i) => (
+              <div
+                key={i}
+                className="w-[10px] h-[10px] rounded-full"
+                style={{
+                  backgroundColor: dot.bg,
+                  boxShadow: 'inset 0px 0.75px 0.75px rgba(0,0,0,0.16)',
+                }}
+              />
+            ),
+          )}
         </div>
-        {/* Address bar */}
-        <div className="flex-1 flex items-center justify-center gap-1.5 bg-white rounded-md px-3 py-1 border border-black/6">
-          <Lock className="w-3 h-3 text-[#999]" strokeWidth={2} />
-          <span className="text-[11px] text-[#666] font-medium">
+        {/* Address bar — center */}
+        <div className="flex items-center gap-1 shrink-0">
+          <Lock className="w-[14px] h-[14px] text-[#8f8f8f]" strokeWidth={2} />
+          <span className="text-[14px] text-[#8f8f8f] font-medium tracking-[-0.08px]">
             vibe-trading.app/lab
           </span>
         </div>
-        {/* Window actions */}
-        <div className="flex items-center gap-1.5">
-          <Share className="w-3 h-3 text-[#bbb]" strokeWidth={1.5} />
-          <Plus className="w-3 h-3 text-[#bbb]" strokeWidth={1.5} />
-          <Columns2 className="w-3 h-3 text-[#bbb]" strokeWidth={1.5} />
+        {/* Window actions — right */}
+        <div className="flex-1 flex items-center justify-end gap-4">
+          <Share className="w-[18px] h-[18px] text-[#ccc]" strokeWidth={1.5} />
+          <Plus className="w-[18px] h-[18px] text-[#ccc]" strokeWidth={1.5} />
+          <Columns2
+            className="w-[18px] h-[18px] text-[#ccc]"
+            strokeWidth={1.5}
+          />
         </div>
       </div>
 
@@ -327,87 +436,139 @@ function ConnectScreen({
   return (
     <div
       data-slot="connect-screen"
-      className="flex-1 flex flex-col items-center justify-start pt-[8vh] px-8 gap-6"
+      className="flex-1 flex flex-col items-center justify-start pt-[6vh] px-8 gap-6"
     >
-      {/* ═══ Device Frame ═══ */}
+      {/* ═══ Connection Stepper (798:1649) ═══ */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: EASE }}
+      >
+        <ConnectionStepper step={step} />
+      </motion.div>
+
+      {/* ═══ Device Frame (798:1155 + 798:864) ═══ */}
       <motion.div
         initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.7, ease: EASE }}
+        transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
       >
         <DeviceFrame />
       </motion.div>
 
-      {/* ═══ CTA Area ═══ */}
+      {/* ═══ CTA Area (798:1138) ═══ */}
       <motion.div
-        className="flex flex-col items-center gap-4 max-w-lg w-full"
+        className="flex flex-col items-center gap-4 max-w-lg w-full relative"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: EASE, delay: 0.2 }}
+        transition={{ duration: 0.6, ease: EASE, delay: 0.25 }}
       >
-        {/* Icon + heading + CTA button */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-mine-nav-active/8 flex items-center justify-center">
-            <FlaskConical
-              className="w-5 h-5 text-mine-nav-active"
-              strokeWidth={1.5}
-            />
+        {/* Circular icon — 64px outer ring + 48px inner circle (Figma exact) */}
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden"
+          style={{
+            boxShadow:
+              'inset 0px 0px 0px 0px white, inset 0px 0px 0px 1px #ebebeb',
+          }}
+        >
+          <div
+            className="w-12 h-12 rounded-full bg-white flex items-center justify-center"
+            style={{
+              boxShadow:
+                '0px 4px 8px rgba(116,27,2,0.06), 0px 2px 4px rgba(116,27,2,0.04), 0px 1px 2px rgba(116,27,2,0.04), inset 0px -0.5px 0.5px rgba(240,80,35,0.08)',
+            }}
+          >
+            <Code2 className="w-6 h-6 text-[#f05023]" strokeWidth={1.5} />
           </div>
-          <h1 className="text-lg font-bold text-mine-text">Try live editor</h1>
-          <p className="text-sm text-mine-muted">
-            连接本地 Kernel 开始因子研究
-          </p>
-          {/* Dark CTA button — Figma AlignUI style */}
+        </div>
+
+        {/* Heading — 19.2px semibold #3D3D3D */}
+        <h1 className="text-[19px] font-semibold text-[#3d3d3d] tracking-[-0.4px] leading-7">
+          Try live editor
+        </h1>
+
+        {/* Description — 13.8px regular #717784 */}
+        <p className="text-[14px] text-[#717784] tracking-[-0.08px]">
+          Click on the button to use the code editor
+        </p>
+
+        {/* CTA button — dark pill, AlignUI style (798:1138) */}
+        <div className="pt-2">
           <AnimatePresence mode="wait">
             {step === 'start' && !error && (
               <motion.div
                 key="cta"
-                className="flex items-center gap-2 px-5 py-2.5 bg-mine-nav-active text-white text-sm font-medium rounded-lg shadow-sm mt-1"
+                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] relative"
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
+                style={{
+                  boxShadow:
+                    '0px 16px 8px rgba(31,31,31,0.01), 0px 12px 6px rgba(31,31,31,0.04), 0px 4px 4px rgba(31,31,31,0.07), 0px 1.5px 3px rgba(31,31,31,0.08), 0px 0px 0px 1px #0f0f0f, inset 0px 1px 2px rgba(255,255,255,0.12)',
+                }}
               >
-                <div className="relative w-2 h-2 mr-1">
+                <div className="relative w-1.5 h-1.5 mr-1.5">
                   <div className="absolute inset-0 rounded-full bg-white/40 animate-ping" />
                   <div className="absolute inset-0 rounded-full bg-white/70" />
                 </div>
-                Waiting for kernel
-                <ChevronRight className="w-4 h-4 opacity-60" strokeWidth={2} />
+                <span className="leading-5 tracking-[-0.08px]">
+                  Waiting for kernel
+                </span>
+                <ChevronRight
+                  className="w-5 h-5 opacity-60"
+                  strokeWidth={1.5}
+                />
               </motion.div>
             )}
             {step === 'connecting' && (
               <motion.div
                 key="connecting-btn"
-                className="flex items-center gap-2 px-5 py-2.5 bg-mine-accent-teal text-white text-sm font-medium rounded-lg shadow-sm mt-1"
+                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                style={{
+                  boxShadow:
+                    '0px 16px 8px rgba(31,31,31,0.01), 0px 12px 6px rgba(31,31,31,0.04), 0px 4px 4px rgba(31,31,31,0.07), 0px 1.5px 3px rgba(31,31,31,0.08), 0px 0px 0px 1px #0f0f0f, inset 0px 1px 2px rgba(255,255,255,0.12)',
+                }}
               >
                 <Loader2
-                  className="w-4 h-4 animate-spin"
+                  className="w-4 h-4 animate-spin mr-1"
                   strokeWidth={2}
                   style={{ animationDuration: '1.5s' }}
                 />
-                Connecting...
+                <span className="leading-5 tracking-[-0.08px]">
+                  Connecting...
+                </span>
               </motion.div>
             )}
             {step === 'ready' && (
               <motion.div
                 key="ready-btn"
-                className="flex items-center gap-2 px-5 py-2.5 bg-mine-accent-green text-white text-sm font-medium rounded-lg shadow-sm mt-1"
+                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                style={{
+                  boxShadow:
+                    '0px 16px 8px rgba(31,31,31,0.01), 0px 12px 6px rgba(31,31,31,0.04), 0px 4px 4px rgba(31,31,31,0.07), 0px 1.5px 3px rgba(31,31,31,0.08), 0px 0px 0px 1px #0f0f0f, inset 0px 1px 2px rgba(255,255,255,0.12)',
+                }}
               >
-                <Check className="w-4 h-4" strokeWidth={2} />
-                Entering editor...
+                <Check className="w-4 h-4 mr-1" strokeWidth={2} />
+                <span className="leading-5 tracking-[-0.08px]">
+                  Entering editor...
+                </span>
+                <ChevronRight
+                  className="w-5 h-5 opacity-60"
+                  strokeWidth={1.5}
+                />
               </motion.div>
             )}
             {error && (
               <motion.div
                 key="error-cta"
-                className="flex flex-col items-center gap-2 mt-1"
+                className="flex flex-col items-center gap-2"
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
@@ -416,12 +577,16 @@ function ConnectScreen({
                 <button
                   type="button"
                   onClick={onRetry}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-mine-nav-active text-white text-sm font-medium rounded-lg hover:bg-mine-nav-active/90 transition-colors cursor-pointer"
+                  className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] hover:bg-[#3a3a3a] transition-colors cursor-pointer"
+                  style={{
+                    boxShadow:
+                      '0px 4px 4px rgba(31,31,31,0.07), 0px 1.5px 3px rgba(31,31,31,0.08), 0px 0px 0px 1px #0f0f0f, inset 0px 1px 2px rgba(255,255,255,0.12)',
+                  }}
                 >
                   Retry
                   <ChevronRight
-                    className="w-4 h-4 opacity-60"
-                    strokeWidth={2}
+                    className="w-5 h-5 opacity-60"
+                    strokeWidth={1.5}
                   />
                 </button>
               </motion.div>
