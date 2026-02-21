@@ -3,8 +3,6 @@
 import ReconnectingWebSocket from 'partysocket/ws';
 import { useEffect, useState } from 'react';
 import { Logger } from '../../utils/Logger';
-import { createPyodideConnection } from '../wasm/bridge';
-import { isWasm } from '../wasm/utils';
 import { BasicTransport } from './transports/basic';
 import type { IConnectionTransport } from './transports/transport';
 
@@ -23,9 +21,6 @@ function createConnectionTransport(
 ): IConnectionTransport {
   if (options.static) {
     return BasicTransport.empty();
-  }
-  if (isWasm()) {
-    return createPyodideConnection();
   }
   // Create a connection transport using the ReconnectingWebSocket from partysocket
   // This handles reconnecting when the connection is lost.

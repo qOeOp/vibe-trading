@@ -8,10 +8,12 @@ type PanelLayout = 'default' | 'full-width';
 export type SidebarPanelType =
   | 'files'
   | 'variables'
-  | 'dependencies'
-  | 'outline'
+  | 'packages'
+  | 'ai'
+  | 'snippets'
+  | 'validation'
   | string;
-export type DeveloperPanelTab = 'errors' | 'logs' | 'terminal' | string;
+export type DeveloperPanelTab = 'errors' | string;
 
 interface LabChromeState {
   // Sidebar
