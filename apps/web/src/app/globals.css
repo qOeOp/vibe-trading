@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -63,12 +63,42 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  /* Lab marimo utilities — font, shadow, link */
+  --font-prose: var(--text-font, sans-serif);
+  --color-link: light-dark(hsl(211deg 90% 42%), hsl(211deg 90% 62%));
+  --color-link-visited: light-dark(hsl(272deg 51% 54%), hsl(272deg 51% 74%));
+  --shadow-xs-solid:
+    1px 1px 0px 0px var(--base-shadow-darker, #ccc),
+    0px 0px 2px 0px hsl(0deg 0% 50% / 20%);
+  --shadow-sm-solid:
+    2px 2px 0px 0px var(--base-shadow-darker, #ccc),
+    0px 0px 2px 0px hsl(0deg 0% 50% / 20%);
+  --shadow-md-solid:
+    4px 4px 0px 0px var(--base-shadow-darker, #ccc),
+    0 0px 2px 0px hsl(0deg 0% 60% / 50%);
+  --shadow-lg-solid:
+    5px 6px 0px 0px var(--base-shadow-darker, #ccc),
+    0 0px 4px 0px hsl(0deg 0% 75% / 50%);
+  --shadow-xl-solid:
+    7px 8px 0px 0px var(--base-shadow-darker, #ccc),
+    0 0px 4px 0px hsl(0deg 0% 85% / 50%);
+  --shadow-2xl-solid:
+    10px 12px 0px 0px var(--base-shadow-darker, #ccc),
+    0 0px 8px 0px hsl(0deg 0% 90% / 50%);
+  --shadow-sm-solid-shade:
+    2px 2px 0px 0px var(--base-shadow, #ddd),
+    0px 0px 2px 0px hsl(0deg 0% 50% / 20%);
+  --shadow-md-solid-shade:
+    4px 4px 0px 0px var(--base-shadow, #ddd),
+    0 0px 2px 0px hsl(0deg 0% 60% / 50%);
+  --color-stale: hsl(42deg 56% 44% / 25%);
 }
 
 :root {
   /* Chart-specific font (Roboto for ngx-charts compatibility, loaded via next/font) */
   /* Angular ngx-charts uses font-weight: 300 (light) */
-  --font-chart: var(--font-roboto), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-chart:
+    var(--font-roboto), 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-chart-weight: 300;
   --radius: 0.625rem;
   --background: oklch(0.985 0 0);
@@ -104,13 +134,13 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Market Performance colors (same for light and dark) */
-  --market-up: #CF304A;
-  --market-up-medium: #F6465D;
-  --market-up-light: #E8626F;
-  --market-flat: #76808E;
-  --market-down-light: #58CEAA;
-  --market-down-medium: #2EBD85;
-  --market-down: #0B8C5F;
+  --market-up: #cf304a;
+  --market-up-medium: #f6465d;
+  --market-up-light: #e8626f;
+  --market-flat: #76808e;
+  --market-down-light: #58ceaa;
+  --market-down-medium: #2ebd85;
+  --market-down: #0b8c5f;
 
   /* Treemap animation variables */
   --treemap-duration: 400ms;
@@ -178,8 +208,12 @@
 }
 
 @keyframes bar-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes tape-scroll {
@@ -208,7 +242,11 @@
 }
 
 .tile-content {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -247,8 +285,12 @@
 }
 
 /* Adaptive layout states */
-.tile.hide-value .tile-value { display: none; }
-.tile.hide-badge .tile-badge { display: none; }
+.tile.hide-value .tile-value {
+  display: none;
+}
+.tile.hide-badge .tile-badge {
+  display: none;
+}
 
 .tile.vertical-text .tile-header {
   align-items: flex-start;
@@ -298,9 +340,17 @@
 }
 
 /* Sparkline visibility */
-.tile.show-sparkline .tile-sparkline { display: block; opacity: 1; }
-.tile.hide-sparkline .tile-sparkline { display: none; opacity: 0; }
-.visible { opacity: 1 !important; }
+.tile.show-sparkline .tile-sparkline {
+  display: block;
+  opacity: 1;
+}
+.tile.hide-sparkline .tile-sparkline {
+  display: none;
+  opacity: 0;
+}
+.visible {
+  opacity: 1 !important;
+}
 
 /* Custom scrollbar styles - auto-hide when not scrolling */
 .scrollbar-thin {
@@ -350,7 +400,7 @@
 }
 .cell-tray::before,
 .cell-tray::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   bottom: 0;

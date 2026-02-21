@@ -1,0 +1,22 @@
+@reference "../../../../../app/globals.css";
+
+.missing-filename {
+  text-align: center;
+  box-shadow: var(--shadow-md-solid), var(--shadow-stale);
+}
+
+.missing-filename:hover,
+.missing-filename:focus {
+  box-shadow: var(--shadow-lg-solid), var(--shadow-stale);
+}
+
+.filename {
+  text-align: center;
+  box-shadow: none;
+}
+
+.filename:hover,
+.filename:focus {
+  border-width: 1px;
+  box-shadow: var(--shadow-lg-solid);
+}
