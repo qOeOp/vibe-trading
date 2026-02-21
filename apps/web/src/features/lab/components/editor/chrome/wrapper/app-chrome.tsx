@@ -41,39 +41,23 @@ import { LspStatus } from './footer-items/lsp-status';
 import { PanelsWrapper } from './panels';
 import { PendingAICells } from './pending-ai-cells';
 import { useAiPanelTab } from './useAiPanel';
-import { useDependencyPanelTab } from './useDependencyPanelTab';
 import { handleDragging } from './utils';
 import { useLabModeStore } from '../../../../store/use-lab-mode-store';
 import { useLabChromeStore } from '../../../../store/use-lab-chrome-store';
 import { FloatingPanels } from './floating-panels';
 import { LabFullscreenContext } from '../../../lab-fullscreen-context';
 
-const LazyTerminal = React.lazy(() => import('@/components/terminal/terminal'));
 const LazyChatPanel = React.lazy(() => import('@/components/chat/chat-panel'));
 const LazyAgentPanel = React.lazy(
   () => import('@/components/chat/acp/agent-panel'),
 );
-const LazyDependencyGraphPanel = React.lazy(
-  () => import('@/components/editor/chrome/panels/dependency-graph-panel'),
-);
 const LazySessionPanel = React.lazy(() => import('../panels/session-panel'));
-const LazyDocumentationPanel = React.lazy(
-  () => import('../panels/documentation-panel'),
-);
 const LazyErrorsPanel = React.lazy(() => import('../panels/error-panel'));
 const LazyFileExplorerPanel = React.lazy(
   () => import('../panels/file-explorer-panel'),
 );
-const LazyLogsPanel = React.lazy(() => import('../panels/logs-panel'));
-const LazyOutlinePanel = React.lazy(() => import('../panels/outline-panel'));
 const LazyPackagesPanel = React.lazy(() => import('../panels/packages-panel'));
-const LazyScratchpadPanel = React.lazy(
-  () => import('../panels/scratchpad-panel'),
-);
-const LazySecretsPanel = React.lazy(() => import('../panels/secrets-panel'));
 const LazySnippetsPanel = React.lazy(() => import('../panels/snippets-panel'));
-const LazyTracingPanel = React.lazy(() => import('../panels/tracing-panel'));
-const LazyCachePanel = React.lazy(() => import('../panels/cache-panel'));
 const LazyValidationPanel = React.lazy(
   () => import('../panels/validation-panel'),
 );
@@ -90,7 +74,6 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   const sidebarRef = React.useRef<ImperativePanelHandle>(null);
   const developerPanelRef = React.useRef<ImperativePanelHandle>(null);
   const { aiPanelTab, setAiPanelTab } = useAiPanelTab();
-  const { dependencyPanelTab, setDependencyPanelTab } = useDependencyPanelTab();
   const errorCount = useAtomValue(cellErrorCount);
   const [panelLayout, setPanelLayout] = useAtom(panelLayoutAtom);
   // Subscribe to capabilities to re-render when they change (e.g., terminal capability)
@@ -291,24 +274,10 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   const SIDEBAR_PANELS: Record<PanelType, React.ReactNode> = {
     files: <LazyFileExplorerPanel />,
     variables: <LazySessionPanel />,
-    dependencies: <LazyDependencyGraphPanel />,
     packages: <LazyPackagesPanel />,
-    outline: <LazyOutlinePanel />,
-    documentation: <LazyDocumentationPanel />,
-    snippets: <LazySnippetsPanel />,
     ai: renderAiPanel(),
+    snippets: <LazySnippetsPanel />,
     errors: <LazyErrorsPanel />,
-    scratchpad: <LazyScratchpadPanel />,
-    tracing: <LazyTracingPanel />,
-    secrets: <LazySecretsPanel />,
-    logs: <LazyLogsPanel />,
-    terminal: (
-      <LazyTerminal
-        visible={isSidebarOpen && selectedPanel === 'terminal'}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-    ),
-    cache: <LazyCachePanel />,
     validation: <LazyValidationPanel />,
   };
 
@@ -317,36 +286,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       <PanelSectionProvider value="sidebar">
         <div className="flex flex-col h-full flex-1 overflow-hidden mr-[-4px]">
           <div className="p-3 border-b flex justify-between items-center">
-            {selectedPanel === 'dependencies' ? (
-              <div className="flex items-center justify-between flex-1">
-                <span className="text-sm text-(--slate-11) uppercase tracking-wide font-semibold">
-                  Dependencies
-                </span>
-                <Tabs
-                  value={dependencyPanelTab}
-                  onValueChange={(value) => {
-                    if (value === 'minimap' || value === 'graph') {
-                      setDependencyPanelTab(value);
-                    }
-                  }}
-                >
-                  <TabsList>
-                    <TabsTrigger
-                      value="minimap"
-                      className="py-0.5 text-xs uppercase tracking-wide font-bold"
-                    >
-                      Minimap
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="graph"
-                      className="py-0.5 text-xs uppercase tracking-wide font-bold"
-                    >
-                      Graph
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            ) : selectedPanel === 'ai' && agentsEnabled ? (
+            {selectedPanel === 'ai' && agentsEnabled ? (
               <Tabs
                 value={aiPanelTab}
                 onValueChange={(value) => {
@@ -451,14 +391,6 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
 
   const DEVELOPER_PANELS: Record<PanelType, React.ReactNode> = {
     ...SIDEBAR_PANELS,
-    terminal: (
-      <LazyTerminal
-        visible={
-          isDeveloperPanelOpen && selectedDeveloperPanelTab === 'terminal'
-        }
-        onClose={() => setIsDeveloperPanelOpen(false)}
-      />
-    ),
   };
 
   const bottomPanel = (
