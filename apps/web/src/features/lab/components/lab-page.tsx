@@ -108,7 +108,7 @@ const MARIMO_COMMAND = `marimo edit --headless --port ${MARIMO_KERNEL_PORT} --no
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 
-/** Step arrow connector — Figma Component 1 variant=48 (48×18px) */
+/** Step arrow connector — Figma Component 1 variant=48, warm beige palette */
 function StepArrow() {
   return (
     <svg
@@ -118,17 +118,18 @@ function StepArrow() {
       fill="none"
       className="shrink-0"
     >
-      {/* Horizontal line at center */}
-      <path d="M0 9H48" stroke="#e0e0e0" />
-      {/* Subtle circle outline — no fill, just faint border */}
-      <circle cx="24" cy="9" r="8.5" stroke="#e0e0e0" fill="none" />
-      {/* Double chevrons >> (Figma exact path, 16×16 translated to center) */}
+      {/* Horizontal line at center — warm beige (mine-border) */}
+      <path d="M0 9H48" stroke="#e0ddd8" />
+      {/* Circle — white fill + subtle border, matches stepper pills */}
+      <circle cx="24" cy="9" r="8" fill="white" />
+      <circle cx="24" cy="9" r="8.5" stroke="#d4d4d4" fill="none" />
+      {/* Double chevrons >> — warm muted */}
       <g transform="translate(16, 1)">
         <path
           fillRule="evenodd"
           clipRule="evenodd"
           d="M4.813 4.98C4.907 4.886 5.034 4.834 5.167 4.834C5.299 4.834 5.426 4.886 5.52 4.98L7.715 7.175C7.934 7.394 8.057 7.691 8.057 8C8.057 8.309 7.934 8.606 7.715 8.825L5.52 11.02C5.474 11.068 5.419 11.106 5.358 11.132C5.297 11.158 5.231 11.172 5.165 11.173C5.098 11.173 5.032 11.161 4.971 11.135C4.91 11.11 4.854 11.073 4.807 11.026C4.76 10.979 4.723 10.923 4.698 10.862C4.672 10.801 4.66 10.735 4.66 10.668C4.661 10.602 4.675 10.536 4.701 10.475C4.727 10.414 4.765 10.359 4.813 10.313L7.008 8.118C7.039 8.087 7.057 8.044 7.057 8C7.057 7.956 7.039 7.913 7.008 7.882L4.813 5.687C4.719 5.593 4.667 5.466 4.667 5.334C4.667 5.201 4.719 5.074 4.813 4.98ZM9.48 4.98C9.574 4.886 9.701 4.834 9.834 4.834C9.966 4.834 10.093 4.886 10.187 4.98L12.382 7.175C12.601 7.394 12.724 7.691 12.724 8C12.724 8.309 12.601 8.606 12.382 8.825L10.187 11.02C10.141 11.068 10.086 11.106 10.025 11.132C9.964 11.158 9.898 11.172 9.832 11.173C9.765 11.173 9.699 11.161 9.638 11.135C9.577 11.11 9.521 11.073 9.474 11.026C9.427 10.979 9.39 10.923 9.365 10.862C9.339 10.801 9.327 10.735 9.327 10.668C9.328 10.602 9.342 10.536 9.368 10.475C9.394 10.414 9.432 10.359 9.48 10.313L11.675 8.118C11.706 8.087 11.724 8.044 11.724 8C11.724 7.956 11.706 7.913 11.675 7.882L9.48 5.687C9.386 5.593 9.334 5.466 9.334 5.334C9.334 5.201 9.386 5.074 9.48 4.98Z"
-          fill="#b8b8b8"
+          fill="#a8a29e"
         />
       </g>
     </svg>
@@ -198,7 +199,7 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
                   boxShadow:
                     isActive || isDone
                       ? 'inset 0px -0.5px 0.5px rgba(41,41,41,0.08)'
-                      : 'inset 0px 0px 0px 1px #e0e0e0',
+                      : 'inset 0px 0px 0px 1px #e0ddd8',
                 }}
               />
               {/* Step icon: spinner when active, check when done, terminal/icon when pending */}
@@ -312,12 +313,12 @@ const CODE_LINES = [
 ];
 
 const TOKEN_COLORS: Record<string, string> = {
-  keyword: 'text-purple-400',
-  var: 'text-[#9cdcfe]',
-  fn: 'text-[#dcdcaa]',
-  str: 'text-[#ce9178]',
-  comment: 'text-[#6a9955]',
-  plain: 'text-[#d4d4d4]',
+  keyword: 'text-[#8b5cf6]',
+  var: 'text-[#1e3a5f]',
+  fn: 'text-[#b45309]',
+  str: 'text-[#16a34a]',
+  comment: 'text-[#9ca3af]',
+  plain: 'text-[#374151]',
 };
 
 /** CTA button shared styles */
@@ -368,7 +369,7 @@ function ConnectScreen({
           className="h-full overflow-hidden rounded-t-[26px] relative"
           style={{
             boxShadow:
-              '0px 12px 12px -6px rgba(41,41,41,0.04), 0px 24px 24px -12px rgba(41,41,41,0.04), 0px 48px 48px -24px rgba(41,41,41,0.04), 0px 0px 0px 1px #0f0f0f',
+              '0px 12px 12px -6px rgba(41,41,41,0.04), 0px 24px 24px -12px rgba(41,41,41,0.04), 0px 48px 48px -24px rgba(41,41,41,0.04), 0px 0px 0px 1px #d4d4d4',
           }}
         >
           {/* Inner highlight */}
@@ -419,38 +420,38 @@ function ConnectScreen({
           </div>
 
           {/* Tab bar */}
-          <div className="flex bg-[#1e1e1e] border-b border-white/5">
-            <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#ccc] font-mono font-medium">
-              <FileCode2 className="w-4 h-4 text-[#888]" strokeWidth={1.5} />
+          <div className="flex bg-[#fafafa] border-b border-[#e5e5e5]">
+            <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#525252] font-mono font-medium bg-white border-b-2 border-b-[#f05023]">
+              <FileCode2 className="w-4 h-4 text-[#737373]" strokeWidth={1.5} />
               vt-lab
-              <span className="ml-1 text-[10px] text-[#555] bg-white/8 px-1.5 py-0.5 rounded font-sans">
+              <span className="ml-1 text-[10px] text-[#a3a3a3] bg-[#f5f5f5] px-1.5 py-0.5 rounded font-sans">
                 V1.0
               </span>
             </div>
-            <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#888] font-mono font-medium border-l border-white/5">
-              <Code2 className="w-4 h-4 text-[#666]" strokeWidth={1.5} />
+            <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#a3a3a3] font-mono font-medium border-l border-[#e5e5e5]">
+              <Code2 className="w-4 h-4 text-[#b3b3b3]" strokeWidth={1.5} />
               vt-lab.py
             </div>
-            <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#666] font-mono font-medium border-l border-white/5">
-              <Play className="w-4 h-4 text-[#555]" strokeWidth={1.5} />
+            <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#a3a3a3] font-mono font-medium border-l border-[#e5e5e5]">
+              <Play className="w-4 h-4 text-[#b3b3b3]" strokeWidth={1.5} />
               preview
             </div>
           </div>
 
           {/* IDE Body — fills remaining height */}
-          <div className="flex bg-[#1e1e1e] h-[calc(100%-90px)]">
+          <div className="flex bg-white h-[calc(100%-90px)]">
             {/* Left panel: file tree */}
-            <div className="w-[200px] shrink-0 border-r border-white/5 overflow-hidden">
+            <div className="w-[200px] shrink-0 border-r border-[#e5e5e5] overflow-hidden">
               <div className="pt-5 px-5">
                 <div>
-                  <div className="flex items-center gap-1.5 py-1 text-[13px] text-[#ccc] font-medium">
+                  <div className="flex items-center gap-1.5 py-1 text-[13px] text-[#525252] font-medium">
                     <ChevronDown
-                      className="w-4 h-4 text-[#888]"
+                      className="w-4 h-4 text-[#a3a3a3]"
                       strokeWidth={2}
                     />
                     notebooks
                   </div>
-                  <div className="ml-5 mt-1 border-l border-white/8 pl-3">
+                  <div className="ml-5 mt-1 border-l border-[#e5e5e5] pl-3">
                     {[
                       { name: 'vt-lab.py', active: true },
                       { name: 'backtest.py', active: false },
@@ -463,8 +464,8 @@ function ConnectScreen({
                         key={f.name}
                         className={`flex items-center gap-1.5 py-1 text-[13px] ${
                           f.active
-                            ? 'text-[#e0e0e0] font-medium'
-                            : 'text-[#666]'
+                            ? 'text-[#1a1a1a] font-medium'
+                            : 'text-[#a3a3a3]'
                         }`}
                       >
                         {f.active && (
@@ -480,14 +481,14 @@ function ConnectScreen({
             </div>
 
             {/* Center panel: code editor */}
-            <div className="flex-1 min-w-0 border-r border-white/5 relative overflow-hidden">
+            <div className="flex-1 min-w-0 border-r border-[#e5e5e5] relative overflow-hidden">
               <div className="pt-4 font-mono text-[13px] leading-[22px]">
                 {CODE_LINES.map((line) => (
                   <div
                     key={line.num}
-                    className={`flex px-4 ${line.num === 1 ? 'bg-white/3' : ''}`}
+                    className={`flex px-4 ${line.num === 1 ? 'bg-[#f05023]/[0.04]' : ''}`}
                   >
-                    <span className="w-8 shrink-0 text-right mr-4 text-[#555] select-none">
+                    <span className="w-8 shrink-0 text-right mr-4 text-[#c0c0c0] select-none">
                       {line.num}
                     </span>
                     <span>
@@ -506,14 +507,14 @@ function ConnectScreen({
             {/* Right panel: preview (DataFrame) */}
             <div className="w-[320px] shrink-0 overflow-hidden relative">
               <div className="p-4">
-                <div className="rounded-lg border border-white/8 overflow-hidden">
-                  <div className="bg-white/5 px-3 py-1.5 flex items-center gap-2 text-[11px] text-[#777] font-medium border-b border-white/5">
+                <div className="rounded-lg border border-[#e5e5e5] overflow-hidden">
+                  <div className="bg-[#fafafa] px-3 py-1.5 flex items-center gap-2 text-[11px] text-[#737373] font-medium border-b border-[#e5e5e5]">
                     <span>DataFrame</span>
-                    <span className="text-[#555]">2640 × 5</span>
+                    <span className="text-[#a3a3a3]">2640 × 5</span>
                   </div>
                   <table className="w-full text-[12px] font-mono border-collapse">
                     <thead>
-                      <tr className="text-[#888] border-b border-white/8">
+                      <tr className="text-[#737373] border-b border-[#e5e5e5]">
                         <th className="py-1.5 px-2.5 text-left font-medium">
                           date
                         </th>
@@ -531,7 +532,7 @@ function ConnectScreen({
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="text-[#c0c0c0]">
+                    <tbody className="text-[#525252]">
                       {[
                         ['2024-01-02', '9.82', '9.91', '9.95', '9.78'],
                         ['2024-01-03', '9.88', '9.75', '9.92', '9.71'],
@@ -542,7 +543,7 @@ function ConnectScreen({
                         ['2024-01-10', '9.83', '9.88', '9.91', '9.80'],
                         ['2024-01-11', '9.87', '9.95', '9.98', '9.83'],
                       ].map((row, i) => (
-                        <tr key={i} className="border-b border-white/5">
+                        <tr key={i} className="border-b border-[#f0f0f0]">
                           <td className="py-1.5 px-2.5">{row[0]}</td>
                           <td className="py-1.5 px-2.5 text-right">{row[1]}</td>
                           <td className="py-1.5 px-2.5 text-right">{row[2]}</td>
