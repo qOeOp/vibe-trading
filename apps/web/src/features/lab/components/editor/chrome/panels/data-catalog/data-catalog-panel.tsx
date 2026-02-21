@@ -45,7 +45,7 @@ function CopyButton({ code }: { code: string }) {
       className={cn(
         'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-colors cursor-pointer',
         copied
-          ? 'bg-market-down-medium/10 text-market-down-medium'
+          ? 'bg-mine-accent-green/10 text-mine-accent-green'
           : 'bg-mine-bg text-mine-muted hover:text-mine-text hover:bg-mine-border/50',
       )}
     >
