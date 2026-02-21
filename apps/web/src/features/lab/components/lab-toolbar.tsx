@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 import {
   Play,
   PlayCircle,
@@ -9,18 +9,17 @@ import {
   ChevronDown,
   Code,
   Workflow,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../store/use-lab-cell-store";
-import { useCellExecution } from "../hooks/use-cell-execution";
-import { generateMockValidation, hashCode } from "../data/mock-validation";
-import type { ICMethod, WinsorizationMethod, Universe } from "../types";
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { useLabCellStore } from '../store/use-lab-cell-store';
+import { generateMockValidation, hashCode } from '../data/mock-validation';
+import type { ICMethod, WinsorizationMethod, Universe } from '../types';
 
 // ─── Mode Selector ──────────────────────────────────────
 
@@ -100,11 +99,7 @@ function ValidationConfigPopover() {
           参数
         </button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-[280px] p-0"
-        align="start"
-        sideOffset={8}
-      >
+      <PopoverContent className="w-[280px] p-0" align="start" sideOffset={8}>
         <div className="px-3 py-2.5 border-b border-mine-border/50">
           <h4 className="text-xs font-medium text-mine-text">检验参数配置</h4>
         </div>
@@ -112,19 +107,19 @@ function ValidationConfigPopover() {
           {/* IC Method */}
           <ConfigRow label="IC 方法">
             <div className="flex gap-1">
-              {(["rank", "normal"] as ICMethod[]).map((m) => (
+              {(['rank', 'normal'] as ICMethod[]).map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => setConfig({ icMethod: m })}
                   className={cn(
-                    "px-2 py-0.5 text-[11px] rounded-md transition-all",
+                    'px-2 py-0.5 text-[11px] rounded-md transition-all',
                     config.icMethod === m
-                      ? "bg-mine-nav-active text-white"
-                      : "text-mine-muted hover:text-mine-text hover:bg-mine-bg",
+                      ? 'bg-mine-nav-active text-white'
+                      : 'text-mine-muted hover:text-mine-text hover:bg-mine-bg',
                   )}
                 >
-                  {m === "rank" ? "Rank IC" : "Normal IC"}
+                  {m === 'rank' ? 'Rank IC' : 'Normal IC'}
                 </button>
               ))}
             </div>
@@ -133,20 +128,20 @@ function ValidationConfigPopover() {
           {/* Winsorization */}
           <ConfigRow label="去极值">
             <div className="flex gap-1">
-              {(["mad", "3sigma", "percentile"] as WinsorizationMethod[]).map(
+              {(['mad', '3sigma', 'percentile'] as WinsorizationMethod[]).map(
                 (m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => setConfig({ winsorization: m })}
                     className={cn(
-                      "px-2 py-0.5 text-[11px] rounded-md transition-all",
+                      'px-2 py-0.5 text-[11px] rounded-md transition-all',
                       config.winsorization === m
-                        ? "bg-mine-nav-active text-white"
-                        : "text-mine-muted hover:text-mine-text hover:bg-mine-bg",
+                        ? 'bg-mine-nav-active text-white'
+                        : 'text-mine-muted hover:text-mine-text hover:bg-mine-bg',
                     )}
                   >
-                    {m === "mad" ? "MAD" : m === "3sigma" ? "3σ" : "百分位"}
+                    {m === 'mad' ? 'MAD' : m === '3sigma' ? '3σ' : '百分位'}
                   </button>
                 ),
               )}
@@ -162,10 +157,10 @@ function ValidationConfigPopover() {
                   type="button"
                   onClick={() => setConfig({ quantileGroups: n })}
                   className={cn(
-                    "px-2 py-0.5 text-[11px] rounded-md transition-all",
+                    'px-2 py-0.5 text-[11px] rounded-md transition-all',
                     config.quantileGroups === n
-                      ? "bg-mine-nav-active text-white"
-                      : "text-mine-muted hover:text-mine-text hover:bg-mine-bg",
+                      ? 'bg-mine-nav-active text-white'
+                      : 'text-mine-muted hover:text-mine-text hover:bg-mine-bg',
                   )}
                 >
                   {n}组
@@ -196,14 +191,14 @@ function ValidationConfigPopover() {
               type="button"
               onClick={() => setConfig({ filterST: !config.filterST })}
               className={cn(
-                "w-8 h-4 rounded-full transition-colors relative",
-                config.filterST ? "bg-mine-accent-teal" : "bg-mine-border",
+                'w-8 h-4 rounded-full transition-colors relative',
+                config.filterST ? 'bg-mine-accent-teal' : 'bg-mine-border',
               )}
             >
               <span
                 className={cn(
-                  "absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform",
-                  config.filterST ? "translate-x-4" : "translate-x-0.5",
+                  'absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform',
+                  config.filterST ? 'translate-x-4' : 'translate-x-0.5',
                 )}
               />
             </button>
@@ -229,70 +224,46 @@ function ConfigRow({
   );
 }
 
-// ─── Pyodide Status Indicator ───────────────────────────
-
-function PyodideStatusDot() {
-  const status = useLabCellStore((s) => s.pyodideStatus);
-
-  if (status === "ready") return null;
-
-  return (
-    <div className="flex items-center gap-1.5 text-[10px] text-mine-muted">
-      <span
-        className={cn(
-          "w-1.5 h-1.5 rounded-full",
-          status === "loading" && "bg-mine-accent-yellow animate-pulse",
-          status === "error" && "bg-mine-accent-red",
-        )}
-      />
-      {status === "loading" && "Python 加载中..."}
-      {status === "error" && "Python 加载失败"}
-    </div>
-  );
-}
-
 // ─── Main Toolbar ───────────────────────────────────────
 
 export function LabToolbar() {
   const validationStatus = useLabCellStore((s) => s.validationStatus);
   const setActivePanel = useLabCellStore((s) => s.setActivePanel);
-  const setValidationStatus = useLabCellStore(
-    (s) => s.setValidationStatus,
-  );
-  const setValidationResult = useLabCellStore(
-    (s) => s.setValidationResult,
-  );
-  const { executeAllCells } = useCellExecution();
+  const setValidationStatus = useLabCellStore((s) => s.setValidationStatus);
+  const setValidationResult = useLabCellStore((s) => s.setValidationResult);
 
-  const isRunning = validationStatus === "running";
+  const isRunning = validationStatus === 'running';
 
   const handleRunAll = useCallback(() => {
-    executeAllCells();
-  }, [executeAllCells]);
+    // TODO: wire to Marimo kernel run-all request
+  }, []);
 
   const handleValidate = useCallback(() => {
-    // Run all cells, generate mock validation, switch to results
-    setValidationStatus("running");
+    // Generate mock validation, switch to results panel
+    setValidationStatus('running');
     setValidationResult(null);
-    setActivePanel("results");
+    setActivePanel('results');
 
-    executeAllCells();
+    // TODO: wire to Marimo kernel run-all request
 
     // Generate mock validation results after a delay
     // (simulates real validation pipeline)
-    setTimeout(() => {
-      try {
-        const cells = useLabCellStore.getState().cells;
-        const expression = cells.map((c) => c.code).join("\n");
-        const seed = hashCode(expression);
-        const result = generateMockValidation(seed);
-        setValidationResult(result);
-        setValidationStatus("completed");
-      } catch {
-        setValidationStatus("error");
-      }
-    }, 1200 + Math.random() * 800);
-  }, [executeAllCells, setActivePanel, setValidationStatus, setValidationResult]);
+    setTimeout(
+      () => {
+        try {
+          const cells = useLabCellStore.getState().cells;
+          const expression = cells.map((c) => c.code).join('\n');
+          const seed = hashCode(expression);
+          const result = generateMockValidation(seed);
+          setValidationResult(result);
+          setValidationStatus('completed');
+        } catch {
+          setValidationStatus('error');
+        }
+      },
+      1200 + Math.random() * 800,
+    );
+  }, [setActivePanel, setValidationStatus, setValidationResult]);
 
   return (
     <div
@@ -308,8 +279,6 @@ export function LabToolbar() {
       <div className="w-px h-5 bg-mine-border/50" />
 
       <ValidationConfigPopover />
-
-      <PyodideStatusDot />
 
       <div className="flex-1" />
 
@@ -331,14 +300,14 @@ export function LabToolbar() {
         onClick={handleValidate}
         disabled={isRunning}
         className={cn(
-          "gap-1.5 text-xs font-medium rounded-lg",
+          'gap-1.5 text-xs font-medium rounded-lg',
           isRunning
-            ? "bg-mine-accent-green/70 text-white"
-            : "bg-mine-accent-green text-white hover:bg-mine-accent-green/90",
+            ? 'bg-mine-accent-green/70 text-white'
+            : 'bg-mine-accent-green text-white hover:bg-mine-accent-green/90',
         )}
       >
-        <Play className={cn("w-3.5 h-3.5", isRunning && "animate-pulse")} />
-        {isRunning ? "检验中..." : "开始检验"}
+        <Play className={cn('w-3.5 h-3.5', isRunning && 'animate-pulse')} />
+        {isRunning ? '检验中...' : '开始检验'}
       </Button>
 
       {/* Backtest (disabled) */}

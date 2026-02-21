@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useCallback } from "react";
+import { useCallback } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -8,17 +8,16 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from "@dnd-kit/core";
+} from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../store/use-lab-cell-store";
-import { useCellExecution } from "../hooks/use-cell-execution";
-import { NotebookCell } from "./cell/notebook-cell";
-import { CreateCellButton } from "./cell/create-cell-button";
-import { SortableCell } from "./cell/sortable-cell";
+} from '@dnd-kit/sortable';
+import { cn } from '@/lib/utils';
+import { useLabCellStore } from '../store/use-lab-cell-store';
+import { NotebookCell } from './cell/notebook-cell';
+import { CreateCellButton } from './cell/create-cell-button';
+import { SortableCell } from './cell/sortable-cell';
 
 // ─── Cells Workspace ──────────────────────────────────
 
@@ -33,7 +32,6 @@ export function CellsWorkspace() {
   const addCell = useLabCellStore((s) => s.addCell);
   const reorderCells = useLabCellStore((s) => s.reorderCells);
   const setActiveCellId = useLabCellStore((s) => s.setActiveCellId);
-  const { executeCell } = useCellExecution();
 
   // DnD sensors — require 8px movement to start drag
   const sensors = useSensors(
@@ -56,9 +54,11 @@ export function CellsWorkspace() {
     [cellIds, reorderCells],
   );
 
+  // Cell execution is handled by Marimo kernel (WebSocket).
+  // These handlers manage focus/navigation after triggering execution.
   const handleExecute = useCallback(
     (cellId: string) => {
-      executeCell(cellId);
+      // TODO: wire to Marimo kernel run request
       // Move focus to next cell (Shift+Enter behavior)
       const idx = cellIds.indexOf(cellId);
       if (idx >= 0 && idx < cellIds.length - 1) {
@@ -68,15 +68,12 @@ export function CellsWorkspace() {
         addCell(cellId);
       }
     },
-    [cellIds, executeCell, setActiveCellId, addCell],
+    [cellIds, setActiveCellId, addCell],
   );
 
-  const handleExecuteAndStay = useCallback(
-    (cellId: string) => {
-      executeCell(cellId);
-    },
-    [executeCell],
-  );
+  const handleExecuteAndStay = useCallback((_cellId: string) => {
+    // TODO: wire to Marimo kernel run request
+  }, []);
 
   return (
     <div
@@ -88,17 +85,12 @@ export function CellsWorkspace() {
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext
-          items={cellIds}
-          strategy={verticalListSortingStrategy}
-        >
+        <SortableContext items={cellIds} strategy={verticalListSortingStrategy}>
           {cellIds.map((cellId, index) => (
             <div key={cellId}>
               {/* Add cell button between cells (not before first) */}
               {index > 0 && (
-                <CreateCellButton
-                  onClick={() => addCell(cellIds[index - 1])}
-                />
+                <CreateCellButton onClick={() => addCell(cellIds[index - 1])} />
               )}
 
               <SortableCell cellId={cellId}>
@@ -139,8 +131,8 @@ export function LabWorkspace() {
     <div
       data-slot="lab-workspace"
       className={cn(
-        "h-full flex flex-col",
-        "bg-mine-bg/30 rounded-xl overflow-hidden",
+        'h-full flex flex-col',
+        'bg-mine-bg/30 rounded-xl overflow-hidden',
       )}
     >
       <CellsWorkspace />
