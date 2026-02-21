@@ -1,15 +1,23 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from 'jotai';
-import { AlertTriangleIcon, PlusIcon, XCircleIcon } from 'lucide-react';
+import {
+  AlertTriangleIcon,
+  KeyboardIcon,
+  PlayCircleIcon,
+  SquareIcon,
+  XCircleIcon,
+} from 'lucide-react';
 import type React from 'react';
 import { renderShortcut } from '../../../shortcuts/renderShortcut';
 import { Tooltip } from '../../../ui/tooltip';
 import { cellErrorCount } from '../../../../core/cells/cells';
 import { isConnectingAtom } from '../../../../core/network/connection';
+import { useRequestClient } from '../../../../core/network/requests';
 import { useHotkey } from '../../../../hooks/useHotkey';
 import { useLabModeStore } from '../../../../store/use-lab-mode-store';
 import { ShowInKioskMode } from '../../kiosk-mode';
+import { useRunAllCells } from '../../cell/useRunCells';
 import { panelLayoutAtom, useChromeActions, useChromeState } from '../state';
 import { FooterItem } from './footer-item';
 import { AIStatusIcon } from './footer-items/ai-status';
@@ -21,7 +29,6 @@ import { CopilotStatusIcon } from './footer-items/copilot-status';
 import { MachineStats } from './footer-items/machine-stats';
 import { RTCStatus } from './footer-items/rtc-status';
 import { RuntimeSettings } from './footer-items/runtime-settings';
-import { useFilename } from '../../../../core/saving/filename';
 
 export const Footer: React.FC = () => {
   const { isDeveloperPanelOpen } = useChromeState();
@@ -48,6 +55,9 @@ export const Footer: React.FC = () => {
     toggleDeveloperPanel();
   });
 
+  const runAllCells = useRunAllCells();
+  const { sendInterrupt } = useRequestClient();
+
   // ── Lab mode dock layout ──
   if (isLabActive) {
     return (
@@ -55,47 +65,74 @@ export const Footer: React.FC = () => {
         data-slot="lab-status-dock"
         className="h-10 py-1 gap-1 flex items-center text-mine-muted select-none print:hidden text-sm z-50 bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full pointer-events-auto px-1"
       >
-        {/* Left: file tabs */}
-        <DockFileTabs />
+        {/* Kernel status */}
+        <BackendConnectionStatus />
 
-        {/* Spacer */}
-        <div className="flex-1 min-w-0" />
-
-        {/* Right: status indicators */}
-        <div
-          data-slot="dock-status"
-          className="flex items-center shrink-0 gap-0.5"
+        {/* Error/warning count */}
+        <FooterItem
+          className="h-full"
+          tooltip={
+            <span className="flex items-center gap-2">
+              Toggle developer panel{' '}
+              {renderShortcut('global.togglePanel', false)}
+            </span>
+          }
+          selected={isDeveloperPanelOpen}
+          onClick={() => toggleDeveloperPanel()}
+          data-testid="footer-panel"
         >
-          <BackendConnectionStatus />
-          <MachineStats />
-          <FooterItem
-            className="h-full"
-            tooltip={
-              <span className="flex items-center gap-2">
-                Toggle developer panel{' '}
-                {renderShortcut('global.togglePanel', false)}
-              </span>
-            }
-            selected={isDeveloperPanelOpen}
-            onClick={() => toggleDeveloperPanel()}
-            data-testid="footer-panel"
+          <div className="flex items-center gap-1 h-full">
+            <XCircleIcon
+              className={`w-3.5 h-3.5 ${issueCount > 0 ? 'text-destructive' : ''}`}
+            />
+            <span className="tabular-nums font-mono">{issueCount}</span>
+            <AlertTriangleIcon
+              className={`w-3.5 h-3.5 ml-0.5 ${warningCount > 0 ? 'text-yellow-500' : ''}`}
+            />
+            <span className="tabular-nums font-mono">{warningCount}</span>
+          </div>
+        </FooterItem>
+
+        {/* Divider */}
+        <div className="w-px h-4 bg-mine-border/50" />
+
+        {/* Run All */}
+        <Tooltip content="Run all cells ⇧⌘↵">
+          <button
+            type="button"
+            aria-label="Run all cells"
+            className="flex items-center justify-center h-7 px-2 rounded-full hover:bg-white/60 transition-colors"
+            onClick={runAllCells}
           >
-            <div className="flex items-center gap-1 h-full">
-              <XCircleIcon
-                className={`w-3.5 h-3.5 ${issueCount > 0 ? 'text-destructive' : ''}`}
-              />
-              <span className="tabular-nums font-mono">{issueCount}</span>
-              <AlertTriangleIcon
-                className={`w-3.5 h-3.5 ml-0.5 ${warningCount > 0 ? 'text-yellow-500' : ''}`}
-              />
-              <span className="tabular-nums font-mono">{warningCount}</span>
-            </div>
-          </FooterItem>
-          <RuntimeSettings />
-          <AIStatusIcon />
-          <CopilotStatusIcon />
-          <RTCStatus />
-        </div>
+            <PlayCircleIcon className="w-3.5 h-3.5" />
+          </button>
+        </Tooltip>
+
+        {/* Stop */}
+        <Tooltip content="Interrupt execution">
+          <button
+            type="button"
+            aria-label="Interrupt execution"
+            className="flex items-center justify-center h-7 px-2 rounded-full hover:bg-white/60 transition-colors"
+            onClick={() => sendInterrupt()}
+          >
+            <SquareIcon className="w-3.5 h-3.5" />
+          </button>
+        </Tooltip>
+
+        {/* Divider */}
+        <div className="w-px h-4 bg-mine-border/50" />
+
+        {/* Keyboard shortcuts */}
+        <Tooltip content="Keyboard shortcuts ⌘K">
+          <button
+            type="button"
+            aria-label="Keyboard shortcuts"
+            className="flex items-center justify-center h-7 px-2 rounded-full hover:bg-white/60 transition-colors"
+          >
+            <KeyboardIcon className="w-3.5 h-3.5" />
+          </button>
+        </Tooltip>
       </footer>
     );
   }
@@ -167,38 +204,4 @@ const ConnectingKernelIndicatorItem: React.FC = () => {
     return null;
   }
   return <BackendConnectionStatus />;
-};
-
-/**
- * Dock file tabs — shows current filename as a pill, + button for new file.
- */
-const DockFileTabs: React.FC = () => {
-  const filename = useFilename();
-  const displayName = filename
-    ? filename.split('/').pop()?.replace(/\.py$/, '') || filename
-    : 'untitled';
-
-  return (
-    <div
-      data-slot="dock-file-tabs"
-      className="flex items-center gap-1 min-w-0 overflow-x-auto scrollbar-none"
-    >
-      <Tooltip content="New file">
-        <button
-          type="button"
-          aria-label="New file"
-          className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-white/60 transition-colors shrink-0"
-        >
-          <PlusIcon className="w-3.5 h-3.5 text-mine-muted" strokeWidth={1.5} />
-        </button>
-      </Tooltip>
-      <button
-        type="button"
-        className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-mine-nav-active text-white text-xs font-medium whitespace-nowrap shrink-0"
-        title={filename || 'untitled'}
-      >
-        <span className="max-w-[200px] truncate">{displayName}</span>
-      </button>
-    </div>
-  );
 };
