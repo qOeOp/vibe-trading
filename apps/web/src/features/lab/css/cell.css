@@ -552,3 +552,8 @@
   [data-testid='cell-actions-button'] {
   display: none;
 }
+
+/* ── Lab Mode: Cell type indicator ─────────────────────────── */
+[data-slot='lab-fullscreen'] [data-slot='cell-type-indicator'] {
+  font-family: var(--font-mono);
+}

@@ -645,6 +645,19 @@ const EditableCellComponent = ({
                   onRun={runCell}
                 />
               </div>
+              {/* Cell type indicator — visible on focus in lab mode */}
+              <div
+                data-slot="cell-type-indicator"
+                className="absolute -left-10 bottom-1 z-10 hover-action"
+              >
+                <span className="text-[10px] font-mono text-mine-muted uppercase tracking-wider opacity-60">
+                  {languageAdapter === 'markdown'
+                    ? 'Md'
+                    : languageAdapter === 'sql'
+                      ? 'SQL'
+                      : 'Py'}
+                </span>
+              </div>
               <CellEditor
                 theme={theme}
                 showPlaceholder={showPlaceholder}
