@@ -420,3 +420,46 @@
   border-top: 1px dashed var(--color-mine-border);
   pointer-events: none;
 }
+
+/* ── Lab Mode: Focus-based control visibility ────────────────── */
+/* In lab mode, cell controls appear on focus-within, not hover */
+@media (hover: hover) and (pointer: fine) {
+  [data-slot='lab-fullscreen']
+    .marimo-cell.hover-actions-parent:hover
+    .hover-action {
+    display: none !important;
+  }
+
+  [data-slot='lab-fullscreen']
+    .marimo-cell.hover-actions-parent:focus-within
+    .hover-action {
+    display: inline-flex !important;
+  }
+
+  /* Keep open dropdowns visible */
+  [data-slot='lab-fullscreen']
+    .marimo-cell.hover-actions-parent:has([data-state='open'])
+    .hover-action {
+    display: inline-flex !important;
+  }
+
+  /* Stale indicator always visible for needs-run cells */
+  [data-slot='lab-fullscreen'] .marimo-cell.needs-run .cell-status-stale {
+    display: inline-flex !important;
+  }
+}
+
+/* Amber breathing dot for stale cells */
+[data-slot='lab-fullscreen'] .marimo-cell.needs-run .cell-status-stale {
+  animation: amber-breathe 2s ease-in-out infinite;
+}
+
+@keyframes amber-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
