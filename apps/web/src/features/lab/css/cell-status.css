@@ -1,0 +1,25 @@
+/**
+ * Cell Status CSS — Cell execution status indicators
+ * 迁移自 marimo:components/editor/cell/cell-status.css
+ * 修改:
+ * - 颜色通过 marimo-vars.css 桥接
+ *   var(--gray-11) → mine-text, var(--gray-10) → mine-muted
+ */
+
+.cell-status-icon {
+  margin-top: 4px;
+  margin-left: 3px;
+  margin-bottom: auto;
+}
+
+.elapsed-time {
+  font-family: var(--monospace-font);
+  font-size: 0.75rem;
+  color: var(--gray-11);
+}
+
+.cell-status-disabled,
+.cell-status-queued,
+.cell-status-stale {
+  color: var(--gray-10);
+}

@@ -1,0 +1,12 @@
+/* Marimo reset — scoped to lab-fullscreen overlay.
+ * Original body/:host/#root/code rules rewritten to avoid global pollution. */
+
+[data-slot='lab-fullscreen'] {
+  font-family: var(--text-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-slot='lab-fullscreen'] code {
+  font-family: var(--monospace-font);
+}

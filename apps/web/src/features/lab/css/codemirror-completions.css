@@ -1,0 +1,505 @@
+/**
+ * CodeMirror Completions CSS — Autocomplete popup styling
+ * 迁移自 marimo:css/app/codemirror-completions.css L1-L433
+ * 修改:
+ * - 移除 @reference "../../css/globals.css"
+ * - 移除所有 @apply 指令, 用 plain CSS 替代
+ * - 选择器从 #root 扩展为 #root, [data-slot="lab-chrome"]
+ * - Radix color vars 替换 (light-only):
+ *   --blue-3  → oklch(0.94 0.03 230) (浅蓝)
+ *   --blue-4  → oklch(0.90 0.05 230) (选中蓝)
+ *   --blue-11 → oklch(0.45 0.15 230) (蓝文字)
+ *   --blue-12 → oklch(0.25 0.08 230) (深蓝文字)
+ *   --lime-3/--lime-11 → oklch(0.94 0.04 130)/oklch(0.45 0.12 130)
+ *   --amber-3/--amber-11 → oklch(0.94 0.04 80)/oklch(0.5 0.14 70)
+ *   --purple-3/--purple-11 → oklch(0.94 0.04 300)/oklch(0.45 0.15 300)
+ *   --orange-3/--orange-11 → oklch(0.94 0.04 60)/oklch(0.5 0.14 50)
+ *   --grass-3/--grass-11 → oklch(0.94 0.04 145)/oklch(0.45 0.12 145)
+ *   --red-3/--red-11 → oklch(0.94 0.04 25)/oklch(0.5 0.15 25)
+ *   --cyan-3/--cyan-11 → oklch(0.94 0.04 200)/oklch(0.45 0.12 200)
+ *   --crimson-3/--crimson-11 → oklch(0.94 0.04 10)/oklch(0.5 0.14 10)
+ *   --gray-3/--gray-11 → var(--gray-3)/var(--gray-11)
+ *   --green-500 → var(--color-mine-accent-green)
+ *   --slate-1/--slate-2 → var(--gray-1)/var(--gray-2)
+ * - 移除 .dark .cm-signature-docs (light-only)
+ */
+
+/* ── Autocomplete Container ── */
+
+#root,
+[data-slot='lab-chrome'] {
+  /* Base styling for autocomplete container */
+  .cm-tooltip-autocomplete {
+    max-width: 250px;
+    background-color: var(--popover);
+    box-shadow:
+      0 4px 6px -1px oklch(0 0 0 / 0.1),
+      0 2px 4px -2px oklch(0 0 0 / 0.1);
+    border: 1px solid var(--border);
+  }
+
+  /* Autocomplete list */
+  .cm-tooltip-autocomplete > ul {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    min-width: unset;
+  }
+
+  /* Autocomplete list items */
+  .cm-tooltip-autocomplete > ul > li {
+    padding: 0;
+    padding-right: 6px;
+    height: 18px;
+    min-width: 60px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .cm-completionLabel {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-right: 12px;
+    font-size: 0.75rem;
+    font-family: var(--monospace-font);
+  }
+
+  .cm-completionDetail {
+    flex-grow: 1;
+    text-align: right;
+  }
+
+  .cm-tooltip-autocomplete > ul > completion-section {
+    font-size: 0.75rem;
+    background-color: color-mix(in srgb, var(--gray-10), transparent 90%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Hover state */
+  .cm-tooltip-autocomplete > ul > li:hover {
+    background-color: oklch(0.94 0.03 230); /* marimo 原: var(--blue-3) */
+  }
+
+  /* Selected item */
+  .cm-tooltip-autocomplete > ul > li[aria-selected] {
+    background-color: oklch(0.9 0.05 230); /* marimo 原: var(--blue-4) */
+    color: oklch(0.25 0.08 230); /* marimo 原: var(--blue-12) */
+  }
+
+  /* ── Completion Icons ── */
+
+  .cm-completionIcon {
+    width: 1rem;
+    height: 100%;
+    flex-shrink: 0;
+    line-height: 18px;
+    font-weight: bold;
+    opacity: 0.9;
+    padding: 0 1px;
+    color: var(--gray-11);
+    background-color: var(--gray-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+
+    &::after {
+      content: '\2022'; /* bullet */
+    }
+  }
+
+  .cm-completionIcon-variable {
+    color: oklch(0.45 0.15 230); /* marimo 原: var(--blue-11) */
+    background-color: oklch(0.94 0.03 230); /* marimo 原: var(--blue-3) */
+    &::after {
+      content: '\1D463';
+    } /* italic v */
+  }
+
+  .cm-completionIcon-property {
+    color: oklch(0.45 0.12 130); /* marimo 原: var(--lime-11) */
+    background-color: oklch(0.94 0.04 130);
+    &::after {
+      content: '\2261';
+    } /* identical to */
+  }
+
+  .cm-completionIcon-method {
+    color: oklch(0.5 0.14 70); /* marimo 原: var(--amber-11) */
+    background-color: oklch(0.94 0.04 80);
+    &::after {
+      content: '\2699';
+    } /* gear */
+  }
+
+  .cm-completionIcon-function {
+    color: oklch(0.45 0.15 300); /* marimo 原: var(--purple-11) */
+    background-color: oklch(0.94 0.04 300);
+    &::after {
+      content: '\0192';
+    } /* function */
+  }
+
+  .cm-completionIcon-class {
+    color: oklch(0.5 0.14 50); /* marimo 原: var(--orange-11) */
+    background-color: oklch(0.94 0.04 60);
+    &::after {
+      content: 'C';
+    }
+  }
+
+  .cm-completionIcon-module {
+    color: oklch(0.45 0.12 145); /* marimo 原: var(--grass-11) */
+    background-color: oklch(0.94 0.04 145);
+    &::after {
+      content: '\29C9';
+    } /* interlocking squares */
+  }
+
+  .cm-completionIcon-statement {
+    color: oklch(0.5 0.15 25); /* marimo 原: var(--red-11) */
+    background-color: oklch(0.94 0.04 25);
+    &::after {
+      content: '\00A7';
+    } /* section */
+  }
+
+  .cm-completionIcon-keyword {
+    color: oklch(0.45 0.12 200); /* marimo 原: var(--cyan-11) */
+    background-color: oklch(0.94 0.04 200);
+    &::after {
+      content: '\2318';
+    } /* command */
+  }
+
+  .cm-completionIcon-reference {
+    color: var(--gray-11);
+    background-color: var(--gray-3);
+    &::after {
+      content: '\2192';
+    } /* right arrow */
+  }
+
+  .cm-completionIcon-file {
+    color: oklch(0.5 0.14 10); /* marimo 原: var(--crimson-11) */
+    background-color: oklch(0.94 0.04 10);
+    &::after {
+      content: '\1D306';
+    } /* file */
+  }
+
+  .cm-completionIcon-table {
+    color: var(--gray-11);
+    background-color: var(--gray-3);
+    &::after {
+      content: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1kYXRhYmFzZS1pY29uIGx1Y2lkZS1kYXRhYmFzZSI+PGVsbGlwc2UgY3g9IjEyIiBjeT0iNSIgcng9IjkiIHJ5PSIzIi8+PHBhdGggZD0iTTMgNVYxOUE5IDMgMCAwIDAgMjEgMTlWNSIvPjxwYXRoIGQ9Ik0zIDEyQTkgMyAwIDAgMCAyMSAxMiIvPjwvc3ZnPg==');
+    }
+  }
+
+  .cm-completionIcon-dataframe {
+    color: var(--gray-11);
+    background-color: var(--gray-3);
+    &::after {
+      content: '\1D306';
+    }
+  }
+
+  .cm-completionIcon-error {
+    color: oklch(0.5 0.15 25); /* marimo 原: var(--red-11) */
+    background-color: oklch(0.94 0.04 25);
+    &::after {
+      content: '\1D452';
+    } /* italic e */
+  }
+
+  .cm-completionIcon-datasource {
+    color: oklch(0.45 0.15 300); /* marimo 原: var(--purple-11) */
+    background-color: oklch(0.94 0.04 300);
+    &::after {
+      content: '\2699';
+    } /* gear */
+  }
+
+  /* ── Completion Info Tooltip ── */
+
+  .cm-completionInfo {
+    max-width: 28rem;
+    border-left: 1px solid var(--border);
+  }
+
+  .cm-completionDetail {
+    font-style: normal;
+    font-size: 0.75rem;
+    color: var(--gray-10); /* marimo 原: text-muted-foreground */
+  }
+
+  /* Matched text highlight */
+  .cm-completionMatchedText {
+    color: var(--foreground); /* marimo 原: text-accent-foreground */
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Scrollbar styling */
+  .cm-tooltip-autocomplete > ul::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .cm-tooltip-autocomplete > ul::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .cm-tooltip-autocomplete > ul::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--gray-10), transparent 70%);
+    border-radius: 9999px;
+  }
+
+  .cm-tooltip-autocomplete > ul::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--gray-10), transparent 50%);
+  }
+
+  /* AI completion styling */
+  .cm-tooltip-autocomplete > ul > li.cm-ai-completion {
+    border-left: 2px solid var(--color-mine-accent-green); /* marimo 原: border-green-500 */
+  }
+
+  .cm-tooltip.cm-completionInfo {
+    top: -1px !important;
+    max-width: 36rem !important;
+  }
+
+  .cm-completionInfo.cm-completionInfo-right-narrow {
+    left: 100%;
+  }
+
+  /* Completion Info positioning */
+  .cm-tooltip:has(.cm-completionInfo-left),
+  .cm-tooltip.cm-completionInfo-right {
+    border-top-left-radius: 0;
+  }
+
+  .cm-tooltip:has(.cm-completionInfo-right),
+  .cm-tooltip.cm-completionInfo-left {
+    border-top-right-radius: 0;
+  }
+}
+
+/* ── Signature Help ── */
+
+.cm-signature-help {
+  max-width: 550px !important;
+  margin-right: 16px !important;
+  overflow-y: auto;
+  max-height: 330px;
+  padding: 0.5rem !important;
+  scrollbar-width: thin;
+  line-height: normal;
+  background-color: var(--popover);
+  box-shadow:
+    0 4px 6px -1px oklch(0 0 0 / 0.1),
+    0 2px 4px -2px oklch(0 0 0 / 0.1);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  font-family: var(--font-sans);
+
+  /* Paragraphs */
+  & p {
+    padding: 0.4rem 0;
+    white-space: pre-wrap;
+  }
+
+  /* Lists */
+  & ul,
+  & ol,
+  & li {
+    white-space: initial;
+  }
+
+  & ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+  }
+
+  & ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+  }
+
+  /* Headings */
+  & h1,
+  & h2 {
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
+    color: var(--color-mine-accent-teal); /* marimo 原: text-primary */
+  }
+
+  & h3,
+  & h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Definition lists */
+  & dt {
+    font-weight: 700;
+  }
+
+  & dt span {
+    font-weight: 400;
+  }
+
+  /* Inline code */
+  & code {
+    border: 1px solid var(--border);
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    border-radius: 0.25rem;
+    font-family: var(--monospace-font);
+    background-color: var(--gray-2); /* marimo 原: var(--slate-2) */
+    font-size: 0.75rem;
+  }
+
+  & code:empty {
+    display: none;
+  }
+
+  /* Code blocks */
+  & pre > code {
+    width: 100%;
+    display: inline-block;
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Tables */
+  & table {
+    font-size: 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  & table th,
+  & table td {
+    border: 1px solid var(--border);
+    padding: 0.5rem;
+  }
+
+  & table th {
+    background-color: var(--gray-2); /* marimo 原: var(--slate-2) */
+  }
+
+  & table tr:nth-child(2n) {
+    background-color: var(--gray-1); /* marimo 原: var(--slate-1) */
+  }
+
+  /* Blockquotes */
+  & blockquote {
+    white-space: pre-wrap;
+    padding-left: 0.5rem;
+    margin-left: 0.5rem;
+  }
+
+  & blockquote p {
+    padding: 0;
+    white-space: normal;
+    font-weight: initial;
+    font-size: 0.75rem;
+    font-family: var(--monospace-font);
+  }
+
+  /* ── Signature Styling ── */
+
+  .cm-signature {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 0.125rem;
+    font-family: var(--monospace-font);
+    background-color: var(--muted);
+  }
+
+  .cm-signature-active-param {
+    font-weight: 700;
+    color: var(--color-mine-accent-teal); /* marimo 原: text-primary */
+  }
+
+  .section {
+    line-height: normal;
+  }
+
+  .paragraph {
+    white-space: initial;
+  }
+
+  /* Docutils (Python docstring classes) */
+  .docutils p,
+  .docutils dd {
+    white-space: initial;
+  }
+
+  .docutils dd {
+    white-space: pre-wrap;
+    padding-left: 1rem;
+  }
+
+  .docutils.literal {
+    background-color: var(--gray-2);
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-family: var(--monospace-font);
+  }
+
+  /* Doctest and literal blocks */
+  .doctest-block,
+  .literal-block {
+    white-space: pre-wrap;
+    background-color: var(--gray-2);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .codehilite code {
+    width: 100%;
+    display: inline-block;
+    white-space: pre-wrap;
+    background-color: var(--gray-2);
+    border: 1px solid var(--border);
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    font-family: var(--monospace-font);
+    font-size: 0.75rem;
+  }
+
+  blockquote dl.docutils,
+  blockquote .docutils dt {
+    padding: 0;
+    white-space: normal;
+    font-weight: initial;
+    font-size: 0.75rem;
+    font-family: var(--monospace-font);
+  }
+}
+
+/* Signature docs text color */
+.cm-signature-docs {
+  color: var(--foreground) !important; /* marimo 原: black → Mine foreground */
+}

@@ -1,0 +1,51 @@
+@import url('./reset.css');
+@import url('./cell.css');
+@import url('./codemirror.css');
+@import url('./Header.css');
+@import url('./codemirror-completions.css');
+
+/* stylelint-disable unit-allowed-list */
+
+/* On smaller screens, scale everything down so more fits on the page.
+ * Scoped to lab-fullscreen to avoid affecting other VT pages. */
+[data-slot='lab-fullscreen'] {
+  font-size: 90%;
+}
+
+@media screen and (height >= 1000px) {
+  [data-slot='lab-fullscreen'] {
+    font-size: 100%;
+  }
+}
+/* stylelint-enable unit-allowed-list */
+
+[data-slot='lab-fullscreen'] {
+  --content-width: 740px;
+  --content-width-medium: 1110px;
+}
+
+#App {
+  position: relative;
+  margin: auto;
+  z-index: 1;
+  flex: 1;
+}
+
+/* VT: disconnected-gradient and noise backgrounds removed — asset images not bundled */
+.disconnected-gradient,
+.noise {
+  display: none;
+}
+
+/* Remove background when disconnected, only in light mode. */
+.light #App.disconnected,
+.light #App.disconnected .transparent-when-disconnected {
+  background: none;
+}
+
+.inactive-button,
+.inactive-button:hover,
+.inactive-button svg {
+  color: var(--gray-7);
+  cursor: default;
+}

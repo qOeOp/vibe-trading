@@ -1,0 +1,35 @@
+/**
+ * App Chrome CSS — Lab workspace chrome (resize handles, scrollbars)
+ * 迁移自 marimo:components/editor/chrome/wrapper/app-chrome.css
+ * 修改:
+ * - 颜色: --slate-11 → mine-accent-teal (oklch(0.65 0.12 185))
+ * - scrollbar-color → mine-border
+ */
+
+/* ── Resize Handle Styles ── */
+
+[data-panel-resize-handle-id] {
+  transition: background-color 150ms ease;
+}
+
+[data-panel-resize-handle-id]:hover,
+[data-panel-resize-handle-id][data-resize-handle-state='hover'] {
+  background-color: oklch(0.65 0.12 185 / 0.3); /* mine-accent-teal/30 */
+}
+
+[data-panel-resize-handle-id][data-resize-handle-state='drag'] {
+  background-color: oklch(0.65 0.12 185 / 0.5); /* mine-accent-teal/50 */
+}
+
+/* ── Panel Scrollbar ── */
+
+[data-slot='lab-chrome'] .panel-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-mine-border) transparent;
+}
+
+/* ── Lab Chrome Body ── */
+
+[data-slot='lab-chrome'] {
+  --lab-sidebar-width: 40px;
+}
