@@ -594,6 +594,8 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
           )}
           <Panel id="app-chrome-body" className="relative">
             {appBodyPanel}
+            {/* Progressive blur overlay — fades editor into dock */}
+            <div data-slot="editor-progressive-blur" />
             {/* Floating dock — positioned relative to editor body */}
             <ErrorBoundary>
               <TooltipProvider>

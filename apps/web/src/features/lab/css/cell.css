@@ -557,3 +557,38 @@
 [data-slot='lab-fullscreen'] [data-slot='cell-type-indicator'] {
   font-family: var(--font-mono);
 }
+
+/* ── Progressive blur at editor bottom ──────────────────────── */
+[data-slot='lab-fullscreen'] [data-slot='editor-progressive-blur'] {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  z-index: 20;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    oklch(0.92 0.01 85 / 0.3) 30%,
+    oklch(0.92 0.01 85 / 0.7) 60%,
+    oklch(0.92 0.01 85 / 1) 100%
+  );
+}
+
+/* ── Empty cell welcome hint ─────────────────────────────────── */
+[data-slot='lab-fullscreen']
+  .marimo-cell.interactive
+  .cm-editor
+  .cm-content:has(.cm-line:only-child .cm-placeholder)::after {
+  content: 'Type Python code \00B7  Cmd+Enter to run \00B7  Cmd+M for markdown';
+  position: absolute;
+  bottom: -22px;
+  left: 30px;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  color: var(--color-mine-muted);
+  opacity: 0.35;
+  pointer-events: none;
+  white-space: nowrap;
+}
