@@ -5,6 +5,7 @@ import {
   AlertTriangleIcon,
   KeyboardIcon,
   PlayCircleIcon,
+  PlusIcon,
   SquareIcon,
   XCircleIcon,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ import { CopilotStatusIcon } from './footer-items/copilot-status';
 import { MachineStats } from './footer-items/machine-stats';
 import { RTCStatus } from './footer-items/rtc-status';
 import { RuntimeSettings } from './footer-items/runtime-settings';
+import { useFilename } from '../../../../core/saving/filename';
 
 export const Footer: React.FC = () => {
   const { isDeveloperPanelOpen } = useChromeState();
@@ -65,6 +67,9 @@ export const Footer: React.FC = () => {
         data-slot="lab-status-dock"
         className="h-10 py-1 gap-1 flex items-center text-mine-muted select-none print:hidden text-sm z-50 bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full pointer-events-auto px-1"
       >
+        {/* File tabs */}
+        <DockFileTabs />
+
         {/* Kernel status */}
         <BackendConnectionStatus />
 
@@ -119,6 +124,20 @@ export const Footer: React.FC = () => {
             <SquareIcon className="w-3.5 h-3.5" />
           </button>
         </Tooltip>
+
+        {/* Divider */}
+        <div className="w-px h-4 bg-mine-border/50" />
+
+        {/* Machine stats (CPU/Memory) */}
+        <MachineStats />
+
+        {/* Runtime settings */}
+        <RuntimeSettings />
+
+        {/* AI & Copilot status */}
+        <AIStatusIcon />
+        <CopilotStatusIcon />
+        <RTCStatus />
 
         {/* Divider */}
         <div className="w-px h-4 bg-mine-border/50" />
@@ -204,4 +223,38 @@ const ConnectingKernelIndicatorItem: React.FC = () => {
     return null;
   }
   return <BackendConnectionStatus />;
+};
+
+/**
+ * Dock file tabs — shows current filename as a pill, + button for new file.
+ */
+const DockFileTabs: React.FC = () => {
+  const filename = useFilename();
+  const displayName = filename
+    ? filename.split('/').pop()?.replace(/\.py$/, '') || filename
+    : 'untitled';
+
+  return (
+    <div
+      data-slot="dock-file-tabs"
+      className="flex items-center gap-1 min-w-0 overflow-x-auto scrollbar-none"
+    >
+      <Tooltip content="New file">
+        <button
+          type="button"
+          aria-label="New file"
+          className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-white/60 transition-colors shrink-0"
+        >
+          <PlusIcon className="w-3.5 h-3.5 text-mine-muted" strokeWidth={1.5} />
+        </button>
+      </Tooltip>
+      <button
+        type="button"
+        className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-mine-nav-active text-white text-xs font-medium whitespace-nowrap shrink-0"
+        title={filename || 'untitled'}
+      >
+        <span className="truncate max-w-[120px] font-mono">{displayName}</span>
+      </button>
+    </div>
+  );
 };
