@@ -124,46 +124,49 @@ export const Controls = ({
         </div>
       )}
 
-      <div className={cn(bottomRightControls)}>
-        <HideInKioskMode>
-          <SaveComponent kioskMode={false} />
-        </HideInKioskMode>
+      {/* Bottom-right controls: hidden in lab active mode (shell provides its own chrome) */}
+      {!hideTopRight && (
+        <div className={cn(bottomRightControls)}>
+          <HideInKioskMode>
+            <SaveComponent kioskMode={false} />
+          </HideInKioskMode>
 
-        <Tooltip content={renderShortcut('global.hideCode')}>
-          <Button
-            data-testid="hide-code-button"
-            id="preview-button"
-            shape="rectangle"
-            color="hint-green"
-            onClick={onTogglePresenting}
-          >
-            {presenting ? (
-              <EditIcon strokeWidth={1.5} size={18} />
-            ) : (
-              <LayoutTemplateIcon strokeWidth={1.5} size={18} />
-            )}
-          </Button>
-        </Tooltip>
+          <Tooltip content={renderShortcut('global.hideCode')}>
+            <Button
+              data-testid="hide-code-button"
+              id="preview-button"
+              shape="rectangle"
+              color="hint-green"
+              onClick={onTogglePresenting}
+            >
+              {presenting ? (
+                <EditIcon strokeWidth={1.5} size={18} />
+              ) : (
+                <LayoutTemplateIcon strokeWidth={1.5} size={18} />
+              )}
+            </Button>
+          </Tooltip>
 
-        {labMode !== 'active' && <CommandPaletteButton />}
-        <KeyboardShortcuts />
+          <CommandPaletteButton />
+          <KeyboardShortcuts />
 
-        <div />
+          <div />
 
-        <HideInKioskMode>
-          <div className="flex flex-col gap-2 items-center">
-            {undoControl}
-            <StopControlButton
-              running={closed ? false : running}
-              onInterrupt={onInterrupt}
-            />
-            <RunControlButton
-              needsRun={closed ? false : needsRun}
-              onRun={onRun}
-            />
-          </div>
-        </HideInKioskMode>
-      </div>
+          <HideInKioskMode>
+            <div className="flex flex-col gap-2 items-center">
+              {undoControl}
+              <StopControlButton
+                running={closed ? false : running}
+                onInterrupt={onInterrupt}
+              />
+              <RunControlButton
+                needsRun={closed ? false : needsRun}
+                onRun={onRun}
+              />
+            </div>
+          </HideInKioskMode>
+        </div>
+      )}
     </>
   );
 };
