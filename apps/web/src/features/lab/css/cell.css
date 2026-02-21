@@ -537,3 +537,18 @@
 [data-slot='lab-fullscreen'] [data-slot='cell-left-actions'] > :first-child {
   margin-top: 0;
 }
+
+/* ── Lab Mode: Run button in left gutter (VS Code pattern) ─── */
+[data-slot='lab-fullscreen'] .marimo-cell [data-slot='cell-toolbar-wrapper'] {
+  right: unset;
+  left: -40px;
+  top: 2px;
+}
+
+/* Hide the ⋯ actions button in gutter — accessible via right-click context menu */
+[data-slot='lab-fullscreen']
+  .marimo-cell
+  [data-slot='cell-toolbar-wrapper']
+  [data-testid='cell-actions-button'] {
+  display: none;
+}

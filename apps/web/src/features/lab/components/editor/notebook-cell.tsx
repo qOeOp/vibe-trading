@@ -627,7 +627,10 @@ const EditableCellComponent = ({
               data-hidden={isMarkdownCodeHidden}
             >
               <StagedAICellBackground cellId={cellId} />
-              <div className="absolute right-2 -top-4 z-10">
+              <div
+                data-slot="cell-toolbar-wrapper"
+                className="absolute right-2 -top-4 z-10"
+              >
                 <CellToolbar
                   edited={cellData.edited}
                   status={cellRuntime.status}
@@ -1121,7 +1124,10 @@ const SetupCellComponent = ({
                 cellId={cellId}
                 className="mo-ai-setup-cell"
               />
-              <div className="absolute right-2 -top-4 z-10">
+              <div
+                data-slot="cell-toolbar-wrapper"
+                className="absolute right-2 -top-4 z-10"
+              >
                 <CellToolbar
                   edited={cellData.edited}
                   status={cellRuntime.status}
