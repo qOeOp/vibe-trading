@@ -1,11 +1,11 @@
-import { LabPage as LabPageClient } from "@/features/lab";
-import type { Metadata } from "next";
+'use client';
 
-export const metadata: Metadata = {
-  title: "Factor Lab - Vibe Trading",
-  description:
-    "Factor research workbench for building and validating alpha factors",
-};
+import dynamic from 'next/dynamic';
+
+const LabPageClient = dynamic(
+  () => import('@/features/lab').then((m) => ({ default: m.LabPage })),
+  { ssr: false },
+);
 
 export default function FactorLabRoute() {
   return <LabPageClient />;
