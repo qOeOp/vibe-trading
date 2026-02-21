@@ -515,3 +515,25 @@
 [data-slot='lab-fullscreen'] .marimo-cell[data-shine='error'] {
   animation: shine-sweep-red 600ms ease-out forwards;
 }
+
+/* ── Lab Mode: Centered insert button on cell separator ────── */
+[data-slot='lab-fullscreen'] [data-slot='cell-left-actions'] {
+  left: 50% !important;
+  transform: translateX(-50%);
+  top: -12px;
+  width: auto;
+  height: auto !important;
+  flex-direction: row;
+  z-index: 25;
+}
+
+/* Hide the spacer and create-below button */
+[data-slot='lab-fullscreen'] [data-slot='cell-left-actions'] > :nth-child(2),
+[data-slot='lab-fullscreen'] [data-slot='cell-left-actions'] > :nth-child(3) {
+  display: none !important;
+}
+
+/* Remove negative margin on create-above wrapper */
+[data-slot='lab-fullscreen'] [data-slot='cell-left-actions'] > :first-child {
+  margin-top: 0;
+}

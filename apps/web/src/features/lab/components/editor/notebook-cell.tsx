@@ -872,6 +872,7 @@ const CellLeftSideActions = memo(
 
     return (
       <div
+        data-slot="cell-left-actions"
         className={cn(
           'absolute flex flex-col justify-center h-full left-[-26px] z-20 border-b-0!',
           className,
