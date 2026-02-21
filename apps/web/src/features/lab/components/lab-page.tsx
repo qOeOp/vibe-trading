@@ -194,38 +194,163 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
   );
 }
 
+/** Decorative bracket border (798:1672) — connects device frame to CTA */
+function BracketDecoration() {
+  return (
+    <svg
+      className="w-full max-w-[786px]"
+      viewBox="0 0 786 54"
+      fill="none"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <path
+        d="M1 0 C1 26, 26 53, 53 53 L340 53 C353 53, 365 48, 373 39 L386 26 C390 22, 396 22, 400 26 L413 39 C421 48, 433 53, 446 53 L733 53 C760 53, 785 26, 785 0"
+        stroke="#e0e0e0"
+        strokeWidth="1"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
 /**
- * Browser-style device frame — AlignUI pattern
- * Matches Figma nodes: 798:1155 (shadow/border), 798:864 (chrome bar)
+ * Full-width browser-style device frame — AlignUI pattern
+ * Matches Figma: 798:862 (1133×620), 798:1155 (shadow), 798:864 (chrome)
+ * Three-panel IDE: file tree | code editor | preview
  */
 function DeviceFrame() {
   const FILE_TREE = [
-    { name: 'vt-lab.py', active: true },
-    { name: 'backtest.py', active: false },
-    { name: 'factor_lib.py', active: false },
-    { name: 'universe.py', active: false },
+    {
+      folder: 'notebooks',
+      files: [
+        { name: 'vt-lab.py', active: true },
+        { name: 'backtest.py', active: false },
+        { name: 'factor_lib.py', active: false },
+        { name: 'universe.py', active: false },
+        { name: 'ic_analysis.py', active: false },
+        { name: 'risk_model.py', active: false },
+      ],
+    },
   ];
+
+  const CODE_LINES = [
+    {
+      num: 1,
+      tokens: [
+        { t: 'keyword', v: 'import' },
+        { t: 'plain', v: ' marimo ' },
+        { t: 'keyword', v: 'as' },
+        { t: 'plain', v: ' mo' },
+      ],
+    },
+    {
+      num: 2,
+      tokens: [
+        { t: 'keyword', v: 'import' },
+        { t: 'plain', v: ' akshare ' },
+        { t: 'keyword', v: 'as' },
+        { t: 'plain', v: ' ak' },
+      ],
+    },
+    {
+      num: 3,
+      tokens: [
+        { t: 'keyword', v: 'import' },
+        { t: 'plain', v: ' pandas ' },
+        { t: 'keyword', v: 'as' },
+        { t: 'plain', v: ' pd' },
+      ],
+    },
+    { num: 4, tokens: [] },
+    {
+      num: 5,
+      tokens: [
+        { t: 'var', v: 'df' },
+        { t: 'plain', v: ' = ' },
+        { t: 'var', v: 'ak' },
+        { t: 'plain', v: '.' },
+        { t: 'fn', v: 'stock_zh_a_hist' },
+        { t: 'plain', v: '(' },
+        { t: 'str', v: '"000001"' },
+        { t: 'plain', v: ')' },
+      ],
+    },
+    {
+      num: 6,
+      tokens: [
+        { t: 'var', v: 'factor' },
+        { t: 'plain', v: ' = ' },
+        { t: 'var', v: 'df' },
+        { t: 'plain', v: '[' },
+        { t: 'str', v: "'close'" },
+        { t: 'plain', v: '].' },
+        { t: 'fn', v: 'pct_change' },
+        { t: 'plain', v: '(20)' },
+      ],
+    },
+    { num: 7, tokens: [] },
+    { num: 8, tokens: [{ t: 'comment', v: '# 计算 IC 衰减' }] },
+    {
+      num: 9,
+      tokens: [
+        { t: 'var', v: 'ic_series' },
+        { t: 'plain', v: ' = ' },
+        { t: 'var', v: 'factor' },
+        { t: 'plain', v: '.' },
+        { t: 'fn', v: 'corr' },
+        { t: 'plain', v: '(' },
+        { t: 'var', v: 'df' },
+        { t: 'plain', v: '[' },
+        { t: 'str', v: "'close'" },
+        { t: 'plain', v: '].' },
+        { t: 'fn', v: 'shift' },
+        { t: 'plain', v: '(-1))' },
+      ],
+    },
+    { num: 10, tokens: [] },
+    {
+      num: 11,
+      tokens: [
+        { t: 'var', v: 'mo' },
+        { t: 'plain', v: '.' },
+        { t: 'var', v: 'ui' },
+        { t: 'plain', v: '.' },
+        { t: 'fn', v: 'table' },
+        { t: 'plain', v: '(' },
+        { t: 'var', v: 'df' },
+        { t: 'plain', v: '.' },
+        { t: 'fn', v: 'head' },
+        { t: 'plain', v: '())' },
+      ],
+    },
+  ];
+
+  const TOKEN_COLORS: Record<string, string> = {
+    keyword: 'text-purple-400',
+    var: 'text-[#9cdcfe]',
+    fn: 'text-[#dcdcaa]',
+    str: 'text-[#ce9178]',
+    comment: 'text-[#6a9955]',
+    plain: 'text-[#d4d4d4]',
+  };
 
   return (
     <div
       data-slot="device-frame"
-      className="w-full max-w-[600px] rounded-[26px] overflow-hidden relative"
+      className="w-full rounded-[26px] overflow-hidden relative"
       style={{
         boxShadow:
           '0px 12px 12px -6px rgba(41,41,41,0.04), 0px 24px 24px -12px rgba(41,41,41,0.04), 0px 48px 48px -24px rgba(41,41,41,0.04), 0px 0px 0px 1px #0f0f0f',
       }}
     >
-      {/* Inner highlight — Figma inset shadow */}
+      {/* Inner highlight */}
       <div
         className="absolute inset-0 rounded-[inherit] pointer-events-none z-10"
-        style={{
-          boxShadow: 'inset 0px 1px 2px rgba(255,255,255,0.12)',
-        }}
+        style={{ boxShadow: 'inset 0px 1px 2px rgba(255,255,255,0.12)' }}
       />
 
       {/* ── Browser chrome (798:864) ── */}
       <div className="flex items-center px-6 py-4 bg-[#f7f7f7]">
-        {/* Traffic lights — with inner shadow matching Figma */}
         <div className="flex-1 flex items-center gap-2">
           {[{ bg: '#ed6a5e' }, { bg: '#f4bf4e' }, { bg: '#61c655' }].map(
             (dot, i) => (
@@ -240,14 +365,12 @@ function DeviceFrame() {
             ),
           )}
         </div>
-        {/* Address bar — center */}
         <div className="flex items-center gap-1 shrink-0">
           <Lock className="w-[14px] h-[14px] text-[#8f8f8f]" strokeWidth={2} />
           <span className="text-[14px] text-[#8f8f8f] font-medium tracking-[-0.08px]">
             vibe-trading.app/lab
           </span>
         </div>
-        {/* Window actions — right */}
         <div className="flex-1 flex items-center justify-end gap-4">
           <Share className="w-[18px] h-[18px] text-[#ccc]" strokeWidth={1.5} />
           <Plus className="w-[18px] h-[18px] text-[#ccc]" strokeWidth={1.5} />
@@ -258,157 +381,141 @@ function DeviceFrame() {
         </div>
       </div>
 
-      {/* ── Tab bar ── */}
-      <div className="flex items-center bg-[#2d2d2d] px-2 pt-1.5 border-b border-white/5">
-        <div className="flex items-center gap-1 px-3 py-1.5 bg-[#1e1e1e] rounded-t-md text-[11px] text-[#ccc] font-medium">
-          <FileCode2 className="w-3 h-3 text-[#888]" strokeWidth={1.5} />
+      {/* ── Tab bar — 3 tabs like Figma: project | code | preview ── */}
+      <div className="flex bg-[#1e1e1e] border-b border-white/5">
+        <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#ccc] font-mono font-medium">
+          <FileCode2 className="w-4 h-4 text-[#888]" strokeWidth={1.5} />
+          vt-lab
+          <span className="ml-1 text-[10px] text-[#555] bg-white/8 px-1.5 py-0.5 rounded font-sans">
+            V1.0
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#888] font-mono font-medium border-l border-white/5">
+          <Code2 className="w-4 h-4 text-[#666]" strokeWidth={1.5} />
           vt-lab.py
         </div>
-        <div className="flex items-center gap-1 px-3 py-1.5 text-[11px] text-[#666] font-medium">
-          <Play className="w-3 h-3 text-[#555]" strokeWidth={1.5} />
+        <div className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] text-[#666] font-mono font-medium border-l border-white/5">
+          <Play className="w-4 h-4 text-[#555]" strokeWidth={1.5} />
           preview
         </div>
       </div>
 
-      {/* ── Body: file tree + code area ── */}
-      <div className="flex bg-[#1e1e1e]">
-        {/* File tree sidebar */}
-        <div className="w-[140px] shrink-0 border-r border-white/5 pt-2 pb-3">
-          <div className="flex items-center gap-1 px-3 py-1 text-[11px] text-[#888] font-medium">
-            <ChevronDown className="w-3 h-3" strokeWidth={2} />
-            notebooks
+      {/* ── Body: 3-panel IDE layout ── */}
+      <div className="flex bg-[#1e1e1e] h-[420px]">
+        {/* Left panel: file tree */}
+        <div className="w-[200px] shrink-0 border-r border-white/5 overflow-hidden">
+          <div className="pt-5 px-5">
+            {FILE_TREE.map((group) => (
+              <div key={group.folder}>
+                <div className="flex items-center gap-1.5 py-1 text-[13px] text-[#ccc] font-medium">
+                  <ChevronDown
+                    className="w-4 h-4 text-[#888]"
+                    strokeWidth={2}
+                  />
+                  {group.folder}
+                </div>
+                <div className="ml-5 mt-1 border-l border-white/8 pl-3">
+                  {group.files.map((f) => (
+                    <div
+                      key={f.name}
+                      className={`flex items-center gap-1.5 py-1 text-[13px] ${
+                        f.active ? 'text-[#e0e0e0] font-medium' : 'text-[#666]'
+                      }`}
+                    >
+                      {f.active && (
+                        <div className="w-0.5 h-4 bg-[#f05023] rounded-full -ml-[13.5px] mr-2" />
+                      )}
+                      <File className="w-4 h-4 shrink-0" strokeWidth={1.5} />
+                      <span className="truncate font-mono">{f.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-          {FILE_TREE.map((f) => (
-            <div
-              key={f.name}
-              className={`flex items-center gap-1.5 px-3 py-1 ml-2 text-[11px] ${
-                f.active ? 'text-[#e0e0e0] bg-white/5 rounded' : 'text-[#666]'
-              }`}
-            >
-              <File className="w-3 h-3 shrink-0" strokeWidth={1.5} />
-              <span className="truncate">{f.name}</span>
-            </div>
-          ))}
         </div>
 
-        {/* Code area */}
-        <div className="flex-1 min-w-0 relative">
-          <div className="px-4 pt-3 pb-0 font-mono text-[12px] leading-[20px]">
-            {/* Line 1 */}
-            <div className="flex">
-              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
-                1
-              </span>
-              <span>
-                <span className="text-purple-400">import</span>
-                <span className="text-[#d4d4d4]"> ak</span>
-              </span>
-            </div>
-            {/* Line 2 */}
-            <div className="flex">
-              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
-                2
-              </span>
-              <span>
-                <span className="text-[#9cdcfe]">df</span>
-                <span className="text-[#d4d4d4]"> = </span>
-                <span className="text-[#9cdcfe]">ak</span>
-                <span className="text-[#d4d4d4]">.</span>
-                <span className="text-[#dcdcaa]">stock_zh_a_hist</span>
-                <span className="text-[#d4d4d4]">(</span>
-                <span className="text-[#ce9178]">&quot;000001&quot;</span>
-                <span className="text-[#d4d4d4]">)</span>
-              </span>
-            </div>
-            {/* Line 3 */}
-            <div className="flex">
-              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
-                3
-              </span>
-              <span>
-                <span className="text-[#9cdcfe]">factor</span>
-                <span className="text-[#d4d4d4]"> = </span>
-                <span className="text-[#9cdcfe]">df</span>
-                <span className="text-[#d4d4d4]">[</span>
-                <span className="text-[#ce9178]">&apos;close&apos;</span>
-                <span className="text-[#d4d4d4]">].</span>
-                <span className="text-[#dcdcaa]">pct_change</span>
-                <span className="text-[#d4d4d4]">(20)</span>
-              </span>
-            </div>
-            {/* Line 4 — empty */}
-            <div className="flex">
-              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
-                4
-              </span>
-              <span>&nbsp;</span>
-            </div>
-            {/* Line 5 */}
-            <div className="flex">
-              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
-                5
-              </span>
-              <span>
-                <span className="text-[#9cdcfe]">mo</span>
-                <span className="text-[#d4d4d4]">.</span>
-                <span className="text-[#9cdcfe]">ui</span>
-                <span className="text-[#d4d4d4]">.</span>
-                <span className="text-[#dcdcaa]">table</span>
-                <span className="text-[#d4d4d4]">(</span>
-                <span className="text-[#9cdcfe]">df</span>
-                <span className="text-[#d4d4d4]">.</span>
-                <span className="text-[#dcdcaa]">head</span>
-                <span className="text-[#d4d4d4]">())</span>
-              </span>
-            </div>
+        {/* Center panel: code editor */}
+        <div className="flex-1 min-w-0 border-r border-white/5 relative overflow-hidden">
+          <div className="pt-4 font-mono text-[13px] leading-[22px]">
+            {CODE_LINES.map((line) => (
+              <div
+                key={line.num}
+                className={`flex px-4 ${line.num === 1 ? 'bg-white/3' : ''}`}
+              >
+                <span className="w-8 shrink-0 text-right mr-4 text-[#555] select-none">
+                  {line.num}
+                </span>
+                <span>
+                  {line.tokens.length === 0 && '\u00A0'}
+                  {line.tokens.map((tok, i) => (
+                    <span key={i} className={TOKEN_COLORS[tok.t]}>
+                      {tok.v}
+                    </span>
+                  ))}
+                </span>
+              </div>
+            ))}
           </div>
 
-          {/* DataFrame table preview */}
-          <div className="px-4 pt-3 pb-4">
-            <div className="rounded border border-white/8 overflow-hidden">
-              <div className="bg-white/5 px-2.5 py-1 flex items-center gap-2 text-[10px] text-[#777] font-medium border-b border-white/5">
+          {/* Gradient fade at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#1e1e1e] to-transparent pointer-events-none" />
+        </div>
+
+        {/* Right panel: preview (DataFrame output) */}
+        <div className="w-[320px] shrink-0 overflow-hidden relative">
+          <div className="p-4">
+            <div className="rounded-lg border border-white/8 overflow-hidden">
+              <div className="bg-white/5 px-3 py-1.5 flex items-center gap-2 text-[11px] text-[#777] font-medium border-b border-white/5">
                 <span>DataFrame</span>
                 <span className="text-[#555]">2640 × 5</span>
               </div>
-              <table className="w-full text-[11px] font-mono border-collapse">
+              <table className="w-full text-[12px] font-mono border-collapse">
                 <thead>
                   <tr className="text-[#888] border-b border-white/8">
-                    <th className="py-1 px-2 text-left font-medium">date</th>
-                    <th className="py-1 px-2 text-right font-medium">open</th>
-                    <th className="py-1 px-2 text-right font-medium">close</th>
-                    <th className="py-1 px-2 text-right font-medium">high</th>
-                    <th className="py-1 px-2 text-right font-medium">low</th>
+                    <th className="py-1.5 px-2.5 text-left font-medium">
+                      date
+                    </th>
+                    <th className="py-1.5 px-2.5 text-right font-medium">
+                      open
+                    </th>
+                    <th className="py-1.5 px-2.5 text-right font-medium">
+                      close
+                    </th>
+                    <th className="py-1.5 px-2.5 text-right font-medium">
+                      high
+                    </th>
+                    <th className="py-1.5 px-2.5 text-right font-medium">
+                      low
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="text-[#c0c0c0]">
-                  <tr className="border-b border-white/5">
-                    <td className="py-1 px-2">2024-01-02</td>
-                    <td className="py-1 px-2 text-right">9.82</td>
-                    <td className="py-1 px-2 text-right">9.91</td>
-                    <td className="py-1 px-2 text-right">9.95</td>
-                    <td className="py-1 px-2 text-right">9.78</td>
-                  </tr>
-                  <tr className="border-b border-white/5">
-                    <td className="py-1 px-2">2024-01-03</td>
-                    <td className="py-1 px-2 text-right">9.88</td>
-                    <td className="py-1 px-2 text-right">9.75</td>
-                    <td className="py-1 px-2 text-right">9.92</td>
-                    <td className="py-1 px-2 text-right">9.71</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1 px-2">2024-01-04</td>
-                    <td className="py-1 px-2 text-right">9.73</td>
-                    <td className="py-1 px-2 text-right">9.80</td>
-                    <td className="py-1 px-2 text-right">9.85</td>
-                    <td className="py-1 px-2 text-right">9.68</td>
-                  </tr>
+                  {[
+                    ['2024-01-02', '9.82', '9.91', '9.95', '9.78'],
+                    ['2024-01-03', '9.88', '9.75', '9.92', '9.71'],
+                    ['2024-01-04', '9.73', '9.80', '9.85', '9.68'],
+                    ['2024-01-05', '9.79', '9.86', '9.90', '9.74'],
+                    ['2024-01-08', '9.85', '9.92', '9.96', '9.81'],
+                    ['2024-01-09', '9.90', '9.84', '9.93', '9.79'],
+                    ['2024-01-10', '9.83', '9.88', '9.91', '9.80'],
+                    ['2024-01-11', '9.87', '9.95', '9.98', '9.83'],
+                  ].map((row, i) => (
+                    <tr key={i} className="border-b border-white/5">
+                      <td className="py-1.5 px-2.5">{row[0]}</td>
+                      <td className="py-1.5 px-2.5 text-right">{row[1]}</td>
+                      <td className="py-1.5 px-2.5 text-right">{row[2]}</td>
+                      <td className="py-1.5 px-2.5 text-right">{row[3]}</td>
+                      <td className="py-1.5 px-2.5 text-right">{row[4]}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           </div>
 
           {/* Gradient fade at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1e1e1e] to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#1e1e1e] to-transparent pointer-events-none" />
         </div>
       </div>
     </div>
@@ -436,10 +543,11 @@ function ConnectScreen({
   return (
     <div
       data-slot="connect-screen"
-      className="flex-1 flex flex-col items-center justify-start pt-[6vh] px-8 gap-6"
+      className="flex-1 flex flex-col items-center overflow-hidden relative"
     >
       {/* ═══ Connection Stepper (798:1649) ═══ */}
       <motion.div
+        className="pt-6 pb-4"
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: EASE }}
@@ -447,8 +555,9 @@ function ConnectScreen({
         <ConnectionStepper step={step} />
       </motion.div>
 
-      {/* ═══ Device Frame (798:1155 + 798:864) ═══ */}
+      {/* ═══ Full-width Device Frame (798:862) ═══ */}
       <motion.div
+        className="w-full px-6"
         initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
@@ -456,13 +565,16 @@ function ConnectScreen({
         <DeviceFrame />
       </motion.div>
 
-      {/* ═══ CTA Area (798:1138) ═══ */}
+      {/* ═══ Bracket decoration (798:1672) + CTA (798:1138) ═══ */}
       <motion.div
-        className="flex flex-col items-center gap-4 max-w-lg w-full relative"
+        className="flex flex-col items-center w-full -mt-6 relative z-10"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: EASE, delay: 0.25 }}
       >
+        {/* Bracket decoration (798:1672) */}
+        <BracketDecoration />
+
         {/* Circular icon — 64px outer ring + 48px inner circle (Figma exact) */}
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden"
