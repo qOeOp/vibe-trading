@@ -46,6 +46,7 @@ import { handleDragging } from './utils';
 import { useLabModeStore } from '../../../../store/use-lab-mode-store';
 import { useLabChromeStore } from '../../../../store/use-lab-chrome-store';
 import { FloatingPanels } from './floating-panels';
+import { LabFullscreenContext } from '../../../lab-fullscreen-context';
 
 const LazyTerminal = React.lazy(() => import('@/components/terminal/terminal'));
 const LazyChatPanel = React.lazy(() => import('@/components/chat/chat-panel'));
@@ -593,7 +594,16 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
             </>
           )}
           <Panel id="app-chrome-body" className="relative">
-            {appBodyPanel}
+            <LabFullscreenContext.Provider
+              value={{ isFullscreen: true, onExit: null }}
+            >
+              <div
+                data-slot="lab-fullscreen"
+                className="flex-1 flex flex-col overflow-hidden h-full"
+              >
+                {appBodyPanel}
+              </div>
+            </LabFullscreenContext.Provider>
             {/* Progressive blur overlay — fades editor into dock */}
             <div data-slot="editor-progressive-blur" />
             {/* Floating dock — positioned relative to editor body */}
