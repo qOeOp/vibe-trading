@@ -463,3 +463,55 @@
     opacity: 1;
   }
 }
+
+/* ── Lab Mode: Shine Border — Left Accent Bar ────────────────── */
+[data-slot='lab-fullscreen'] .marimo-cell.interactive::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: transparent;
+  transition: background 300ms ease;
+  z-index: 10;
+  pointer-events: none;
+}
+
+[data-slot='lab-fullscreen'] .marimo-cell.interactive:focus-within::after {
+  background: var(--color-mine-accent-teal);
+}
+
+/* ── Lab Mode: Shine Sweep Animations ─────────────────────────── */
+@keyframes shine-sweep-green {
+  0% {
+    box-shadow: inset 3px 0 0 transparent;
+  }
+  30% {
+    box-shadow: inset 3px 0 0 #4caf50;
+  }
+  100% {
+    box-shadow: inset 3px 0 0 transparent;
+  }
+}
+
+@keyframes shine-sweep-red {
+  0% {
+    box-shadow: inset 3px 0 0 transparent;
+  }
+  30% {
+    box-shadow: inset 3px 0 0 #e74c3c;
+  }
+  100% {
+    box-shadow: inset 3px 0 0 transparent;
+  }
+}
+
+[data-slot='lab-fullscreen'] .marimo-cell[data-shine='success'] {
+  animation: shine-sweep-green 600ms ease-out forwards;
+}
+
+[data-slot='lab-fullscreen'] .marimo-cell[data-shine='error'] {
+  animation: shine-sweep-red 600ms ease-out forwards;
+}
