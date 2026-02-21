@@ -12,7 +12,16 @@ import { Provider as SlotzProvider } from '@marimo-team/react-slotz';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { Suspense, useCallback, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { FlaskConical, Terminal, Check, Loader2, Copy } from 'lucide-react';
+import {
+  FlaskConical,
+  Terminal,
+  Check,
+  Loader2,
+  Copy,
+  FileCode2,
+  Database,
+  BarChart3,
+} from 'lucide-react';
 import { AnimateHeavy } from '@/components/animation';
 import {
   ErrorBoundary,
@@ -89,218 +98,156 @@ function LabEditor() {
 /** Connection step definition */
 type ConnectStep = 'start' | 'connecting' | 'ready';
 
-const CONNECT_STEPS: { id: ConnectStep; label: string; sub: string }[] = [
-  { id: 'start', label: 'Start Kernel', sub: '复制命令并在终端运行' },
-  { id: 'connecting', label: 'Connecting', sub: '检测到 Kernel，正在建立连接' },
-  { id: 'ready', label: 'Ready', sub: '初始化完成，即将进入编辑器' },
-];
-
 const MARIMO_COMMAND = `marimo edit --headless --port ${MARIMO_KERNEL_PORT} --no-token --allow-origins "http://localhost:4200"`;
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 
-/**
- * Circuit-board style connector between step pills.
- * Path: drops down from pill → horizontal line → rises up to next pill.
- * Chevron arrows (>>) sit in the middle of the horizontal segment.
- */
-function StepConnector({ active }: { active: boolean }) {
-  const traceColor = active ? 'rgba(38,166,154,0.50)' : 'rgba(0,0,0,0.18)';
-  const dotColor = active ? 'rgba(38,166,154,0.65)' : 'rgba(0,0,0,0.22)';
+/** macOS-style device frame showing a preview of the Factor Lab editor */
+function DeviceFrame() {
   return (
     <div
-      className="flex items-start"
-      style={{ marginTop: 14, marginLeft: -2, marginRight: -2 }}
+      data-slot="device-frame"
+      className="w-full max-w-[520px] rounded-xl border border-black/10 overflow-hidden"
+      style={{
+        boxShadow: '0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+      }}
     >
-      <svg width="64" height="36" viewBox="0 0 64 36" fill="none">
-        {/* Circuit trace: vertical drops + horizontal bridge */}
-        <motion.path
-          d="M0 2 L0 14 C0 18, 2 20, 6 20 L58 20 C62 20, 64 18, 64 14 L64 2"
-          stroke={traceColor}
-          strokeWidth={active ? '2' : '1.5'}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={active ? 'none' : '4 3'}
-          animate={{ stroke: traceColor }}
-          transition={{ duration: 0.5, ease: EASE }}
-        />
-        {/* Junction dots at top */}
-        <motion.circle
-          cx="0"
-          cy="2"
-          r="2.5"
-          fill={dotColor}
-          animate={{ fill: dotColor }}
-          transition={{ duration: 0.5 }}
-        />
-        <motion.circle
-          cx="64"
-          cy="2"
-          r="2.5"
-          fill={dotColor}
-          animate={{ fill: dotColor }}
-          transition={{ duration: 0.5 }}
-        />
-        {/* Directional chevrons >> */}
-        <motion.path
-          d="M29 16L33 20L29 24"
-          stroke={traceColor}
-          strokeWidth="1.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          animate={{ opacity: active ? 0.8 : 0.35 }}
-          transition={{ duration: 0.5 }}
-        />
-        <motion.path
-          d="M35 16L39 20L35 24"
-          stroke={traceColor}
-          strokeWidth="1.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          animate={{ opacity: active ? 0.8 : 0.35 }}
-          transition={{ duration: 0.5 }}
-        />
-      </svg>
-    </div>
-  );
-}
+      {/* ── Title bar ── */}
+      <div className="flex items-center px-3.5 py-2.5 bg-[#2d2d2d] border-b border-white/5">
+        <div className="flex items-center gap-1.5">
+          <div className="w-[10px] h-[10px] rounded-full bg-[#ff5f57]" />
+          <div className="w-[10px] h-[10px] rounded-full bg-[#febc2e]" />
+          <div className="w-[10px] h-[10px] rounded-full bg-[#28c840]" />
+        </div>
+        <span className="flex-1 text-center text-[11px] text-[#888] font-medium tracking-wide">
+          Factor Lab
+        </span>
+        <div className="w-[52px]" />
+      </div>
 
-/** Single step pill — refined with layered styling */
-function StepPill({
-  step,
-  state,
-  delay,
-}: {
-  step: (typeof CONNECT_STEPS)[number];
-  state: 'done' | 'active' | 'pending';
-  delay: number;
-}) {
-  return (
-    <motion.div
-      className="relative flex items-center gap-2.5 rounded-full"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: EASE, delay }}
-    >
-      {/* Outer glow for active state */}
-      {state === 'active' && (
-        <motion.div
-          className="absolute -inset-[3px] rounded-full"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{
-            background:
-              'conic-gradient(from 180deg, rgba(45,45,45,0.06), rgba(38,166,154,0.08), rgba(45,45,45,0.06))',
-          }}
-        />
-      )}
-
-      {/* Pill body */}
-      <motion.div
-        className="relative flex items-center gap-2.5 px-5 py-2.5 rounded-full border"
-        animate={{
-          backgroundColor:
-            state === 'done'
-              ? 'rgba(255,255,255,0.95)'
-              : state === 'active'
-                ? '#ffffff'
-                : 'rgba(255,255,255,0.6)',
-          borderColor:
-            state === 'done'
-              ? 'rgba(38,166,154,0.25)'
-              : state === 'active'
-                ? 'rgba(45,45,45,0.15)'
-                : 'rgba(0,0,0,0.10)',
-        }}
-        style={{
-          boxShadow:
-            state === 'active'
-              ? '0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06)'
-              : state === 'done'
-                ? '0 1px 2px rgba(0,0,0,0.03)'
-                : 'none',
-        }}
-        transition={{ duration: 0.4, ease: EASE }}
-      >
-        {/* Status icon */}
-        <div className="shrink-0">
-          <AnimatePresence mode="wait">
-            {state === 'done' ? (
-              <motion.div
-                key="done"
-                className="w-[22px] h-[22px] rounded-full bg-mine-accent-teal/12 flex items-center justify-center ring-1 ring-mine-accent-teal/20"
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.5, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Check
-                  className="w-3 h-3 text-mine-accent-teal"
-                  strokeWidth={2.5}
-                />
-              </motion.div>
-            ) : state === 'active' ? (
-              <motion.div
-                key="active"
-                className="w-[22px] h-[22px] rounded-full bg-mine-nav-active/8 flex items-center justify-center ring-1 ring-mine-nav-active/15"
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.5, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Loader2
-                  className="w-3 h-3 text-mine-nav-active animate-spin"
-                  strokeWidth={2.5}
-                  style={{ animationDuration: '1.5s' }}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="pending"
-                className="w-[22px] h-[22px] rounded-full border border-mine-muted/25 bg-mine-muted/8"
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.5, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-            )}
-          </AnimatePresence>
+      {/* ── Body: sidebar + code area ── */}
+      <div className="flex bg-[#1e1e1e]">
+        {/* Mini sidebar */}
+        <div className="w-10 shrink-0 flex flex-col items-center gap-3 pt-4 pb-3 border-r border-white/5">
+          <FileCode2 className="w-4 h-4 text-[#888]" strokeWidth={1.5} />
+          <Database className="w-4 h-4 text-[#555]" strokeWidth={1.5} />
+          <BarChart3 className="w-4 h-4 text-[#555]" strokeWidth={1.5} />
         </div>
 
-        {/* Label */}
-        <span
-          className={`text-[13px] font-semibold whitespace-nowrap tracking-tight ${
-            state === 'done'
-              ? 'text-mine-accent-teal'
-              : state === 'active'
-                ? 'text-mine-text'
-                : 'text-mine-muted/60'
-          }`}
-        >
-          {step.label}
-        </span>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-/** Full stepper with circuit-board connectors */
-function ConnectionStepper({ currentStep }: { currentStep: ConnectStep }) {
-  const currentIndex = CONNECT_STEPS.findIndex((s) => s.id === currentStep);
-  return (
-    <div className="flex items-start justify-center">
-      {CONNECT_STEPS.map((step, i) => {
-        const state: 'done' | 'active' | 'pending' =
-          i < currentIndex ? 'done' : i === currentIndex ? 'active' : 'pending';
-        return (
-          <div key={step.id} className="flex items-start">
-            {i > 0 && <StepConnector active={i <= currentIndex} />}
-            <StepPill step={step} state={state} delay={i * 0.1} />
+        {/* Code area */}
+        <div className="flex-1 min-w-0 relative">
+          <div className="px-4 pt-3 pb-0 font-mono text-[12px] leading-[20px]">
+            {/* Line 1 */}
+            <div className="flex">
+              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
+                1
+              </span>
+              <span>
+                <span className="text-purple-400">import</span>
+                <span className="text-[#d4d4d4]"> ak</span>
+              </span>
+            </div>
+            {/* Line 2 */}
+            <div className="flex">
+              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
+                2
+              </span>
+              <span>
+                <span className="text-[#9cdcfe]">df</span>
+                <span className="text-[#d4d4d4]"> = </span>
+                <span className="text-[#9cdcfe]">ak</span>
+                <span className="text-[#d4d4d4]">.</span>
+                <span className="text-[#dcdcaa]">stock_zh_a_hist</span>
+                <span className="text-[#d4d4d4]">(</span>
+                <span className="text-[#ce9178]">&quot;000001&quot;</span>
+                <span className="text-[#d4d4d4]">)</span>
+              </span>
+            </div>
+            {/* Line 3 */}
+            <div className="flex">
+              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
+                3
+              </span>
+              <span>
+                <span className="text-[#9cdcfe]">factor</span>
+                <span className="text-[#d4d4d4]"> = </span>
+                <span className="text-[#9cdcfe]">df</span>
+                <span className="text-[#d4d4d4]">[</span>
+                <span className="text-[#ce9178]">&apos;close&apos;</span>
+                <span className="text-[#d4d4d4]">].</span>
+                <span className="text-[#dcdcaa]">pct_change</span>
+                <span className="text-[#d4d4d4]">(20)</span>
+              </span>
+            </div>
+            {/* Line 4 — empty */}
+            <div className="flex">
+              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
+                4
+              </span>
+              <span>&nbsp;</span>
+            </div>
+            {/* Line 5 */}
+            <div className="flex">
+              <span className="w-6 shrink-0 text-right mr-3 text-[#555] select-none">
+                5
+              </span>
+              <span>
+                <span className="text-[#9cdcfe]">mo</span>
+                <span className="text-[#d4d4d4]">.</span>
+                <span className="text-[#9cdcfe]">ui</span>
+                <span className="text-[#d4d4d4]">.</span>
+                <span className="text-[#dcdcaa]">table</span>
+                <span className="text-[#d4d4d4]">(</span>
+                <span className="text-[#9cdcfe]">df</span>
+                <span className="text-[#d4d4d4]">.</span>
+                <span className="text-[#dcdcaa]">head</span>
+                <span className="text-[#d4d4d4]">())</span>
+              </span>
+            </div>
           </div>
-        );
-      })}
+
+          {/* DataFrame table preview */}
+          <div className="px-4 pt-3 pb-4">
+            <table className="w-full text-[11px] font-mono border-collapse">
+              <thead>
+                <tr className="text-[#888] border-b border-white/8">
+                  <th className="py-1 px-2 text-left font-medium">date</th>
+                  <th className="py-1 px-2 text-right font-medium">open</th>
+                  <th className="py-1 px-2 text-right font-medium">close</th>
+                  <th className="py-1 px-2 text-right font-medium">high</th>
+                  <th className="py-1 px-2 text-right font-medium">low</th>
+                </tr>
+              </thead>
+              <tbody className="text-[#c0c0c0]">
+                <tr className="border-b border-white/5">
+                  <td className="py-1 px-2">2024-01-02</td>
+                  <td className="py-1 px-2 text-right">9.82</td>
+                  <td className="py-1 px-2 text-right">9.91</td>
+                  <td className="py-1 px-2 text-right">9.95</td>
+                  <td className="py-1 px-2 text-right">9.78</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="py-1 px-2">2024-01-03</td>
+                  <td className="py-1 px-2 text-right">9.88</td>
+                  <td className="py-1 px-2 text-right">9.75</td>
+                  <td className="py-1 px-2 text-right">9.92</td>
+                  <td className="py-1 px-2 text-right">9.71</td>
+                </tr>
+                <tr>
+                  <td className="py-1 px-2">2024-01-04</td>
+                  <td className="py-1 px-2 text-right">9.73</td>
+                  <td className="py-1 px-2 text-right">9.80</td>
+                  <td className="py-1 px-2 text-right">9.85</td>
+                  <td className="py-1 px-2 text-right">9.68</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Gradient fade at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#1e1e1e] to-transparent pointer-events-none" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -315,6 +262,7 @@ function ConnectScreen({
   onRetry: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(MARIMO_COMMAND);
@@ -322,98 +270,88 @@ function ConnectScreen({
     setTimeout(() => setCopied(false), 2000);
   }, []);
 
-  const currentStepData = CONNECT_STEPS.find((s) => s.id === step);
-
   return (
     <div
       data-slot="connect-screen"
-      className="flex-1 flex flex-col items-center justify-start pt-[12vh] px-8 gap-8"
+      className="flex-1 flex flex-col items-center justify-start pt-[8vh] px-8 gap-6"
     >
-      {/* ═══ Stepper ═══ */}
+      {/* ═══ Device Frame ═══ */}
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: EASE }}
-      >
-        <ConnectionStepper currentStep={step} />
-      </motion.div>
-
-      {/* ═══ Center content ═══ */}
-      <motion.div
-        className="flex flex-col items-center gap-6 max-w-lg w-full"
         initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.7, ease: EASE, delay: 0.15 }}
+        transition={{ duration: 0.7, ease: EASE }}
       >
-        {/* Icon + title */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-mine-nav-active/8 flex items-center justify-center">
+        <DeviceFrame />
+      </motion.div>
+
+      {/* ═══ CTA Area ═══ */}
+      <motion.div
+        className="flex flex-col items-center gap-4 max-w-lg w-full"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: EASE, delay: 0.2 }}
+      >
+        {/* Icon + heading */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-mine-nav-active/8 flex items-center justify-center">
             <FlaskConical
-              className="w-7 h-7 text-mine-nav-active"
+              className="w-5 h-5 text-mine-nav-active"
               strokeWidth={1.5}
             />
           </div>
-          <h1 className="text-xl font-bold text-mine-text">Factor Lab</h1>
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={step}
-              className="text-sm text-mine-muted text-center"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.3 }}
-            >
-              {currentStepData?.sub}
-            </motion.p>
-          </AnimatePresence>
+          <h1 className="text-lg font-bold text-mine-text">Start Lab</h1>
+          <p className="text-sm text-mine-muted">
+            连接本地 Kernel 开始因子研究
+          </p>
         </div>
 
-        {/* Terminal command block */}
-        <div className="w-full">
-          <div
-            className="rounded-xl overflow-hidden border border-black/10"
-            style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}
-          >
-            {/* Terminal header */}
-            <div className="flex items-center gap-2 px-4 py-2 bg-[#2d2d2d] border-b border-white/5">
-              <Terminal
-                className="w-3.5 h-3.5 text-[#737373]"
-                strokeWidth={1.5}
-              />
-              <span className="text-[11px] text-[#737373] font-medium">
-                Terminal
-              </span>
-            </div>
-            {/* Command body */}
-            <div className="flex items-start gap-3 bg-[#1e1e1e] px-4 py-4">
-              <span className="text-[13px] text-[#6ee7b7] font-mono shrink-0 leading-[22px]">
-                $
-              </span>
-              <code className="flex-1 text-[13px] font-mono text-[#d4d4d4] leading-[22px] select-all break-all">
-                {MARIMO_COMMAND}
-              </code>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                           bg-white/10 hover:bg-white/15 text-[11px] text-[#a3a3a3]
-                           hover:text-white transition-colors cursor-pointer font-medium"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-3 h-3" strokeWidth={2} />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3 h-3" strokeWidth={2} />
-                    Copy
-                  </>
-                )}
-              </button>
+        {/* Collapsible terminal command */}
+        <details
+          className="w-full max-w-md"
+          open={commandOpen}
+          onToggle={(e) =>
+            setCommandOpen((e.target as HTMLDetailsElement).open)
+          }
+        >
+          <summary className="flex items-center justify-center gap-1.5 text-xs text-mine-muted cursor-pointer hover:text-mine-text transition-colors select-none">
+            <Terminal className="w-3 h-3" strokeWidth={1.5} />
+            <span>启动命令</span>
+          </summary>
+          <div className="mt-2">
+            <div
+              className="rounded-lg overflow-hidden border border-black/10"
+              style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
+            >
+              <div className="flex items-start gap-3 bg-[#1e1e1e] px-3 py-3">
+                <span className="text-[12px] text-[#6ee7b7] font-mono shrink-0 leading-[20px]">
+                  $
+                </span>
+                <code className="flex-1 text-[12px] font-mono text-[#d4d4d4] leading-[20px] select-all break-all">
+                  {MARIMO_COMMAND}
+                </code>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-md
+                             bg-white/10 hover:bg-white/15 text-[10px] text-[#a3a3a3]
+                             hover:text-white transition-colors cursor-pointer font-medium"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3 h-3" strokeWidth={2} />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3" strokeWidth={2} />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </details>
 
         {/* Status indicator */}
         <AnimatePresence mode="wait">
@@ -446,6 +384,20 @@ function ConnectScreen({
                 style={{ animationDuration: '1.5s' }}
               />
               <span className="text-xs font-medium">正在建立连接...</span>
+            </motion.div>
+          )}
+          {step === 'ready' && (
+            <motion.div
+              key="ready"
+              className="flex items-center gap-2 text-mine-accent-teal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <Check className="w-3.5 h-3.5" strokeWidth={2} />
+              <span className="text-xs font-medium">
+                连接就绪，正在进入编辑器...
+              </span>
             </motion.div>
           )}
           {error && (
