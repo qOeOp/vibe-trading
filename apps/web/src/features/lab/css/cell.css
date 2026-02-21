@@ -96,11 +96,11 @@
   }
 
   /* Hidden element border handling */
-  > [data-hidden="true"] ~ * {
+  > [data-hidden='true'] ~ * {
     border-top: none;
   }
 
-  > * ~ [data-hidden="true"] {
+  > * ~ [data-hidden='true'] {
     border-top: none;
   }
 
@@ -193,7 +193,8 @@
   &.focus-outline {
     transition: all 0.6s;
     border-color: var(--color-mine-accent-teal) !important;
-    box-shadow: 0 10px 15px -3px rgba(38, 166, 154, 0.15),
+    box-shadow:
+      0 10px 15px -3px rgba(38, 166, 154, 0.15),
       0 4px 6px -4px rgba(38, 166, 154, 0.15);
   }
 
@@ -291,7 +292,7 @@
   z-index: 1;
 
   /* Round the top of the code editor when no output above */
-  &[data-has-output-above="false"] .cm-editor {
+  &[data-has-output-above='false'] .cm-editor {
     border-top-left-radius: 9px;
     border-top-right-radius: 9px;
   }
@@ -304,7 +305,7 @@
   /* Expand the hover area left and right */
   &::before,
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     width: var(--gutter-width);
     max-width: var(--gutter-width);
@@ -407,4 +408,15 @@
 
 .console-output-area {
   background-color: var(--color-mine-bg);
+}
+
+/* ── Lab Mode: Thin dashed separator between cells ─────────── */
+[data-slot='lab-fullscreen'] .marimo-cell + .marimo-cell::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 10%;
+  right: 10%;
+  border-top: 1px dashed var(--color-mine-border);
+  pointer-events: none;
 }
