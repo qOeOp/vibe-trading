@@ -411,7 +411,13 @@
 }
 
 /* ── Lab Mode: Thin dashed separator between cells ─────────── */
-[data-slot='lab-fullscreen'] .marimo-cell + .marimo-cell::before {
+/* Cells are wrapped: cell-column > div.outline-hidden > .marimo-cell
+   Target the wrapper siblings, not the cells directly */
+[data-slot='lab-fullscreen']
+  [data-testid='cell-column']
+  > *
+  + *
+  > .marimo-cell::before {
   content: '';
   position: absolute;
   top: -5px;

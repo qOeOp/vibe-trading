@@ -29,8 +29,16 @@ function MineAppChrome({ children }: PropsWithChildren) {
           <MineTabBar />
 
           {/* Marimo EditApp renders here — real cells from kernel */}
-          <div className="flex-1 min-h-0 overflow-y-auto rounded-lg">
+          {/* data-slot="lab-fullscreen" scopes cell.css lab-mode styles:
+              dashed separators, focus-based controls, shine borders,
+              gutter run button, cell type indicator, progressive blur */}
+          <div
+            data-slot="lab-fullscreen"
+            className="relative flex-1 min-h-0 overflow-y-auto rounded-lg"
+          >
             {children}
+            {/* Progressive blur — fades editor bottom into dock area */}
+            <div data-slot="editor-progressive-blur" />
           </div>
         </div>
       </div>
