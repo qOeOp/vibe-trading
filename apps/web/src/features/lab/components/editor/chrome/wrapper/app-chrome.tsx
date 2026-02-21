@@ -45,6 +45,7 @@ import { useDependencyPanelTab } from './useDependencyPanelTab';
 import { handleDragging } from './utils';
 import { useLabModeStore } from '../../../../store/use-lab-mode-store';
 import { useLabChromeStore } from '../../../../store/use-lab-chrome-store';
+import { FloatingPanels } from './floating-panels';
 
 const LazyTerminal = React.lazy(() => import('@/components/terminal/terminal'));
 const LazyChatPanel = React.lazy(() => import('@/components/chat/chat-panel'));
@@ -228,11 +229,13 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   // Sync Zustand (LabCollapsedSidebar) → Jotai (Marimo chrome state) in lab mode
   const labChromePanel = useLabChromeStore((s) => s.selectedPanel);
   const labChromeSidebarOpen = useLabChromeStore((s) => s.isSidebarOpen);
+  const hasOpenPanels = useLabChromeStore((s) => s.openPanels.length > 0);
 
   useEffect(() => {
     if (!isLabActive) return;
     if (labChromeSidebarOpen && labChromePanel) {
       openApplication(labChromePanel as PanelType);
+      setIsSidebarOpen(true);
     } else if (!labChromeSidebarOpen) {
       setIsSidebarOpen(false);
     }
@@ -416,8 +419,10 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
         'print:hidden hide-on-fullscreen',
         isLabActive
           ? cn(
-              'bg-white/70 backdrop-blur-2xl',
-              isSidebarOpen && 'border-r border-mine-border',
+              'bg-white shadow-sm rounded-xl m-2 mr-0 overflow-hidden',
+              isSidebarOpen
+                ? 'border border-mine-border'
+                : 'border border-transparent',
             )
           : cn(
               'dark:bg-(--slate-1)',
@@ -562,20 +567,34 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     </Panel>
   );
 
-  // Lab active mode: hide editor sidebar + developer panel, use floating dock footer
+  // Lab active mode: floating cards on left, editor center, context panel right
   if (isLabActive) {
     return (
       <PanelsWrapper>
-        <PanelGroup autoSaveId="marimo:chrome:v1:l2" direction={'horizontal'}>
-          {/* No Sidebar in lab mode — managed by LabCollapsedSidebar in DocModeShell */}
-          {helperPanel}
-          <Panel
-            id="app-chrome-body"
-            className={cn(!isSidebarOpen && 'border-l', 'relative')}
-          >
-            {/* No developer panel (bottomPanel) in lab mode */}
+        <PanelGroup autoSaveId="marimo:chrome:lab:v1" direction={'horizontal'}>
+          {/* Floating cards — only when panels are open */}
+          {hasOpenPanels && (
+            <>
+              <Panel
+                id="lab-floating-cards"
+                defaultSize={30}
+                minSize={20}
+                maxSize={50}
+                className="p-3 pr-0"
+              >
+                <FloatingPanels sidebarPanels={SIDEBAR_PANELS} />
+              </Panel>
+              <PanelResizeHandle
+                onDragging={handleDragging}
+                className="w-2 flex items-center justify-center group cursor-col-resize"
+              >
+                <div className="h-8 w-0.5 rounded-full bg-mine-border group-hover:bg-mine-accent-teal transition-colors" />
+              </PanelResizeHandle>
+            </>
+          )}
+          <Panel id="app-chrome-body" className="relative">
             {appBodyPanel}
-            {/* Floating dock — positioned relative to editor body, not full viewport */}
+            {/* Floating dock — positioned relative to editor body */}
             <ErrorBoundary>
               <TooltipProvider>
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
