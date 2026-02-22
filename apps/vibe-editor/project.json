@@ -15,8 +15,29 @@
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "python -m py_compile main.py",
+        "commands": [
+          "python -m py_compile main.py",
+          "python -m py_compile vt_sessions/manager.py",
+          "python -m py_compile vt_sessions/models.py",
+          "python -m py_compile vt_sessions/workspace.py",
+          "python -m py_compile vt_sessions/routes.py"
+        ],
+        "cwd": "apps/vibe-editor",
+        "parallel": false
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python -m pytest tests/ -v",
         "cwd": "apps/vibe-editor"
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t vibe-editor:latest -f apps/vibe-editor/Dockerfile .",
+        "cwd": "{workspaceRoot}"
       }
     }
   }
