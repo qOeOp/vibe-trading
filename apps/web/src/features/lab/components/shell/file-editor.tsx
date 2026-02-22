@@ -47,6 +47,7 @@ function FileEditor({ path }: FileEditorProps) {
 
   const [value, setValue] = useState('');
   const savedRef = useRef('');
+  const valueRef = useRef('');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data, error, isPending } = useAsyncData(async () => {
@@ -73,6 +74,7 @@ function FileEditor({ path }: FileEditorProps) {
   const handleChange = useCallback(
     (newValue: string) => {
       setValue(newValue);
+      valueRef.current = newValue;
       const isDirty = newValue !== savedRef.current;
       setDirty(path, isDirty);
 
@@ -85,11 +87,17 @@ function FileEditor({ path }: FileEditorProps) {
   );
 
   // Flush pending save on unmount or path change
+  const doSaveRef = useRef(doSave);
+  doSaveRef.current = doSave;
   useEffect(() => {
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
+        // Flush dirty content that was pending within the debounce window
+        if (valueRef.current !== savedRef.current) {
+          doSaveRef.current(valueRef.current);
+        }
       }
     };
   }, [path]);
@@ -111,7 +119,11 @@ function FileEditor({ path }: FileEditorProps) {
         data-slot="file-editor-loading"
         className="flex-1 flex items-center justify-center"
       >
-        <div className="w-4 h-4 rounded-full border-2 border-mine-border border-t-mine-muted animate-spin" />
+        <div className="flex flex-col gap-2 w-full max-w-md px-6">
+          <div className="h-3 w-3/4 rounded bg-mine-border animate-pulse" />
+          <div className="h-3 w-1/2 rounded bg-mine-border animate-pulse" />
+          <div className="h-3 w-5/6 rounded bg-mine-border animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -121,7 +133,11 @@ function FileEditor({ path }: FileEditorProps) {
       <Suspense
         fallback={
           <div className="flex-1 flex items-center justify-center p-4">
-            <div className="w-4 h-4 rounded-full border-2 border-mine-border border-t-mine-muted animate-spin" />
+            <div className="flex flex-col gap-2 w-full max-w-md px-6">
+              <div className="h-3 w-3/4 rounded bg-mine-border animate-pulse" />
+              <div className="h-3 w-1/2 rounded bg-mine-border animate-pulse" />
+              <div className="h-3 w-5/6 rounded bg-mine-border animate-pulse" />
+            </div>
           </div>
         }
       >

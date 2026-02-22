@@ -116,14 +116,16 @@ function ActivityBar({
 
         return (
           <div key={item.id} className="contents">
-            {needsSeparator && <div className="w-5 h-px bg-[#e0e0e0] my-0.5" />}
+            {needsSeparator && (
+              <div className="w-5 h-px bg-mine-border my-0.5" />
+            )}
             <button
               title={item.label}
               className={cn(
                 'w-[36px] h-[36px] flex items-center justify-center rounded-[9px] relative transition-all',
                 isActive
-                  ? 'bg-[#1a1a1a] text-white scale-105'
-                  : 'bg-white text-[#1a1a1a] hover:scale-105',
+                  ? 'bg-mine-nav-active text-white scale-105'
+                  : 'bg-white text-mine-text hover:scale-105',
               )}
               style={{ boxShadow: isActive ? undefined : BUTTON_SHADOW }}
               onClick={() => onPanelToggle?.(item.id)}
@@ -154,7 +156,7 @@ function ActivityBar({
       })}
       <div className="flex-1" />
       <button
-        className="w-[36px] h-[36px] flex items-center justify-center rounded-[9px] bg-white text-[#1a1a1a] relative hover:scale-105 transition-transform"
+        className="w-[36px] h-[36px] flex items-center justify-center rounded-[9px] bg-white text-mine-text relative hover:scale-105 transition-transform"
         style={{ boxShadow: BUTTON_SHADOW }}
       >
         <div

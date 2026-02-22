@@ -66,15 +66,15 @@ function ConnectedTab({ tab, isActive }: { tab: FileTab; isActive: boolean }) {
       className={cn(
         'group flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-mono font-medium rounded-md transition-colors',
         isActive
-          ? 'text-white bg-[#1a1a1a]'
-          : 'text-[#a3a3a3] hover:bg-[#f5f5f5] cursor-pointer',
+          ? 'text-white bg-mine-nav-active'
+          : 'text-mine-muted hover:bg-mine-bg cursor-pointer',
       )}
       onClick={() => setActive(tab.id)}
     >
       <Icon
         className={cn(
           'w-3.5 h-3.5 shrink-0',
-          isActive ? 'text-white/70' : 'text-[#b3b3b3]',
+          isActive ? 'text-white/70' : 'text-mine-muted',
         )}
         strokeWidth={1.5}
       />
@@ -93,7 +93,7 @@ function ConnectedTab({ tab, isActive }: { tab: FileTab; isActive: boolean }) {
             'ml-0.5 text-[9px] px-1 py-0.5 rounded font-sans',
             isActive
               ? 'text-white/50 bg-white/10'
-              : 'text-[#b3b3b3] bg-[#f0f0f0]',
+              : 'text-mine-muted bg-mine-bg',
           )}
         >
           NB
@@ -105,7 +105,7 @@ function ConnectedTab({ tab, isActive }: { tab: FileTab; isActive: boolean }) {
             'ml-0.5 w-4 h-4 flex items-center justify-center rounded-sm shrink-0 transition-colors',
             isActive
               ? 'text-white/40 hover:text-white hover:bg-white/10'
-              : 'text-transparent group-hover:text-[#a3a3a3] hover:text-[#525252] hover:bg-[#e5e5e5]',
+              : 'text-transparent group-hover:text-mine-muted hover:text-mine-text hover:bg-mine-border',
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -134,14 +134,14 @@ function StaticTabItem({
       className={cn(
         'flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-mono font-medium rounded-md transition-colors',
         isActive
-          ? 'text-white bg-[#1a1a1a]'
-          : 'text-[#a3a3a3] hover:bg-[#f5f5f5] cursor-pointer',
+          ? 'text-white bg-mine-nav-active'
+          : 'text-mine-muted hover:bg-mine-bg cursor-pointer',
       )}
     >
       <Icon
         className={cn(
           'w-3.5 h-3.5',
-          isActive ? 'text-white/70' : 'text-[#b3b3b3]',
+          isActive ? 'text-white/70' : 'text-mine-muted',
         )}
         strokeWidth={1.5}
       />
@@ -185,7 +185,7 @@ function MineTabBar({ className }: MineTabBarProps) {
           ))
         ) : (
           /* Connected but no tabs yet — show minimal placeholder */
-          <div className="flex items-center px-3 py-1.5 text-[12px] font-mono text-[#a3a3a3]">
+          <div className="flex items-center px-3 py-1.5 text-[12px] font-mono text-mine-muted">
             等待 notebook 初始化...
           </div>
         )

@@ -181,8 +181,10 @@ function SidePanel({
           <div className="flex-1 min-h-0 overflow-y-auto">
             <Suspense
               fallback={
-                <div className="flex-1 flex items-center justify-center p-4">
-                  <div className="w-4 h-4 rounded-full border-2 border-mine-border border-t-mine-muted animate-spin" />
+                <div className="flex-1 flex flex-col gap-2 p-4">
+                  <div className="h-3 w-3/4 rounded bg-mine-border animate-pulse" />
+                  <div className="h-3 w-1/2 rounded bg-mine-border animate-pulse" />
+                  <div className="h-3 w-2/3 rounded bg-mine-border animate-pulse" />
                 </div>
               }
             >
