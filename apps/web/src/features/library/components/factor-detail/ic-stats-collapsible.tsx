@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { DetailSection, DetailKV } from "@/components/shared/detail-panel";
-import type { Factor } from "../../types";
+import type { Factor } from "@/features/library/types";
 
 function fmtIC(v: number): string {
   return `${v >= 0 ? "+" : ""}${v.toFixed(4)}`;

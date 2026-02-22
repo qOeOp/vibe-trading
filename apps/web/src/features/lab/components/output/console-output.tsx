@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import type { OutputMessage } from "../../types";
+import type { OutputMessage } from "@/features/lab/types";
 
 // ─── ANSI Support ────────────────────────────────────────
 

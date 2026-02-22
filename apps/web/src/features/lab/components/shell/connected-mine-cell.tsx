@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useLabCellStore } from '../../store/use-lab-cell-store';
+import { useLabCellStore } from '@/features/lab/store/use-lab-cell-store';
 import { MineCell } from './mine-cell';
 import { MineCodeEditor } from './mine-code-editor';
 import { OutputArea } from '../cell/output-area';

@@ -11,8 +11,8 @@ import type { Encoding } from "vega-lite/build/encoding";
 import type { Resolve } from "vega-lite/build/resolve";
 import type { FacetFieldDef } from "vega-lite/build/spec/facet";
 import type { z } from "zod";
-import type { ResolvedTheme } from "../../../../theme/useTheme";
-import type { TypedString } from "../../../../utils/typed";
+import type { ResolvedTheme } from "@/features/lab/theme/useTheme";
+import type { TypedString } from "@/features/lab/utils/typed";
 import {
   COUNT_FIELD,
   DEFAULT_AGGREGATION,

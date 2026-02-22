@@ -2,7 +2,7 @@
 
 import { useAtom } from "jotai";
 import { CopyIcon, HomeIcon, XCircleIcon } from "lucide-react";
-import { kernelStartupErrorAtom } from "../../core/errors/state";
+import { kernelStartupErrorAtom } from "@/features/lab/core/errors/state";
 import {
   AlertDialog,
   AlertDialogAction,

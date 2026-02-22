@@ -1,15 +1,15 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { SimpleTree } from 'react-arborist';
-import { toast } from '../../ui/use-toast';
+import { toast } from '@/features/lab/components/ui/use-toast';
 import type {
   EditRequests,
   FileInfo,
   FileUpdateResponse,
-} from '../../../core/network/types';
-import { prettyError } from '../../../utils/errors';
-import { Functions } from '../../../utils/functions';
-import { type FilePath, PathBuilder } from '../../../utils/paths';
+} from '@/features/lab/core/network/types';
+import { prettyError } from '@/features/lab/utils/errors';
+import { Functions } from '@/features/lab/utils/functions';
+import { type FilePath, PathBuilder } from '@/features/lab/utils/paths';
 
 export class RequestingTree {
   private delegate = new SimpleTree<FileInfo>([]);

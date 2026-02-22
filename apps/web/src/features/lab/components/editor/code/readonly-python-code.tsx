@@ -8,14 +8,14 @@ import CodeMirror, {
 import { CopyIcon, EyeIcon, EyeOffIcon, PlusIcon } from "lucide-react";
 import { memo, useState } from "react";
 import { useAddCodeToNewCell } from "../cell/useAddCell";
-import { Button } from "../../ui/button";
-import { Tooltip } from "../../ui/tooltip";
-import { toast } from "../../ui/use-toast";
-import { customPythonLanguageSupport } from "../../../core/codemirror/language/languages/python";
-import { useTheme } from "../../../theme/useTheme";
-import { cn } from "../../../utils/cn";
-import { copyToClipboard } from "../../../utils/copy";
-import { Events } from "../../../utils/events";
+import { Button } from "@/features/lab/components/ui/button";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { customPythonLanguageSupport } from "@/features/lab/core/codemirror/language/languages/python";
+import { useTheme } from "@/features/lab/theme/useTheme";
+import { cn } from "@/features/lab/utils/cn";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { Events } from "@/features/lab/utils/events";
 
 const pythonExtensions = [
   customPythonLanguageSupport(),

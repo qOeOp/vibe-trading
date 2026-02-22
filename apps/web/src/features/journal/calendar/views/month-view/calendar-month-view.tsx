@@ -3,15 +3,15 @@ import { useMemo } from "react";
 import {
 	staggerContainer,
 	transition,
-} from "../../animations";
-import { useCalendar } from "../../contexts/calendar-context";
+} from "@/features/journal/calendar/animations";
+import { useCalendar } from "@/features/journal/calendar/contexts/calendar-context";
 
 import {
 	calculateMonthEventPositions,
 	getCalendarCells,
-} from "../../helpers";
+} from "@/features/journal/calendar/helpers";
 
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/features/journal/calendar/interfaces";
 import { DayCell } from "./day-cell";
 
 interface IProps {

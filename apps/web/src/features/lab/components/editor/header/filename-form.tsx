@@ -2,9 +2,9 @@
 
 import type { JSX } from "react";
 import { FilenameInput } from "./filename-input";
-import { useUpdateFilename } from "../../../core/saving/filename";
-import { useSaveNotebook } from "../../../core/saving/save-component";
-import { Paths } from "../../../utils/paths";
+import { useUpdateFilename } from "@/features/lab/core/saving/filename";
+import { useSaveNotebook } from "@/features/lab/core/saving/save-component";
+import { Paths } from "@/features/lab/utils/paths";
 
 export const FilenameForm = ({
   filename,

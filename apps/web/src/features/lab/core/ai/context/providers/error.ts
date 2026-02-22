@@ -1,12 +1,12 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { Completion } from "@codemirror/autocomplete";
-import { cellErrorsAtom } from "../../../cells/cells";
-import type { CellId } from "../../../cells/ids";
-import type { MarimoError } from "../../../kernel/messages";
-import type { JotaiStore } from "../../../state/jotai";
-import { logNever } from "../../../../utils/assertNever";
-import { PluralWord } from "../../../../utils/pluralize";
+import { cellErrorsAtom } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import type { MarimoError } from "@/features/lab/core/kernel/messages";
+import type { JotaiStore } from "@/features/lab/core/state/jotai";
+import { logNever } from "@/features/lab/utils/assertNever";
+import { PluralWord } from "@/features/lab/utils/pluralize";
 import { type AIContextItem, AIContextProvider } from "../registry";
 import { contextToXml } from "../utils";
 import { Sections } from "./common";

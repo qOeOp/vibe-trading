@@ -2,23 +2,23 @@
 
 import type { Completion } from "@codemirror/autocomplete";
 import { createRoot } from "react-dom/client";
-import { dbDisplayName } from "../../../../components/databases/display";
-import { cellDataAtom } from "../../../cells/cells";
-import type { CellId } from "../../../cells/ids";
-import { LanguageAdapters } from "../../../codemirror/language/LanguageAdapters";
-import { renderDatasourceInfo } from "../../../codemirror/language/languages/sql/renderers";
+import { dbDisplayName } from "@/features/lab/components/databases/display";
+import { cellDataAtom } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { LanguageAdapters } from "@/features/lab/core/codemirror/language/LanguageAdapters";
+import { renderDatasourceInfo } from "@/features/lab/core/codemirror/language/languages/sql/renderers";
 import {
   type ConnectionsMap,
   type DatasetTablesMap,
   dataSourceConnectionsAtom,
   getTableType,
-} from "../../../datasets/data-source-connections";
+} from "@/features/lab/core/datasets/data-source-connections";
 import {
   type ConnectionName,
   INTERNAL_SQL_ENGINES,
-} from "../../../datasets/engines";
-import type { DataSourceConnection, DataTable } from "../../../kernel/messages";
-import { store } from "../../../state/jotai";
+} from "@/features/lab/core/datasets/engines";
+import type { DataSourceConnection, DataTable } from "@/features/lab/core/kernel/messages";
+import { store } from "@/features/lab/core/state/jotai";
 import type { AIContextItem } from "../registry";
 import { AIContextProvider } from "../registry";
 import { contextToXml } from "../utils";

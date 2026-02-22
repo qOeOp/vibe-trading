@@ -1,11 +1,11 @@
 import { getYear, isSameDay, isSameMonth } from "date-fns";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { staggerContainer, transition } from "../../animations";
-import { useCalendar } from "../../contexts/calendar-context";
-import { EventListDialog } from "../../dialogs/events-list-dialog";
-import { getCalendarCells } from "../../helpers";
-import type { IEvent } from "../../interfaces";
+import { staggerContainer, transition } from "@/features/journal/calendar/animations";
+import { useCalendar } from "@/features/journal/calendar/contexts/calendar-context";
+import { EventListDialog } from "@/features/journal/calendar/dialogs/events-list-dialog";
+import { getCalendarCells } from "@/features/journal/calendar/helpers";
+import type { IEvent } from "@/features/journal/calendar/interfaces";
 import { EventBullet } from "../month-view/event-bullet";
 
 interface IProps {

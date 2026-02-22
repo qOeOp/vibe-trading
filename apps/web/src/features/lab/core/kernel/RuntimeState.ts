@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { Logger } from "../../utils/Logger";
+import { Logger } from "@/features/lab/utils/Logger";
 import {
   MarimoValueReadyEvent,
   type MarimoValueReadyEventType,

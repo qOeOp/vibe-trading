@@ -7,14 +7,14 @@ import {
   getNotebook,
   type NotebookState,
   useCellActions,
-} from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
-import { enabledCellIds, staleCellIds } from "../../../core/cells/utils";
-import { getCurrentLanguageAdapter } from "../../../core/codemirror/language/commands";
-import { getEditorCodeAsPython } from "../../../core/codemirror/language/utils";
-import { useRequestClient } from "../../../core/network/requests";
-import type { ExecuteCellsRequest } from "../../../core/network/types";
-import { Logger } from "../../../utils/Logger";
+} from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { enabledCellIds, staleCellIds } from "@/features/lab/core/cells/utils";
+import { getCurrentLanguageAdapter } from "@/features/lab/core/codemirror/language/commands";
+import { getEditorCodeAsPython } from "@/features/lab/core/codemirror/language/utils";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import type { ExecuteCellsRequest } from "@/features/lab/core/network/types";
+import { Logger } from "@/features/lab/utils/Logger";
 
 export const hasRunAnyCellAtom = atom<boolean>(false);
 

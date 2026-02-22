@@ -2,13 +2,13 @@
 
 import type { SQLConfig, SQLDialect } from "@codemirror/lang-sql";
 import { atom } from "jotai";
-import { isSchemaless } from "../../../../../components/datasources/utils";
-import { dataConnectionsMapAtom } from "../../../../datasets/data-source-connections";
-import type { ConnectionName } from "../../../../datasets/engines";
-import { datasetTablesAtom } from "../../../../datasets/state";
-import type { DataSourceConnection } from "../../../../kernel/messages";
-import { store } from "../../../../state/jotai";
-import { LRUCache } from "../../../../../utils/lru";
+import { isSchemaless } from "@/features/lab/components/datasources/utils";
+import { dataConnectionsMapAtom } from "@/features/lab/core/datasets/data-source-connections";
+import type { ConnectionName } from "@/features/lab/core/datasets/engines";
+import { datasetTablesAtom } from "@/features/lab/core/datasets/state";
+import type { DataSourceConnection } from "@/features/lab/core/kernel/messages";
+import { store } from "@/features/lab/core/state/jotai";
+import { LRUCache } from "@/features/lab/utils/lru";
 import { CompletionBuilder } from "./completion-builder";
 import { guessDialect, ModifiedStandardSQL } from "./utils";
 

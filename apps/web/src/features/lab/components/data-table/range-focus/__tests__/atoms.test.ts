@@ -19,7 +19,7 @@ vi.mock("../utils", async (importOriginal) => {
   };
 });
 
-import { copyToClipboard } from "../../../../utils/copy";
+import { copyToClipboard } from "@/features/lab/utils/copy";
 import type { CellSelectionState, SelectedCell } from "../atoms";
 import {
   createCellCopiedAtom,

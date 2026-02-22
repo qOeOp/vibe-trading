@@ -1,5 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { DataSources } from "../../../datasources/datasources";
+import { DataSources } from "@/features/lab/components/datasources/datasources";
 
 const DataSourcesPanel: React.FC = () => {
   return <DataSources />;

@@ -1,12 +1,12 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { SquareIcon } from "lucide-react";
 import type { JSX } from "react";
-import { useRequestClient } from "../../../core/network/requests";
-import type { RuntimeState } from "../../../core/network/types";
-import { isAppInteractionDisabled } from "../../../core/websocket/connection-utils";
-import type { WebSocketState } from "../../../core/websocket/types";
-import { Functions } from "../../../utils/functions";
-import { renderShortcut } from "../../shortcuts/renderShortcut";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import type { RuntimeState } from "@/features/lab/core/network/types";
+import { isAppInteractionDisabled } from "@/features/lab/core/websocket/connection-utils";
+import type { WebSocketState } from "@/features/lab/core/websocket/types";
+import { Functions } from "@/features/lab/utils/functions";
+import { renderShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
 import { ToolbarItem } from "./toolbar";
 import { useShouldShowInterrupt } from "./useShouldShowInterrupt";
 

@@ -4,12 +4,12 @@ import { useState } from 'react';
 import { Plus, ChevronDown } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 import { cn } from '@/lib/utils';
-import { useCellActions } from '../../core/cells/cells';
-import { maybeAddMarimoImport } from '../../core/cells/add-missing-import';
-import { LanguageAdapters } from '../../core/codemirror/language/LanguageAdapters';
-import { MARKDOWN_INITIAL_HIDE_CODE } from '../../core/codemirror/language/languages/markdown';
-import { canInteractWithAppAtom } from '../../core/network/connection';
-import type { CellColumnId } from '../../utils/id-tree';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { maybeAddMarimoImport } from '@/features/lab/core/cells/add-missing-import';
+import { LanguageAdapters } from '@/features/lab/core/codemirror/language/LanguageAdapters';
+import { MARKDOWN_INITIAL_HIDE_CODE } from '@/features/lab/core/codemirror/language/languages/markdown';
+import { canInteractWithAppAtom } from '@/features/lab/core/network/connection';
+import type { CellColumnId } from '@/features/lab/utils/id-tree';
 
 type MineAddCellAreaProps = {
   columnId: CellColumnId;

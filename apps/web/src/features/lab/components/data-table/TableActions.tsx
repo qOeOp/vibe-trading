@@ -9,8 +9,8 @@ import {
   SearchIcon,
 } from "lucide-react";
 import React from "react";
-import type { GetRowIds } from "../../plugins/impl/DataTablePlugin";
-import { cn } from "../../utils/cn";
+import type { GetRowIds } from "@/features/lab/plugins/impl/DataTablePlugin";
+import { cn } from "@/features/lab/utils/cn";
 import type { PanelType } from "../editor/chrome/panels/context-aware-panel/context-aware-panel";
 import { Button } from "../ui/button";
 import { Tooltip } from "../ui/tooltip";

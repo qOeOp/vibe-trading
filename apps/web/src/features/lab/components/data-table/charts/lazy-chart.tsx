@@ -4,7 +4,7 @@ import React from "react";
 import type { TopLevelSpec } from "vega-lite";
 import { LazyVegaEmbed } from "@/components/charts/lazy";
 import { tooltipHandler } from "@/components/charts/tooltip";
-import { useTheme } from "../../../theme/useTheme";
+import { useTheme } from "@/features/lab/theme/useTheme";
 import type { ErrorMessage } from "./chart-spec/spec";
 import { augmentSpecWithData } from "./chart-spec/spec";
 import { ChartInfoState } from "./components/chart-states";

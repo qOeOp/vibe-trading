@@ -6,17 +6,17 @@ import { motion } from "framer-motion";
 import { useMemo, useCallback } from "react";
 
 import { cn } from "@/lib/utils";
-import { transition } from "../../animations";
-import { EventListDialog } from "../../dialogs/events-list-dialog";
-import { DroppableArea } from "../../dnd/droppable-area";
-import { getMonthCellEvents } from "../../helpers";
-import { useMediaQuery } from "../../hooks";
-import type { ICalendarCell, IEvent } from "../../interfaces";
+import { transition } from "@/features/journal/calendar/animations";
+import { EventListDialog } from "@/features/journal/calendar/dialogs/events-list-dialog";
+import { DroppableArea } from "@/features/journal/calendar/dnd/droppable-area";
+import { getMonthCellEvents } from "@/features/journal/calendar/helpers";
+import { useMediaQuery } from "@/features/journal/calendar/hooks";
+import type { ICalendarCell, IEvent } from "@/features/journal/calendar/interfaces";
 import { EventBullet } from "./event-bullet";
 import { MonthEventBadge } from "./month-event-badge";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { AddEditEventDialog } from "../../dialogs/add-edit-event-dialog";
+import { AddEditEventDialog } from "@/features/journal/calendar/dialogs/add-edit-event-dialog";
 
 interface IProps {
   cell: ICalendarCell;

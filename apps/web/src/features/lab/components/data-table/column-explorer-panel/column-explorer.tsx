@@ -7,29 +7,29 @@ import {
   renderChart,
   renderPreviewError,
   renderStats,
-} from "../../datasources/column-preview";
+} from "@/features/lab/components/datasources/column-preview";
 import {
   ColumnName,
   ColumnPreviewContainer,
   EmptyState,
   ErrorState,
   LoadingState,
-} from "../../datasources/components";
-import { ErrorBoundary } from "../../editor/boundary/ErrorBoundary";
-import { CopyClipboardIcon } from "../../icons/copy-icon";
-import { Button } from "../../ui/button";
+} from "@/features/lab/components/datasources/components";
+import { ErrorBoundary } from "@/features/lab/components/editor/boundary/ErrorBoundary";
+import { CopyClipboardIcon } from "@/features/lab/components/icons/copy-icon";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from "../../ui/command";
-import { Tooltip } from "../../ui/tooltip";
-import type { DataType } from "../../../core/kernel/messages";
-import { useAsyncData } from "../../../hooks/useAsyncData";
-import type { PreviewColumn } from "../../../plugins/impl/DataTablePlugin";
-import { useTheme } from "../../../theme/useTheme";
+} from "@/features/lab/components/ui/command";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import type { PreviewColumn } from "@/features/lab/plugins/impl/DataTablePlugin";
+import { useTheme } from "@/features/lab/theme/useTheme";
 import { NAMELESS_COLUMN_PREFIX } from "../columns";
 import { prettifyRowColumnCount } from "../pagination";
 import {

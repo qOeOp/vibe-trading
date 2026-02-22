@@ -2,9 +2,9 @@
 import { type JSX, useId, useMemo, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { z } from "zod";
-import { cn } from "../../utils/cn";
-import { Combobox, ComboboxItem } from "../../components/ui/combobox";
-import { CommandSeparator } from "../../components/ui/command";
+import { cn } from "@/features/lab/utils/cn";
+import { Combobox, ComboboxItem } from "@/features/lab/components/ui/combobox";
+import { CommandSeparator } from "@/features/lab/components/ui/command";
 import type { IPlugin, IPluginProps, Setter } from "../types";
 import { Labeled } from "./common/labeled";
 import { multiselectFilterFn } from "./multiselectFilterFn";

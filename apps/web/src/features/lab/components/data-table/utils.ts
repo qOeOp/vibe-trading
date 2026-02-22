@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { TableData } from "../../plugins/impl/DataTablePlugin";
-import { vegaLoadData } from "../../plugins/impl/vega/loader";
-import { jsonParseWithSpecialChar } from "../../utils/json/json-parser";
+import type { TableData } from "@/features/lab/plugins/impl/DataTablePlugin";
+import { vegaLoadData } from "@/features/lab/plugins/impl/vega/loader";
+import { jsonParseWithSpecialChar } from "@/features/lab/utils/json/json-parser";
 import { INDEX_COLUMN_NAME } from "./types";
 
 /**

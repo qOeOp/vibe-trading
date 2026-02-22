@@ -2,12 +2,12 @@
 
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
-import type { AppConfig } from '../../core/config/config-schema';
-import { isAppClosed } from '../../core/websocket/connection-utils';
-import type { ConnectionStatus } from '../../core/websocket/types';
-import { cn } from '../../utils/cn';
+import type { AppConfig } from '@/features/lab/core/config/config-schema';
+import { isAppClosed } from '@/features/lab/core/websocket/connection-utils';
+import type { ConnectionStatus } from '@/features/lab/core/websocket/types';
+import { cn } from '@/features/lab/utils/cn';
 import { WrappedWithSidebar } from './renderers/vertical-layout/sidebar/wrapped-with-sidebar';
-import { useLabModeStore } from '../../store/use-lab-mode-store';
+import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 
 interface Props {
   connection: ConnectionStatus;

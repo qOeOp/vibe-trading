@@ -10,8 +10,8 @@ import {
   XIcon,
 } from "lucide-react";
 import * as React from "react";
-import { StyleNamespace } from "../../theme/namespace";
-import { cn } from "../../utils/cn";
+import { StyleNamespace } from "@/features/lab/theme/namespace";
+import { cn } from "@/features/lab/utils/cn";
 import { withFullScreenAsRoot, withSmartCollisionBoundary } from "./fullscreen";
 import { MENU_ITEM_DISABLED } from "./menu-items";
 import { selectStyles } from "./native-select";

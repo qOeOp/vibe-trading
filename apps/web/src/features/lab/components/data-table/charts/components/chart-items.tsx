@@ -6,14 +6,14 @@ import { ChevronDown } from "lucide-react";
 import React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import type { z } from "zod";
-import { buttonVariants } from "../../../ui/button";
+import { buttonVariants } from "@/features/lab/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectValue,
-} from "../../../ui/select";
-import type { DataType } from "../../../../core/kernel/messages";
+} from "@/features/lab/components/ui/select";
+import type { DataType } from "@/features/lab/core/kernel/messages";
 import { isFieldSet } from "../chart-spec/spec";
 import { convertDataTypeToSelectable } from "../chart-spec/types";
 import {

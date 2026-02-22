@@ -1,7 +1,7 @@
 "use client";
 
 import { DetailSection } from "@/components/shared/detail-panel";
-import type { Factor } from "../../types";
+import type { Factor } from "@/features/library/types";
 
 function retentionColorClass(pct: number): string {
   if (pct >= 70) return "text-market-down-medium";

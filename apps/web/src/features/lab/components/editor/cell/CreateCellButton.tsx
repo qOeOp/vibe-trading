@@ -2,24 +2,24 @@
 import { DatabaseIcon, DiamondPlusIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../inputs/Inputs";
-import { MinimalHotkeys } from "../../shortcuts/renderShortcut";
+import { MinimalHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-import { maybeAddMarimoImport } from "../../../core/cells/add-missing-import";
-import { useCellActions } from "../../../core/cells/cells";
-import { LanguageAdapters } from "../../../core/codemirror/language/LanguageAdapters";
-import { MARKDOWN_INITIAL_HIDE_CODE } from "../../../core/codemirror/language/languages/markdown";
+} from "@/features/lab/components/ui/dropdown-menu";
+import { maybeAddMarimoImport } from "@/features/lab/core/cells/add-missing-import";
+import { useCellActions } from "@/features/lab/core/cells/cells";
+import { LanguageAdapters } from "@/features/lab/core/codemirror/language/LanguageAdapters";
+import { MARKDOWN_INITIAL_HIDE_CODE } from "@/features/lab/core/codemirror/language/languages/markdown";
 import {
   getConnectionTooltip,
   isAppInteractionDisabled,
-} from "../../../core/websocket/connection-utils";
-import type { WebSocketState } from "../../../core/websocket/types";
-import { cn } from "../../../utils/cn";
-import { Tooltip } from "../../ui/tooltip";
+} from "@/features/lab/core/websocket/connection-utils";
+import type { WebSocketState } from "@/features/lab/core/websocket/types";
+import { cn } from "@/features/lab/utils/cn";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
 import { MarkdownIcon, PythonIcon } from "./code/icons";
 
 export const CreateCellButton = ({

@@ -3,8 +3,8 @@
 import { syntaxTree } from "@codemirror/language";
 import type { EditorState } from "@codemirror/state";
 import type { SyntaxNode, Tree, TreeCursor } from "@lezer/common";
-import type { CellId } from "../../cells/ids";
-import type { VariableName, Variables } from "../../variables/types";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import type { VariableName, Variables } from "@/features/lab/core/variables/types";
 
 export interface ReactiveVariableRange {
   from: number;

@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { UIMessage } from "@ai-sdk/react";
-import { Logger } from "../../utils/Logger";
+import { Logger } from "@/features/lab/utils/Logger";
 import type { ChatId, ChatState } from "./state";
 
 interface ReplaceMessagesInChatParams {

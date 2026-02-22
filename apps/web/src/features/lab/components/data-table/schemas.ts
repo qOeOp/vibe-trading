@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import z from "zod";
-import { rpc } from "../../plugins/core/rpc";
+import { rpc } from "@/features/lab/plugins/core/rpc";
 
 export type DownloadAsArgs = (req: {
   format: "csv" | "json" | "parquet";

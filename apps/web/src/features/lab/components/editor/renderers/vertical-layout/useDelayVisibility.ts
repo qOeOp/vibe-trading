@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useState } from "react";
-import type { AppMode } from "../../../../core/mode";
-import { useOnMount } from "../../../../hooks/useLifecycle";
-import { clamp } from "../../../../utils/math";
+import type { AppMode } from "@/features/lab/core/mode";
+import { useOnMount } from "@/features/lab/hooks/useLifecycle";
+import { clamp } from "@/features/lab/utils/math";
 
 const DELAY_PER_CELL = 30; // ms
 

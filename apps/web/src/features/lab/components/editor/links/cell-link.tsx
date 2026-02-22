@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { JSX } from "react"; /* Copyright 2026 Marimo. All rights reserved. */
-import { useCellActions, useCellIds, useCellNames } from "../../../core/cells/cells";
-import { type CellId, HTMLCellId, SCRATCH_CELL_ID } from "../../../core/cells/ids";
-import { displayCellName } from "../../../core/cells/names";
-import { goToCellLine } from "../../../core/codemirror/go-to-definition/utils";
-import { useFilename } from "../../../core/saving/filename";
-import { cn } from "../../../utils/cn";
-import { Logger } from "../../../utils/Logger";
+import { useCellActions, useCellIds, useCellNames } from "@/features/lab/core/cells/cells";
+import { type CellId, HTMLCellId, SCRATCH_CELL_ID } from "@/features/lab/core/cells/ids";
+import { displayCellName } from "@/features/lab/core/cells/names";
+import { goToCellLine } from "@/features/lab/core/codemirror/go-to-definition/utils";
+import { useFilename } from "@/features/lab/core/saving/filename";
+import { cn } from "@/features/lab/utils/cn";
+import { Logger } from "@/features/lab/utils/Logger";
 
 interface Props {
   cellId: CellId;

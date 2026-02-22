@@ -4,16 +4,16 @@ import { useAtomValue } from "jotai";
 import { DatabaseZapIcon, RefreshCwIcon, Trash2Icon } from "lucide-react";
 import React, { useState } from "react";
 import { useLocale } from "react-aria";
-import { Spinner } from "../../../icons/spinner";
-import { Button } from "../../../ui/button";
-import { ConfirmationButton } from "../../../ui/confirmation-button";
-import { toast } from "../../../ui/use-toast";
-import { cacheInfoAtom } from "../../../../core/cache/requests";
-import { useRequestClient } from "../../../../core/network/requests";
-import { useAsyncData } from "../../../../hooks/useAsyncData";
-import { cn } from "../../../../utils/cn";
-import { formatBytes, formatTime } from "../../../../utils/formatting";
-import { prettyNumber } from "../../../../utils/numbers";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { Button } from "@/features/lab/components/ui/button";
+import { ConfirmationButton } from "@/features/lab/components/ui/confirmation-button";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { cacheInfoAtom } from "@/features/lab/core/cache/requests";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { cn } from "@/features/lab/utils/cn";
+import { formatBytes, formatTime } from "@/features/lab/utils/formatting";
+import { prettyNumber } from "@/features/lab/utils/numbers";
 import { PanelEmptyState } from "./empty-state";
 
 const CachePanel = () => {

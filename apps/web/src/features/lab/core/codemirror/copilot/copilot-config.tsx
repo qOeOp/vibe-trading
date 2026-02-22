@@ -2,12 +2,12 @@
 import { useAtom } from "jotai";
 import { CheckIcon, CopyIcon, Loader2Icon, XIcon } from "lucide-react";
 import { memo, useState } from "react";
-import { Button, buttonVariants } from "../../../components/ui/button";
-import { Label } from "../../../components/ui/label";
-import { ExternalLink } from "../../../components/ui/links";
-import { toast } from "../../../components/ui/use-toast";
-import { copyToClipboard } from "../../../utils/copy";
-import { Logger } from "../../../utils/Logger";
+import { Button, buttonVariants } from "@/features/lab/components/ui/button";
+import { Label } from "@/features/lab/components/ui/label";
+import { ExternalLink } from "@/features/lab/components/ui/links";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { Logger } from "@/features/lab/utils/Logger";
 import { getCopilotClient } from "./client";
 import { copilotSignedInState, isGitHubCopilotSignedInState } from "./state";
 import type { GitHubCopilotStatus } from "./types";

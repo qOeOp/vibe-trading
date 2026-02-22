@@ -2,13 +2,13 @@
 
 import type { EditorView } from "@codemirror/view";
 import type * as LSP from "vscode-languageserver-protocol";
-import { getNotebook } from "../../cells/cells";
-import type { CellId } from "../../cells/ids";
-import { store } from "../../state/jotai";
-import { invariant } from "../../../utils/invariant";
-import { Logger } from "../../../utils/Logger";
-import { LRUCache } from "../../../utils/lru";
-import { Objects } from "../../../utils/objects";
+import { getNotebook } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { store } from "@/features/lab/core/state/jotai";
+import { invariant } from "@/features/lab/utils/invariant";
+import { Logger } from "@/features/lab/utils/Logger";
+import { LRUCache } from "@/features/lab/utils/lru";
+import { Objects } from "@/features/lab/utils/objects";
 import { getPositionAtWordBounds } from "../completion/hints";
 import { topologicalCodesAtom } from "../copilot/getCodes";
 import {

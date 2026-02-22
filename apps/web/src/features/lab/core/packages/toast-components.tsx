@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { Kbd } from "../../components/ui/kbd";
-import { toast } from "../../components/ui/use-toast";
+import { Kbd } from "@/features/lab/components/ui/kbd";
+import { toast } from "@/features/lab/components/ui/use-toast";
 
 export const showAddPackageToast = (
   packageName: string,

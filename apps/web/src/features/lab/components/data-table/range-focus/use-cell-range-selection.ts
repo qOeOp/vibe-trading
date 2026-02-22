@@ -2,7 +2,7 @@
 
 import type { Cell, Table } from "@tanstack/react-table";
 import useEvent from "react-use-event-hook";
-import { Events } from "../../../utils/events";
+import { Events } from "@/features/lab/utils/events";
 import { type SelectedCell, useCellSelectionReducerActions } from "./atoms";
 
 export interface UseCellRangeSelectionProps<TData> {

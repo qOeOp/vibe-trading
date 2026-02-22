@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 
 interface Props {
   wrapperClassName?: string;

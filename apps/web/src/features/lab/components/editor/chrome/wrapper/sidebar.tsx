@@ -5,14 +5,14 @@ import { MessageCircleQuestionIcon } from 'lucide-react';
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
 import { useEffect, useMemo } from 'react';
-import { ReorderableList } from '../../../ui/reorderable-list';
-import { Tooltip } from '../../../ui/tooltip';
+import { ReorderableList } from '@/features/lab/components/ui/reorderable-list';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
 import {
   cellErrorCount,
   notebookQueuedOrRunningCountAtom,
-} from '../../../../core/cells/cells';
-import { capabilitiesAtom } from '../../../../core/config/capabilities';
-import { cn } from '../../../../utils/cn';
+} from '@/features/lab/core/cells/cells';
+import { capabilitiesAtom } from '@/features/lab/core/config/capabilities';
+import { cn } from '@/features/lab/utils/cn';
 import { FeedbackButton } from '../components/feedback-button';
 import { panelLayoutAtom, useChromeActions, useChromeState } from '../state';
 import {
@@ -21,7 +21,7 @@ import {
   PANELS,
   type PanelDescriptor,
 } from '../types';
-import { useLabMode } from '../../../lab-mode-context';
+import { useLabMode } from '@/features/lab/components/lab-mode-context';
 
 export const Sidebar: React.FC = () => {
   const { isLabMode } = useLabMode();

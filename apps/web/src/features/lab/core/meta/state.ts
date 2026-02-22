@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom } from 'jotai';
-import { Logger } from '../../utils/Logger';
+import { Logger } from '@/features/lab/utils/Logger';
 
 function getVersionFromMountConfig(): string | null {
   try {

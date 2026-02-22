@@ -16,10 +16,10 @@ import {
 import {
   getAIContextRegistry,
   getFileContextProvider,
-} from "../../ai/context/context";
-import type { AIContextItem } from "../../ai/context/registry";
-import type { JotaiStore } from "../../state/jotai";
-import { Logger } from "../../../utils/Logger";
+} from "@/features/lab/core/ai/context/context";
+import type { AIContextItem } from "@/features/lab/core/ai/context/registry";
+import type { JotaiStore } from "@/features/lab/core/state/jotai";
+import { Logger } from "@/features/lab/utils/Logger";
 import { contextCallbacks } from "./state";
 
 const NONE_RESOURCE_TYPE = "_none_";

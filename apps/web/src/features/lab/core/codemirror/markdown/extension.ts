@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { type Extension, Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
-import type { HotkeyProvider } from "../../hotkeys/hotkeys";
+import type { HotkeyProvider } from "@/features/lab/core/hotkeys/hotkeys";
 import {
   insertBlockquote,
   insertBoldMarker,

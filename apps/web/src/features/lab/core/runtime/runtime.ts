@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { Deferred } from '../../utils/Deferred';
-import { Logger } from '../../utils/Logger';
+import { Deferred } from '@/features/lab/utils/Deferred';
+import { Logger } from '@/features/lab/utils/Logger';
 import { KnownQueryParams } from '../constants';
 import { isIslands } from '../islands/utils';
 import { getSessionId, type SessionId } from '../kernel/session';

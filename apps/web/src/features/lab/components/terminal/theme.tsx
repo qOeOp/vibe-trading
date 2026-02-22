@@ -1,5 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import type { ResolvedTheme } from "../../theme/useTheme";
+import type { ResolvedTheme } from "@/features/lab/theme/useTheme";
 
 // Terminal theme configuration
 export function createTerminalTheme(theme: ResolvedTheme) {

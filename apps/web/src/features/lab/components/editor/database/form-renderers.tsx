@@ -4,10 +4,10 @@ import { partition } from "lodash-es";
 import { KeyIcon, PlusCircleIcon } from "lucide-react";
 import { createContext, type ReactNode, use } from "react";
 import { z } from "zod";
-import type { FormRenderer } from "../../forms/form";
-import { FieldOptions } from "../../forms/options";
-import { useImperativeModal } from "../../modal/ImperativeModal";
-import { Button } from "../../ui/button";
+import type { FormRenderer } from "@/features/lab/components/forms/form";
+import { FieldOptions } from "@/features/lab/components/forms/options";
+import { useImperativeModal } from "@/features/lab/components/modal/ImperativeModal";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
+} from "@/features/lab/components/ui/dropdown-menu";
 import {
   FormControl,
   FormDescription,
@@ -23,13 +23,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../../ui/form";
-import { Input } from "../../ui/input";
-import { NumberField } from "../../ui/number-field";
-import { SECRETS_REGISTRY } from "../../../core/secrets/request-registry";
-import { useAsyncData } from "../../../hooks/useAsyncData";
-import { cn } from "../../../utils/cn";
-import { Functions } from "../../../utils/functions";
+} from "@/features/lab/components/ui/form";
+import { Input } from "@/features/lab/components/ui/input";
+import { NumberField } from "@/features/lab/components/ui/number-field";
+import { SECRETS_REGISTRY } from "@/features/lab/core/secrets/request-registry";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { cn } from "@/features/lab/utils/cn";
+import { Functions } from "@/features/lab/utils/functions";
 import {
   sortProviders,
   WriteSecretModal,

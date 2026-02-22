@@ -9,26 +9,26 @@ import {
   CommandEmpty,
   CommandInput,
   CommandItem,
-} from "../../../ui/command";
-import type { Snippet } from "../../../../core/network/types";
-import { useAsyncData } from "../../../../hooks/useAsyncData";
-import { renderHTML } from "../../../../plugins/core/RenderHTML";
-import { ErrorBanner } from "../../../../plugins/impl/common/error-banner";
+} from "@/features/lab/components/ui/command";
+import type { Snippet } from "@/features/lab/core/network/types";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { renderHTML } from "@/features/lab/plugins/core/RenderHTML";
+import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
 import { PanelEmptyState } from "./empty-state";
 
 import "./snippets-panel.css";
 import { EditorView } from "@codemirror/view";
 import { Suspense } from "react";
-import { Spinner } from "../../../icons/spinner";
-import { Button } from "../../../ui/button";
-import { Tooltip } from "../../../ui/tooltip";
-import { useCellActions } from "../../../../core/cells/cells";
-import { useLastFocusedCellId } from "../../../../core/cells/focus";
-import { useRequestClient } from "../../../../core/network/requests";
-import { LazyAnyLanguageCodeMirror } from "../../../../plugins/impl/code/LazyAnyLanguageCodeMirror";
-import { useTheme } from "../../../../theme/useTheme";
-import { cn } from "../../../../utils/cn";
-import { HideInKioskMode } from "../../kiosk-mode";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { Button } from "@/features/lab/components/ui/button";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { useCellActions } from "@/features/lab/core/cells/cells";
+import { useLastFocusedCellId } from "@/features/lab/core/cells/focus";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { LazyAnyLanguageCodeMirror } from "@/features/lab/plugins/impl/code/LazyAnyLanguageCodeMirror";
+import { useTheme } from "@/features/lab/theme/useTheme";
+import { cn } from "@/features/lab/utils/cn";
+import { HideInKioskMode } from "@/features/lab/components/editor/kiosk-mode";
 import { ContributeSnippetButton } from "../components/contribute-snippet-button";
 import { usePanelOrientation, usePanelSection } from "./panel-context";
 

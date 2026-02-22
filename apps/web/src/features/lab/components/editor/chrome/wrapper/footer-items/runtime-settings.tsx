@@ -9,21 +9,21 @@ import {
   ZapOffIcon,
 } from "lucide-react";
 import type React from "react";
-import { DisableIfOverridden } from "../../../../app-config/is-overridden";
+import { DisableIfOverridden } from "@/features/lab/components/app-config/is-overridden";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../../../ui/dropdown-menu";
-import { ExternalLink } from "../../../../ui/links";
-import { Switch } from "../../../../ui/switch";
-import { Tooltip, TooltipProvider } from "../../../../ui/tooltip";
-import { useResolvedMarimoConfig } from "../../../../../core/config/config";
-import { useRequestClient } from "../../../../../core/network/requests";
-import { isWasm } from "../../../../../core/wasm/utils";
-import { cn } from "../../../../../utils/cn";
+} from "@/features/lab/components/ui/dropdown-menu";
+import { ExternalLink } from "@/features/lab/components/ui/links";
+import { Switch } from "@/features/lab/components/ui/switch";
+import { Tooltip, TooltipProvider } from "@/features/lab/components/ui/tooltip";
+import { useResolvedMarimoConfig } from "@/features/lab/core/config/config";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { isWasm } from "@/features/lab/core/wasm/utils";
+import { cn } from "@/features/lab/utils/cn";
 import { FooterItem } from "../footer-item";
 
 interface RuntimeSettingsProps {

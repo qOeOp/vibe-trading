@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { getIframeCapabilities } from '../../utils/capabilities';
+import { getIframeCapabilities } from '@/features/lab/utils/capabilities';
 
 /**
  * In-memory storage implementation of the Storage interface.

@@ -2,7 +2,7 @@
 
 import { HashIcon, InfoIcon } from "lucide-react";
 import type React from "react";
-import { dbDisplayName } from "../../../../../components/databases/display";
+import { dbDisplayName } from "@/features/lab/components/databases/display";
 import {
   ColumnIcon,
   DatabaseIcon,
@@ -12,13 +12,13 @@ import {
   SchemaIcon,
   TableIcon,
   ViewIcon,
-} from "../../../../../components/databases/namespace-icons";
-import { DATA_TYPE_ICON } from "../../../../../components/datasets/icons";
-import { Badge } from "../../../../../components/ui/badge";
+} from "@/features/lab/components/databases/namespace-icons";
+import { DATA_TYPE_ICON } from "@/features/lab/components/datasets/icons";
+import { Badge } from "@/features/lab/components/ui/badge";
 import {
   type ConnectionName,
   INTERNAL_SQL_ENGINES,
-} from "../../../../datasets/engines";
+} from "@/features/lab/core/datasets/engines";
 import type {
   Database,
   DatabaseSchema,
@@ -26,8 +26,8 @@ import type {
   DataTable,
   DataTableColumn,
   DataType,
-} from "../../../../kernel/messages";
-import { PluralWord } from "../../../../../utils/pluralize";
+} from "@/features/lab/core/kernel/messages";
+import { PluralWord } from "@/features/lab/utils/pluralize";
 
 // Configuration constants
 const PREVIEW_ITEM_LIMIT = 5;

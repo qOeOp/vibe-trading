@@ -7,11 +7,11 @@ import {
   Transaction,
 } from "@codemirror/state";
 import type { EditorView } from "@codemirror/view";
-import { toast } from "../../../components/ui/use-toast";
-import { getRequestClient } from "../../network/requests";
-import { filenameAtom } from "../../saving/file-state";
-import { store } from "../../state/jotai";
-import { type FilePath, Paths } from "../../../utils/paths";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { getRequestClient } from "@/features/lab/core/network/requests";
+import { filenameAtom } from "@/features/lab/core/saving/file-state";
+import { store } from "@/features/lab/core/state/jotai";
+import { type FilePath, Paths } from "@/features/lab/utils/paths";
 
 const MAX_BASE64_SIZE_KB = 100;
 

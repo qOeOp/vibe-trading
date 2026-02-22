@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type { AnyWidget, Experimental } from '@anywidget/types';
-import { asRemoteURL } from '../../../core/runtime/config';
-import { resolveVirtualFileURL } from '../../../core/static/files';
-import { isStaticNotebook } from '../../../core/static/static-state';
-import { Logger } from '../../../utils/Logger';
+import { asRemoteURL } from '@/features/lab/core/runtime/config';
+import { resolveVirtualFileURL } from '@/features/lab/core/static/files';
+import { isStaticNotebook } from '@/features/lab/core/static/static-state';
+import { Logger } from '@/features/lab/utils/Logger';
 import type { Model } from './model';
 import type { ModelState, WidgetModelId } from './types';
 

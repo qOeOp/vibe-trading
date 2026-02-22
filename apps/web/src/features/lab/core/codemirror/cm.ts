@@ -43,7 +43,7 @@ import {
   tooltips,
 } from '@codemirror/view';
 import { aiExtension, triggerOptions } from '@marimo-team/codemirror-ai';
-import type { Theme } from '../../theme/useTheme';
+import type { Theme } from '@/features/lab/theme/useTheme';
 import { getNotebook } from '../cells/cells';
 import type { CellId } from '../cells/ids';
 import type {

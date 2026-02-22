@@ -6,8 +6,8 @@ import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
 import * as React from "react";
 import { Dialog, DialogContent } from "./dialog";
-import { cn } from "../../utils/cn";
-import { Strings } from "../../utils/strings";
+import { cn } from "@/features/lab/utils/cn";
+import { Strings } from "@/features/lab/utils/strings";
 import {
   MENU_ITEM_DISABLED,
   MenuShortcut,

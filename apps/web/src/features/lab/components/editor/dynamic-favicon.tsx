@@ -2,8 +2,8 @@
 
 import { usePrevious } from '@dnd-kit/utilities';
 import { useEffect } from 'react';
-import { useCellErrors } from '../../core/cells/cells';
-import { useEventListener } from '../../hooks/useEventListener';
+import { useCellErrors } from '@/features/lab/core/cells/cells';
+import { useEventListener } from '@/features/lab/hooks/useEventListener';
 
 // VT manages its own favicon — use placeholder strings instead of .ico imports
 const successFaviconUrl = { src: '/favicon.ico' };

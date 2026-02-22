@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { toast } from "../../components/ui/use-toast";
-import { Logger } from "../../utils/Logger";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { Logger } from "@/features/lab/utils/Logger";
 import type { EditRequests, RunRequests } from "./types";
 
 export function createStaticRequests(): EditRequests & RunRequests {

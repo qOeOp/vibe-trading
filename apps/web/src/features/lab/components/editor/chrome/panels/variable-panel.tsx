@@ -2,9 +2,9 @@
 
 import { FunctionSquareIcon } from "lucide-react";
 import type React from "react";
-import { VariableTable } from "../../../variables/variables-table";
-import { useCellIds } from "../../../../core/cells/cells";
-import { useVariables } from "../../../../core/variables/state";
+import { VariableTable } from "@/features/lab/components/variables/variables-table";
+import { useCellIds } from "@/features/lab/core/cells/cells";
+import { useVariables } from "@/features/lab/core/variables/state";
 import { PanelEmptyState } from "./empty-state";
 
 const VariablePanel: React.FC = () => {

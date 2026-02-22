@@ -19,17 +19,17 @@ import {
   getMatches,
   replaceAll,
   replaceNext,
-} from "../../core/codemirror/find-replace/navigate";
+} from "@/features/lab/core/codemirror/find-replace/navigate";
 import {
   clearGlobalSearchQuery,
   setGlobalSearchQuery,
-} from "../../core/codemirror/find-replace/search-highlight";
+} from "@/features/lab/core/codemirror/find-replace/search-highlight";
 import {
   findReplaceAtom,
   openFindReplacePanel,
-} from "../../core/codemirror/find-replace/state";
-import { hotkeysAtom } from "../../core/config/config";
-import { useHotkey } from "../../hooks/useHotkey";
+} from "@/features/lab/core/codemirror/find-replace/state";
+import { hotkeysAtom } from "@/features/lab/core/config/config";
+import { useHotkey } from "@/features/lab/hooks/useHotkey";
 import { UndoButton } from "../buttons/undo-button";
 import { KeyboardHotkeys } from "../shortcuts/renderShortcut";
 import { Button } from "../ui/button";

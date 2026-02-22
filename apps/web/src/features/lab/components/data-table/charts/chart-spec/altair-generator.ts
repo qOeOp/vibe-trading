@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { VegaLiteSpec } from "../../../../plugins/impl/vega/types";
+import type { VegaLiteSpec } from "@/features/lab/plugins/impl/vega/types";
 import {
   FunctionCall,
   Literal,
   type PythonCode,
   Variable,
   VariableDeclaration,
-} from "../../../../utils/python-poet/poet";
+} from "@/features/lab/utils/python-poet/poet";
 import { escapeFieldName } from "./utils";
 
 /**

@@ -2,9 +2,9 @@
 
 import { useAtomValue } from "jotai";
 import React from "react";
-import { notebookOutline } from "../../../../../core/cells/cells";
-import type { OutlineItem } from "../../../../../core/cells/outline";
-import { cn } from "../../../../../utils/cn";
+import { notebookOutline } from "@/features/lab/core/cells/cells";
+import type { OutlineItem } from "@/features/lab/core/cells/outline";
+import { cn } from "@/features/lab/utils/cn";
 import {
   findOutlineElements,
   scrollToOutlineItem,

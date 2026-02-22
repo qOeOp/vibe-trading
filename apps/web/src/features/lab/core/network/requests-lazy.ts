@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { NoKernelConnectedError } from "../../utils/errors";
-import { Logger } from "../../utils/Logger";
-import { Objects } from "../../utils/objects";
-import { memoizeLastValue } from "../../utils/once";
+import { NoKernelConnectedError } from "@/features/lab/utils/errors";
+import { Logger } from "@/features/lab/utils/Logger";
+import { Objects } from "@/features/lab/utils/objects";
+import { memoizeLastValue } from "@/features/lab/utils/once";
 import { waitForKernelToBeInstantiated } from "../kernel/state";
 import type { RuntimeManager } from "../runtime/runtime";
 import { store } from "../state/jotai";

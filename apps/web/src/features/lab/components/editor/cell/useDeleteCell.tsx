@@ -1,16 +1,16 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import useEvent from "react-use-event-hook";
-import { UndoButton } from "../../buttons/undo-button";
-import { toast } from "../../ui/use-toast";
+import { UndoButton } from "@/features/lab/components/buttons/undo-button";
+import { toast } from "@/features/lab/components/ui/use-toast";
 import {
   hasOnlyOneCellAtom,
   notebookAtom,
   useCellActions,
-} from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
-import { useRequestClient } from "../../../core/network/requests";
-import { store } from "../../../core/state/jotai";
+} from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { store } from "@/features/lab/core/state/jotai";
 
 export function useDeleteCellCallback() {
   const { deleteCell, undoDeleteCell } = useCellActions();

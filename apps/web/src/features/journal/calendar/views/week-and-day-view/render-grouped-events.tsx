@@ -1,6 +1,6 @@
 import { areIntervalsOverlapping, parseISO } from "date-fns";
-import { getEventBlockStyle } from "../../helpers";
-import type { IEvent } from "../../interfaces";
+import { getEventBlockStyle } from "@/features/journal/calendar/helpers";
+import type { IEvent } from "@/features/journal/calendar/interfaces";
 import { EventBlock } from "./event-block";
 
 interface RenderGroupedEventsProps {

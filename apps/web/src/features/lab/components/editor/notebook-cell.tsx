@@ -21,21 +21,21 @@ import useEvent from 'react-use-event-hook';
 import { StopButton } from './cell/StopButton';
 import { Toolbar, ToolbarItem } from './cell/toolbar';
 import { Tooltip, TooltipProvider } from '../ui/tooltip';
-import { aiCompletionCellAtom } from '../../core/ai/state';
-import { outputIsLoading, outputIsStale } from '../../core/cells/cell';
-import { isOutputEmpty } from '../../core/cells/outputs';
-import { autocompletionKeymap } from '../../core/codemirror/cm';
-import type { LanguageAdapterType } from '../../core/codemirror/language/types';
-import { CSSClasses } from '../../core/constants';
-import { canCollapseOutline } from '../../core/dom/outline';
-import { isErrorMime } from '../../core/mime';
-import type { AppMode } from '../../core/mode';
-import { connectionAtom } from '../../core/network/connection';
-import { useRequestClient } from '../../core/network/requests';
-import type { CellConfig, RuntimeState } from '../../core/network/types';
-import { useResizeObserver } from '../../hooks/useResizeObserver';
-import { cn } from '../../utils/cn';
-import type { Milliseconds, Seconds } from '../../utils/time';
+import { aiCompletionCellAtom } from '@/features/lab/core/ai/state';
+import { outputIsLoading, outputIsStale } from '@/features/lab/core/cells/cell';
+import { isOutputEmpty } from '@/features/lab/core/cells/outputs';
+import { autocompletionKeymap } from '@/features/lab/core/codemirror/cm';
+import type { LanguageAdapterType } from '@/features/lab/core/codemirror/language/types';
+import { CSSClasses } from '@/features/lab/core/constants';
+import { canCollapseOutline } from '@/features/lab/core/dom/outline';
+import { isErrorMime } from '@/features/lab/core/mime';
+import type { AppMode } from '@/features/lab/core/mode';
+import { connectionAtom } from '@/features/lab/core/network/connection';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import type { CellConfig, RuntimeState } from '@/features/lab/core/network/types';
+import { useResizeObserver } from '@/features/lab/hooks/useResizeObserver';
+import { cn } from '@/features/lab/utils/cn';
+import type { Milliseconds, Seconds } from '@/features/lab/utils/time';
 import {
   type CellActions,
   createUntouchedCellAtom,
@@ -43,16 +43,16 @@ import {
   useCellData,
   useCellHandle,
   useCellRuntime,
-} from '../../core/cells/cells';
-import { type CellId, SETUP_CELL_ID } from '../../core/cells/ids';
-import { isUninstantiated } from '../../core/cells/utils';
-import type { UserConfig } from '../../core/config/config-schema';
-import { isAppInteractionDisabled } from '../../core/websocket/connection-utils';
-import { useCellRenderCount } from '../../hooks/useCellRenderCount';
-import type { Theme } from '../../theme/useTheme';
-import { derefNotNull } from '../../utils/dereference';
-import { Functions } from '../../utils/functions';
-import { Logger } from '../../utils/Logger';
+} from '@/features/lab/core/cells/cells';
+import { type CellId, SETUP_CELL_ID } from '@/features/lab/core/cells/ids';
+import { isUninstantiated } from '@/features/lab/core/cells/utils';
+import type { UserConfig } from '@/features/lab/core/config/config-schema';
+import { isAppInteractionDisabled } from '@/features/lab/core/websocket/connection-utils';
+import { useCellRenderCount } from '@/features/lab/hooks/useCellRenderCount';
+import type { Theme } from '@/features/lab/theme/useTheme';
+import { derefNotNull } from '@/features/lab/utils/dereference';
+import { Functions } from '@/features/lab/utils/functions';
+import { Logger } from '@/features/lab/utils/Logger';
 import { renderShortcut } from '../shortcuts/renderShortcut';
 import { CellStatusComponent } from './cell/CellStatus';
 import { CreateCellButton } from './cell/CreateCellButton';

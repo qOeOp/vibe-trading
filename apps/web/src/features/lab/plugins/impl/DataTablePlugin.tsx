@@ -22,24 +22,24 @@ import React, {
 } from "react";
 import useEvent from "react-use-event-hook";
 import { z } from "zod";
-import type { CellSelectionState } from "../../components/data-table/cell-selection/types";
-import type { CellStyleState } from "../../components/data-table/cell-styling/types";
-import { TablePanel } from "../../components/data-table/charts/charts";
-import { hasChart } from "../../components/data-table/charts/storage";
-import { ColumnExplorerPanel } from "../../components/data-table/column-explorer-panel/column-explorer";
-import { ColumnChartSpecModel } from "../../components/data-table/column-summary/chart-spec-model";
-import { ColumnChartContext } from "../../components/data-table/column-summary/column-summary";
+import type { CellSelectionState } from "@/features/lab/components/data-table/cell-selection/types";
+import type { CellStyleState } from "@/features/lab/components/data-table/cell-styling/types";
+import { TablePanel } from "@/features/lab/components/data-table/charts/charts";
+import { hasChart } from "@/features/lab/components/data-table/charts/storage";
+import { ColumnExplorerPanel } from "@/features/lab/components/data-table/column-explorer-panel/column-explorer";
+import { ColumnChartSpecModel } from "@/features/lab/components/data-table/column-summary/chart-spec-model";
+import { ColumnChartContext } from "@/features/lab/components/data-table/column-summary/column-summary";
 import {
   type ColumnFilterValue,
   filterToFilterCondition,
-} from "../../components/data-table/filters";
-import { usePanelOwnership } from "../../components/data-table/hooks/use-panel-ownership";
-import { LoadingTable } from "../../components/data-table/loading-table";
-import { RowViewerPanel } from "../../components/data-table/row-viewer-panel/row-viewer";
+} from "@/features/lab/components/data-table/filters";
+import { usePanelOwnership } from "@/features/lab/components/data-table/hooks/use-panel-ownership";
+import { LoadingTable } from "@/features/lab/components/data-table/loading-table";
+import { RowViewerPanel } from "@/features/lab/components/data-table/row-viewer-panel/row-viewer";
 import {
   type DownloadAsArgs,
   DownloadAsSchema,
-} from "../../components/data-table/schemas";
+} from "@/features/lab/components/data-table/schemas";
 import {
   type BinValues,
   type ColumnHeaderStats,
@@ -50,32 +50,32 @@ import {
   type TooManyRows,
   toFieldTypes,
   type ValueCounts,
-} from "../../components/data-table/types";
+} from "@/features/lab/components/data-table/types";
 import {
   getPageIndexForRow,
   loadTableData,
-} from "../../components/data-table/utils";
-import { ErrorBoundary } from "../../components/editor/boundary/ErrorBoundary";
-import { ContextAwarePanelItem } from "../../components/editor/chrome/panels/context-aware-panel/context-aware-panel";
-import { Alert, AlertTitle } from "../../components/ui/alert";
-import { Button } from "../../components/ui/button";
-import { DelayMount } from "../../components/utils/delay-mount";
-import { type CellId, findCellId } from "../../core/cells/ids";
-import { slotsController } from "../../core/slots/slots";
-import { store } from "../../core/state/jotai";
-import { isStaticNotebook } from "../../core/static/static-state";
-import { isInVscodeExtension } from "../../core/vscode/is-in-vscode";
-import { useAsyncData } from "../../hooks/useAsyncData";
-import { useDeepCompareMemoize } from "../../hooks/useDeepCompareMemoize";
-import { useEffectSkipFirstRender } from "../../hooks/useEffectSkipFirstRender";
-import { Arrays } from "../../utils/arrays";
-import { Functions } from "../../utils/functions";
-import { Logger } from "../../utils/Logger";
+} from "@/features/lab/components/data-table/utils";
+import { ErrorBoundary } from "@/features/lab/components/editor/boundary/ErrorBoundary";
+import { ContextAwarePanelItem } from "@/features/lab/components/editor/chrome/panels/context-aware-panel/context-aware-panel";
+import { Alert, AlertTitle } from "@/features/lab/components/ui/alert";
+import { Button } from "@/features/lab/components/ui/button";
+import { DelayMount } from "@/features/lab/components/utils/delay-mount";
+import { type CellId, findCellId } from "@/features/lab/core/cells/ids";
+import { slotsController } from "@/features/lab/core/slots/slots";
+import { store } from "@/features/lab/core/state/jotai";
+import { isStaticNotebook } from "@/features/lab/core/static/static-state";
+import { isInVscodeExtension } from "@/features/lab/core/vscode/is-in-vscode";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { useDeepCompareMemoize } from "@/features/lab/hooks/useDeepCompareMemoize";
+import { useEffectSkipFirstRender } from "@/features/lab/hooks/useEffectSkipFirstRender";
+import { Arrays } from "@/features/lab/utils/arrays";
+import { Functions } from "@/features/lab/utils/functions";
+import { Logger } from "@/features/lab/utils/Logger";
 import {
   generateColumns,
   inferFieldTypes,
-} from "../../components/data-table/columns";
-import { DataTable } from "../../components/data-table/data-table";
+} from "@/features/lab/components/data-table/columns";
+import { DataTable } from "@/features/lab/components/data-table/data-table";
 import { createPlugin } from "../core/builder";
 import { rpc } from "../core/rpc";
 import { Banner } from "./common/error-banner";

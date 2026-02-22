@@ -4,7 +4,7 @@
 import type { ColumnPinningState } from "@tanstack/react-table";
 import { isEqual } from "lodash-es";
 import React from "react";
-import { useInternalStateWithSync } from "../../../hooks/useInternalStateWithSync";
+import { useInternalStateWithSync } from "@/features/lab/hooks/useInternalStateWithSync";
 import { SELECT_COLUMN_ID } from "../types";
 
 interface UseColumnPinningResult {

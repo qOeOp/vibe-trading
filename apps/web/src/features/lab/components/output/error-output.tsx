@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { MarimoError } from "../../types";
+import type { MarimoError } from "@/features/lab/types";
 
 // ─── Error Output ────────────────────────────────────────
 

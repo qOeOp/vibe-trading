@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { waitForConnectionOpen } from "../../network/connection";
-import type { AiCompletionRequest } from "../../network/types";
-import { getRuntimeManager } from "../../runtime/config";
+import { waitForConnectionOpen } from "@/features/lab/core/network/connection";
+import type { AiCompletionRequest } from "@/features/lab/core/network/types";
+import { getRuntimeManager } from "@/features/lab/core/runtime/config";
 import type { LanguageAdapterType } from "../language/types";
 
 /**

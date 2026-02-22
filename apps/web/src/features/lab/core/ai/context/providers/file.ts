@@ -7,12 +7,12 @@ import {
   type CompletionSource,
   closeCompletion,
 } from "@codemirror/autocomplete";
-import { toast } from "../../../../components/ui/use-toast";
-import { contextCallbacks } from "../../../codemirror/ai/state";
-import type { EditRequests, FileInfo, RunRequests } from "../../../network/types";
-import { deserializeBlob } from "../../../../utils/blob";
-import { type Base64String, base64ToDataURL } from "../../../../utils/json/base64";
-import { Logger } from "../../../../utils/Logger";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { contextCallbacks } from "@/features/lab/core/codemirror/ai/state";
+import type { EditRequests, FileInfo, RunRequests } from "@/features/lab/core/network/types";
+import { deserializeBlob } from "@/features/lab/utils/blob";
+import { type Base64String, base64ToDataURL } from "@/features/lab/utils/json/base64";
+import { Logger } from "@/features/lab/utils/Logger";
 import { type AIContextItem, AIContextProvider } from "../registry";
 import { contextToXml } from "../utils";
 import { Boosts, Sections } from "./common";

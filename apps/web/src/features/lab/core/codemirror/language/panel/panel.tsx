@@ -1,15 +1,15 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import type { EditorView } from '@codemirror/view';
-import type { QuotePrefixKind } from '../../../../packages/smart-cells';
+import type { QuotePrefixKind } from '@/features/lab/packages/smart-cells';
 import { InfoIcon, PaintRollerIcon } from 'lucide-react';
-import { Button } from '../../../../components/ui/button';
-import { Checkbox } from '../../../../components/ui/checkbox';
-import { Tooltip, TooltipProvider } from '../../../../components/ui/tooltip';
-import { normalizeName } from '../../../cells/names';
-import { type ConnectionName, DUCKDB_ENGINE } from '../../../datasets/engines';
-import { useAutoGrowInputProps } from '../../../../hooks/useAutoGrowInputProps';
-import { cellIdState } from '../../cells/state';
-import { formatSQL } from '../../format';
+import { Button } from '@/features/lab/components/ui/button';
+import { Checkbox } from '@/features/lab/components/ui/checkbox';
+import { Tooltip, TooltipProvider } from '@/features/lab/components/ui/tooltip';
+import { normalizeName } from '@/features/lab/core/cells/names';
+import { type ConnectionName, DUCKDB_ENGINE } from '@/features/lab/core/datasets/engines';
+import { useAutoGrowInputProps } from '@/features/lab/hooks/useAutoGrowInputProps';
+import { cellIdState } from '@/features/lab/core/codemirror/cells/state';
+import { formatSQL } from '@/features/lab/core/codemirror/format';
 import { languageAdapterState } from '../extension';
 import { MarkdownLanguageAdapter } from '../languages/markdown';
 import {

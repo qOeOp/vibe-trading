@@ -2,7 +2,7 @@
 
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { jotaiJsonStorage } from "../../../../utils/storage/jotai";
+import { jotaiJsonStorage } from "@/features/lab/utils/storage/jotai";
 
 const AI_PANEL_TAB_KEY = "marimo:chrome:ai-panel-tab";
 

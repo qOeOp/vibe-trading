@@ -12,8 +12,8 @@ vi.mock("@/utils/storage/storage", () => ({
   },
 }));
 
-import type { CellId } from "../../../../core/cells/ids";
-import { availableStorage } from "../../../../utils/storage/storage";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { availableStorage } from "@/features/lab/utils/storage/storage";
 import { ChartSchema } from "../schemas";
 import type { TabName } from "../storage";
 import { KEY, tabsStorageAtom } from "../storage";

@@ -2,7 +2,7 @@
 
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 
 export const LargeSpinner = ({ title }: { title?: string }) => {
   const [currentTitle, setCurrentTitle] = useState(title);

@@ -2,9 +2,9 @@
 import {
   StatefulOutputMessage,
   type StringOutputMessage,
-} from "../../components/editor/output/ansi-reduce";
+} from "@/features/lab/components/editor/output/ansi-reduce";
 import type { OutputMessage } from "../kernel/messages";
-import { invariant } from "../../utils/invariant";
+import { invariant } from "@/features/lab/utils/invariant";
 
 /**
  * Collapses the last text/plain cells with the preceding one on the same

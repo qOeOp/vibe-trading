@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import React, { type PropsWithChildren } from "react";
-import { Label } from "../../../components/ui/label";
-import { renderHTML } from "../../core/RenderHTML";
-import { cn } from "../../../utils/cn";
+import { Label } from "@/features/lab/components/ui/label";
+import { renderHTML } from "@/features/lab/plugins/core/RenderHTML";
+import { cn } from "@/features/lab/utils/cn";
 
 interface Props {
   label: string | null | undefined;

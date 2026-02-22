@@ -6,8 +6,8 @@ import {
   type SHORT_WILDCARD,
   type WildcardProperty,
 } from "compassql/build/src/wildcard";
-import { invariant } from "../../../utils/invariant";
-import { Logger } from "../../../utils/Logger";
+import { invariant } from "@/features/lab/utils/invariant";
+import { Logger } from "@/features/lab/utils/Logger";
 import {
   fromFieldQueryFunctionMixins,
   toFieldQueryFunctionMixins,

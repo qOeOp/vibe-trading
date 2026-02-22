@@ -2,8 +2,8 @@
 
 import type React from "react";
 import { forwardRef } from "react";
-import { Tooltip } from "../../../ui/tooltip";
-import { cn } from "../../../../utils/cn";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { cn } from "@/features/lab/utils/cn";
 
 type FooterItemProps = {
   selected: boolean;

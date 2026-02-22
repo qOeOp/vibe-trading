@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import type { Base64String } from "../../../utils/json/base64";
-import type { TypedString } from "../../../utils/typed";
+import type { Base64String } from "@/features/lab/utils/json/base64";
+import type { TypedString } from "@/features/lab/utils/typed";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EventHandler = (...args: any[]) => void;

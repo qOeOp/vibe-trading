@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { ReconnectingWebSocketTransport } from "../../lsp/transport";
-import { waitForConnectionOpen } from "../../network/connection";
-import { getRuntimeManager } from "../../runtime/config";
+import { ReconnectingWebSocketTransport } from "@/features/lab/core/lsp/transport";
+import { waitForConnectionOpen } from "@/features/lab/core/network/connection";
+import { getRuntimeManager } from "@/features/lab/core/runtime/config";
 
 /**
  * Create a transport for a given LSP server.

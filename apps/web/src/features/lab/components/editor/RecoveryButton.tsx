@@ -1,17 +1,17 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { Notebook } from '../../core/marimo-api';
+import type { Notebook } from '@/features/lab/core/marimo-api';
 import { SaveIcon } from 'lucide-react';
 import type { JSX } from 'react';
 import { Button as EditorButton } from './inputs/Inputs';
 import { Button } from '../ui/button';
-import { getNotebook } from '../../core/cells/cells';
-import { notebookCells } from '../../core/cells/utils';
-import { getMarimoVersion } from '../../core/meta/globals';
-import { useEvent } from '../../hooks/useEvent';
-import { downloadBlob } from '../../utils/download';
-import { Paths } from '../../utils/paths';
-import { useHotkey } from '../../hooks/useHotkey';
+import { getNotebook } from '@/features/lab/core/cells/cells';
+import { notebookCells } from '@/features/lab/core/cells/utils';
+import { getMarimoVersion } from '@/features/lab/core/meta/globals';
+import { useEvent } from '@/features/lab/hooks/useEvent';
+import { downloadBlob } from '@/features/lab/utils/download';
+import { Paths } from '@/features/lab/utils/paths';
+import { useHotkey } from '@/features/lab/hooks/useHotkey';
 import { useImperativeModal } from '../modal/ImperativeModal';
 import { renderShortcut } from '../shortcuts/renderShortcut';
 import {

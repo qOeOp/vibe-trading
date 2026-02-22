@@ -4,20 +4,20 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { startCase } from "lodash-es";
 import { AlertCircleIcon, CheckCircle2Icon, PowerOffIcon } from "lucide-react";
 import type React from "react";
-import { Spinner } from "../../../../icons/spinner";
-import { Tooltip } from "../../../../ui/tooltip";
-import { connectionAtom } from "../../../../../core/network/connection";
-import { useConnectToRuntime, useRuntimeManager } from "../../../../../core/runtime/config";
-import { store } from "../../../../../core/state/jotai";
-import { isWasm } from "../../../../../core/wasm/utils";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { connectionAtom } from "@/features/lab/core/network/connection";
+import { useConnectToRuntime, useRuntimeManager } from "@/features/lab/core/runtime/config";
+import { store } from "@/features/lab/core/state/jotai";
+import { isWasm } from "@/features/lab/core/wasm/utils";
 import {
   isAppClosing,
   isAppConnected,
   isAppConnecting,
   isAppNotStarted,
-} from "../../../../../core/websocket/connection-utils";
-import { useAsyncData } from "../../../../../hooks/useAsyncData";
-import { useInterval } from "../../../../../hooks/useInterval";
+} from "@/features/lab/core/websocket/connection-utils";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { useInterval } from "@/features/lab/hooks/useInterval";
 
 const CHECK_HEALTH_INTERVAL_MS = 30_000;
 

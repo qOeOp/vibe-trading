@@ -9,7 +9,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import type { TurnoverAnalysis } from "../../types";
+import type { TurnoverAnalysis } from "@/features/lab/types";
 import { StatBox } from "./stat-box";
 
 // ─── Turnover Time Series (SVG) ─────────────────────────

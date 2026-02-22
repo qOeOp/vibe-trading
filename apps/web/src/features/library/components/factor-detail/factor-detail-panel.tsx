@@ -2,8 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { DetailPanel } from "@/components/shared/detail-panel";
-import { useLibraryStore } from "../../store/use-library-store";
-import type { Factor } from "../../types";
+import { useLibraryStore } from "@/features/library/store/use-library-store";
+import type { Factor } from "@/features/library/types";
 
 import { IdentityHeader } from "./identity-header";
 import { OverviewSection } from "./overview-section";

@@ -3,8 +3,8 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import * as React from "react";
-import { StyleNamespace } from "../../theme/namespace";
-import { cn } from "../../utils/cn";
+import { StyleNamespace } from "@/features/lab/theme/namespace";
+import { cn } from "@/features/lab/utils/cn";
 import { withFullScreenAsRoot } from "./fullscreen";
 import { useRestoreFocus } from "./use-restore-focus";
 

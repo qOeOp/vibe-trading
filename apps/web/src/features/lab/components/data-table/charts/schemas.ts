@@ -5,7 +5,7 @@
  */
 
 import { z } from "zod";
-import { DATA_TYPES } from "../../../core/kernel/messages";
+import { DATA_TYPES } from "@/features/lab/core/kernel/messages";
 import {
   DEFAULT_COLOR_SCHEME,
   DEFAULT_MAX_BINS_FACET,

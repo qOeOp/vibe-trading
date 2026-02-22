@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { once } from "../../../utils/once";
+import { once } from "@/features/lab/utils/once";
 import { MarkdownLanguageAdapter } from "./languages/markdown";
 import { PythonLanguageAdapter } from "./languages/python";
 import { SQLLanguageAdapter } from "./languages/sql/sql";

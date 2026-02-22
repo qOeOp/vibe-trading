@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { ChevronLeft } from "lucide-react";
 
-import { Button } from "../../../../ui/button";
-import { cn } from "../../../../../utils/cn";
+import { Button } from "@/features/lab/components/ui/button";
+import { cn } from "@/features/lab/utils/cn";
 
 interface SidebarToggleProps {
   isOpen: boolean;

@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { EditorView, keymap } from "@codemirror/view";
 import type { HotkeyProvider } from "../hotkeys/hotkeys";
-import { invariant } from "../../utils/invariant";
-import { smartScrollIntoView } from "../../utils/scroll";
+import { invariant } from "@/features/lab/utils/invariant";
+import { smartScrollIntoView } from "@/features/lab/utils/scroll";
 import { cellActionsState, cellIdState } from "./cells/state";
 import { formatEditorViews, formattingChangeEffect } from "./format";
 import {

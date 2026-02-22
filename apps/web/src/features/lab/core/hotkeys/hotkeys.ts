@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { type Platform, resolvePlatform } from "./shortcuts";
-import { Objects } from "../../utils/objects";
+import { Objects } from "@/features/lab/utils/objects";
 
 export const NOT_SET: unique symbol = Symbol("NOT_SET");
 

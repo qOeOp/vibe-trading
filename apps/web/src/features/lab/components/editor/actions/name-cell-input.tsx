@@ -1,18 +1,18 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import React, { useRef, useState } from "react";
-import { Input } from "../../ui/input";
-import { Tooltip } from "../../ui/tooltip";
-import { getCellNames, useCellActions } from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
+import { Input } from "@/features/lab/components/ui/input";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { getCellNames, useCellActions } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
 import {
   getValidName,
   isInternalCellName,
   normalizeName,
-} from "../../../core/cells/names";
-import { useOnMount } from "../../../hooks/useLifecycle";
-import { cn } from "../../../utils/cn";
-import { Events } from "../../../utils/events";
+} from "@/features/lab/core/cells/names";
+import { useOnMount } from "@/features/lab/hooks/useLifecycle";
+import { cn } from "@/features/lab/utils/cn";
+import { Events } from "@/features/lab/utils/events";
 
 interface Props
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {

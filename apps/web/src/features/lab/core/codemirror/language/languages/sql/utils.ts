@@ -16,9 +16,9 @@ import {
   BigQueryDialect,
   DuckDBDialect,
 } from "@marimo-team/codemirror-sql/dialects";
-import type { DataSourceConnection } from "../../../../kernel/messages";
-import { logNever } from "../../../../../utils/assertNever";
-import { Logger } from "../../../../../utils/Logger";
+import type { DataSourceConnection } from "@/features/lab/core/kernel/messages";
+import { logNever } from "@/features/lab/utils/assertNever";
+import { Logger } from "@/features/lab/utils/Logger";
 
 const KNOWN_DIALECTS_ARRAY = [
   "postgresql",

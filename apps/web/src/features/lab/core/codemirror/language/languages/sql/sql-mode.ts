@@ -2,8 +2,8 @@
 
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { store } from "../../../../state/jotai";
-import { jotaiJsonStorage } from "../../../../../utils/storage/jotai";
+import { store } from "@/features/lab/core/state/jotai";
+import { jotaiJsonStorage } from "@/features/lab/utils/storage/jotai";
 
 const BASE_KEY = "marimo:notebook-sql-mode";
 

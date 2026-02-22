@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { getNotebook } from "../../../../core/cells/cells";
-import type { CellId } from "../../../../core/cells/ids";
-import { useOnMount } from "../../../../hooks/useLifecycle";
-import { extractCellNameFromHash } from "../../../../utils/cell-urls";
-import { Logger } from "../../../../utils/Logger";
+import { getNotebook } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { useOnMount } from "@/features/lab/hooks/useLifecycle";
+import { extractCellNameFromHash } from "@/features/lab/utils/cell-urls";
+import { Logger } from "@/features/lab/utils/Logger";
 
 /**
  * Focus the first editor.

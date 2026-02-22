@@ -3,8 +3,8 @@
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { Check, ChevronDownIcon, XCircle } from "lucide-react";
 import React, { createContext } from "react";
-import { cn } from "../../utils/cn";
-import { Functions } from "../../utils/functions";
+import { cn } from "@/features/lab/utils/cn";
+import { Functions } from "@/features/lab/utils/functions";
 import { Badge } from "./badge";
 import {
   Command,

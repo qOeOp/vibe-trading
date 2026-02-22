@@ -3,10 +3,10 @@
 import {
   allTablesAtom,
   dataSourceConnectionsAtom,
-} from "../../datasets/data-source-connections";
-import { getRequestClient } from "../../network/requests";
-import type { JotaiStore } from "../../state/jotai";
-import { variablesAtom } from "../../variables/state";
+} from "@/features/lab/core/datasets/data-source-connections";
+import { getRequestClient } from "@/features/lab/core/network/requests";
+import type { JotaiStore } from "@/features/lab/core/state/jotai";
+import { variablesAtom } from "@/features/lab/core/variables/state";
 import { CellOutputContextProvider } from "./providers/cell-output";
 import { DatasourceContextProvider } from "./providers/datasource";
 import { ErrorContextProvider } from "./providers/error";

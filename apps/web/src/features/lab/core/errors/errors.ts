@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import type { EditorView } from "@codemirror/view";
-import { invariant } from "../../utils/invariant";
+import { invariant } from "@/features/lab/utils/invariant";
 import { getDatasourceContext } from "../ai/context/providers/datasource";
 import type { AiCompletionCell } from "../ai/state";
 import type { CellId } from "../cells/ids";

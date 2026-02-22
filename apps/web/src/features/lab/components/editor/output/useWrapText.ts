@@ -2,7 +2,7 @@
 
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { jotaiJsonStorage } from '../../../utils/storage/jotai';
+import { jotaiJsonStorage } from '@/features/lab/utils/storage/jotai';
 
 const WRAP_TEXT_KEY = 'marimo:console:wrapText';
 

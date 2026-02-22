@@ -3,23 +3,23 @@
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import { SaveIcon } from "lucide-react";
 import { useState } from "react";
-import { FilenameInput } from "../../components/editor/header/filename-input";
-import { Button as ControlButton } from "../../components/editor/inputs/Inputs";
-import { RecoveryButton } from "../../components/editor/RecoveryButton";
-import { renderShortcut } from "../../components/shortcuts/renderShortcut";
-import { Tooltip } from "../../components/ui/tooltip";
-import { useEventListener } from "../../hooks/useEventListener";
-import { useHotkey } from "../../hooks/useHotkey";
-import { useImperativeModal } from "../../components/modal/ImperativeModal";
-import { Button } from "../../components/ui/button";
+import { FilenameInput } from "@/features/lab/components/editor/header/filename-input";
+import { Button as ControlButton } from "@/features/lab/components/editor/inputs/Inputs";
+import { RecoveryButton } from "@/features/lab/components/editor/RecoveryButton";
+import { renderShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { useEventListener } from "@/features/lab/hooks/useEventListener";
+import { useHotkey } from "@/features/lab/hooks/useHotkey";
+import { useImperativeModal } from "@/features/lab/components/modal/ImperativeModal";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   DialogContent,
   DialogFooter,
   DialogTitle,
-} from "../../components/ui/dialog";
-import { Label } from "../../components/ui/label";
-import { useEvent } from "../../hooks/useEvent";
-import { Logger } from "../../utils/Logger";
+} from "@/features/lab/components/ui/dialog";
+import { Label } from "@/features/lab/components/ui/label";
+import { useEvent } from "@/features/lab/hooks/useEvent";
+import { Logger } from "@/features/lab/utils/Logger";
 import { getCellConfigs, getNotebook, useNotebook } from "../cells/cells";
 import { notebookCells } from "../cells/utils";
 import { formatAll } from "../codemirror/format";

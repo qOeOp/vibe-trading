@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { ReactNode } from "react";
-import { useDebouncedCallback } from "../../hooks/useDebounce";
+import { useDebouncedCallback } from "@/features/lab/hooks/useDebounce";
 import { requestOutputDocumentation } from "./doc-lookup";
 
 export const DocHoverTarget: React.FC<{

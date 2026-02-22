@@ -5,13 +5,13 @@ import { useMemo } from "react";
 import {
   useDeleteCellCallback,
   useDeleteManyCellsCallback,
-} from "../../components/editor/cell/useDeleteCell";
+} from "@/features/lab/components/editor/cell/useDeleteCell";
 import { notebookAtom } from "./cells";
 import type { CellId } from "./ids";
 import type { JotaiStore } from "../state/jotai";
 import { variablesAtom } from "../variables/state";
 import type { VariableName } from "../variables/types";
-import { createReducerAndAtoms } from "../../utils/createReducer";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
 
 type PendingDeleteEntry =
   | {

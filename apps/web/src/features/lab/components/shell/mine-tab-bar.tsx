@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import {
   useLabFileTabStore,
   type FileTab,
-} from '../../store/use-lab-file-tab-store';
-import { useLabModeStore } from '../../store/use-lab-mode-store';
+} from '@/features/lab/store/use-lab-file-tab-store';
+import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 
 // ─── Mine Tab Bar ────────────────────────────────────────
 //

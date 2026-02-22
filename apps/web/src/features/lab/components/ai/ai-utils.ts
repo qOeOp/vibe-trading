@@ -4,9 +4,9 @@ import {
   KNOWN_PROVIDERS,
   type KnownProviderId,
   type ProviderId,
-} from "../../core/ai/ids/ids";
-import { getKnownModelMaps } from "../../core/ai/model-registry";
-import type { AiConfig, UserConfig } from "../../core/config/config-schema";
+} from "@/features/lab/core/ai/ids/ids";
+import { getKnownModelMaps } from "@/features/lab/core/ai/model-registry";
+import type { AiConfig, UserConfig } from "@/features/lab/core/config/config-schema";
 
 type CredentialChecker = (ai: AiConfig | undefined) => boolean;
 

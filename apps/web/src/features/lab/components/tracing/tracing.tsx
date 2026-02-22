@@ -17,18 +17,18 @@ import useResizeObserver from 'use-resize-observer';
 // @ts-expect-error — vega-lite types resolution issue with ESM exports
 import { compile } from 'vega-lite';
 import { Tooltip } from '../ui/tooltip';
-import { useCellIds } from '../../core/cells/cells';
-import type { CellId } from '../../core/cells/ids';
-import { formatLogTimestamp } from '../../core/cells/logs';
+import { useCellIds } from '@/features/lab/core/cells/cells';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { formatLogTimestamp } from '@/features/lab/core/cells/logs';
 import {
   type CellRun,
   type Run,
   type RunId,
   runsAtom,
   useRunsActions,
-} from '../../core/cells/runs';
-import { type ResolvedTheme, useTheme } from '../../theme/useTheme';
-import { cn } from '../../utils/cn';
+} from '@/features/lab/core/cells/runs';
+import { type ResolvedTheme, useTheme } from '@/features/lab/theme/useTheme';
+import { cn } from '@/features/lab/utils/cn';
 import { ClearButton } from '../buttons/clear-button';
 import type { SignalListener } from '../charts/types';
 import { ElapsedTime, formatElapsedTime } from '../editor/cell/CellStatus';

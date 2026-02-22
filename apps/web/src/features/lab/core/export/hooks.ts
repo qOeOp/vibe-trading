@@ -1,14 +1,14 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { useAtomValue } from "jotai";
-import type { MimeType } from "../../components/editor/Output";
-import { toast } from "../../components/ui/use-toast";
+import type { MimeType } from "@/features/lab/components/editor/Output";
+import { toast } from "@/features/lab/components/ui/use-toast";
 import { appConfigAtom } from "../config/config";
-import { useInterval } from "../../hooks/useInterval";
-import { AsyncCaptureTracker } from "../../utils/async-capture-tracker";
-import { getImageDataUrlForCell } from "../../utils/download";
-import { Logger } from "../../utils/Logger";
-import { Objects } from "../../utils/objects";
-import { ProgressState } from "../../utils/progress";
+import { useInterval } from "@/features/lab/hooks/useInterval";
+import { AsyncCaptureTracker } from "@/features/lab/utils/async-capture-tracker";
+import { getImageDataUrlForCell } from "@/features/lab/utils/download";
+import { Logger } from "@/features/lab/utils/Logger";
+import { Objects } from "@/features/lab/utils/objects";
+import { ProgressState } from "@/features/lab/utils/progress";
 import { cellsRuntimeAtom } from "../cells/cells";
 import type { CellId } from "../cells/ids";
 import { connectionAtom } from "../network/connection";

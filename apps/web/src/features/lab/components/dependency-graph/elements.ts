@@ -2,12 +2,12 @@
 
 import type { Atom } from "jotai";
 import { type Edge, MarkerType, type Node, type NodeProps } from "reactflow";
-import { getNotebook } from "../../core/cells/cells";
-import type { CellId } from "../../core/cells/ids";
-import type { CellData } from "../../core/cells/types";
-import { store } from "../../core/state/jotai";
-import type { Variables } from "../../core/variables/types";
-import { Arrays } from "../../utils/arrays";
+import { getNotebook } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import type { CellData } from "@/features/lab/core/cells/types";
+import { store } from "@/features/lab/core/state/jotai";
+import type { Variables } from "@/features/lab/core/variables/types";
+import { Arrays } from "@/features/lab/utils/arrays";
 
 export interface NodeData {
   atom: Atom<CellData>;

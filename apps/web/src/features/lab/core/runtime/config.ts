@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { atom, useAtom, useAtomValue } from "jotai";
 import useEvent from "react-use-event-hook";
-import { Logger } from "../../utils/Logger";
+import { Logger } from "@/features/lab/utils/Logger";
 import { connectionAtom } from "../network/connection";
 import { store } from "../state/jotai";
 import { isAppNotStarted } from "../websocket/connection-utils";

@@ -3,22 +3,22 @@
 
 import type { AnyModel } from "@anywidget/types";
 import { debounce } from "lodash-es";
-import type { NotificationMessageData } from "../../../core/kernel/messages";
-import { getRequestClient } from "../../../core/network/requests";
-import { isStaticNotebook } from "../../../core/static/static-state";
+import type { NotificationMessageData } from "@/features/lab/core/kernel/messages";
+import { getRequestClient } from "@/features/lab/core/network/requests";
+import { isStaticNotebook } from "@/features/lab/core/static/static-state";
 import {
   decodeFromWire,
   serializeBuffersToBase64,
 } from "./serialization";
-import { assertNever } from "../../../utils/assertNever";
-import { Deferred } from "../../../utils/Deferred";
+import { assertNever } from "@/features/lab/utils/assertNever";
+import { Deferred } from "@/features/lab/utils/Deferred";
 import {
   type Base64String,
   base64ToDataView,
   dataViewToBase64,
-} from "../../../utils/json/base64";
-import { Logger } from "../../../utils/Logger";
-import { repl } from "../../../utils/repl";
+} from "@/features/lab/utils/json/base64";
+import { Logger } from "@/features/lab/utils/Logger";
+import { repl } from "@/features/lab/utils/repl";
 import type { AnyWidgetMessage } from "./schemas";
 import type { EventHandler, ModelState, WidgetModelId } from "./types";
 import { BINDING_MANAGER } from "./widget-binding";

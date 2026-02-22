@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom, useAtomValue } from "jotai";
-import { notebookAtom } from "../../../core/cells/cells";
-import { Logger } from "../../../utils/Logger";
-import { Button } from "../../ui/button";
-import { Kbd } from "../../ui/kbd";
+import { notebookAtom } from "@/features/lab/core/cells/cells";
+import { Logger } from "@/features/lab/utils/Logger";
+import { Button } from "@/features/lab/components/ui/button";
+import { Kbd } from "@/features/lab/components/ui/kbd";
 import { FloatingAlert } from "./floating-alert";
 
 // Atom to check if there is a cell with unresolved stdin

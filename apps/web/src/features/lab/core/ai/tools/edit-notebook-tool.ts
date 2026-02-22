@@ -2,15 +2,15 @@
 
 import type { EditorView } from "@codemirror/view";
 import { z } from "zod";
-import { scrollAndHighlightCell } from "../../../components/editor/links/cell-link";
+import { scrollAndHighlightCell } from "@/features/lab/components/editor/links/cell-link";
 import {
   type CellPosition as NotebookCellPosition,
   type NotebookState,
   notebookAtom,
-} from "../../cells/cells";
-import { CellId } from "../../cells/ids";
-import { updateEditorCodeFromPython } from "../../codemirror/language/utils";
-import type { CellColumnId } from "../../../utils/id-tree";
+} from "@/features/lab/core/cells/cells";
+import { CellId } from "@/features/lab/core/cells/ids";
+import { updateEditorCodeFromPython } from "@/features/lab/core/codemirror/language/utils";
+import type { CellColumnId } from "@/features/lab/utils/id-tree";
 import { stagedAICellsAtom } from "../staged-cells";
 import {
   type AiTool,

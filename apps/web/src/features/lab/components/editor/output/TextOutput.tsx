@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { JSX } from "react";
-import type { OutputChannel } from "../../../core/kernel/messages";
-import { cn } from "../../../utils/cn";
+import type { OutputChannel } from "@/features/lab/core/kernel/messages";
+import { cn } from "@/features/lab/utils/cn";
 import { RenderTextWithLinks } from "./console/text-rendering";
 
 interface Props {

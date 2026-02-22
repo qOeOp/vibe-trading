@@ -3,23 +3,23 @@
 import { PopoverAnchor } from "@radix-ui/react-popover";
 import { FilePenIcon } from "lucide-react";
 import { type JSX, useEffect, useRef, useState } from "react";
-import type { FileInfo } from "../../../core/network/types";
-import { useAsyncData } from "../../../hooks/useAsyncData";
-import { Paths } from "../../../utils/paths";
-import { cn } from "../../../utils/cn";
+import type { FileInfo } from "@/features/lab/core/network/types";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { Paths } from "@/features/lab/utils/paths";
+import { cn } from "@/features/lab/utils/cn";
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from "../../ui/command";
-import { Popover, PopoverContent } from "../../ui/popover";
+} from "@/features/lab/components/ui/command";
+import { Popover, PopoverContent } from "@/features/lab/components/ui/popover";
 import { FILE_TYPE_ICONS, guessFileType } from "../file-tree/types";
 
 import "./filename-input.css";
-import { getFeatureFlag } from "../../../core/config/feature-flag";
-import { useRequestClient } from "../../../core/network/requests";
+import { getFeatureFlag } from "@/features/lab/core/config/feature-flag";
+import { useRequestClient } from "@/features/lab/core/network/requests";
 import { ErrorBoundary } from "../boundary/ErrorBoundary";
 
 interface FilenameInputProps {

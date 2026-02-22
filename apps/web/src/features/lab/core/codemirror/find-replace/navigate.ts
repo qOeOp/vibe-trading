@@ -3,9 +3,9 @@
 import { SearchQuery } from "@codemirror/search";
 import { EditorSelection } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { getAllEditorViews } from "../../cells/cells";
+import { getAllEditorViews } from "@/features/lab/core/cells/cells";
 import { replaceEditorContent } from "../replace-editor-content";
-import { store } from "../../state/jotai";
+import { store } from "@/features/lab/core/state/jotai";
 import { asQueryCreator, type QueryType } from "./query";
 import { findReplaceAtom } from "./state";
 

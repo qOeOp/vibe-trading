@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { Role } from '../../lib/marimo-team-llm-info';
+import type { Role } from '@/features/lab/lib/marimo-team-llm-info';
 import { useAtom } from 'jotai';
 import type { QualifiedModelId } from './ids/ids';
 import { userConfigAtom } from '../config/config';

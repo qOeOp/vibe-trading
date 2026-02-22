@@ -14,32 +14,32 @@ import { KeyboardShortcuts } from './keyboard-shortcuts';
 import { NotebookMenuDropdown } from './notebook-menu-dropdown';
 import { ShutdownButton } from './shutdown-button';
 import { Button } from '../inputs/Inputs';
-import { FindReplace } from '../../find-replace/find-replace';
-import type { AppConfig } from '../../../core/config/config-schema';
-import { canInteractWithAppAtom } from '../../../core/network/connection';
-import { SaveComponent } from '../../../core/saving/save-component';
+import { FindReplace } from '@/features/lab/components/find-replace/find-replace';
+import type { AppConfig } from '@/features/lab/core/config/config-schema';
+import { canInteractWithAppAtom } from '@/features/lab/core/network/connection';
+import { SaveComponent } from '@/features/lab/core/saving/save-component';
 import {
   getConnectionTooltip,
   isAppInteractionDisabled,
-} from '../../../core/websocket/connection-utils';
-import { WebSocketState } from '../../../core/websocket/types';
-import { cn } from '../../../utils/cn';
-import { Functions } from '../../../utils/functions';
+} from '@/features/lab/core/websocket/connection-utils';
+import { WebSocketState } from '@/features/lab/core/websocket/types';
+import { cn } from '@/features/lab/utils/cn';
+import { Functions } from '@/features/lab/utils/functions';
 import {
   canUndoDeletesAtom,
   needsRunAtom,
   useCellActions,
-} from '../../../core/cells/cells';
-import { ConfigButton } from '../../app-config/app-config-button';
-import { renderShortcut } from '../../shortcuts/renderShortcut';
-import { Tooltip } from '../../ui/tooltip';
+} from '@/features/lab/core/cells/cells';
+import { ConfigButton } from '@/features/lab/components/app-config/app-config-button';
+import { renderShortcut } from '@/features/lab/components/shortcuts/renderShortcut';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
 import { useShouldShowInterrupt } from '../cell/useShouldShowInterrupt';
 import { HideInKioskMode } from '../kiosk-mode';
 import { LayoutSelect } from '../renderers/layout-select';
 import { CommandPaletteButton } from './command-palette-button';
-import { useLabMode } from '../../lab-mode-context';
+import { useLabMode } from '@/features/lab/components/lab-mode-context';
 import { LogOutIcon } from 'lucide-react';
-import { useLabModeStore } from '../../../store/use-lab-mode-store';
+import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 
 interface ControlsProps {
   presenting: boolean;

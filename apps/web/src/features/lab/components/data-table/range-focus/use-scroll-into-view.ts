@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom } from "jotai";
-import { useJotaiEffect } from "../../../core/state/jotai";
-import { Logger } from "../../../utils/Logger";
+import { useJotaiEffect } from "@/features/lab/core/state/jotai";
+import { Logger } from "@/features/lab/utils/Logger";
 import { cellSelectionStateAtom } from "./atoms";
 
 const focusedCellAtom = atom((get) => get(cellSelectionStateAtom).focusedCell);

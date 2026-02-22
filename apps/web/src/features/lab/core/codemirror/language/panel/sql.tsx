@@ -8,10 +8,10 @@ import {
   DatabaseBackup,
   SearchCheck,
 } from "lucide-react";
-import { getCellForDomProps } from "../../../../components/data-table/cell-utils";
-import { transformDisplayName } from "../../../../components/databases/display";
-import { DatabaseLogo } from "../../../../components/databases/icon";
-import { Button } from "../../../../components/ui/button";
+import { getCellForDomProps } from "@/features/lab/components/data-table/cell-utils";
+import { transformDisplayName } from "@/features/lab/components/databases/display";
+import { DatabaseLogo } from "@/features/lab/components/databases/icon";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -21,19 +21,19 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "../../../../components/ui/select";
-import { Tooltip } from "../../../../components/ui/tooltip";
-import type { CellId } from "../../../cells/ids";
+} from "@/features/lab/components/ui/select";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import type { CellId } from "@/features/lab/core/cells/ids";
 import {
   dataConnectionsMapAtom,
   setLatestEngineSelected,
-} from "../../../datasets/data-source-connections";
+} from "@/features/lab/core/datasets/data-source-connections";
 import {
   type ConnectionName,
   INTERNAL_SQL_ENGINES,
-} from "../../../datasets/engines";
-import type { DataSourceConnection } from "../../../kernel/messages";
-import { useNonce } from "../../../../hooks/useNonce";
+} from "@/features/lab/core/datasets/engines";
+import type { DataSourceConnection } from "@/features/lab/core/kernel/messages";
+import { useNonce } from "@/features/lab/hooks/useNonce";
 import { clearAllSqlValidationErrors } from "../languages/sql/banner-validation-errors";
 import { type SQLMode, useSQLMode } from "../languages/sql/sql-mode";
 

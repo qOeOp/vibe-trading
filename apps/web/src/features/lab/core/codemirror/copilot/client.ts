@@ -1,12 +1,12 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { languageServerWithClient } from '@marimo-team/codemirror-languageserver';
-import { toast } from '../../../components/ui/use-toast';
-import { resolvedMarimoConfigAtom } from '../../config/config';
-import { waitForConnectionOpen } from '../../network/connection';
-import { getRuntimeManager } from '../../runtime/config';
-import { store } from '../../state/jotai';
-import { once } from '../../../utils/once';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { resolvedMarimoConfigAtom } from '@/features/lab/core/config/config';
+import { waitForConnectionOpen } from '@/features/lab/core/network/connection';
+import { getRuntimeManager } from '@/features/lab/core/runtime/config';
+import { store } from '@/features/lab/core/state/jotai';
+import { once } from '@/features/lab/utils/once';
 import { CopilotLanguageServerClient } from './language-server';
 import { waitForEnabledCopilot } from './state';
 import { LazyWebsocketTransport } from './transport';

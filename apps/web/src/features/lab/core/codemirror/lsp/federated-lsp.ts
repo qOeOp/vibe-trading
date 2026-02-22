@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type * as LSP from "vscode-languageserver-protocol";
-import { Objects } from "../../../utils/objects";
+import { Objects } from "@/features/lab/utils/objects";
 import type { ILanguageServerClient } from "./types";
 import { getLSPDocument } from "./utils";
 

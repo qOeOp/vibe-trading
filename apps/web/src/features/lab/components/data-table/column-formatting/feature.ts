@@ -9,14 +9,14 @@ import {
   type TableFeature,
   type Updater,
 } from '@tanstack/react-table';
-import type { DataType } from '../../../core/kernel/messages';
-import { logNever } from '../../../utils/assertNever';
+import type { DataType } from '@/features/lab/core/kernel/messages';
+import { logNever } from '@/features/lab/utils/assertNever';
 import {
   prettyEngineeringNumber,
   prettyNumber,
   prettyScientificNumber,
-} from '../../../utils/numbers';
-import { memoizeLastValue } from '../../../utils/once';
+} from '@/features/lab/utils/numbers';
+import { memoizeLastValue } from '@/features/lab/utils/once';
 import type {
   ColumnFormattingOptions,
   ColumnFormattingState,

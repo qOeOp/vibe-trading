@@ -74,13 +74,13 @@ export function CellEditor({
 
       // Import our custom extensions
       const { createMineTheme } = await import(
-        "../../components/editor/extensions/mine-theme"
+        "@/features/lab/components/editor/extensions/mine-theme"
       );
       const { mineHighlight } = await import(
-        "../../components/editor/extensions/mine-highlight"
+        "@/features/lab/components/editor/extensions/mine-highlight"
       );
       const { vtCompletionSource } = await import(
-        "../../components/editor/extensions/vt-completions"
+        "@/features/lab/components/editor/extensions/vt-completions"
       );
 
       if (!containerRef.current) return;

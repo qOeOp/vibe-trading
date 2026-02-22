@@ -4,9 +4,9 @@ import type { Completion } from '@codemirror/autocomplete';
 import type { Resource } from '@marimo-team/codemirror-mcp';
 import type { FileUIPart } from 'ai';
 import { Memoize } from 'typescript-memoize';
-import { Logger } from '../../../utils/Logger';
-import { MultiMap } from '../../../utils/multi-map';
-import type { TypedString } from '../../../utils/typed';
+import { Logger } from '@/features/lab/utils/Logger';
+import { MultiMap } from '@/features/lab/utils/multi-map';
+import type { TypedString } from '@/features/lab/utils/typed';
 
 /**
  * Unique identifier for a context item in the format "type:id"

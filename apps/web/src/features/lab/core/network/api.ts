@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { createMarimoClient } from '../marimo-api';
-import { Logger } from '../../utils/Logger';
-import { Strings } from '../../utils/strings';
+import { Logger } from '@/features/lab/utils/Logger';
+import { Strings } from '@/features/lab/utils/strings';
 import { getRuntimeManager } from '../runtime/config';
 import type { RuntimeManager } from '../runtime/runtime';
 

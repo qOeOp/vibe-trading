@@ -3,10 +3,10 @@
 import { useAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { z } from "zod";
-import { store } from "../../../core/state/jotai";
-import { createReducerAndAtoms } from "../../../utils/createReducer";
-import { jotaiJsonStorage } from "../../../utils/storage/jotai";
-import { ZodLocalStorage } from "../../../utils/storage/typed";
+import { store } from "@/features/lab/core/state/jotai";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
+import { jotaiJsonStorage } from "@/features/lab/utils/storage/jotai";
+import { ZodLocalStorage } from "@/features/lab/utils/storage/typed";
 import type { PanelSection, PanelType } from "./types";
 import { PANELS } from "./types";
 

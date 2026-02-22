@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { KnownMimeType } from "../../types";
+import type { KnownMimeType } from "@/features/lab/types";
 
 // ─── Image Output ────────────────────────────────────────
 

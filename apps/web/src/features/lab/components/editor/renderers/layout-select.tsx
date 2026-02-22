@@ -16,11 +16,11 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../../ui/select";
-import { getFeatureFlag } from "../../../core/config/feature-flag";
-import { useLayoutActions, useLayoutState } from "../../../core/layout/layout";
-import { isWasm } from "../../../core/wasm/utils";
-import { logNever } from "../../../utils/assertNever";
+} from "@/features/lab/components/ui/select";
+import { getFeatureFlag } from "@/features/lab/core/config/feature-flag";
+import { useLayoutActions, useLayoutState } from "@/features/lab/core/layout/layout";
+import { isWasm } from "@/features/lab/core/wasm/utils";
+import { logNever } from "@/features/lab/utils/assertNever";
 import { LAYOUT_TYPES, type LayoutType } from "./types";
 
 export const LayoutSelect: React.FC = () => {

@@ -8,8 +8,8 @@ import {
   ViewPlugin,
   type ViewUpdate,
 } from "@codemirror/view";
-import { getAllEditorViews } from "../../cells/cells";
-import { store } from "../../state/jotai";
+import { getAllEditorViews } from "@/features/lab/core/cells/cells";
+import { store } from "@/features/lab/core/state/jotai";
 import { asQueryCreator, type QueryType } from "./query";
 import { findReplaceAtom } from "./state";
 

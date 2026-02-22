@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { Terminal, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../../store/use-lab-cell-store";
+import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
 
 // ─── Logs Panel ──────────────────────────────────────────
 

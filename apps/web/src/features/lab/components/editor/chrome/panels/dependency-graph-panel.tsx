@@ -1,12 +1,12 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type React from "react";
-import { Tabs, TabsList, TabsTrigger } from "../../../ui/tabs";
-import { useCellDataAtoms, useCellIds } from "../../../../core/cells/cells";
-import { useVariables } from "../../../../core/variables/state";
-import { cn } from "../../../../utils/cn";
-import { DependencyGraph } from "../../../dependency-graph/dependency-graph";
-import { MinimapContent } from "../../../dependency-graph/minimap-content";
+import { Tabs, TabsList, TabsTrigger } from "@/features/lab/components/ui/tabs";
+import { useCellDataAtoms, useCellIds } from "@/features/lab/core/cells/cells";
+import { useVariables } from "@/features/lab/core/variables/state";
+import { cn } from "@/features/lab/utils/cn";
+import { DependencyGraph } from "@/features/lab/components/dependency-graph/dependency-graph";
+import { MinimapContent } from "@/features/lab/components/dependency-graph/minimap-content";
 import { useDependencyPanelTab } from "../wrapper/useDependencyPanelTab";
 import { usePanelSection } from "./panel-context";
 

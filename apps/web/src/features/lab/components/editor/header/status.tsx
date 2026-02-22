@@ -3,11 +3,11 @@
 import { useAtomValue } from "jotai";
 import { HourglassIcon, LockIcon, UnlinkIcon } from "lucide-react";
 import React from "react";
-import { Tooltip } from "../../ui/tooltip";
-import { notebookScrollToRunning } from "../../../core/cells/actions";
-import { viewStateAtom } from "../../../core/mode";
-import { type ConnectionStatus, WebSocketState } from "../../../core/websocket/types";
-import { cn } from "../../../utils/cn";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { notebookScrollToRunning } from "@/features/lab/core/cells/actions";
+import { viewStateAtom } from "@/features/lab/core/mode";
+import { type ConnectionStatus, WebSocketState } from "@/features/lab/core/websocket/types";
+import { cn } from "@/features/lab/utils/cn";
 
 export const StatusOverlay: React.FC<{
   connection: ConnectionStatus;

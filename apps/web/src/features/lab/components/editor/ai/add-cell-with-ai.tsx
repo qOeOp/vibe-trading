@@ -27,44 +27,44 @@ import {
 import { useMemo, useRef, useState } from "react";
 import useEvent from "react-use-event-hook";
 import { z } from "zod";
-import { AIModelDropdown } from "../../ai/ai-model-dropdown";
+import { AIModelDropdown } from "@/features/lab/components/ai/ai-model-dropdown";
 import {
   AddContextButton,
   AttachFileButton,
   FileAttachmentPill,
   SendButton,
-} from "../../chat/chat-components";
+} from "@/features/lab/components/chat/chat-components";
 import {
   buildCompletionRequestBody,
   convertToFileUIPart,
   handleToolCall,
   PROVIDERS_THAT_SUPPORT_ATTACHMENTS,
   useFileState,
-} from "../../chat/chat-utils";
-import { Button } from "../../ui/button";
+} from "@/features/lab/components/chat/chat-utils";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-import { toast } from "../../ui/use-toast";
-import { AiModelId } from "../../../core/ai/ids/ids";
-import { stagedAICellsAtom, useStagedCells } from "../../../core/ai/staged-cells";
-import type { ToolNotebookContext } from "../../../core/ai/tools/base";
-import { useCellActions } from "../../../core/cells/cells";
-import { resourceExtension } from "../../../core/codemirror/ai/resources";
-import { aiAtom } from "../../../core/config/config";
-import { DEFAULT_AI_MODEL } from "../../../core/config/config-schema";
-import { useRequestClient } from "../../../core/network/requests";
-import type { AiCompletionRequest } from "../../../core/network/types";
-import { useRuntimeManager } from "../../../core/runtime/config";
-import { useTheme } from "../../../theme/useTheme";
-import { cn } from "../../../utils/cn";
-import { prettyError } from "../../../utils/errors";
-import { jotaiJsonStorage } from "../../../utils/storage/jotai";
-import { ZodLocalStorage } from "../../../utils/storage/typed";
+} from "@/features/lab/components/ui/dropdown-menu";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { AiModelId } from "@/features/lab/core/ai/ids/ids";
+import { stagedAICellsAtom, useStagedCells } from "@/features/lab/core/ai/staged-cells";
+import type { ToolNotebookContext } from "@/features/lab/core/ai/tools/base";
+import { useCellActions } from "@/features/lab/core/cells/cells";
+import { resourceExtension } from "@/features/lab/core/codemirror/ai/resources";
+import { aiAtom } from "@/features/lab/core/config/config";
+import { DEFAULT_AI_MODEL } from "@/features/lab/core/config/config-schema";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import type { AiCompletionRequest } from "@/features/lab/core/network/types";
+import { useRuntimeManager } from "@/features/lab/core/runtime/config";
+import { useTheme } from "@/features/lab/theme/useTheme";
+import { cn } from "@/features/lab/utils/cn";
+import { prettyError } from "@/features/lab/utils/errors";
+import { jotaiJsonStorage } from "@/features/lab/utils/storage/jotai";
+import { ZodLocalStorage } from "@/features/lab/utils/storage/typed";
 import { PythonIcon } from "../cell/code/icons";
 import { createAiCompletionOnKeydown } from "./completion-handlers";
 import {

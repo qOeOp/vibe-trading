@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import type { PanelGroupStorage } from "react-resizable-panels";
 import { z } from "zod";
-import { Objects } from "../../../../utils/objects";
+import { Objects } from "@/features/lab/utils/objects";
 
 const schema = z.record(z.string(), z.tuple([z.number(), z.number()]));
 

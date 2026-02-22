@@ -4,9 +4,9 @@ import { useAtomValue } from "jotai";
 import React, { memo, use } from "react";
 import { Handle, Position, useStore } from "reactflow";
 import { TinyCode } from "../editor/cell/TinyCode";
-import { useCellIds } from "../../core/cells/cells";
-import { displayCellName } from "../../core/cells/names";
-import { cn } from "../../utils/cn";
+import { useCellIds } from "@/features/lab/core/cells/cells";
+import { displayCellName } from "@/features/lab/core/cells/names";
+import { cn } from "@/features/lab/utils/cn";
 import {
   type CustomNodeProps,
   getNodeHeight,

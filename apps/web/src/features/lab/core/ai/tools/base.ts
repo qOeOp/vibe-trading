@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { z } from "zod";
-import type { CreateNewCellAction } from "../../cells/cells";
-import type { CellId } from "../../cells/ids";
-import type { ExecuteCellsRequest } from "../../network/types";
-import type { JotaiStore } from "../../state/jotai";
+import type { CreateNewCellAction } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import type { ExecuteCellsRequest } from "@/features/lab/core/network/types";
+import type { JotaiStore } from "@/features/lab/core/state/jotai";
 import type { Edit } from "../staged-cells";
 import type { CopilotMode } from "./registry";
 

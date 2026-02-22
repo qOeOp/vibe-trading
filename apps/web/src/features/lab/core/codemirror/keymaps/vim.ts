@@ -8,13 +8,13 @@ import {
   getCM,
   Vim,
 } from "@replit/codemirror-vim";
-import { resolvedMarimoConfigAtom } from "../../config/config";
-import { getRequestClient } from "../../network/requests";
-import { store } from "../../state/jotai";
-import { onIdle } from "../../../utils/idle";
-import { invariant } from "../../../utils/invariant";
-import { Logger } from "../../../utils/Logger";
-import { once } from "../../../utils/once";
+import { resolvedMarimoConfigAtom } from "@/features/lab/core/config/config";
+import { getRequestClient } from "@/features/lab/core/network/requests";
+import { store } from "@/features/lab/core/state/jotai";
+import { onIdle } from "@/features/lab/utils/idle";
+import { invariant } from "@/features/lab/utils/invariant";
+import { Logger } from "@/features/lab/utils/Logger";
+import { once } from "@/features/lab/utils/once";
 import { cellActionsState, cellIdState } from "../cells/state";
 import { goToDefinitionAtCursorPosition } from "../go-to-definition/utils";
 import {

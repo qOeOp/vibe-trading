@@ -2,21 +2,21 @@
 
 import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { ChevronDownIcon, SparklesIcon, WrenchIcon } from "lucide-react";
-import { Button } from "../../ui/button";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-import { Tooltip } from "../../ui/tooltip";
-import { aiCompletionCellAtom } from "../../../core/ai/state";
-import { notebookAtom, useCellActions } from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
-import { aiEnabledAtom } from "../../../core/config/config";
-import { getAutoFixes } from "../../../core/errors/errors";
-import type { MarimoError } from "../../../core/kernel/messages";
-import { cn } from "../../../utils/cn";
+} from "@/features/lab/components/ui/dropdown-menu";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { aiCompletionCellAtom } from "@/features/lab/core/ai/state";
+import { notebookAtom, useCellActions } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { aiEnabledAtom } from "@/features/lab/core/config/config";
+import { getAutoFixes } from "@/features/lab/core/errors/errors";
+import type { MarimoError } from "@/features/lab/core/kernel/messages";
+import { cn } from "@/features/lab/utils/cn";
 import { type FixMode, useFixMode } from "./fix-mode";
 
 export const AutoFixButton = ({

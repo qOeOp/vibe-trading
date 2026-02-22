@@ -4,8 +4,8 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { asMock, Mocks, SetupMocks } from "@/__mocks__/common";
-import type { CellActions, NotebookState } from "../../../../core/cells/cells";
-import type { CellId } from "../../../../core/cells/ids";
+import type { CellActions, NotebookState } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
 import { useCellClipboard } from "../clipboard";
 
 // Mock dependencies
@@ -23,9 +23,9 @@ vi.mock("@/utils/Logger", () => ({
 }));
 
 import { MockNotebook } from "@/__mocks__/notebook";
-import { toast } from "../../../ui/use-toast";
-import { getNotebook, useCellActions } from "../../../../core/cells/cells";
-import { Logger } from "../../../../utils/Logger";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { getNotebook, useCellActions } from "@/features/lab/core/cells/cells";
+import { Logger } from "@/features/lab/utils/Logger";
 
 describe("useCellClipboard", () => {
   const [mockCellId1, mockCellId2] = MockNotebook.cellIds();

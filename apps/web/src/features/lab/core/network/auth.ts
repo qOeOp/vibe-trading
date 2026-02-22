@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { updateQueryParams } from "../../utils/urls";
+import { updateQueryParams } from "@/features/lab/utils/urls";
 import { KnownQueryParams } from "../constants";
 
 /**

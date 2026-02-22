@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../../store/use-lab-cell-store";
+import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
 import {
   DATA_CATALOG,
   flattenCatalog,
@@ -10,7 +10,7 @@ import {
   type CatalogFunction,
   type CatalogItem,
   type CatalogVariable,
-} from "../../data/data-catalog";
+} from "@/features/lab/data/data-catalog";
 import {
   ChevronRight,
   Search,

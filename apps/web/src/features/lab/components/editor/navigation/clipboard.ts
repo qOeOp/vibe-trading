@@ -2,11 +2,11 @@
 
 import useEvent from "react-use-event-hook";
 import { z } from "zod";
-import { toast } from "../../ui/use-toast";
-import { getNotebook, useCellActions } from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
-import { copyToClipboard } from "../../../utils/copy";
-import { Logger } from "../../../utils/Logger";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { getNotebook, useCellActions } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { Logger } from "@/features/lab/utils/Logger";
 
 // According to MDN, custom mimetypes should start with "web "
 const MARIMO_CELL_MIMETYPE = "web application/x-marimo-cell";

@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { z } from "zod";
-import type { CellId } from "../../../../core/cells/ids";
-import { Logger } from "../../../../utils/Logger";
-import { Maps } from "../../../../utils/maps";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { Logger } from "@/features/lab/utils/Logger";
+import { Maps } from "@/features/lab/utils/maps";
 import type { ICellRendererPlugin } from "../types";
 import { GridLayoutRenderer } from "./grid-layout";
 import type {

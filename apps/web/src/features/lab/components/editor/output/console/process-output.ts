@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import type { OutputMessage } from "../../../../core/kernel/messages";
-import { ansiToPlainText, parseHtmlContent } from "../../../../utils/dom";
-import { Strings } from "../../../../utils/strings";
+import type { OutputMessage } from "@/features/lab/core/kernel/messages";
+import { ansiToPlainText, parseHtmlContent } from "@/features/lab/utils/dom";
+import { Strings } from "@/features/lab/utils/strings";
 
 /** Convert cell or console output to a string, while handling html and ansi codes */
 export function processOutput(output: OutputMessage): string {

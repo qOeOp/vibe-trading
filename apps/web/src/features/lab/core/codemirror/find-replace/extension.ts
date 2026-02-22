@@ -5,7 +5,7 @@ import {
   selectNextOccurrence,
 } from "@codemirror/search";
 import { keymap } from "@codemirror/view";
-import type { HotkeyProvider } from "../../hotkeys/hotkeys";
+import type { HotkeyProvider } from "@/features/lab/core/hotkeys/hotkeys";
 import {
   highlightTheme,
   searchHighlighter,

@@ -2,11 +2,11 @@
 
 import { FileTextIcon } from "lucide-react";
 import React from "react";
-import { ClearButton } from "../../../buttons/clear-button";
-import { useCellActions, useCellLogs } from "../../../../core/cells/cells";
-import { type CellLog, formatLogTimestamp } from "../../../../core/cells/logs";
-import { cn } from "../../../../utils/cn";
-import { CellLink } from "../../links/cell-link";
+import { ClearButton } from "@/features/lab/components/buttons/clear-button";
+import { useCellActions, useCellLogs } from "@/features/lab/core/cells/cells";
+import { type CellLog, formatLogTimestamp } from "@/features/lab/core/cells/logs";
+import { cn } from "@/features/lab/utils/cn";
+import { CellLink } from "@/features/lab/components/editor/links/cell-link";
 import { PanelEmptyState } from "./empty-state";
 
 interface Props {

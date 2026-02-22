@@ -2,7 +2,7 @@
 
 import { DatabaseIcon } from 'lucide-react';
 import type { FC } from 'react';
-import { cn } from '../../utils/cn';
+import { cn } from '@/features/lab/utils/cn';
 import ClickhouseIcon from './icons/clickhouse.svg';
 import DatabricksIcon from './icons/databricks.svg';
 import DataFusionIcon from './icons/datafusion.png';

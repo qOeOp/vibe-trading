@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import { invariant } from "../../utils/invariant";
-import type { TypedString } from "../../utils/typed";
+import { invariant } from "@/features/lab/utils/invariant";
+import type { TypedString } from "@/features/lab/utils/typed";
 
 const lowercase = "abcdefghijklmnopqrstuvwxyz";
 const uppercase = lowercase.toUpperCase();

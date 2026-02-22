@@ -4,8 +4,8 @@ import type { Completion } from "@codemirror/autocomplete";
 import {
   type DatasetTablesMap,
   getTableType,
-} from "../../../datasets/data-source-connections";
-import type { DataTable } from "../../../kernel/messages";
+} from "@/features/lab/core/datasets/data-source-connections";
+import type { DataTable } from "@/features/lab/core/kernel/messages";
 import type { AIContextItem } from "../registry";
 import { AIContextProvider } from "../registry";
 import { contextToXml } from "../utils";

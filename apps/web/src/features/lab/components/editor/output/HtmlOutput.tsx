@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { memo } from "react";
-import { renderHTML } from "../../../plugins/core/RenderHTML";
-import { cn } from "../../../utils/cn";
+import { renderHTML } from "@/features/lab/plugins/core/RenderHTML";
+import { cn } from "@/features/lab/utils/cn";
 
 interface Props {
   html: string;

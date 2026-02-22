@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom } from "jotai";
-import { isSchemaless } from "../../components/datasources/utils";
-import { createReducerAndAtoms } from "../../utils/createReducer";
-import { Logger } from "../../utils/Logger";
+import { isSchemaless } from "@/features/lab/components/datasources/utils";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
+import { Logger } from "@/features/lab/utils/Logger";
 import type {
   DataSourceConnection as DataSourceConnectionType,
   DataTable,

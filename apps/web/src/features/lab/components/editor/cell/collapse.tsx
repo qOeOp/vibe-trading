@@ -10,13 +10,13 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { memo } from "react";
-import { Toolbar } from "../../layout/toolbar";
-import { Button } from "../../ui/button";
-import { Tooltip } from "../../ui/tooltip";
-import { useNotebook } from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
-import { getDescendantsStatus } from "../../../core/cells/utils";
-import { cn } from "../../../utils/cn";
+import { Toolbar } from "@/features/lab/components/layout/toolbar";
+import { Button } from "@/features/lab/components/ui/button";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { useNotebook } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { getDescendantsStatus } from "@/features/lab/core/cells/utils";
+import { cn } from "@/features/lab/utils/cn";
 
 interface Props {
   isCollapsed: boolean;

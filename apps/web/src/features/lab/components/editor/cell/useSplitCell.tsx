@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import useEvent from "react-use-event-hook";
-import { UndoButton } from "../../buttons/undo-button";
-import { toast } from "../../ui/use-toast";
-import { getCellEditorView, useCellActions } from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
-import { getEditorCodeAsPython } from "../../../core/codemirror/language/utils";
+import { UndoButton } from "@/features/lab/components/buttons/undo-button";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { getCellEditorView, useCellActions } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { getEditorCodeAsPython } from "@/features/lab/core/codemirror/language/utils";
 
 export function useSplitCellCallback() {
   const { splitCell, undoSplitCell } = useCellActions();

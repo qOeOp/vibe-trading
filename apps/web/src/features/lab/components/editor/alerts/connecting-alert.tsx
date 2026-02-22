@@ -1,18 +1,18 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import { LoadingEllipsis } from "../../icons/loading-ellipsis";
-import { Spinner } from "../../icons/spinner";
-import { Button } from "../../ui/button";
-import { DelayMount } from "../../utils/delay-mount";
+import { LoadingEllipsis } from "@/features/lab/components/icons/loading-ellipsis";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { Button } from "@/features/lab/components/ui/button";
+import { DelayMount } from "@/features/lab/components/utils/delay-mount";
 import {
   isClosedAtom,
   isConnectingAtom,
   isNotStartedAtom,
-} from "../../../core/network/connection";
-import { useConnectToRuntime } from "../../../core/runtime/config";
-import { Banner } from "../../../plugins/impl/common/error-banner";
-import { Tooltip } from "../../ui/tooltip";
+} from "@/features/lab/core/network/connection";
+import { useConnectToRuntime } from "@/features/lab/core/runtime/config";
+import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
 import { FloatingAlert } from "./floating-alert";
 
 const SHORT_DELAY_MS = 1000; // 1 second

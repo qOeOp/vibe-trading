@@ -2,12 +2,12 @@
 "use no memo";
 
 import type { RowData } from "@tanstack/react-table";
-import type { DataType } from "../../core/kernel/messages";
-import type { ConditionType } from "../../plugins/impl/data-frames/schema";
-import type { ColumnId } from "../../plugins/impl/data-frames/types";
-import type { OperatorType } from "../../plugins/impl/data-frames/utils/operators";
-import { assertNever } from "../../utils/assertNever";
-import { Logger } from "../../utils/Logger";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import type { ConditionType } from "@/features/lab/plugins/impl/data-frames/schema";
+import type { ColumnId } from "@/features/lab/plugins/impl/data-frames/types";
+import type { OperatorType } from "@/features/lab/plugins/impl/data-frames/utils/operators";
+import { assertNever } from "@/features/lab/utils/assertNever";
+import { Logger } from "@/features/lab/utils/Logger";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns

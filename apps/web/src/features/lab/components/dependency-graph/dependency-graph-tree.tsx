@@ -19,12 +19,12 @@ import {
   EdgeMarkerContext,
   nodeTypes,
 } from "./custom-node";
-import { lastFocusedCellIdAtom } from "../../core/cells/focus";
-import type { CellId } from "../../core/cells/ids";
-import type { CellData } from "../../core/cells/types";
-import { store } from "../../core/state/jotai";
-import type { Variables } from "../../core/variables/types";
-import { Events } from "../../utils/events";
+import { lastFocusedCellIdAtom } from "@/features/lab/core/cells/focus";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import type { CellData } from "@/features/lab/core/cells/types";
+import { store } from "@/features/lab/core/state/jotai";
+import type { Variables } from "@/features/lab/core/variables/types";
+import { Events } from "@/features/lab/utils/events";
 import { scrollAndHighlightCell } from "../editor/links/cell-link";
 import { Tooltip } from "../ui/tooltip";
 import { type NodeData, TreeElementsBuilder } from "./elements";

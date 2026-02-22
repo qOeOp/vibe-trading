@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { Strings } from "../../utils/strings";
+import { Strings } from "@/features/lab/utils/strings";
 
 export function urlJoin(first: string, second: string): string {
   first = Strings.withoutTrailingSlash(first);

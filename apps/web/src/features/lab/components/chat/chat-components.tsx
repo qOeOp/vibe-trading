@@ -12,7 +12,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 import { Spinner } from "../icons/spinner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";

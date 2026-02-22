@@ -12,21 +12,21 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { renderShortcut } from "../../shortcuts/renderShortcut";
-import { Alert, AlertDescription } from "../../ui/alert";
-import { Tooltip } from "../../ui/tooltip";
-import { disableFileDownloadsAtom, hotkeysAtom } from "../../../core/config/config";
-import { useRequestClient } from "../../../core/network/requests";
-import type { FileInfo } from "../../../core/network/types";
-import { filenameAtom } from "../../../core/saving/file-state";
-import { isWasm } from "../../../core/wasm/utils";
-import { useAsyncData } from "../../../hooks/useAsyncData";
-import { LazyAnyLanguageCodeMirror } from "../../../plugins/impl/code/LazyAnyLanguageCodeMirror";
-import { ErrorBanner } from "../../../plugins/impl/common/error-banner";
-import { useTheme } from "../../../theme/useTheme";
-import { copyToClipboard } from "../../../utils/copy";
-import { downloadBlob, downloadByURL } from "../../../utils/download";
-import { type Base64String, base64ToDataURL } from "../../../utils/json/base64";
+import { renderShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
+import { Alert, AlertDescription } from "@/features/lab/components/ui/alert";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { disableFileDownloadsAtom, hotkeysAtom } from "@/features/lab/core/config/config";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import type { FileInfo } from "@/features/lab/core/network/types";
+import { filenameAtom } from "@/features/lab/core/saving/file-state";
+import { isWasm } from "@/features/lab/core/wasm/utils";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { LazyAnyLanguageCodeMirror } from "@/features/lab/plugins/impl/code/LazyAnyLanguageCodeMirror";
+import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
+import { useTheme } from "@/features/lab/theme/useTheme";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { downloadBlob, downloadByURL } from "@/features/lab/utils/download";
+import { type Base64String, base64ToDataURL } from "@/features/lab/utils/json/base64";
 import { Button } from "../inputs/Inputs";
 import {
   AudioViewer,

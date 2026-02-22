@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom } from "jotai";
-import { getAllEditorViews, notebookAtom } from "../../cells/cells";
-import type { CellId } from "../../cells/ids";
-import { variablesAtom } from "../../variables/state";
-import type { Variables } from "../../variables/types";
-import { Objects } from "../../../utils/objects";
+import { getAllEditorViews, notebookAtom } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { variablesAtom } from "@/features/lab/core/variables/state";
+import type { Variables } from "@/features/lab/core/variables/types";
+import { Objects } from "@/features/lab/utils/objects";
 import { getEditorCodeAsPython } from "../language/utils";
 
 export function getCodes(otherCode: string) {

@@ -1,27 +1,27 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import React from "react";
-import { Button } from "../../../ui/button";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../../ui/dialog";
-import { FormDescription } from "../../../ui/field";
-import { Input } from "../../../ui/input";
-import { Label } from "../../../ui/label";
-import { ExternalLink } from "../../../ui/links";
+} from "@/features/lab/components/ui/dialog";
+import { FormDescription } from "@/features/lab/components/ui/field";
+import { Input } from "@/features/lab/components/ui/input";
+import { Label } from "@/features/lab/components/ui/label";
+import { ExternalLink } from "@/features/lab/components/ui/links";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../ui/select";
-import { toast } from "../../../ui/use-toast";
-import { useRequestClient } from "../../../../core/network/requests";
-import type { ListSecretKeysResponse } from "../../../../core/network/types";
+} from "@/features/lab/components/ui/select";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import type { ListSecretKeysResponse } from "@/features/lab/core/network/types";
 
 // dotenv providers should be at the top
 export function sortProviders(providers: ListSecretKeysResponse["keys"]) {

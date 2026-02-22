@@ -3,8 +3,8 @@
 
 import { atom, useAtomValue } from 'jotai';
 import { useMemo } from 'react';
-import type { CellId } from '../../../core/cells/ids';
-import { createReducerAndAtoms } from '../../../utils/createReducer';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { createReducerAndAtoms } from '@/features/lab/utils/createReducer';
 
 type TemporarilyShownCodeState = Set<CellId>;
 

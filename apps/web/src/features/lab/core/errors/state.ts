@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom, useAtomValue } from "jotai";
-import { createReducerAndAtoms } from "../../utils/createReducer";
-import type { Identified } from "../../utils/typed";
-import { generateUUID } from "../../utils/uuid";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
+import type { Identified } from "@/features/lab/utils/typed";
+import { generateUUID } from "@/features/lab/utils/uuid";
 import type { Banner } from "../kernel/messages";
 
 /**

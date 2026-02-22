@@ -2,7 +2,7 @@
 
 import type { Cell, Column, Row, Table } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vitest";
-import { SELECT_COLUMN_ID } from "../../types";
+import { SELECT_COLUMN_ID } from "@/features/lab/components/data-table/types";
 import type { SelectedCell } from "../atoms";
 import { getCellsBetween, getCellValues } from "../utils";
 

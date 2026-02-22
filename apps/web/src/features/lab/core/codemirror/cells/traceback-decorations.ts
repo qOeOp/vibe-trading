@@ -11,9 +11,9 @@ import {
   ViewPlugin,
   type ViewUpdate,
 } from "@codemirror/view";
-import type { Observable } from "../../state/observable";
-import { Logger } from "../../../utils/Logger";
-import type { TracebackInfo } from "../../../utils/traceback";
+import type { Observable } from "@/features/lab/core/state/observable";
+import { Logger } from "@/features/lab/utils/Logger";
+import type { TracebackInfo } from "@/features/lab/utils/traceback";
 import { cellIdState } from "./state";
 
 type TracebackInfos = TracebackInfo[] | undefined;

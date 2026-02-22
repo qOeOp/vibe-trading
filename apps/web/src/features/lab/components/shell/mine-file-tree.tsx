@@ -7,8 +7,8 @@ import {
   File,
   type TreeViewElement,
 } from '@/components/ui/file-tree';
-import { useLabFileTabStore } from '../../store/use-lab-file-tab-store';
-import { useLabModeStore } from '../../store/use-lab-mode-store';
+import { useLabFileTabStore } from '@/features/lab/store/use-lab-file-tab-store';
+import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 
 // ─── Mine File Tree ──────────────────────────────────────
 //

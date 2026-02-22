@@ -5,21 +5,21 @@ import { type Atom, atom, useAtom, useAtomValue } from 'jotai';
 import { atomFamily, selectAtom, splitAtom } from 'jotai/utils';
 import { isEqual, zip } from 'lodash-es';
 import { createRef, type ReducerWithoutAction } from 'react';
-import type { CellHandle } from '../../components/editor/notebook-cell';
+import type { CellHandle } from '@/features/lab/components/editor/notebook-cell';
 import {
   type CellColumnId,
   type CellIndex,
   MultiColumn,
-} from '../../utils/id-tree';
-import { invariant } from '../../utils/invariant';
-import { Logger } from '../../utils/Logger';
-import { clamp } from '../../utils/math';
-import { Objects } from '../../utils/objects';
+} from '@/features/lab/utils/id-tree';
+import { invariant } from '@/features/lab/utils/invariant';
+import { Logger } from '@/features/lab/utils/Logger';
+import { clamp } from '@/features/lab/utils/math';
+import { Objects } from '@/features/lab/utils/objects';
 import {
   extractAllTracebackInfo,
   type TracebackInfo,
-} from '../../utils/traceback';
-import { createReducerAndAtoms } from '../../utils/createReducer';
+} from '@/features/lab/utils/traceback';
+import { createReducerAndAtoms } from '@/features/lab/utils/createReducer';
 import { foldAllBulk, unfoldAllBulk } from '../codemirror/editing/commands';
 import {
   splitEditor,

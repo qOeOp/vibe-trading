@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/utils';
-import { store } from '../../core/state/jotai';
+import { store } from '@/features/lab/core/state/jotai';
 import { PanelSectionProvider } from '../editor/chrome/panels/panel-context';
 import { ErrorBoundary } from '../editor/boundary/ErrorBoundary';
 import { PANEL_ITEMS } from './activity-bar';

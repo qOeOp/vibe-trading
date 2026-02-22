@@ -9,17 +9,17 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { Mocks } from "@/__mocks__/common";
 import { MockNotebook } from "@/__mocks__/notebook";
 import { MockRequestClient } from "@/__mocks__/requests";
-import { aiCompletionCellAtom } from "../../../../core/ai/state";
-import type { CellActions } from "../../../../core/cells/cells";
-import { notebookAtom } from "../../../../core/cells/cells";
+import { aiCompletionCellAtom } from "@/features/lab/core/ai/state";
+import type { CellActions } from "@/features/lab/core/cells/cells";
+import { notebookAtom } from "@/features/lab/core/cells/cells";
 import {
   configOverridesAtom,
   platformAtom,
   userConfigAtom,
-} from "../../../../core/config/config";
-import { requestClientAtom } from "../../../../core/network/requests";
-import { store } from "../../../../core/state/jotai";
-import type { CellActionsDropdownHandle } from "../../cell/cell-actions";
+} from "@/features/lab/core/config/config";
+import { requestClientAtom } from "@/features/lab/core/network/requests";
+import { store } from "@/features/lab/core/state/jotai";
+import type { CellActionsDropdownHandle } from "@/features/lab/components/editor/cell/cell-actions";
 import {
   useCellEditorNavigationProps,
   useCellNavigationProps,
@@ -40,7 +40,7 @@ vi.mock("@/core/saving/save-component", () => ({
   useSaveNotebook: vi.fn(),
 }));
 
-vi.mock("../../cell/useRunCells", () => ({
+vi.mock("@/features/lab/components/editor/cell/useRunCells", () => ({
   useRunCells: vi.fn(),
 }));
 
@@ -78,7 +78,7 @@ const mockUseSaveNotebook = vi.mocked(
   await import("@/core/saving/save-component"),
 ).useSaveNotebook;
 const mockUseRunCells = vi.mocked(
-  await import("../../cell/useRunCells"),
+  await import("@/features/lab/components/editor/cell/useRunCells"),
 ).useRunCells;
 const mockUseCellClipboard = vi.mocked(
   await import("../clipboard"),
@@ -88,8 +88,8 @@ afterAll(() => {
   vi.resetAllMocks();
 });
 
-import { defaultUserConfig } from "../../../../core/config/config-schema";
-import { MultiColumn } from "../../../../utils/id-tree";
+import { defaultUserConfig } from "@/features/lab/core/config/config-schema";
+import { MultiColumn } from "@/features/lab/utils/id-tree";
 import { focusCell, focusCellEditor } from "../focus-utils";
 import {
   type CellSelectionState,

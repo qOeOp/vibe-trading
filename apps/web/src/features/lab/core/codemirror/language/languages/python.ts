@@ -17,30 +17,30 @@ import {
   LanguageServerClient,
   languageServerWithClient,
 } from '@marimo-team/codemirror-languageserver';
-import { PythonParser } from '../../../../packages/smart-cells';
-import type { CellId } from '../../../cells/ids';
-import { hasCapability } from '../../../config/capabilities';
+import { PythonParser } from '@/features/lab/packages/smart-cells';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { hasCapability } from '@/features/lab/core/config/capabilities';
 import type {
   CompletionConfig,
   DiagnosticsConfig,
   LSPConfig,
-} from '../../../config/config-schema';
-import type { HotkeyProvider } from '../../../hotkeys/hotkeys';
-import { getRequestClient } from '../../../network/requests';
-import { Logger } from '../../../../utils/Logger';
-import { once } from '../../../../utils/once';
-import { cellActionsState } from '../../cells/state';
-import { pythonCompletionSource } from '../../completion/completer';
-import type { PlaceholderType } from '../../config/types';
-import { FederatedLanguageServerClient } from '../../lsp/federated-lsp';
-import { NotebookLanguageServerClient } from '../../lsp/notebook-lsp';
-import { createTransport } from '../../lsp/transports';
-import { CellDocumentUri, type ILanguageServerClient } from '../../lsp/types';
-import { getLSPDocumentRootUri } from '../../lsp/utils';
+} from '@/features/lab/core/config/config-schema';
+import type { HotkeyProvider } from '@/features/lab/core/hotkeys/hotkeys';
+import { getRequestClient } from '@/features/lab/core/network/requests';
+import { Logger } from '@/features/lab/utils/Logger';
+import { once } from '@/features/lab/utils/once';
+import { cellActionsState } from '@/features/lab/core/codemirror/cells/state';
+import { pythonCompletionSource } from '@/features/lab/core/codemirror/completion/completer';
+import type { PlaceholderType } from '@/features/lab/core/codemirror/config/types';
+import { FederatedLanguageServerClient } from '@/features/lab/core/codemirror/lsp/federated-lsp';
+import { NotebookLanguageServerClient } from '@/features/lab/core/codemirror/lsp/notebook-lsp';
+import { createTransport } from '@/features/lab/core/codemirror/lsp/transports';
+import { CellDocumentUri, type ILanguageServerClient } from '@/features/lab/core/codemirror/lsp/types';
+import { getLSPDocumentRootUri } from '@/features/lab/core/codemirror/lsp/utils';
 import {
   clickablePlaceholderExtension,
   smartPlaceholderExtension,
-} from '../../placeholder/extensions';
+} from '@/features/lab/core/codemirror/placeholder/extensions';
 import type { LanguageAdapter } from '../types';
 
 const pylspClient = once((lspConfig: LSPConfig) => {

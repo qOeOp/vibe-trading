@@ -14,11 +14,11 @@ import {
   TrashIcon,
 } from 'lucide-react';
 import React, { memo } from 'react';
-import { cn } from '../../utils/cn';
+import { cn } from '@/features/lab/utils/cn';
 import { Button } from '../ui/button';
 import { Tooltip } from '../ui/tooltip';
-import { useKeydownOnElement } from '../../hooks/useHotkey';
-import { useInputHistory } from '../../hooks/useInputHistory';
+import { useKeydownOnElement } from '@/features/lab/hooks/useHotkey';
+import { useInputHistory } from '@/features/lab/hooks/useInputHistory';
 
 interface Props {
   code: string;

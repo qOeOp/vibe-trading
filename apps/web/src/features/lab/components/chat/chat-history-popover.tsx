@@ -13,9 +13,9 @@ import {
 } from "../ui/popover";
 import { ScrollArea } from "../ui/scroll-area";
 import { Tooltip } from "../ui/tooltip";
-import { type ChatId, chatStateAtom } from "../../core/ai/state";
-import { cn } from "../../utils/cn";
-import { timeAgo } from "../../utils/dates";
+import { type ChatId, chatStateAtom } from "@/features/lab/core/ai/state";
+import { cn } from "@/features/lab/utils/cn";
+import { timeAgo } from "@/features/lab/utils/dates";
 import { PanelEmptyState } from "../editor/chrome/panels/empty-state";
 import { groupChatsByDate } from "./chat-history-utils";
 

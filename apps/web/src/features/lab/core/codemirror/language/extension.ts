@@ -8,15 +8,15 @@ import {
   StateField,
 } from '@codemirror/state';
 import { type EditorView, keymap, showPanel } from '@codemirror/view';
-import type { CellId } from '../../cells/ids';
+import type { CellId } from '@/features/lab/core/cells/ids';
 import type {
   CompletionConfig,
   DiagnosticsConfig,
   LSPConfig,
-} from '../../config/config-schema';
-import type { HotkeyProvider } from '../../hotkeys/hotkeys';
-import { Logger } from '../../../utils/Logger';
-import { clamp } from '../../../utils/math';
+} from '@/features/lab/core/config/config-schema';
+import type { HotkeyProvider } from '@/features/lab/core/hotkeys/hotkeys';
+import { Logger } from '@/features/lab/utils/Logger';
+import { clamp } from '@/features/lab/utils/math';
 import {
   cellIdState,
   completionConfigState,

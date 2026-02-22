@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import type { GridLayout } from "../../components/editor/renderers/grid-layout/types";
-import { cellRendererPlugins } from "../../components/editor/renderers/plugins";
-import type { LayoutType } from "../../components/editor/renderers/types";
-import { createReducerAndAtoms } from "../../utils/createReducer";
-import { Logger } from "../../utils/Logger";
+import type { GridLayout } from "@/features/lab/components/editor/renderers/grid-layout/types";
+import { cellRendererPlugins } from "@/features/lab/components/editor/renderers/plugins";
+import type { LayoutType } from "@/features/lab/components/editor/renderers/types";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
+import { Logger } from "@/features/lab/utils/Logger";
 import { getNotebook } from "../cells/cells";
 import { notebookCells } from "../cells/utils";
 import { store } from "../state/jotai";

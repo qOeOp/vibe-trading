@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { z } from "zod";
-import { invariant } from "../../utils/invariant";
-import { Logger } from "../../utils/Logger";
+import { invariant } from "@/features/lab/utils/invariant";
+import { Logger } from "@/features/lab/utils/Logger";
 import type { MarimoConfig, schemas } from "../network/types";
 
 // This has to be defined in the same file as the zod schema to satisfy zod

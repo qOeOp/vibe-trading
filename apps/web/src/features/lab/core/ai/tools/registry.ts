@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { components } from '../../marimo-api';
+import type { components } from '@/features/lab/core/marimo-api';
 import { Memoize } from 'typescript-memoize';
 import { type ZodObject, z } from 'zod';
 import {

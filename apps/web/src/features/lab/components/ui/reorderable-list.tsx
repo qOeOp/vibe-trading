@@ -8,7 +8,7 @@ import {
   ListBoxItem,
   useDragAndDrop,
 } from "react-aria-components";
-import { Logger } from "../../utils/Logger";
+import { Logger } from "@/features/lab/utils/Logger";
 import {
   ContextMenu,
   ContextMenuCheckboxItem,

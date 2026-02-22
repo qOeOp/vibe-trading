@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { Milliseconds, Seconds } from "../../utils/time";
+import type { Milliseconds, Seconds } from "@/features/lab/utils/time";
 import type { SerializedEditorState } from "../codemirror/types";
 import type { OutputMessage } from "../kernel/messages";
 import type { CellConfig, RuntimeState } from "../network/types";

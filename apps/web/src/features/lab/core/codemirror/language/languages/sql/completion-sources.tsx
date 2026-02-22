@@ -7,8 +7,8 @@ import {
 } from '@codemirror/lang-sql';
 import type { EditorState } from '@codemirror/state';
 import { DefaultSqlTooltipRenders } from '@marimo-team/codemirror-sql';
-import { once } from '../../../../../utils/once';
-import { languageMetadataField } from '../../metadata';
+import { once } from '@/features/lab/utils/once';
+import { languageMetadataField } from '@/features/lab/core/codemirror/language/metadata';
 import { SCHEMA_CACHE } from './completion-store';
 import type { SQLLanguageAdapterMetadata } from './sql';
 

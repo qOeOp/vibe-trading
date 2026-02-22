@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom, useAtomValue } from "jotai";
-import { invariant } from "../../utils/invariant";
+import { invariant } from "@/features/lab/utils/invariant";
 import { store } from "../state/jotai";
 import type { EditRequests, RunRequests } from "./types";
 

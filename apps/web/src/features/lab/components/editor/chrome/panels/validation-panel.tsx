@@ -3,16 +3,16 @@
 import React, { useState } from 'react';
 import { FlaskConicalIcon } from 'lucide-react';
 import { PanelEmptyState } from './empty-state';
-import { StepICStats } from '../../../results/step-ic-stats';
-import { StepQuantileReturns } from '../../../results/step-quantile-returns';
-import { StepICDecay } from '../../../results/step-ic-decay';
-import { StepOrthogonality } from '../../../results/step-orthogonality';
-import { StepConditionalIC } from '../../../results/step-conditional-ic';
-import { StepAttribution } from '../../../results/step-attribution';
-import { StepTurnover } from '../../../results/step-turnover';
-import { StepOperations } from '../../../results/step-operations';
-import type { ValidationResult } from '../../../../types';
-import { useValidationResult } from '../../../../store/use-validation-store';
+import { StepICStats } from '@/features/lab/components/results/step-ic-stats';
+import { StepQuantileReturns } from '@/features/lab/components/results/step-quantile-returns';
+import { StepICDecay } from '@/features/lab/components/results/step-ic-decay';
+import { StepOrthogonality } from '@/features/lab/components/results/step-orthogonality';
+import { StepConditionalIC } from '@/features/lab/components/results/step-conditional-ic';
+import { StepAttribution } from '@/features/lab/components/results/step-attribution';
+import { StepTurnover } from '@/features/lab/components/results/step-turnover';
+import { StepOperations } from '@/features/lab/components/results/step-operations';
+import type { ValidationResult } from '@/features/lab/types';
+import { useValidationResult } from '@/features/lab/store/use-validation-store';
 
 const STEPS = [
   { key: 'ic-stats', label: 'IC 统计' },

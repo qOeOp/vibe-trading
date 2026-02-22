@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom, useAtomValue } from "jotai";
-import { notebookAtom } from "../../core/cells/cells";
-import { Banner } from "../../plugins/impl/common/error-banner";
-import { Logger } from "../../utils/Logger";
+import { notebookAtom } from "@/features/lab/core/cells/cells";
+import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
+import { Logger } from "@/features/lab/utils/Logger";
 import { Button } from "../ui/button";
 import { Kbd } from "../ui/kbd";
 import { DelayMount } from "../utils/delay-mount";

@@ -10,25 +10,25 @@ import {
 import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { useMemo } from "react";
 import { mergeProps, useFocusWithin, useKeyboard } from "react-aria";
-import { DATA_FOR_CELL_ID } from "../../data-table/cell-utils";
-import { aiCompletionCellAtom } from "../../../core/ai/state";
-import { cellIdsAtom, notebookAtom, useCellActions } from "../../../core/cells/cells";
-import { useCellFocusActions } from "../../../core/cells/focus";
-import type { CellId } from "../../../core/cells/ids";
-import { HTMLCellId } from "../../../core/cells/ids";
-import { usePendingDeleteService } from "../../../core/cells/pending-delete-service";
-import { scrollCellIntoView } from "../../../core/cells/scrollCellIntoView";
+import { DATA_FOR_CELL_ID } from "@/features/lab/components/data-table/cell-utils";
+import { aiCompletionCellAtom } from "@/features/lab/core/ai/state";
+import { cellIdsAtom, notebookAtom, useCellActions } from "@/features/lab/core/cells/cells";
+import { useCellFocusActions } from "@/features/lab/core/cells/focus";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { HTMLCellId } from "@/features/lab/core/cells/ids";
+import { usePendingDeleteService } from "@/features/lab/core/cells/pending-delete-service";
+import { scrollCellIntoView } from "@/features/lab/core/cells/scrollCellIntoView";
 import {
   hotkeysAtom,
   keymapPresetAtom,
   userConfigAtom,
-} from "../../../core/config/config";
-import type { HotkeyAction } from "../../../core/hotkeys/hotkeys";
-import { parseShortcut } from "../../../core/hotkeys/shortcuts";
-import { useRequestClient } from "../../../core/network/requests";
-import { useSaveNotebook } from "../../../core/saving/save-component";
-import { Events } from "../../../utils/events";
-import type { CollapsibleTree } from "../../../utils/id-tree";
+} from "@/features/lab/core/config/config";
+import type { HotkeyAction } from "@/features/lab/core/hotkeys/hotkeys";
+import { parseShortcut } from "@/features/lab/core/hotkeys/shortcuts";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { useSaveNotebook } from "@/features/lab/core/saving/save-component";
+import { Events } from "@/features/lab/utils/events";
+import type { CollapsibleTree } from "@/features/lab/utils/id-tree";
 import type { CellActionsDropdownHandle } from "../cell/cell-actions";
 import { useDeleteManyCellsCallback } from "../cell/useDeleteCell";
 import { useRunCells } from "../cell/useRunCells";

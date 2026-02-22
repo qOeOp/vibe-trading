@@ -8,7 +8,7 @@ import type {
   DatabaseSchema,
   DataTable,
   DataTableColumn,
-} from "../../../../kernel/messages";
+} from "@/features/lab/core/kernel/messages";
 import {
   renderColumnInfo,
   renderDatabaseInfo,

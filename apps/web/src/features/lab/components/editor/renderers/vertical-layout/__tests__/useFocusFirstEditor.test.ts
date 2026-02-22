@@ -2,7 +2,7 @@
 
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as cellsModule from "../../../../../core/cells/cells";
+import * as cellsModule from "@/features/lab/core/cells/cells";
 import { useFocusFirstEditor } from "../useFocusFirstEditor";
 
 describe("useFocusFirstEditor", () => {

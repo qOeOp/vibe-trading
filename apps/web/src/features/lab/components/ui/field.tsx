@@ -12,7 +12,7 @@ import {
   type TextProps as AriaTextProps,
   composeRenderProps,
 } from "react-aria-components";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 import { selectStyles } from "./native-select";
 
 const labelVariants = cva([

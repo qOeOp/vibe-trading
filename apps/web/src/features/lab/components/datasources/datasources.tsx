@@ -12,44 +12,44 @@ import { CopyClipboardIcon } from "../icons/copy-icon";
 import { Button } from "../ui/button";
 import { Command, CommandInput, CommandItem } from "../ui/command";
 import { Tooltip } from "../ui/tooltip";
-import { maybeAddMarimoImport } from "../../core/cells/add-missing-import";
-import { cellIdsAtom, useCellActions } from "../../core/cells/cells";
-import { useLastFocusedCellId } from "../../core/cells/focus";
-import { autoInstantiateAtom } from "../../core/config/config";
+import { maybeAddMarimoImport } from "@/features/lab/core/cells/add-missing-import";
+import { cellIdsAtom, useCellActions } from "@/features/lab/core/cells/cells";
+import { useLastFocusedCellId } from "@/features/lab/core/cells/focus";
+import { autoInstantiateAtom } from "@/features/lab/core/config/config";
 import {
   dataConnectionsMapAtom,
   type SQLTableContext,
   useDataSourceActions,
-} from "../../core/datasets/data-source-connections";
+} from "@/features/lab/core/datasets/data-source-connections";
 import {
   DEFAULT_DUCKDB_DATABASE,
   DUCKDB_ENGINE,
   INTERNAL_SQL_ENGINES,
-} from "../../core/datasets/engines";
+} from "@/features/lab/core/datasets/engines";
 import {
   PreviewSQLTable,
   PreviewSQLTableList,
-} from "../../core/datasets/request-registry";
+} from "@/features/lab/core/datasets/request-registry";
 import {
   closeAllColumnsAtom,
   datasetTablesAtom,
   expandedColumnsAtom,
   useDatasets,
-} from "../../core/datasets/state";
+} from "@/features/lab/core/datasets/state";
 import type {
   Database,
   DatabaseSchema,
   DataSourceConnection,
   DataTable,
   DataTableColumn,
-} from "../../core/kernel/messages";
-import { useRequestClient } from "../../core/network/requests";
-import { variablesAtom } from "../../core/variables/state";
-import type { VariableName } from "../../core/variables/types";
-import { useAsyncData } from "../../hooks/useAsyncData";
-import { logNever } from "../../utils/assertNever";
-import { cn } from "../../utils/cn";
-import { Events } from "../../utils/events";
+} from "@/features/lab/core/kernel/messages";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { variablesAtom } from "@/features/lab/core/variables/state";
+import type { VariableName } from "@/features/lab/core/variables/types";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { logNever } from "@/features/lab/utils/assertNever";
+import { cn } from "@/features/lab/utils/cn";
+import { Events } from "@/features/lab/utils/events";
 import {
   DatabaseIcon,
   SchemaIcon,

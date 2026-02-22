@@ -24,11 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { cn } from "../../utils/cn";
-import { Events } from "../../utils/events";
-import { Strings } from "../../utils/strings";
-import { isZodPipe } from "../../utils/zod-utils";
-import { Objects } from "../../utils/objects";
+import { cn } from "@/features/lab/utils/cn";
+import { Events } from "@/features/lab/utils/events";
+import { Strings } from "@/features/lab/utils/strings";
+import { isZodPipe } from "@/features/lab/utils/zod-utils";
+import { Objects } from "@/features/lab/utils/objects";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import {

@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { jotaiJsonStorage } from "../../utils/storage/jotai";
+import { jotaiJsonStorage } from "@/features/lab/utils/storage/jotai";
 
 const MAX_HISTORY_ITEMS = 15;
 const KEY = "marimo:scratchpadHistory:v1";

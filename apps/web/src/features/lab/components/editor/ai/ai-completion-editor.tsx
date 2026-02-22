@@ -10,34 +10,34 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useId, useState } from "react";
 import CodeMirrorMerge from "react-codemirror-merge";
-import { Button } from "../../ui/button";
-import { customPythonLanguageSupport } from "../../../core/codemirror/language/languages/python";
+import { Button } from "@/features/lab/components/ui/button";
+import { customPythonLanguageSupport } from "@/features/lab/core/codemirror/language/languages/python";
 
 import "./merge-editor.css";
 import { storePrompt } from "@marimo-team/codemirror-ai";
 import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { useAtom, useAtomValue } from "jotai";
-import { AIModelDropdown } from "../../ai/ai-model-dropdown";
+import { AIModelDropdown } from "@/features/lab/components/ai/ai-model-dropdown";
 import {
   AddContextButton,
   SendButton,
-} from "../../chat/chat-components";
-import { Checkbox } from "../../ui/checkbox";
-import { Label } from "../../ui/label";
-import { Switch } from "../../ui/switch";
-import { Tooltip } from "../../ui/tooltip";
-import { toast } from "../../ui/use-toast";
-import { stagedAICellsAtom } from "../../../core/ai/staged-cells";
-import { type AiCompletionCell, includeOtherCellsAtom } from "../../../core/ai/state";
-import type { CellId } from "../../../core/cells/ids";
-import { getCodes } from "../../../core/codemirror/copilot/getCodes";
-import type { LanguageAdapterType } from "../../../core/codemirror/language/types";
-import { selectAllText } from "../../../core/codemirror/utils";
-import { useRuntimeManager } from "../../../core/runtime/config";
-import { useTheme } from "../../../theme/useTheme";
-import { cn } from "../../../utils/cn";
-import { prettyError } from "../../../utils/errors";
-import { retryWithTimeout } from "../../../utils/timeout";
+} from "@/features/lab/components/chat/chat-components";
+import { Checkbox } from "@/features/lab/components/ui/checkbox";
+import { Label } from "@/features/lab/components/ui/label";
+import { Switch } from "@/features/lab/components/ui/switch";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { stagedAICellsAtom } from "@/features/lab/core/ai/staged-cells";
+import { type AiCompletionCell, includeOtherCellsAtom } from "@/features/lab/core/ai/state";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { getCodes } from "@/features/lab/core/codemirror/copilot/getCodes";
+import type { LanguageAdapterType } from "@/features/lab/core/codemirror/language/types";
+import { selectAllText } from "@/features/lab/core/codemirror/utils";
+import { useRuntimeManager } from "@/features/lab/core/runtime/config";
+import { useTheme } from "@/features/lab/theme/useTheme";
+import { cn } from "@/features/lab/utils/cn";
+import { prettyError } from "@/features/lab/utils/errors";
+import { retryWithTimeout } from "@/features/lab/utils/timeout";
 import { PromptInput } from "./add-cell-with-ai";
 import {
   AcceptCompletionButton,

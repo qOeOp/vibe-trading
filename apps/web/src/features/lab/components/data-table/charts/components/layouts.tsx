@@ -1,14 +1,14 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { InfoIcon, type LucideProps } from "lucide-react";
-import { ReadonlyCode } from "../../../editor/code/readonly-python-code";
+import { ReadonlyCode } from "@/features/lab/components/editor/code/readonly-python-code";
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "../../../ui/accordion";
-import { Tooltip } from "../../../ui/tooltip";
-import { cn } from "../../../../utils/cn";
+} from "@/features/lab/components/ui/accordion";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { cn } from "@/features/lab/utils/cn";
 
 export const Title: React.FC<{ text: string; tooltip?: string }> = ({
   text,

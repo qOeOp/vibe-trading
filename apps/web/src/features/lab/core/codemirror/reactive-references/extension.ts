@@ -10,10 +10,10 @@ import {
 } from "@codemirror/view";
 import { type DebouncedFunc, debounce } from "lodash-es";
 
-import type { CellId } from "../../cells/ids";
-import { store } from "../../state/jotai";
-import { variablesAtom } from "../../variables/state";
-import { Logger } from "../../../utils/Logger";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { store } from "@/features/lab/core/state/jotai";
+import { variablesAtom } from "@/features/lab/core/variables/state";
+import { Logger } from "@/features/lab/utils/Logger";
 
 import { findReactiveVariables, type ReactiveVariableRange } from "./analyzer";
 

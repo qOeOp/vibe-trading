@@ -2,10 +2,10 @@
 
 import { EditorView } from '@codemirror/view';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { useRequestClient } from '../../core/network/requests';
-import { useAsyncData } from '../../hooks/useAsyncData';
-import { LazyAnyLanguageCodeMirror } from '../../plugins/impl/code/LazyAnyLanguageCodeMirror';
-import { useLabFileTabStore } from '../../store/use-lab-file-tab-store';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { LazyAnyLanguageCodeMirror } from '@/features/lab/plugins/impl/code/LazyAnyLanguageCodeMirror';
+import { useLabFileTabStore } from '@/features/lab/store/use-lab-file-tab-store';
 
 // ─── File Editor ─────────────────────────────────────────
 //

@@ -4,8 +4,8 @@ import { useMemo } from 'react';
 import type { ColumnDef, FilterFn } from '@tanstack/react-table';
 import { Box, Boxes } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { Factor, FactorType } from '../../types';
-import { FACTOR_CATEGORIES, FACTOR_LIFECYCLE_STATUSES } from '../../types';
+import type { Factor, FactorType } from '@/features/library/types';
+import { FACTOR_CATEGORIES, FACTOR_LIFECYCLE_STATUSES } from '@/features/library/types';
 import { SparklineSVG } from '../sparkline-svg';
 import { DataTableColumnHeader } from '@/lib/data-table/components/data-table-column-header';
 import {

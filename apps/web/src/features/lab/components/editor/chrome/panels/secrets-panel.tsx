@@ -3,9 +3,9 @@
 import { CheckIcon, CopyIcon, KeyIcon, PlusIcon } from "lucide-react";
 import React from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { Spinner } from "../../../icons/spinner";
-import { useImperativeModal } from "../../../modal/ImperativeModal";
-import { Badge } from "../../../ui/badge";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { useImperativeModal } from "@/features/lab/components/modal/ImperativeModal";
+import { Badge } from "@/features/lab/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -13,13 +13,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../ui/table";
-import { toast } from "../../../ui/use-toast";
-import { SECRETS_REGISTRY } from "../../../../core/secrets/request-registry";
-import { useAsyncData } from "../../../../hooks/useAsyncData";
-import { ErrorBanner } from "../../../../plugins/impl/common/error-banner";
-import { cn } from "../../../../utils/cn";
-import { copyToClipboard } from "../../../../utils/copy";
+} from "@/features/lab/components/ui/table";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { SECRETS_REGISTRY } from "@/features/lab/core/secrets/request-registry";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
+import { cn } from "@/features/lab/utils/cn";
+import { copyToClipboard } from "@/features/lab/utils/copy";
 import { PanelEmptyState } from "./empty-state";
 import { sortProviders, WriteSecretModal } from "./write-secret-modal";
 

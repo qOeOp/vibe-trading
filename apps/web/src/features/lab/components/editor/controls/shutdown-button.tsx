@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { XIcon } from "lucide-react";
-import { useRequestClient } from "../../../core/network/requests";
-import { isWasm } from "../../../core/wasm/utils";
-import { useImperativeModal } from "../../modal/ImperativeModal";
-import { AlertDialogDestructiveAction } from "../../ui/alert-dialog";
-import { Tooltip } from "../../ui/tooltip";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { isWasm } from "@/features/lab/core/wasm/utils";
+import { useImperativeModal } from "@/features/lab/components/modal/ImperativeModal";
+import { AlertDialogDestructiveAction } from "@/features/lab/components/ui/alert-dialog";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
 import { Button } from "../inputs/Inputs";
 
 interface Props {

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../../store/use-lab-cell-store";
+import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
 import { X } from "lucide-react";
 
 interface VariableInfo {

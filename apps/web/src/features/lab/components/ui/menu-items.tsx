@@ -2,7 +2,7 @@
 
 import { cva } from "class-variance-authority";
 import React from "react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 
 export const menuContentCommon = cva(
   "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",

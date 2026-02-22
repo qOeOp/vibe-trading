@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { OutputMessage, KnownMimeType, MarimoError } from "../../types";
+import type { OutputMessage, KnownMimeType, MarimoError } from "@/features/lab/types";
 import { TextOutput } from "./text-output";
 import { HtmlOutput } from "./html-output";
 import { JsonOutput } from "./json-output";

@@ -3,12 +3,12 @@ import { Calendar, Clock, User } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { DayPicker } from "@/components/ui/day-picker";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCalendar } from "../../contexts/calendar-context";
+import { useCalendar } from "@/features/journal/calendar/contexts/calendar-context";
 
-import { AddEditEventDialog } from "../../dialogs/add-edit-event-dialog";
-import { DroppableArea } from "../../dnd/droppable-area";
-import { groupEvents } from "../../helpers";
-import type { IEvent } from "../../interfaces";
+import { AddEditEventDialog } from "@/features/journal/calendar/dialogs/add-edit-event-dialog";
+import { DroppableArea } from "@/features/journal/calendar/dnd/droppable-area";
+import { groupEvents } from "@/features/journal/calendar/helpers";
+import type { IEvent } from "@/features/journal/calendar/interfaces";
 import { CalendarTimeline } from "./calendar-time-line";
 import { DayViewMultiDayEventsRow } from "./day-view-multi-day-events-row";
 import { RenderGroupedEvents } from "./render-grouped-events";

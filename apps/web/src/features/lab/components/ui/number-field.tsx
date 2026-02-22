@@ -9,8 +9,8 @@ import {
   Input as RACInput,
   useLocale,
 } from "react-aria-components";
-import { cn } from "../../utils/cn";
-import { maxFractionalDigits } from "../../utils/numbers";
+import { cn } from "@/features/lab/utils/cn";
+import { maxFractionalDigits } from "@/features/lab/utils/numbers";
 
 export interface NumberFieldProps extends AriaNumberFieldProps {
   placeholder?: string;

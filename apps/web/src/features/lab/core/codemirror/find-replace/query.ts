@@ -2,7 +2,7 @@
 
 import type { SearchCursor, SearchQuery } from "@codemirror/search";
 import type { EditorState } from "@codemirror/state";
-import { invariant } from "../../../utils/invariant";
+import { invariant } from "@/features/lab/utils/invariant";
 
 type SearchResult = typeof SearchCursor.prototype.value;
 

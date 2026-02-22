@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { NotificationMessageData } from "../../core/kernel/messages";
+import type { NotificationMessageData } from "@/features/lab/core/kernel/messages";
 import type { TypedString } from "../typed";
 
 /**

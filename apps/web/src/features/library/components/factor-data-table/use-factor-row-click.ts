@@ -2,8 +2,8 @@
 
 import { useCallback, useState } from "react";
 import type { Row, Table } from "@tanstack/react-table";
-import type { Factor } from "../../types";
-import { useLibraryStore } from "../../store/use-library-store";
+import type { Factor } from "@/features/library/types";
+import { useLibraryStore } from "@/features/library/store/use-library-store";
 
 export function useFactorRowClick(table: Table<Factor>) {
   const selectedFactorId = useLibraryStore((s) => s.selectedFactorId);

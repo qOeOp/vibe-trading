@@ -3,9 +3,9 @@
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import * as React from "react";
 import { useLocale } from "react-aria";
-import { cn } from "../../utils/cn";
-import { prettyScientificNumber } from "../../utils/numbers";
-import { useBoolean } from "../../hooks/useBoolean";
+import { cn } from "@/features/lab/utils/cn";
+import { prettyScientificNumber } from "@/features/lab/utils/numbers";
+import { useBoolean } from "@/features/lab/hooks/useBoolean";
 import {
   TooltipContent,
   TooltipPortal,

@@ -5,11 +5,11 @@ import {
   contextAwarePanelOwner,
   contextAwarePanelType,
   isCellAwareAtom,
-} from "../../editor/chrome/panels/context-aware-panel/atoms";
-import type { PanelType } from "../../editor/chrome/panels/context-aware-panel/context-aware-panel";
-import { useCellFocusActions, useLastFocusedCellId } from "../../../core/cells/focus";
-import type { CellId } from "../../../core/cells/ids";
-import { Logger } from "../../../utils/Logger";
+} from "@/features/lab/components/editor/chrome/panels/context-aware-panel/atoms";
+import type { PanelType } from "@/features/lab/components/editor/chrome/panels/context-aware-panel/context-aware-panel";
+import { useCellFocusActions, useLastFocusedCellId } from "@/features/lab/core/cells/focus";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { Logger } from "@/features/lab/utils/Logger";
 
 interface PanelOwnershipResult {
   isPanelOpen: (panelType: PanelType) => boolean;

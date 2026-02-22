@@ -21,30 +21,30 @@ import {
 import React from "react";
 import { FocusScope } from "react-aria";
 import useEvent from "react-use-event-hook";
-import { MinimalShortcut } from "../../shortcuts/renderShortcut";
-import { Button } from "../../ui/button";
+import { MinimalShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
+} from "@/features/lab/components/ui/dropdown-menu";
 import {
   getCellEditorView,
   hasOnlyOneCellAtom,
   notebookAtom,
   useCellActions,
-} from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
-import { usePendingDeleteService } from "../../../core/cells/pending-delete-service";
-import { formatEditorViews } from "../../../core/codemirror/format";
-import { userConfigAtom } from "../../../core/config/config";
-import type { HotkeyAction } from "../../../core/hotkeys/hotkeys";
-import { useRequestClient } from "../../../core/network/requests";
-import type { CellConfig } from "../../../core/network/types";
-import { store } from "../../../core/state/jotai";
-import { useEventListener } from "../../../hooks/useEventListener";
+} from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { usePendingDeleteService } from "@/features/lab/core/cells/pending-delete-service";
+import { formatEditorViews } from "@/features/lab/core/codemirror/format";
+import { userConfigAtom } from "@/features/lab/core/config/config";
+import type { HotkeyAction } from "@/features/lab/core/hotkeys/hotkeys";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import type { CellConfig } from "@/features/lab/core/network/types";
+import { store } from "@/features/lab/core/state/jotai";
+import { useEventListener } from "@/features/lab/hooks/useEventListener";
 import type { ActionButton } from "../actions/types";
 import { useDeleteManyCellsCallback } from "../cell/useDeleteCell";
 import { useRunCells } from "../cell/useRunCells";

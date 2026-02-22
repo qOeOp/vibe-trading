@@ -5,10 +5,10 @@ import React from "react";
 import { FocusScope } from "react-aria";
 import { formatElapsedTime } from "./CellStatus";
 import { CellLink } from "../links/cell-link";
-import { Button } from "../../ui/button";
-import type { CellId } from "../../../core/cells/ids";
-import { usePendingDelete } from "../../../core/cells/pending-delete-service";
-import { cn } from "../../../utils/cn";
+import { Button } from "@/features/lab/components/ui/button";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { usePendingDelete } from "@/features/lab/core/cells/pending-delete-service";
+import { cn } from "@/features/lab/utils/cn";
 
 export const PendingDeleteConfirmation: React.FC<{ cellId: CellId }> = ({
   cellId,

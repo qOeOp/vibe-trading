@@ -27,29 +27,29 @@ import {
   SelectLabel,
   SelectTrigger,
 } from "../ui/select";
-import { replaceMessagesInChat } from "../../core/ai/chat-utils";
-import { useModelChange } from "../../core/ai/config";
-import { AiModelId } from "../../core/ai/ids/ids";
-import { useStagedAICellsActions } from "../../core/ai/staged-cells";
+import { replaceMessagesInChat } from "@/features/lab/core/ai/chat-utils";
+import { useModelChange } from "@/features/lab/core/ai/config";
+import { AiModelId } from "@/features/lab/core/ai/ids/ids";
+import { useStagedAICellsActions } from "@/features/lab/core/ai/staged-cells";
 import {
   activeChatAtom,
   type Chat,
   type ChatId,
   chatStateAtom,
-} from "../../core/ai/state";
-import type { ToolNotebookContext } from "../../core/ai/tools/base";
+} from "@/features/lab/core/ai/state";
+import type { ToolNotebookContext } from "@/features/lab/core/ai/tools/base";
 import {
   type CopilotMode,
   FRONTEND_TOOL_REGISTRY,
-} from "../../core/ai/tools/registry";
-import { useCellActions } from "../../core/cells/cells";
-import { aiAtom, aiEnabledAtom } from "../../core/config/config";
-import { DEFAULT_AI_MODEL } from "../../core/config/config-schema";
-import { useRequestClient } from "../../core/network/requests";
-import { useRuntimeManager } from "../../core/runtime/config";
-import { ErrorBanner } from "../../plugins/impl/common/error-banner";
-import { cn } from "../../utils/cn";
-import { Logger } from "../../utils/Logger";
+} from "@/features/lab/core/ai/tools/registry";
+import { useCellActions } from "@/features/lab/core/cells/cells";
+import { aiAtom, aiEnabledAtom } from "@/features/lab/core/config/config";
+import { DEFAULT_AI_MODEL } from "@/features/lab/core/config/config-schema";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { useRuntimeManager } from "@/features/lab/core/runtime/config";
+import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
+import { cn } from "@/features/lab/utils/cn";
+import { Logger } from "@/features/lab/utils/Logger";
 import { AIModelDropdown } from "../ai/ai-model-dropdown";
 import { useOpenSettingsToTab } from "../app-config/state";
 import { PromptInput } from "../editor/ai/add-cell-with-ai";

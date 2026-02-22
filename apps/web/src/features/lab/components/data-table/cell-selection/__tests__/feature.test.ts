@@ -3,7 +3,7 @@
 
 import type { Cell, Column, Row, Table } from "@tanstack/react-table";
 import { describe, expect, it, vi } from "vitest";
-import { INDEX_COLUMN_NAME } from "../../types";
+import { INDEX_COLUMN_NAME } from "@/features/lab/components/data-table/types";
 import { CellSelectionFeature } from "../feature";
 import type { CellSelectionTableState } from "../types";
 

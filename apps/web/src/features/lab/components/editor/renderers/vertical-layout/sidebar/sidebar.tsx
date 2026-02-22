@@ -1,5 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { cn } from "../../../../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 import { SidebarSlot } from "./sidebar-slot";
 import { CLOSED_WIDTH } from "./state";
 import { SidebarToggle } from "./toggle";

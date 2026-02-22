@@ -5,12 +5,12 @@ import {
   fadeIn,
   staggerContainer,
   transition,
-} from "../../animations";
-import { useCalendar } from "../../contexts/calendar-context";
-import { AddEditEventDialog } from "../../dialogs/add-edit-event-dialog";
-import { DroppableArea } from "../../dnd/droppable-area";
-import { groupEvents } from "../../helpers";
-import type { IEvent } from "../../interfaces";
+} from "@/features/journal/calendar/animations";
+import { useCalendar } from "@/features/journal/calendar/contexts/calendar-context";
+import { AddEditEventDialog } from "@/features/journal/calendar/dialogs/add-edit-event-dialog";
+import { DroppableArea } from "@/features/journal/calendar/dnd/droppable-area";
+import { groupEvents } from "@/features/journal/calendar/helpers";
+import type { IEvent } from "@/features/journal/calendar/interfaces";
 import { CalendarTimeline } from "./calendar-time-line";
 import { RenderGroupedEvents } from "./render-grouped-events";
 import {

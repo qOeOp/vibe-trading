@@ -2,9 +2,9 @@
 
 import { useAtomValue } from "jotai";
 import React from "react";
-import { documentationAtom } from "../../../../core/documentation/state";
-import { renderHTML } from "../../../../plugins/core/RenderHTML";
-import "../../documentation.css";
+import { documentationAtom } from "@/features/lab/core/documentation/state";
+import { renderHTML } from "@/features/lab/plugins/core/RenderHTML";
+import "@/features/lab/components/editor/documentation.css";
 import { TextSearchIcon } from "lucide-react";
 import { PanelEmptyState } from "./empty-state";
 

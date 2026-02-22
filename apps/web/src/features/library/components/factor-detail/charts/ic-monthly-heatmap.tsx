@@ -8,7 +8,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { Factor } from "../../../types";
+import type { Factor } from "@/features/library/types";
 
 /* ── Color mapping (A股: 正IC=因子有效=好=绿, 负IC=因子失效=差=红) ── */
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { QuantileReturns } from "../../types";
+import type { QuantileReturns } from "@/features/lab/types";
 import { StatBox } from "./stat-box";
 
 // ─── Quantile Bar Chart (SVG) ───────────────────────────

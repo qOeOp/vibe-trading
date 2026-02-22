@@ -3,8 +3,8 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import type { VariantProps } from "class-variance-authority";
 import { Check, ChevronRight, Circle } from "lucide-react";
 import React from "react";
-import { StyleNamespace } from "../../theme/namespace";
-import { cn } from "../../utils/cn";
+import { StyleNamespace } from "@/features/lab/theme/namespace";
+import { cn } from "@/features/lab/utils/cn";
 import {
   MAX_HEIGHT_OFFSET,
   withFullScreenAsRoot,

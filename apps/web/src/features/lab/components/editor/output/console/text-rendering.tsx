@@ -3,9 +3,9 @@
 import { AnsiUp } from "ansi_up";
 import parse, { type DOMNode, Text } from "html-react-parser";
 import React, { useMemo } from "react";
-import { useInstallPackages } from "../../../../core/packages/useInstallPackage";
-import { Events } from "../../../../utils/events";
-import { parseContent } from "../../../../utils/url-parser";
+import { useInstallPackages } from "@/features/lab/core/packages/useInstallPackage";
+import { Events } from "@/features/lab/utils/events";
+import { parseContent } from "@/features/lab/utils/url-parser";
 
 const ansiUp = new AnsiUp();
 

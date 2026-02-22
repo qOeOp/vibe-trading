@@ -3,7 +3,7 @@ import { unifiedMergeView } from "@codemirror/merge";
 import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
 import { memo, useMemo } from "react";
-import { useTheme } from "../../../theme/useTheme";
+import { useTheme } from "@/features/lab/theme/useTheme";
 
 export const ReadonlyDiff = memo(
   (props: { original: string; modified: string }) => {

@@ -14,7 +14,7 @@ import {
 } from "react-hook-form";
 import { Label } from "./label";
 import { Tooltip } from "./tooltip";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 
 const Form = FormProvider;
 

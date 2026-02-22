@@ -2,9 +2,9 @@
 import { BoxIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useEvent } from "react-use-event-hook";
-import { useAlertActions, useAlerts } from "../../../core/alerts/state";
-import { Banner } from "../../../plugins/impl/common/error-banner";
-import { Button } from "../../ui/button";
+import { useAlertActions, useAlerts } from "@/features/lab/core/alerts/state";
+import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
+import { Button } from "@/features/lab/components/ui/button";
 
 export const StartupLogsAlert: React.FC = () => {
   const { startupLogsAlert } = useAlerts();

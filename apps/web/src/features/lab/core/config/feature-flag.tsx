@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { repl } from '../../utils/repl';
+import { repl } from '@/features/lab/utils/repl';
 import { getRequestClient } from '../network/requests';
 import { getResolvedMarimoConfig } from './config';
 

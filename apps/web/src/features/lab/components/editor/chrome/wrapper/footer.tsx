@@ -10,15 +10,15 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 import type React from 'react';
-import { renderShortcut } from '../../../shortcuts/renderShortcut';
-import { Tooltip } from '../../../ui/tooltip';
-import { cellErrorCount } from '../../../../core/cells/cells';
-import { isConnectingAtom } from '../../../../core/network/connection';
-import { useRequestClient } from '../../../../core/network/requests';
-import { useHotkey } from '../../../../hooks/useHotkey';
-import { useLabModeStore } from '../../../../store/use-lab-mode-store';
-import { ShowInKioskMode } from '../../kiosk-mode';
-import { useRunAllCells } from '../../cell/useRunCells';
+import { renderShortcut } from '@/features/lab/components/shortcuts/renderShortcut';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { cellErrorCount } from '@/features/lab/core/cells/cells';
+import { isConnectingAtom } from '@/features/lab/core/network/connection';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { useHotkey } from '@/features/lab/hooks/useHotkey';
+import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
+import { ShowInKioskMode } from '@/features/lab/components/editor/kiosk-mode';
+import { useRunAllCells } from '@/features/lab/components/editor/cell/useRunCells';
 import { panelLayoutAtom, useChromeActions, useChromeState } from '../state';
 import { FooterItem } from './footer-item';
 import { AIStatusIcon } from './footer-items/ai-status';
@@ -30,7 +30,7 @@ import { CopilotStatusIcon } from './footer-items/copilot-status';
 import { MachineStats } from './footer-items/machine-stats';
 import { RTCStatus } from './footer-items/rtc-status';
 import { RuntimeSettings } from './footer-items/runtime-settings';
-import { useFilename } from '../../../../core/saving/filename';
+import { useFilename } from '@/features/lab/core/saving/filename';
 
 export const Footer: React.FC = () => {
   const { isDeveloperPanelOpen } = useChromeState();

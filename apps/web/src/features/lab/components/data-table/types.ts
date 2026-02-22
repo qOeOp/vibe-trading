@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { DataType } from "../../core/kernel/messages";
-import { Objects } from "../../utils/objects";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import { Objects } from "@/features/lab/utils/objects";
 
 export type ColumnName = string;
 

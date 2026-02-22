@@ -2,7 +2,7 @@
 
 import type { EditorView } from "@codemirror/view";
 import { atom, useAtomValue } from "jotai";
-import { createReducerAndAtoms } from "../../utils/createReducer";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
 import type { CellConfig, RuntimeState } from "../network/types";
 import { type NotebookState, notebookAtom } from "./cells";
 import type { CellId } from "./ids";

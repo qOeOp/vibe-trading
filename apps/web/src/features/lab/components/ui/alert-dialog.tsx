@@ -3,8 +3,8 @@
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import * as React from "react";
 import { buttonVariants } from "./button";
-import { StyleNamespace } from "../../theme/namespace";
-import { cn } from "../../utils/cn";
+import { StyleNamespace } from "@/features/lab/theme/namespace";
+import { cn } from "@/features/lab/utils/cn";
 import { withFullScreenAsRoot } from "./fullscreen";
 import { useRestoreFocus } from "./use-restore-focus";
 

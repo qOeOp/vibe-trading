@@ -11,16 +11,16 @@ import { type EditorView, ViewPlugin } from '@codemirror/view';
 import {
   type MarkdownMetadata,
   MarkdownParser,
-} from '../../../../packages/smart-cells';
-import type { CellId } from '../../../cells/ids';
-import type { CompletionConfig } from '../../../config/config-schema';
-import type { HotkeyProvider } from '../../../hotkeys/hotkeys';
-import { markdownAutoRunExtension } from '../../cells/extensions';
-import { pythonCompletionSource } from '../../completion/completer';
-import { conditionalCompletion } from '../../completion/utils';
-import type { PlaceholderType } from '../../config/types';
-import { markdownCompletionSources } from '../../markdown/completions';
-import { enhancedMarkdownExtension } from '../../markdown/extension';
+} from '@/features/lab/packages/smart-cells';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import type { CompletionConfig } from '@/features/lab/core/config/config-schema';
+import type { HotkeyProvider } from '@/features/lab/core/hotkeys/hotkeys';
+import { markdownAutoRunExtension } from '@/features/lab/core/codemirror/cells/extensions';
+import { pythonCompletionSource } from '@/features/lab/core/codemirror/completion/completer';
+import { conditionalCompletion } from '@/features/lab/core/codemirror/completion/utils';
+import type { PlaceholderType } from '@/features/lab/core/codemirror/config/types';
+import { markdownCompletionSources } from '@/features/lab/core/codemirror/markdown/completions';
+import { enhancedMarkdownExtension } from '@/features/lab/core/codemirror/markdown/extension';
 import { parsePython } from '../embedded/embedded-python';
 import { parseLatex } from '../embedded/latex';
 import { languageMetadataField } from '../metadata';

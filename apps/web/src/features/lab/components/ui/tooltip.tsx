@@ -2,8 +2,8 @@
 
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as React from "react";
-import { StyleNamespace } from "../../theme/namespace";
-import { cn } from "../../utils/cn";
+import { StyleNamespace } from "@/features/lab/theme/namespace";
+import { cn } from "@/features/lab/utils/cn";
 import { withFullScreenAsRoot, withSmartCollisionBoundary } from "./fullscreen";
 
 const TooltipProvider = ({

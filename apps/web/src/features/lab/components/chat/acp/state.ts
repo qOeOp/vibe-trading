@@ -3,10 +3,10 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { capitalize } from 'lodash-es';
-import { isPlatformWindows } from '../../../core/hotkeys/shortcuts';
-import { jotaiJsonStorage } from '../../../utils/storage/jotai';
-import type { TypedString } from '../../../utils/typed';
-import { generateUUID } from '../../../utils/uuid';
+import { isPlatformWindows } from '@/features/lab/core/hotkeys/shortcuts';
+import { jotaiJsonStorage } from '@/features/lab/utils/storage/jotai';
+import type { TypedString } from '@/features/lab/utils/typed';
+import { generateUUID } from '@/features/lab/utils/uuid';
 import type { ExternalAgentSessionId, SessionSupportType } from './types';
 
 // Types

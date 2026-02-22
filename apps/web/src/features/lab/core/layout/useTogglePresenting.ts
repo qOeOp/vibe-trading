@@ -2,7 +2,7 @@
 
 import { useSetAtom } from "jotai";
 import { useCallback } from "react";
-import { Logger } from "../../utils/Logger";
+import { Logger } from "@/features/lab/utils/Logger";
 import { type CellId, HTMLCellId } from "../cells/ids";
 import { CSSClasses } from "../constants";
 import { toggleAppMode, viewStateAtom } from "../mode";

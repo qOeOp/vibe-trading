@@ -2,7 +2,7 @@ import { linter, lintGutter } from "@codemirror/lint";
 import type { Diagnostic } from "@codemirror/lint";
 import type { Extension } from "@codemirror/state";
 import type { EditorView } from "@codemirror/view";
-import type { LintDiagnostic } from "../../../types";
+import type { LintDiagnostic } from "@/features/lab/types";
 
 // ─── Python Linter (via Pyodide Worker) ──────────────────
 //

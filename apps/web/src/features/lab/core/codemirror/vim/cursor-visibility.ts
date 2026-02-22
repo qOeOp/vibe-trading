@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { EditorView, PluginValue } from "@codemirror/view";
-import { isAnyCellFocused } from "../../../components/editor/navigation/focus-utils";
+import { isAnyCellFocused } from "@/features/lab/components/editor/navigation/focus-utils";
 
 let lastFocusedEditorRef: WeakRef<EditorView> | null = null;
 

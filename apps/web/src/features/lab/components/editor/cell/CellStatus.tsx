@@ -6,15 +6,15 @@ import {
   WorkflowIcon,
 } from "lucide-react";
 import { useDateFormatter } from "react-aria";
-import { MultiIcon } from "../../icons/multi-icon";
-import { Logger } from "../../../utils/Logger";
-import type { CellRuntimeState } from "../../../core/cells/types";
-import { useElapsedTime } from "../../../hooks/useElapsedTime";
-import { Tooltip } from "../../ui/tooltip";
+import { MultiIcon } from "@/features/lab/components/icons/multi-icon";
+import { Logger } from "@/features/lab/utils/Logger";
+import type { CellRuntimeState } from "@/features/lab/core/cells/types";
+import { useElapsedTime } from "@/features/lab/hooks/useElapsedTime";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
 
 import "./cell-status.css";
 import { formatDistanceToNow } from "date-fns";
-import { Time } from "../../../utils/time";
+import { Time } from "@/features/lab/utils/time";
 
 export interface CellStatusComponentProps
   extends Pick<

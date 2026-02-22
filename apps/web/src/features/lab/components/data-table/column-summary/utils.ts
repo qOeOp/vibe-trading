@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { StringFieldDef } from "vega-lite/build/channeldef";
-import { Logger } from "../../../utils/Logger";
+import { Logger } from "@/features/lab/utils/Logger";
 import type { BinValues } from "../types";
 
 const READABLE_TIME_FORMAT = "%-I:%M:%S %p"; // e.g., 1:02:30 AM (no leading zero on hour)

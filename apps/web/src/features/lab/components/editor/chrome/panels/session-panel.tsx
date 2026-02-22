@@ -7,19 +7,19 @@ import React, { useCallback } from "react";
 import {
   connectionsAtom,
   DataSources,
-} from "../../../datasources/datasources";
+} from "@/features/lab/components/datasources/datasources";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "../../../ui/accordion";
-import { Badge } from "../../../ui/badge";
-import { VariableTable } from "../../../variables/variables-table";
-import { useCellIds } from "../../../../core/cells/cells";
-import { datasetTablesAtom } from "../../../../core/datasets/state";
-import { useVariables } from "../../../../core/variables/state";
-import { jotaiJsonStorage } from "../../../../utils/storage/jotai";
+} from "@/features/lab/components/ui/accordion";
+import { Badge } from "@/features/lab/components/ui/badge";
+import { VariableTable } from "@/features/lab/components/variables/variables-table";
+import { useCellIds } from "@/features/lab/core/cells/cells";
+import { datasetTablesAtom } from "@/features/lab/core/datasets/state";
+import { useVariables } from "@/features/lab/core/variables/state";
+import { jotaiJsonStorage } from "@/features/lab/utils/storage/jotai";
 
 type OpenSections = "variables" | "datasources";
 

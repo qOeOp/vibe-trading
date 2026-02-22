@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { z } from "zod";
-import { FieldOptions, randomNumber } from "../../../components/forms/options";
-import { DATA_TYPES } from "../../../core/kernel/messages";
+import { FieldOptions, randomNumber } from "@/features/lab/components/forms/options";
+import { DATA_TYPES } from "@/features/lab/core/kernel/messages";
 import {
   AGGREGATION_FNS,
   type ColumnId,

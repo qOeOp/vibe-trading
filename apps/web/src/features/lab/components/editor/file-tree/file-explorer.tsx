@@ -32,35 +32,35 @@ import {
   type TreeApi,
 } from 'react-arborist';
 import useEvent from 'react-use-event-hook';
-import { Spinner } from '../../icons/spinner';
-import { useImperativeModal } from '../../modal/ImperativeModal';
-import { AlertDialogDestructiveAction } from '../../ui/alert-dialog';
-import { Button, buttonVariants } from '../../ui/button';
+import { Spinner } from '@/features/lab/components/icons/spinner';
+import { useImperativeModal } from '@/features/lab/components/modal/ImperativeModal';
+import { AlertDialogDestructiveAction } from '@/features/lab/components/ui/alert-dialog';
+import { Button, buttonVariants } from '@/features/lab/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../../ui/dropdown-menu';
-import { Tooltip } from '../../ui/tooltip';
-import { toast } from '../../ui/use-toast';
-import { useCellActions } from '../../../core/cells/cells';
-import { useLastFocusedCellId } from '../../../core/cells/focus';
-import { disableFileDownloadsAtom } from '../../../core/config/config';
-import { useRequestClient } from '../../../core/network/requests';
-import type { FileInfo } from '../../../core/network/types';
-import { isWasm } from '../../../core/wasm/utils';
-import { useAsyncData } from '../../../hooks/useAsyncData';
-import { ErrorBanner } from '../../../plugins/impl/common/error-banner';
-import { cn } from '../../../utils/cn';
-import { copyToClipboard } from '../../../utils/copy';
-import { downloadBlob } from '../../../utils/download';
-import { openNotebook } from '../../../utils/links';
-import type { FilePath } from '../../../utils/paths';
-import { fileSplit } from '../../../utils/pathUtils';
-import { jotaiJsonStorage } from '../../../utils/storage/jotai';
-import marimoIcon from '../../../assets/icon-32x32.png';
+} from '@/features/lab/components/ui/dropdown-menu';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { useLastFocusedCellId } from '@/features/lab/core/cells/focus';
+import { disableFileDownloadsAtom } from '@/features/lab/core/config/config';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import type { FileInfo } from '@/features/lab/core/network/types';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { ErrorBanner } from '@/features/lab/plugins/impl/common/error-banner';
+import { cn } from '@/features/lab/utils/cn';
+import { copyToClipboard } from '@/features/lab/utils/copy';
+import { downloadBlob } from '@/features/lab/utils/download';
+import { openNotebook } from '@/features/lab/utils/links';
+import type { FilePath } from '@/features/lab/utils/paths';
+import { fileSplit } from '@/features/lab/utils/pathUtils';
+import { jotaiJsonStorage } from '@/features/lab/utils/storage/jotai';
+import marimoIcon from '@/features/lab/assets/icon-32x32.png';
 import { useTreeDndManager } from './dnd-wrapper';
 import { FileViewer } from './file-viewer';
 import type { RequestingTree } from './requesting-tree';

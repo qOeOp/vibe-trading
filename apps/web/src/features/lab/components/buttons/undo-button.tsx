@@ -1,5 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { useEventListener } from "../../hooks/useEventListener";
+import { useEventListener } from "@/features/lab/hooks/useEventListener";
 import { MinimalHotkeys } from "../shortcuts/renderShortcut";
 import { Button, type ButtonProps } from "../ui/button";
 

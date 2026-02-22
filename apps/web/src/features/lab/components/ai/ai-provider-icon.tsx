@@ -2,8 +2,8 @@
 
 import { BotIcon } from 'lucide-react';
 import * as React from 'react';
-import type { ProviderId } from '../../core/ai/ids/ids';
-import { cn } from '../../utils/cn';
+import type { ProviderId } from '@/features/lab/core/ai/ids/ids';
+import { cn } from '@/features/lab/utils/cn';
 import type { ExternalAgentId } from '../chat/acp/state';
 
 export interface AiProviderIconProps

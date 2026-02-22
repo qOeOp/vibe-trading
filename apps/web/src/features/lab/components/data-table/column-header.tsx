@@ -17,13 +17,13 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { useAsyncData } from "../../hooks/useAsyncData";
-import { ErrorBanner } from "../../plugins/impl/common/error-banner";
-import type { CalculateTopKRows } from "../../plugins/impl/DataTablePlugin";
-import type { OperatorType } from "../../plugins/impl/data-frames/utils/operators";
-import { logNever } from "../../utils/assertNever";
-import { cn } from "../../utils/cn";
-import { Logger } from "../../utils/Logger";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
+import type { CalculateTopKRows } from "@/features/lab/plugins/impl/DataTablePlugin";
+import type { OperatorType } from "@/features/lab/plugins/impl/data-frames/utils/operators";
+import { logNever } from "@/features/lab/utils/assertNever";
+import { cn } from "@/features/lab/utils/cn";
+import { Logger } from "@/features/lab/utils/Logger";
 import { Spinner } from "../icons/spinner";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";

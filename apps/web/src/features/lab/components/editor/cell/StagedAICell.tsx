@@ -5,12 +5,12 @@ import {
   type Edit,
   stagedAICellsAtom,
   useStagedCells,
-} from "../../../core/ai/staged-cells";
-import { getCellEditorView } from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
-import { updateEditorCodeFromPython } from "../../../core/codemirror/language/utils";
-import { cn } from "../../../utils/cn";
-import { Logger } from "../../../utils/Logger";
+} from "@/features/lab/core/ai/staged-cells";
+import { getCellEditorView } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { updateEditorCodeFromPython } from "@/features/lab/core/codemirror/language/utils";
+import { cn } from "@/features/lab/utils/cn";
+import { Logger } from "@/features/lab/utils/Logger";
 import { CompletionActionsCellFooter } from "../ai/completion-handlers";
 import { useRunCell } from "./useRunCells";
 

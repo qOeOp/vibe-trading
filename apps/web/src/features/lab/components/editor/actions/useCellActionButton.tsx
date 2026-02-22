@@ -10,16 +10,16 @@
 
 import { useMemo } from 'react';
 import type { EditorView } from '@codemirror/view';
-import type { CellId } from '../../../core/cells/ids';
-import type { CellData } from '../../../core/cells/types';
-import type { RuntimeState } from '../../../core/network/types';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import type { CellData } from '@/features/lab/core/cells/types';
+import type { RuntimeState } from '@/features/lab/core/network/types';
 import type { ActionButton } from './types';
 import {
   type CellActionCallbacks,
   useCellActionButtons as useRealCellActionButtons,
-} from '../../../hooks/use-cell-action-buttons';
+} from '@/features/lab/hooks/use-cell-action-buttons';
 import { useRunCell } from '../cell/useRunCells';
-import { useCellActions, useNotebook } from '../../../core/cells/cells';
+import { useCellActions, useNotebook } from '@/features/lab/core/cells/cells';
 
 export interface CellActionButtonProps
   extends Pick<CellData, 'name' | 'config'> {

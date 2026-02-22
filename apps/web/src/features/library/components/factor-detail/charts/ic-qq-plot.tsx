@@ -5,8 +5,8 @@ import { scaleLinear } from 'd3-scale';
 import { motion } from 'framer-motion';
 import { DetailSection } from '@/components/shared/detail-panel';
 import { BaseChart } from '@/lib/ngx-charts/common/base-chart';
-import { computeQQPlotData } from '../../../utils/compute-ic-stats';
-import type { Factor } from '../../../types';
+import { computeQQPlotData } from '@/features/library/utils/compute-ic-stats';
+import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 

@@ -2,8 +2,8 @@
 
 import { useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../../store/use-lab-cell-store";
-import type { LabCell as LabCellType } from "../../types";
+import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
+import type { LabCell as LabCellType } from "@/features/lab/types";
 import { CellToolbar } from "./cell-toolbar";
 import { CellEditor } from "./cell-editor";
 import { CellOutput } from "./cell-output";

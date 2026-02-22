@@ -2,12 +2,12 @@
 import React, { Suspense } from 'react';
 import { useLocale } from 'react-aria';
 import { LazyVegaEmbed } from '@/components/charts/lazy';
-import { createBatchedLoader } from '../../../plugins/impl/vega/batched';
-import { useTheme } from '../../../theme/useTheme';
-import { logNever } from '../../../utils/assertNever';
-import { prettyDate } from '../../../utils/dates';
-import { prettyNumber, prettyScientificNumber } from '../../../utils/numbers';
-import { DelayMount } from '../../utils/delay-mount';
+import { createBatchedLoader } from '@/features/lab/plugins/impl/vega/batched';
+import { useTheme } from '@/features/lab/theme/useTheme';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { prettyDate } from '@/features/lab/utils/dates';
+import { prettyNumber, prettyScientificNumber } from '@/features/lab/utils/numbers';
+import { DelayMount } from '@/features/lab/components/utils/delay-mount';
 import { DatePopover } from '../date-popover';
 import { ChartSkeleton } from './chart-skeleton';
 import { ColumnChartSpecModel } from './chart-spec-model';

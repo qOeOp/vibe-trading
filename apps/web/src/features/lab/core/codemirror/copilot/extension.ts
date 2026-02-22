@@ -23,10 +23,10 @@ import {
   type InlineCompletionParams,
   InlineCompletionTriggerKind,
 } from "vscode-languageserver-protocol";
-import type { CompletionConfig } from "../../config/config-schema";
-import type { AiInlineCompletionRequest } from "../../kernel/messages";
-import { API } from "../../network/api";
-import { Logger } from "../../../utils/Logger";
+import type { CompletionConfig } from "@/features/lab/core/config/config-schema";
+import type { AiInlineCompletionRequest } from "@/features/lab/core/kernel/messages";
+import { API } from "@/features/lab/core/network/api";
+import { Logger } from "@/features/lab/utils/Logger";
 import { languageAdapterState } from "../language/extension";
 import { isInVimMode } from "../utils";
 import { COPILOT_FILENAME, copilotServer, getCopilotClient } from "./client";

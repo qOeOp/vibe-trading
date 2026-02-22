@@ -5,46 +5,46 @@ import { EditorView, ViewPlugin } from '@codemirror/view';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { memo, useEffect, useMemo, useRef } from 'react';
 import useEvent from 'react-use-event-hook';
-import { Button } from '../../../ui/button';
-import { DelayMount } from '../../../utils/delay-mount';
-import { aiCompletionCellAtom } from '../../../../core/ai/state';
-import { maybeAddMarimoImport } from '../../../../core/cells/add-missing-import';
-import { useCellActions } from '../../../../core/cells/cells';
-import { usePendingDeleteService } from '../../../../core/cells/pending-delete-service';
-import type { CellData, CellRuntimeState } from '../../../../core/cells/types';
-import { setupCodeMirror } from '../../../../core/codemirror/cm';
+import { Button } from '@/features/lab/components/ui/button';
+import { DelayMount } from '@/features/lab/components/utils/delay-mount';
+import { aiCompletionCellAtom } from '@/features/lab/core/ai/state';
+import { maybeAddMarimoImport } from '@/features/lab/core/cells/add-missing-import';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { usePendingDeleteService } from '@/features/lab/core/cells/pending-delete-service';
+import type { CellData, CellRuntimeState } from '@/features/lab/core/cells/types';
+import { setupCodeMirror } from '@/features/lab/core/codemirror/cm';
 import {
   getInitialLanguageAdapter,
   languageAdapterState,
   reconfigureLanguageEffect,
   switchLanguage,
-} from '../../../../core/codemirror/language/extension';
-import { MARKDOWN_INITIAL_HIDE_CODE } from '../../../../core/codemirror/language/languages/markdown';
-import type { LanguageAdapterType } from '../../../../core/codemirror/language/types';
+} from '@/features/lab/core/codemirror/language/extension';
+import { MARKDOWN_INITIAL_HIDE_CODE } from '@/features/lab/core/codemirror/language/languages/markdown';
+import type { LanguageAdapterType } from '@/features/lab/core/codemirror/language/types';
 import {
   connectedDocAtom,
   realTimeCollaboration,
-} from '../../../../core/codemirror/rtc/extension';
+} from '@/features/lab/core/codemirror/rtc/extension';
 import {
   autoInstantiateAtom,
   isAiEnabled,
-} from '../../../../core/config/config';
-import type { UserConfig } from '../../../../core/config/config-schema';
-import { OverridingHotkeyProvider } from '../../../../core/hotkeys/hotkeys';
-import { connectionAtom } from '../../../../core/network/connection';
-import { useRequestClient } from '../../../../core/network/requests';
-import { isRtcEnabled } from '../../../../core/rtc/state';
-import { useSaveNotebook } from '../../../../core/saving/save-component';
-import { isAppConnecting } from '../../../../core/websocket/connection-utils';
-import type { Theme } from '../../../../theme/useTheme';
-import { cn } from '../../../../utils/cn';
-import { invariant } from '../../../../utils/invariant';
-import { mergeRefs } from '../../../../utils/mergeRefs';
-import { AiCompletionEditor } from '../../ai/ai-completion-editor';
+} from '@/features/lab/core/config/config';
+import type { UserConfig } from '@/features/lab/core/config/config-schema';
+import { OverridingHotkeyProvider } from '@/features/lab/core/hotkeys/hotkeys';
+import { connectionAtom } from '@/features/lab/core/network/connection';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { isRtcEnabled } from '@/features/lab/core/rtc/state';
+import { useSaveNotebook } from '@/features/lab/core/saving/save-component';
+import { isAppConnecting } from '@/features/lab/core/websocket/connection-utils';
+import type { Theme } from '@/features/lab/theme/useTheme';
+import { cn } from '@/features/lab/utils/cn';
+import { invariant } from '@/features/lab/utils/invariant';
+import { mergeRefs } from '@/features/lab/utils/mergeRefs';
+import { AiCompletionEditor } from '@/features/lab/components/editor/ai/ai-completion-editor';
 import {
   closeSignatureHelp,
   useCellEditorNavigationProps,
-} from '../../navigation/navigation';
+} from '@/features/lab/components/editor/navigation/navigation';
 import { useDeleteCellCallback } from '../useDeleteCell';
 import { useSplitCellCallback } from '../useSplitCell';
 import { LanguageToggles } from './language-toggle';

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useReactFlow, useStore } from "reactflow";
-import { useDebouncedCallback } from "../../../hooks/useDebounce";
+import { useDebouncedCallback } from "@/features/lab/hooks/useDebounce";
 
 /**
  * Call fitToView whenever the dimensions changes

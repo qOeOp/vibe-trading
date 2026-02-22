@@ -2,11 +2,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useAtomValue } from "jotai";
-import { Spinner } from "../../components/icons/spinner";
-import { Button } from "../../components/ui/button";
-import { toast } from "../../components/ui/use-toast";
-import { NoKernelConnectedError, prettyError } from "../../utils/errors";
-import { Logger } from "../../utils/Logger";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { Button } from "@/features/lab/components/ui/button";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { NoKernelConnectedError, prettyError } from "@/features/lab/utils/errors";
+import { Logger } from "@/features/lab/utils/Logger";
 import { useConnectToRuntime } from "../runtime/config";
 import { store } from "../state/jotai";
 import { isConnectingAtom } from "./connection";

@@ -2,8 +2,8 @@
 
 import type { SupportedDialects } from "@marimo-team/codemirror-sql";
 import { atom, useAtomValue } from "jotai";
-import type { CellId } from "../../../../cells/ids";
-import { store } from "../../../../state/jotai";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { store } from "@/features/lab/core/state/jotai";
 
 export interface SQLValidationError {
   errorType: string;

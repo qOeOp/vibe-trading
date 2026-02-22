@@ -5,9 +5,9 @@ import {
   Transport,
   type TransportType,
   type JSONRPCRequestData,
-} from '../../../lib/open-rpc-transport';
-import { prettyError } from '../../../utils/errors';
-import { Logger } from '../../../utils/Logger';
+} from '@/features/lab/lib/open-rpc-transport';
+import { prettyError } from '@/features/lab/utils/errors';
+import { Logger } from '@/features/lab/utils/Logger';
 
 export interface LazyWebsocketTransportOptions {
   /**

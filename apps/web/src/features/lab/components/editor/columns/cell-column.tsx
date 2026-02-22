@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import React, { memo, useRef } from 'react';
-import type { AppConfig } from '../../../core/config/config-schema';
-import { useResizeHandle } from '../../../hooks/useResizeHandle';
-import type { CellColumnId } from '../../../utils/id-tree';
+import type { AppConfig } from '@/features/lab/core/config/config-schema';
+import { useResizeHandle } from '@/features/lab/hooks/useResizeHandle';
+import type { CellColumnId } from '@/features/lab/utils/id-tree';
 import { SortableColumn } from './sortable-column';
 import { storageFn } from './storage';
 

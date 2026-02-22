@@ -4,9 +4,9 @@ import type { UIMessage } from "@ai-sdk/react";
 import type { FileUIPart } from "ai";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { uniqueBy } from "../../utils/arrays";
-import { adaptForLocalStorage, jotaiJsonStorage } from "../../utils/storage/jotai";
-import type { TypedString } from "../../utils/typed";
+import { uniqueBy } from "@/features/lab/utils/arrays";
+import { adaptForLocalStorage, jotaiJsonStorage } from "@/features/lab/utils/storage/jotai";
+import type { TypedString } from "@/features/lab/utils/typed";
 import type { CellId } from "../cells/ids";
 
 const KEY = "marimo:ai:chatState:v5";

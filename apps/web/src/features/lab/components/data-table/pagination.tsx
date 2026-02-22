@@ -11,9 +11,9 @@ import {
 } from "lucide-react";
 import { useLocale } from "react-aria";
 import { Button } from "../ui/button";
-import { Events } from "../../utils/events";
-import { prettyNumber } from "../../utils/numbers";
-import { PluralWord } from "../../utils/pluralize";
+import { Events } from "@/features/lab/utils/events";
+import { prettyNumber } from "@/features/lab/utils/numbers";
+import { PluralWord } from "@/features/lab/utils/pluralize";
 import {
   Select,
   SelectContent,

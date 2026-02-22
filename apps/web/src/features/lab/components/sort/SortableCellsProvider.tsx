@@ -19,13 +19,13 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import React, { useCallback, useMemo, useState } from "react";
-import type { CellId } from "../../core/cells/ids";
-import { useAppConfig } from "../../core/config/config";
-import { Arrays } from "../../utils/arrays";
-import type { CellColumnId, MultiColumn } from "../../utils/id-tree";
-import { invariant } from "../../utils/invariant";
-import { getNotebook, useCellActions } from "../../core/cells/cells";
-import { useEvent } from "../../hooks/useEvent";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { useAppConfig } from "@/features/lab/core/config/config";
+import { Arrays } from "@/features/lab/utils/arrays";
+import type { CellColumnId, MultiColumn } from "@/features/lab/utils/id-tree";
+import { invariant } from "@/features/lab/utils/invariant";
+import { getNotebook, useCellActions } from "@/features/lab/core/cells/cells";
+import { useEvent } from "@/features/lab/hooks/useEvent";
 
 interface SortableCellsProviderProps {
   multiColumn: boolean;

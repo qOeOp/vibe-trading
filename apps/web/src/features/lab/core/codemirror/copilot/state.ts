@@ -5,10 +5,10 @@ import { atomWithStorage } from "jotai/utils";
 import {
   getResolvedMarimoConfig,
   resolvedMarimoConfigAtom,
-} from "../../config/config";
-import { store, waitFor } from "../../state/jotai";
-import { jotaiJsonStorage } from "../../../utils/storage/jotai";
-import { availableStorage } from "../../../utils/storage/storage";
+} from "@/features/lab/core/config/config";
+import { store, waitFor } from "@/features/lab/core/state/jotai";
+import { jotaiJsonStorage } from "@/features/lab/utils/storage/jotai";
+import { availableStorage } from "@/features/lab/utils/storage/storage";
 import type { GitHubCopilotStatusNotificationParams } from "./types";
 
 const KEY = "marimo:copilot:signedIn";

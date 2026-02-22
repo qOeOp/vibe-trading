@@ -4,12 +4,12 @@ import type { EditorView } from "@codemirror/view";
 import { DatabaseIcon } from "lucide-react";
 import type React from "react";
 import { useMemo } from "react";
-import { Button } from "../../../ui/button";
-import { Tooltip } from "../../../ui/tooltip";
-import { switchLanguage } from "../../../../core/codemirror/language/extension";
-import { LanguageAdapters } from "../../../../core/codemirror/language/LanguageAdapters";
-import type { LanguageAdapter } from "../../../../core/codemirror/language/types";
-import { Functions } from "../../../../utils/functions";
+import { Button } from "@/features/lab/components/ui/button";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { switchLanguage } from "@/features/lab/core/codemirror/language/extension";
+import { LanguageAdapters } from "@/features/lab/core/codemirror/language/LanguageAdapters";
+import type { LanguageAdapter } from "@/features/lab/core/codemirror/language/types";
+import { Functions } from "@/features/lab/utils/functions";
 import { MarkdownIcon, PythonIcon } from "./icons";
 
 interface LanguageTogglesProps {

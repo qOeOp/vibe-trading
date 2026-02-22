@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { createContext, useContext } from "react";
-import { invariant } from "../../../../utils/invariant";
+import { invariant } from "@/features/lab/utils/invariant";
 
 export type PanelSection = "sidebar" | "developer-panel";
 

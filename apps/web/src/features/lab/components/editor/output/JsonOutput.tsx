@@ -14,12 +14,12 @@ import {
 } from "@textea/json-viewer";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { memo, useState } from "react";
-import type { OutputMessage } from "../../../core/kernel/messages";
-import { cn } from "../../../utils/cn";
-import { copyToClipboard } from "../../../utils/copy";
-import { isUrl } from "../../../utils/urls";
-import { useTheme } from "../../../theme/useTheme";
-import { logNever } from "../../../utils/assertNever";
+import type { OutputMessage } from "@/features/lab/core/kernel/messages";
+import { cn } from "@/features/lab/utils/cn";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { isUrl } from "@/features/lab/utils/urls";
+import { useTheme } from "@/features/lab/theme/useTheme";
+import { logNever } from "@/features/lab/utils/assertNever";
 import { OutputRenderer } from "../Output";
 import { HtmlOutput } from "./HtmlOutput";
 import { ImageOutput } from "./ImageOutput";

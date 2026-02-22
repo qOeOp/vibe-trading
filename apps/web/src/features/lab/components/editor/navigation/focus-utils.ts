@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { createStore } from "jotai";
-import { getCellEditorView } from "../../../core/cells/cells";
-import { type CellId, HTMLCellId } from "../../../core/cells/ids";
-import { Logger } from "../../../utils/Logger";
+import { getCellEditorView } from "@/features/lab/core/cells/cells";
+import { type CellId, HTMLCellId } from "@/features/lab/core/cells/ids";
+import { Logger } from "@/features/lab/utils/Logger";
 
 export function focusCellEditor(
   store: ReturnType<typeof createStore>,

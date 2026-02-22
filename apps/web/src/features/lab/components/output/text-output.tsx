@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import type { OutputChannel } from "../../types";
+import type { OutputChannel } from "@/features/lab/types";
 
 // ─── ANSI Color Support ──────────────────────────────────
 

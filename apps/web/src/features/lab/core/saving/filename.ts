@@ -2,9 +2,9 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import useEvent from "react-use-event-hook";
-import { useImperativeModal } from "../../components/modal/ImperativeModal";
-import { Paths } from "../../utils/paths";
-import { updateQueryParams } from "../../utils/urls";
+import { useImperativeModal } from "@/features/lab/components/modal/ImperativeModal";
+import { Paths } from "@/features/lab/utils/paths";
+import { updateQueryParams } from "@/features/lab/utils/urls";
 import { getAppConfig } from "../config/config";
 import { KnownQueryParams } from "../constants";
 import { connectionAtom } from "../network/connection";

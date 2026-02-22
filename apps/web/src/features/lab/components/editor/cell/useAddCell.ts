@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import { maybeAddAltairImport } from "../../../core/cells/add-missing-import";
-import { useCellActions } from "../../../core/cells/cells";
-import { useLastFocusedCellId } from "../../../core/cells/focus";
-import { autoInstantiateAtom } from "../../../core/config/config";
+import { maybeAddAltairImport } from "@/features/lab/core/cells/add-missing-import";
+import { useCellActions } from "@/features/lab/core/cells/cells";
+import { useLastFocusedCellId } from "@/features/lab/core/cells/focus";
+import { autoInstantiateAtom } from "@/features/lab/core/config/config";
 
 export function useAddCodeToNewCell(): (code: string) => void {
   const autoInstantiate = useAtomValue(autoInstantiateAtom);

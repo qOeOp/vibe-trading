@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it } from "vitest";
-import type { OutputMessage } from "../../../../../core/kernel/messages";
+import type { OutputMessage } from "@/features/lab/core/kernel/messages";
 import { groupCellsByColumn, shouldHideCode } from "../vertical-layout";
 
 describe("groupCellsByColumn", () => {

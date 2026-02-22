@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronDown, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/utils";
-import type { StepConclusion } from "../../types";
+import type { StepConclusion } from "@/features/lab/types";
 
 // ─── Conclusion Badge ───────────────────────────────────
 

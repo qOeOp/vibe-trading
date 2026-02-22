@@ -2,7 +2,7 @@
 
 import type { EditorView } from "@codemirror/view";
 import { atomWithReducer } from "jotai/utils";
-import { store } from "../../state/jotai";
+import { store } from "@/features/lab/core/state/jotai";
 
 interface FindReplaceState {
   findText: string;

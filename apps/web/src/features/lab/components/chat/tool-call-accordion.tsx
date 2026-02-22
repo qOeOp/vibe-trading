@@ -17,7 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 
 // Zod schema matching the Python SuccessResult dataclass
 const SuccessResultSchema = z

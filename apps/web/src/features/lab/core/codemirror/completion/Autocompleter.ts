@@ -1,15 +1,15 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import type { CompletionResult } from "@codemirror/autocomplete";
 import type { Tooltip } from "@codemirror/view";
-import { DeferredRequestRegistry } from "../../network/DeferredRequestRegistry";
-import type { CodeCompletionRequest } from "../../network/types";
-import { isPlatformMac } from "../../hotkeys/shortcuts";
+import { DeferredRequestRegistry } from "@/features/lab/core/network/DeferredRequestRegistry";
+import type { CodeCompletionRequest } from "@/features/lab/core/network/types";
+import { isPlatformMac } from "@/features/lab/core/hotkeys/shortcuts";
 import type {
   CompletionOption,
   CompletionResultMessage,
-} from "../../kernel/messages";
-import "../../../components/editor/documentation.css";
-import { getRequestClient } from "../../network/requests";
+} from "@/features/lab/core/kernel/messages";
+import "@/features/lab/components/editor/documentation.css";
+import { getRequestClient } from "@/features/lab/core/network/requests";
 
 function constructCompletionInfoNode(
   innerHtml?: string | null,

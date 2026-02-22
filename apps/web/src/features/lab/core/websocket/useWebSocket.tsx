@@ -2,7 +2,7 @@
 
 import ReconnectingWebSocket from 'partysocket/ws';
 import { useEffect, useState } from 'react';
-import { Logger } from '../../utils/Logger';
+import { Logger } from '@/features/lab/utils/Logger';
 import { BasicTransport } from './transports/basic';
 import type { IConnectionTransport } from './transports/transport';
 

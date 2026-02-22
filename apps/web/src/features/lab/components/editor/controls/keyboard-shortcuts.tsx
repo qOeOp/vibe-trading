@@ -3,21 +3,21 @@
 import { atom, useAtom, useAtomValue } from "jotai";
 import { AlertTriangleIcon, EditIcon, XIcon } from "lucide-react";
 import { useState } from "react";
-import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
-import { Kbd } from "../../ui/kbd";
-import { hotkeysAtom, useResolvedMarimoConfig } from "../../../core/config/config";
-import type { UserConfig } from "../../../core/config/config-schema";
+import { Button } from "@/features/lab/components/ui/button";
+import { Input } from "@/features/lab/components/ui/input";
+import { Kbd } from "@/features/lab/components/ui/kbd";
+import { hotkeysAtom, useResolvedMarimoConfig } from "@/features/lab/core/config/config";
+import type { UserConfig } from "@/features/lab/core/config/config-schema";
 import {
   getDefaultHotkey,
   type HotkeyAction,
   type HotkeyGroup,
-} from "../../../core/hotkeys/hotkeys";
-import { isPlatformMac } from "../../../core/hotkeys/shortcuts";
-import { useRequestClient } from "../../../core/network/requests";
-import { useDuplicateShortcuts } from "../../../hooks/useDuplicateShortcuts";
-import { useHotkey } from "../../../hooks/useHotkey";
-import { KeyboardHotkeys } from "../../shortcuts/renderShortcut";
+} from "@/features/lab/core/hotkeys/hotkeys";
+import { isPlatformMac } from "@/features/lab/core/hotkeys/shortcuts";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { useDuplicateShortcuts } from "@/features/lab/hooks/useDuplicateShortcuts";
+import { useHotkey } from "@/features/lab/hooks/useHotkey";
+import { KeyboardHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,7 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-} from "../../ui/dialog";
+} from "@/features/lab/components/ui/dialog";
 import { DuplicateShortcutBanner } from "./duplicate-shortcut-banner";
 
 export const keyboardShortcutsAtom = atom(false);

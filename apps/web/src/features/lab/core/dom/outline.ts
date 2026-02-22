@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { invariant } from "../../utils/invariant";
-import { Logger } from "../../utils/Logger";
+import { invariant } from "@/features/lab/utils/invariant";
+import { Logger } from "@/features/lab/utils/Logger";
 import type { Outline, OutlineItem } from "../cells/outline";
 import type { OutputMessage } from "../kernel/messages";
 

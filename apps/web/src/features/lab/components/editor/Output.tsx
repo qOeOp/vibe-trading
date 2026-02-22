@@ -7,10 +7,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { type CellId, CellOutputId } from '../../core/cells/ids';
-import type { CellOutput, OutputMessage } from '../../core/kernel/messages';
-import { cn } from '../../utils/cn';
-import { logNever } from '../../utils/assertNever';
+import { type CellId, CellOutputId } from '@/features/lab/core/cells/ids';
+import type { CellOutput, OutputMessage } from '@/features/lab/core/kernel/messages';
+import { cn } from '@/features/lab/utils/cn';
+import { logNever } from '@/features/lab/utils/assertNever';
 import { ErrorBoundary } from './boundary/ErrorBoundary';
 import { HtmlOutput } from './output/HtmlOutput';
 import { ImageOutput } from './output/ImageOutput';
@@ -27,17 +27,17 @@ import {
   ExpandIcon,
 } from 'lucide-react';
 import { tooltipHandler } from '@/components/charts/tooltip';
-import { useExpandedOutput } from '../../core/cells/outputs';
-import { viewStateAtom } from '../../core/mode';
-import { useIframeCapabilities } from '../../hooks/useIframeCapabilities';
-import { renderHTML } from '../../plugins/core/RenderHTML';
-import { Banner } from '../../plugins/impl/common/error-banner';
-import type { TopLevelFacetedUnitSpec } from '../../plugins/impl/data-explorer/queries/types';
-import { useTheme } from '../../theme/useTheme';
-import { Events } from '../../utils/events';
-import { invariant } from '../../utils/invariant';
-import { processMimeBundle } from '../../utils/mime-types';
-import { Objects } from '../../utils/objects';
+import { useExpandedOutput } from '@/features/lab/core/cells/outputs';
+import { viewStateAtom } from '@/features/lab/core/mode';
+import { useIframeCapabilities } from '@/features/lab/hooks/useIframeCapabilities';
+import { renderHTML } from '@/features/lab/plugins/core/RenderHTML';
+import { Banner } from '@/features/lab/plugins/impl/common/error-banner';
+import type { TopLevelFacetedUnitSpec } from '@/features/lab/plugins/impl/data-explorer/queries/types';
+import { useTheme } from '@/features/lab/theme/useTheme';
+import { Events } from '@/features/lab/utils/events';
+import { invariant } from '@/features/lab/utils/invariant';
+import { processMimeBundle } from '@/features/lab/utils/mime-types';
+import { Objects } from '@/features/lab/utils/objects';
 import { LazyVegaEmbed } from '@/components/charts/lazy';
 import { ChartLoadingState } from '../data-table/charts/components/chart-states';
 import { Button } from '../ui/button';

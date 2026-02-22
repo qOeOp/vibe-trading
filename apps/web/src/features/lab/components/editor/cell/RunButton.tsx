@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { HardDriveDownloadIcon, PlayIcon } from "lucide-react";
 import type { JSX } from "react";
-import type { CellConfig, RuntimeState } from "../../../core/network/types";
+import type { CellConfig, RuntimeState } from "@/features/lab/core/network/types";
 import {
   getConnectionTooltip,
   isAppInteractionDisabled,
-} from "../../../core/websocket/connection-utils";
-import type { WebSocketState } from "../../../core/websocket/types";
-import { renderShortcut } from "../../shortcuts/renderShortcut";
+} from "@/features/lab/core/websocket/connection-utils";
+import type { WebSocketState } from "@/features/lab/core/websocket/types";
+import { renderShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
 import { ToolbarItem } from "./toolbar";
 
 function computeColor({

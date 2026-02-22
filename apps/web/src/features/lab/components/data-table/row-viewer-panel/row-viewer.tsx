@@ -16,12 +16,12 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useLocale } from "react-aria";
-import { ColumnName } from "../../datasources/components";
-import { CopyClipboardIcon } from "../../icons/copy-icon";
-import { Spinner } from "../../icons/spinner";
-import { KeyboardHotkeys } from "../../shortcuts/renderShortcut";
-import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
+import { ColumnName } from "@/features/lab/components/datasources/components";
+import { CopyClipboardIcon } from "@/features/lab/components/icons/copy-icon";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { KeyboardHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
+import { Button } from "@/features/lab/components/ui/button";
+import { Input } from "@/features/lab/components/ui/input";
 import {
   Table,
   TableBody,
@@ -29,12 +29,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../ui/table";
-import { DelayMount } from "../../utils/delay-mount";
-import { useAsyncData } from "../../../hooks/useAsyncData";
-import { useKeydownOnElement } from "../../../hooks/useHotkey";
-import { Banner, ErrorBanner } from "../../../plugins/impl/common/error-banner";
-import type { GetRowResult } from "../../../plugins/impl/DataTablePlugin";
+} from "@/features/lab/components/ui/table";
+import { DelayMount } from "@/features/lab/components/utils/delay-mount";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { useKeydownOnElement } from "@/features/lab/hooks/useHotkey";
+import { Banner, ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
+import type { GetRowResult } from "@/features/lab/plugins/impl/DataTablePlugin";
 import { NAMELESS_COLUMN_PREFIX, renderCellValue } from "../columns";
 import { prettifyRowCount } from "../pagination";
 import {

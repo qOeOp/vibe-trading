@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { assertExists } from '../../utils/assertExists';
-import { jsonParseWithSpecialChar } from '../../utils/json/json-parser';
-import { Objects } from '../../utils/objects';
+import { assertExists } from '@/features/lab/utils/assertExists';
+import { jsonParseWithSpecialChar } from '@/features/lab/utils/json/json-parser';
+import { Objects } from '@/features/lab/utils/objects';
 import { UIElementId } from '../cells/ids';
 import { isIslands } from '../islands/utils';
 import type { UIElementRegistry } from './uiregistry';

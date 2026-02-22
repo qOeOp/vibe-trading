@@ -22,8 +22,8 @@ import React, { memo } from "react";
 import { useLocale } from "react-aria";
 
 import { Table } from "../ui/table";
-import type { GetRowIds } from "../../plugins/impl/DataTablePlugin";
-import { cn } from "../../utils/cn";
+import type { GetRowIds } from "@/features/lab/plugins/impl/DataTablePlugin";
+import { cn } from "@/features/lab/utils/cn";
 import type { PanelType } from "../editor/chrome/panels/context-aware-panel/context-aware-panel";
 import { CellHoverTemplateFeature } from "./cell-hover-template/feature";
 import { CellHoverTextFeature } from "./cell-hover-text/feature";

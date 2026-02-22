@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { Role } from '../../lib/marimo-team-llm-info';
+import type { Role } from '@/features/lab/lib/marimo-team-llm-info';
 import { useAtomValue } from 'jotai';
 import { capitalize } from 'lodash-es';
 import {
@@ -10,15 +10,15 @@ import {
   CircleHelpIcon,
 } from 'lucide-react';
 import React from 'react';
-import { type SupportedRole, useModelChange } from '../../core/ai/config';
+import { type SupportedRole, useModelChange } from '@/features/lab/core/ai/config';
 import {
   AiModelId,
   isKnownAIProvider,
   type ProviderId,
   type QualifiedModelId,
-} from '../../core/ai/ids/ids';
-import { type AiModel, AiModelRegistry } from '../../core/ai/model-registry';
-import { aiAtom, completionAtom } from '../../core/config/config';
+} from '@/features/lab/core/ai/ids/ids';
+import { type AiModel, AiModelRegistry } from '@/features/lab/core/ai/model-registry';
+import { aiAtom, completionAtom } from '@/features/lab/core/config/config';
 import { useOpenSettingsToTab } from '../app-config/state';
 import {
   DropdownMenu,

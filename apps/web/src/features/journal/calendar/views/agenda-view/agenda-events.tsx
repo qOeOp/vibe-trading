@@ -10,8 +10,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { useCalendar } from "../../contexts/calendar-context";
-import { EventDetailsDialog } from "../../dialogs/event-details-dialog";
+import { useCalendar } from "@/features/journal/calendar/contexts/calendar-context";
+import { EventDetailsDialog } from "@/features/journal/calendar/dialogs/event-details-dialog";
 import {
   formatTime,
   getBgColor,
@@ -19,7 +19,7 @@ import {
   getEventsForMonth,
   getFirstLetters,
   toCapitalize,
-} from "../../helpers";
+} from "@/features/journal/calendar/helpers";
 import { EventBullet } from "../month-view/event-bullet";
 
 export const AgendaEvents: FC = () => {

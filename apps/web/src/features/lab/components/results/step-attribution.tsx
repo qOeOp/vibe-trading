@@ -10,7 +10,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import type { FactorAttribution } from "../../types";
+import type { FactorAttribution } from "@/features/lab/types";
 
 // ─── Style Exposure Bar Chart (SVG) ─────────────────────
 

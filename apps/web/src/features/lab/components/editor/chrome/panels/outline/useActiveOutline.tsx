@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useEffect, useRef, useState } from "react";
-import type { OutlineItem } from "../../../../../core/cells/outline";
-import { headingToIdentifier } from "../../../../../core/dom/outline";
-import { getInitialAppMode } from "../../../../../core/mode";
-import { Logger } from "../../../../../utils/Logger";
+import type { OutlineItem } from "@/features/lab/core/cells/outline";
+import { headingToIdentifier } from "@/features/lab/core/dom/outline";
+import { getInitialAppMode } from "@/features/lab/core/mode";
+import { Logger } from "@/features/lab/utils/Logger";
 
 function getRootScrollableElement() {
   // HACK: this is a bit leaky

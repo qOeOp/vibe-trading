@@ -2,10 +2,10 @@
 
 import React from "react";
 import useResizeObserver from "use-resize-observer";
-import { cn } from "../../../../utils/cn";
-import { TreeDndProvider } from "../../file-tree/dnd-wrapper";
-import { FileExplorer } from "../../file-tree/file-explorer";
-import { useFileExplorerUpload } from "../../file-tree/upload";
+import { cn } from "@/features/lab/utils/cn";
+import { TreeDndProvider } from "@/features/lab/components/editor/file-tree/dnd-wrapper";
+import { FileExplorer } from "@/features/lab/components/editor/file-tree/file-explorer";
+import { useFileExplorerUpload } from "@/features/lab/components/editor/file-tree/upload";
 
 const FileExplorerPanel: React.FC = () => {
   const { ref, height = 1 } = useResizeObserver<HTMLDivElement>();

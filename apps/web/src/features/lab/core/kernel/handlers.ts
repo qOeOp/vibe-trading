@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { deserializeLayout } from "../../components/editor/renderers/plugins";
-import type { LayoutType } from "../../components/editor/renderers/types";
-import { Logger } from "../../utils/Logger";
-import { Objects } from "../../utils/objects";
+import { deserializeLayout } from "@/features/lab/components/editor/renderers/plugins";
+import type { LayoutType } from "@/features/lab/components/editor/renderers/types";
+import { Logger } from "@/features/lab/utils/Logger";
+import { Objects } from "@/features/lab/utils/objects";
 import type { CellId, UIElementId } from "../cells/ids";
 import { type CellData, createCell } from "../cells/types";
 import { type AppConfig, AppConfigSchema } from "../config/config-schema";

@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { z } from "zod";
-import { FieldOptions } from "../../forms/options";
+import { FieldOptions } from "@/features/lab/components/forms/options";
 
 function passwordField() {
   return z

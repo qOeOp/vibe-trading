@@ -3,9 +3,9 @@
 import { useAtomValue } from "jotai";
 import { SparklesIcon } from "lucide-react";
 import React from "react";
-import { useOpenSettingsToTab } from "../../../../app-config/state";
-import { aiAtom, aiEnabledAtom } from "../../../../../core/config/config";
-import { DEFAULT_AI_MODEL } from "../../../../../core/config/config-schema";
+import { useOpenSettingsToTab } from "@/features/lab/components/app-config/state";
+import { aiAtom, aiEnabledAtom } from "@/features/lab/core/config/config";
+import { DEFAULT_AI_MODEL } from "@/features/lab/core/config/config-schema";
 import { FooterItem } from "../footer-item";
 
 export const AIStatusIcon: React.FC = () => {

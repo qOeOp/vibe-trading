@@ -10,8 +10,8 @@ import {
   ToggleLeftIcon,
   TypeIcon,
 } from "lucide-react";
-import type { DataType } from "../../core/kernel/messages";
-import { logNever } from "../../utils/assertNever";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import { logNever } from "@/features/lab/utils/assertNever";
 import type { SelectableDataType } from "../data-table/charts/types";
 
 /**

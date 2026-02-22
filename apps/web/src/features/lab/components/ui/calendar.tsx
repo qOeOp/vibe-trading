@@ -28,7 +28,7 @@ import {
 } from "react-aria-components";
 
 import { buttonVariants } from "./button";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 
 const CalendarHeading = (props: React.HTMLAttributes<HTMLElement>) => {
   const { direction } = useLocale();

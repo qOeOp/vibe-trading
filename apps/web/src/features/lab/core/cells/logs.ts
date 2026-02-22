@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { fromUnixTime } from "date-fns";
-import { toast } from "../../components/ui/use-toast";
-import { parseHtmlContent } from "../../utils/dom";
-import { Strings } from "../../utils/strings";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { parseHtmlContent } from "@/features/lab/utils/dom";
+import { Strings } from "@/features/lab/utils/strings";
 import type { CellMessage, OutputMessage } from "../kernel/messages";
 import { isErrorMime } from "../mime";
 import type { CellId } from "./ids";

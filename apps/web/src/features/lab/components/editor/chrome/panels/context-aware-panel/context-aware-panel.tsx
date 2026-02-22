@@ -5,14 +5,14 @@ import { useAtom } from 'jotai';
 import { CrosshairIcon, PinIcon, PinOffIcon, XIcon } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { Button } from '../../../../ui/button';
-import { Toggle } from '../../../../ui/toggle';
-import { Tooltip } from '../../../../ui/tooltip';
-import { SlotNames } from '../../../../../core/slots/slots';
-import { useResizeHandle } from '../../../../../hooks/useResizeHandle';
-import { cn } from '../../../../../utils/cn';
-import { ErrorBoundary } from '../../../boundary/ErrorBoundary';
-import { handleDragging } from '../../wrapper/utils';
+import { Button } from '@/features/lab/components/ui/button';
+import { Toggle } from '@/features/lab/components/ui/toggle';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { SlotNames } from '@/features/lab/core/slots/slots';
+import { useResizeHandle } from '@/features/lab/hooks/useResizeHandle';
+import { cn } from '@/features/lab/utils/cn';
+import { ErrorBoundary } from '@/features/lab/components/editor/boundary/ErrorBoundary';
+import { handleDragging } from '@/features/lab/components/editor/chrome/wrapper/utils';
 import {
   contextAwarePanelOpen,
   contextAwarePanelOwner,

@@ -2,7 +2,7 @@
 
 import { DetailSection } from "@/components/shared/detail-panel";
 import { DivergingBarChart } from "@/lib/xycharts/diverging-bar-chart";
-import type { Factor } from "../../../types";
+import type { Factor } from "@/features/library/types";
 
 /* ── Visual constants ──────────────────────────────────────── */
 

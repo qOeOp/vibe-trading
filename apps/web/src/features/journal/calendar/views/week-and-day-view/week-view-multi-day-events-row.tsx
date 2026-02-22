@@ -9,7 +9,7 @@ import {
 	startOfWeek,
 } from "date-fns";
 import { useMemo } from "react";
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/features/journal/calendar/interfaces";
 import { MonthEventBadge } from "../month-view/month-event-badge";
 
 interface IProps {

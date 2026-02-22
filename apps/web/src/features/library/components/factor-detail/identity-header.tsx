@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Copy, ChevronRight } from "lucide-react";
 import { DetailHeader } from "@/components/shared/detail-panel";
 import { LifecycleTimeline } from "../lifecycle-timeline";
-import type { Factor } from "../../types";
+import type { Factor } from "@/features/library/types";
 
 interface IdentityHeaderProps {
   factor: Factor;

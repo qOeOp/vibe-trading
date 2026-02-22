@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { beforeEach, describe, expect, it } from "vitest";
-import type { CellId } from "../../../../core/cells/ids";
-import { MultiColumn } from "../../../../utils/id-tree";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { MultiColumn } from "@/features/lab/utils/id-tree";
 import type { CellSelectionState } from "../selection";
 import { exportedForTesting } from "../selection";
 

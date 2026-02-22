@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { ConditionalICAnalysis, ConditionalICGroup } from "../../types";
+import type { ConditionalICAnalysis, ConditionalICGroup } from "@/features/lab/types";
 
 // ─── Grouped Bar Chart (SVG) ────────────────────────────
 

@@ -50,4 +50,4 @@ export type FieldTypes = Record<string, VegaDataType>;
 export const typeParsers: Record<VegaDataType, (value: string) => unknown> =
   vl.typeParsers;
 
-export type { DataType } from "../../../core/kernel/messages";
+export type { DataType } from "@/features/lab/core/kernel/messages";

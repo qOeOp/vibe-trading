@@ -2,8 +2,8 @@
 
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as React from "react";
-import { StyleNamespace } from "../../theme/namespace";
-import { cn } from "../../utils/cn";
+import { StyleNamespace } from "@/features/lab/theme/namespace";
+import { cn } from "@/features/lab/utils/cn";
 import {
   MAX_HEIGHT_OFFSET,
   withFullScreenAsRoot,

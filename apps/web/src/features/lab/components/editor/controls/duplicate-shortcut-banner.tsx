@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { AlertTriangleIcon } from "lucide-react";
-import { KeyboardHotkeys } from "../../shortcuts/renderShortcut";
-import { Alert, AlertDescription, AlertTitle } from "../../ui/alert";
-import type { DuplicateGroup } from "../../../hooks/useDuplicateShortcuts";
+import { KeyboardHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
+import { Alert, AlertDescription, AlertTitle } from "@/features/lab/components/ui/alert";
+import type { DuplicateGroup } from "@/features/lab/hooks/useDuplicateShortcuts";
 
 interface DuplicateShortcutBannerProps {
   duplicates: DuplicateGroup[];

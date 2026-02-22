@@ -3,8 +3,8 @@
 import { useSetAtom } from "jotai";
 import { CommandIcon } from "lucide-react";
 import React from "react";
-import { renderShortcut } from "../../shortcuts/renderShortcut";
-import { Tooltip } from "../../ui/tooltip";
+import { renderShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
 import { Button } from "../inputs/Inputs";
 import { commandPaletteAtom } from "./state";
 

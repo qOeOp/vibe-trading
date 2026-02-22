@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { ZodType } from "zod";
-import type { CellData, CellRuntimeState } from "../../../core/cells/types";
-import type { AppConfig } from "../../../core/config/config-schema";
-import type { AppMode } from "../../../core/mode";
+import type { CellData, CellRuntimeState } from "@/features/lab/core/cells/types";
+import type { AppConfig } from "@/features/lab/core/config/config-schema";
+import type { AppMode } from "@/features/lab/core/mode";
 
 /**
  * The props passed to a cell renderer.

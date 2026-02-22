@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { z } from "zod";
-import type { DataType } from "../../../../core/kernel/messages";
-import { FieldOptions } from "../../../../components/forms/options";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import { FieldOptions } from "@/features/lab/components/forms/options";
 
 const Schema = {
   number: z.coerce.number().describe(FieldOptions.of({ label: "Value" })),

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror';
-import type { ResolvedTheme } from '../../../theme/useTheme';
+import type { ResolvedTheme } from '@/features/lab/theme/useTheme';
 
 export const LANGUAGE_MAP: Record<string, string | undefined> = {
   python: 'py',

@@ -13,18 +13,18 @@ import {
   SparklesIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { connectionAtom } from '../../../core/network/connection';
-import { useRequestClient } from '../../../core/network/requests';
-import { isWasm } from '../../../core/wasm/utils';
-import { WebSocketState } from '../../../core/websocket/types';
-import { useAsyncData } from '../../../hooks/useAsyncData';
-import { useInterval } from '../../../hooks/useInterval';
+import { connectionAtom } from '@/features/lab/core/network/connection';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { WebSocketState } from '@/features/lab/core/websocket/types';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { useInterval } from '@/features/lab/hooks/useInterval';
 import {
   useResolvedMarimoConfig,
   aiAtom,
   aiEnabledAtom,
-} from '../../../core/config/config';
-import { connectionStatusAtom } from '../../editor/chrome/wrapper/footer-items/backend-status';
+} from '@/features/lab/core/config/config';
+import { connectionStatusAtom } from '@/features/lab/components/editor/chrome/wrapper/footer-items/backend-status';
 
 // ─── System Status Panel ──────────────────────────────────
 //

@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import React from "react";
-import { copyToClipboard } from "../../utils/copy";
+import { copyToClipboard } from "@/features/lab/utils/copy";
 import { Badge } from "../ui/badge";
 import { toast } from "../ui/use-toast";
 

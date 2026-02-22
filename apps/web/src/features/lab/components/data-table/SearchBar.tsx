@@ -4,7 +4,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { SearchIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import useEvent from "react-use-event-hook";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 import { Spinner } from "../icons/spinner";
 
 interface SearchBarProps {

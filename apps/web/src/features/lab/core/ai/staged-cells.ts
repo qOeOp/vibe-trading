@@ -5,12 +5,12 @@ import { useRef } from 'react';
 import {
   type AiCompletion,
   codeToCells,
-} from '../../components/editor/ai/completion-utils';
-import { useDeleteCellCallback } from '../../components/editor/cell/useDeleteCell';
+} from '@/features/lab/components/editor/ai/completion-utils';
+import { useDeleteCellCallback } from '@/features/lab/components/editor/cell/useDeleteCell';
 import { CellId } from '../cells/ids';
-import { logNever } from '../../utils/assertNever';
-import { createReducerAndAtoms } from '../../utils/createReducer';
-import { Logger } from '../../utils/Logger';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { createReducerAndAtoms } from '@/features/lab/utils/createReducer';
+import { Logger } from '@/features/lab/utils/Logger';
 import { maybeAddMarimoImport } from '../cells/add-missing-import';
 import {
   type CreateNewCellAction,

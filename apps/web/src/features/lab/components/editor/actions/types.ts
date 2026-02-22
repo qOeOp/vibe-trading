@@ -1,5 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import type { HotkeyAction } from "../../../core/hotkeys/hotkeys";
+import type { HotkeyAction } from "@/features/lab/core/hotkeys/hotkeys";
 
 /**
  * Shared interface to render a user action in the editor.

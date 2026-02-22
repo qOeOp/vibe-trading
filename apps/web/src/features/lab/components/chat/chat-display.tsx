@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { DataUIPart, ToolUIPart, UIMessage } from "ai";
-import { logNever } from "../../utils/assertNever";
-import { Logger } from "../../utils/Logger";
+import { logNever } from "@/features/lab/utils/assertNever";
+import { Logger } from "@/features/lab/utils/Logger";
 import { MarkdownRenderer } from "../markdown/markdown-renderer";
 import { AttachmentRenderer } from "./chat-components";
 import { ReasoningAccordion } from "./reasoning-accordion";

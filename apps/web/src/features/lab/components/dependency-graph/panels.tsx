@@ -13,10 +13,10 @@ import {
 } from "lucide-react";
 import React, { memo, useId } from "react";
 import { type Edge, Panel } from "reactflow";
-import { getCellEditorView } from "../../core/cells/cells";
-import type { CellId } from "../../core/cells/ids";
-import { goToVariableDefinition } from "../../core/codemirror/go-to-definition/commands";
-import type { Variable, Variables } from "../../core/variables/types";
+import { getCellEditorView } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { goToVariableDefinition } from "@/features/lab/core/codemirror/go-to-definition/commands";
+import type { Variable, Variables } from "@/features/lab/core/variables/types";
 import { ConnectionCellActionsDropdown } from "../editor/cell/cell-actions";
 import { CellLink } from "../editor/links/cell-link";
 import { CellLinkList } from "../editor/links/cell-link-list";

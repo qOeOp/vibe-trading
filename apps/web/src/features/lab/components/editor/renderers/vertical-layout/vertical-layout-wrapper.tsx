@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import type { PropsWithChildren } from 'react';
-import type { AppConfig } from '../../../../core/config/config-schema';
-import { cn } from '../../../../utils/cn';
-import { useLabMode } from '../../../../components/lab-mode-context';
+import type { AppConfig } from '@/features/lab/core/config/config-schema';
+import { cn } from '@/features/lab/utils/cn';
+import { useLabMode } from '@/features/lab/components/lab-mode-context';
 
 interface Props {
   className?: string;

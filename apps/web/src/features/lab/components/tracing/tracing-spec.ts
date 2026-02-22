@@ -2,9 +2,9 @@
 
 import type { TopLevelSpec } from "vega-lite";
 import type { TimeUnit } from "vega-typings";
-import type { CellId } from "../../core/cells/ids";
-import type { CellRun } from "../../core/cells/runs";
-import type { ResolvedTheme } from "../../theme/useTheme";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import type { CellRun } from "@/features/lab/core/cells/runs";
+import type { ResolvedTheme } from "@/features/lab/theme/useTheme";
 
 export const REACT_HOVERED_CELLID = "hoveredCellId";
 export const VEGA_HOVER_SIGNAL = "cellHover";

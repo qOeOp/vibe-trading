@@ -5,7 +5,7 @@ import {
   parseISO,
   startOfDay,
 } from "date-fns";
-import type { IEvent } from "../../interfaces";
+import type { IEvent } from "@/features/journal/calendar/interfaces";
 import { MonthEventBadge } from "../month-view/month-event-badge";
 
 interface IProps {

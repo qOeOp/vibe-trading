@@ -3,7 +3,7 @@
 import { Upload, SkipForward, RefreshCw, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { VerdictLevel } from "../../types";
+import type { VerdictLevel } from "@/features/lab/types";
 
 // ─── Step Operations ────────────────────────────────────
 

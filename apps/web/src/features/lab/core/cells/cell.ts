@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { logNever } from '../../utils/assertNever';
-import { invariant } from '../../utils/invariant';
-import { type Seconds, Time } from '../../utils/time';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { invariant } from '@/features/lab/utils/invariant';
+import { type Seconds, Time } from '@/features/lab/utils/time';
 import {
   extractAllTracebackInfo,
   type TracebackInfo,
-} from '../../utils/traceback';
+} from '@/features/lab/utils/traceback';
 import { parseOutline } from '../dom/outline';
 import type { CellMessage, OutputMessage } from '../kernel/messages';
 import type { RuntimeState } from '../network/types';

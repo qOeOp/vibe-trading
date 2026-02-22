@@ -11,19 +11,19 @@ import { useAtomValue } from 'jotai';
 import { Provider } from 'jotai';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { LabModeContext } from '../lab-mode-context';
-import { useLabModeStore } from '../../store/use-lab-mode-store';
-import { useLabFileTabStore } from '../../store/use-lab-file-tab-store';
+import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
+import { useLabFileTabStore } from '@/features/lab/store/use-lab-file-tab-store';
 import { MineFileTree } from './mine-file-tree';
 import { MineTabBar } from './mine-tab-bar';
 import { FileEditor } from './file-editor';
 // Footer dock removed — CPU/memory stats moved to ActivityBar
-import { requestClientAtom } from '../../core/network/requests';
+import { requestClientAtom } from '@/features/lab/core/network/requests';
 import { RequestingTree } from '../editor/file-tree/requesting-tree';
-import { filenameAtom } from '../../core/saving/file-state';
-import { store } from '../../core/state/jotai';
+import { filenameAtom } from '@/features/lab/core/saving/file-state';
+import { store } from '@/features/lab/core/state/jotai';
 import { ErrorBoundary } from '../editor/boundary/ErrorBoundary';
 import type { TreeViewElement } from '@/components/ui/file-tree';
-import type { FileInfo } from '../../core/network/types';
+import type { FileInfo } from '@/features/lab/core/network/types';
 
 // ─── Mine App Chrome ─────────────────────────────────────
 //

@@ -5,8 +5,8 @@ import CodeMirror, { minimalSetup } from "@uiw/react-codemirror";
 import React, { memo } from "react";
 
 import "./TinyCode.css";
-import { useTheme } from "../../../theme/useTheme";
-import { cn } from "../../../utils/cn";
+import { useTheme } from "@/features/lab/theme/useTheme";
+import { cn } from "@/features/lab/utils/cn";
 
 interface Props {
   code: string;

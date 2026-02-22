@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Loader2, CheckCircle2, XCircle, Clock, Circle } from "lucide-react";
-import type { RuntimeState } from "../../types";
+import type { RuntimeState } from "@/features/lab/types";
 
 // ─── Cell Status Indicator ───────────────────────────────
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { DetailSection } from "@/components/shared/detail-panel";
-import type { Factor } from "../../types";
+import type { Factor } from "@/features/library/types";
 
 function icMagnitudeColor(ic: number): string {
   const abs = Math.abs(ic);

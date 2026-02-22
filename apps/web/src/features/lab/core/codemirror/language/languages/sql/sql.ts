@@ -18,34 +18,34 @@ import { DuckDBDialect } from '@marimo-team/codemirror-sql/dialects';
 import {
   type SQLMetadata,
   SQLParser,
-} from '../../../../../packages/smart-cells/parsers/sql-parser';
-import type { CellId } from '../../../../cells/ids';
-import { cellIdState } from '../../../cells/state';
-import type { PlaceholderType } from '../../../config/types';
+} from '@/features/lab/packages/smart-cells/parsers/sql-parser';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { cellIdState } from '@/features/lab/core/codemirror/cells/state';
+import type { PlaceholderType } from '@/features/lab/core/codemirror/config/types';
 import type {
   CompletionConfig,
   DiagnosticsConfig,
   LSPConfig,
-} from '../../../../config/config-schema';
+} from '@/features/lab/core/config/config-schema';
 import {
   dataSourceConnectionsAtom,
   setLatestEngineSelected,
-} from '../../../../datasets/data-source-connections';
+} from '@/features/lab/core/datasets/data-source-connections';
 import {
   type ConnectionName,
   DUCKDB_ENGINE,
   INTERNAL_SQL_ENGINES,
-} from '../../../../datasets/engines';
-import { ValidateSQL } from '../../../../datasets/request-registry';
-import type { HotkeyProvider } from '../../../../hotkeys/hotkeys';
-import type { ValidateSQLResult } from '../../../../kernel/messages';
-import { store } from '../../../../state/jotai';
-import { resolvedThemeAtom } from '../../../../../theme/useTheme';
-import { logNever } from '../../../../../utils/assertNever';
-import { Logger } from '../../../../../utils/Logger';
-import { variableCompletionSource } from '../../embedded/embedded-python';
-import { languageMetadataField } from '../../metadata';
-import type { LanguageAdapter } from '../../types';
+} from '@/features/lab/core/datasets/engines';
+import { ValidateSQL } from '@/features/lab/core/datasets/request-registry';
+import type { HotkeyProvider } from '@/features/lab/core/hotkeys/hotkeys';
+import type { ValidateSQLResult } from '@/features/lab/core/kernel/messages';
+import { store } from '@/features/lab/core/state/jotai';
+import { resolvedThemeAtom } from '@/features/lab/theme/useTheme';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { Logger } from '@/features/lab/utils/Logger';
+import { variableCompletionSource } from '@/features/lab/core/codemirror/language/embedded/embedded-python';
+import { languageMetadataField } from '@/features/lab/core/codemirror/language/metadata';
+import type { LanguageAdapter } from '@/features/lab/core/codemirror/language/types';
 import {
   clearSqlValidationError,
   setSqlValidationError,

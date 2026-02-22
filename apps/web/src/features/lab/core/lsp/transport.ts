@@ -4,8 +4,8 @@ import {
   Transport,
   type TransportType,
   type JSONRPCRequestData,
-} from '../../lib/open-rpc-transport';
-import { Logger } from '../../utils/Logger';
+} from '@/features/lab/lib/open-rpc-transport';
+import { Logger } from '@/features/lab/utils/Logger';
 
 export interface ReconnectingWebSocketTransportOptions {
   /**

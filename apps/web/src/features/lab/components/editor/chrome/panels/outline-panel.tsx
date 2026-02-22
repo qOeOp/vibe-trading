@@ -3,7 +3,7 @@
 import { useAtomValue } from "jotai";
 import { ScrollTextIcon } from "lucide-react";
 import React, { useMemo } from "react";
-import { notebookOutline } from "../../../../core/cells/cells";
+import { notebookOutline } from "@/features/lab/core/cells/cells";
 import { PanelEmptyState } from "./empty-state";
 
 import "./outline-panel.css";

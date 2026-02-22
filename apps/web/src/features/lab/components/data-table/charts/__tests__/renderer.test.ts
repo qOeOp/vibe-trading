@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { describe, expect, it } from "vitest";
-import { stringifyUnknownValue } from "../../utils";
+import { stringifyUnknownValue } from "@/features/lab/components/data-table/utils";
 
 describe("renderUnknownValue", () => {
   it("should render an object as a JSON string", () => {

@@ -6,12 +6,12 @@ import { useMemo, useState } from "react";
 import {
   generateColumns,
   inferFieldTypes,
-} from "../../data-table/columns";
-import { DataTable } from "../../data-table/data-table";
-import { parseCsvData } from "../../../plugins/impl/vega/loader";
-import { Arrays } from "../../../utils/arrays";
-import { type Base64String, base64ToDataURL } from "../../../utils/json/base64";
-import { Objects } from "../../../utils/objects";
+} from "@/features/lab/components/data-table/columns";
+import { DataTable } from "@/features/lab/components/data-table/data-table";
+import { parseCsvData } from "@/features/lab/plugins/impl/vega/loader";
+import { Arrays } from "@/features/lab/utils/arrays";
+import { type Base64String, base64ToDataURL } from "@/features/lab/utils/json/base64";
+import { Objects } from "@/features/lab/utils/objects";
 
 const PAGE_SIZE = 25;
 

@@ -1,5 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import type { OutputMessage } from "../../../core/kernel/messages";
+import type { OutputMessage } from "@/features/lab/core/kernel/messages";
 
 export interface Cursor {
   row: number;

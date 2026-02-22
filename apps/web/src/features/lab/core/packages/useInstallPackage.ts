@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useState } from "react";
-import { Logger } from "../../utils/Logger";
+import { Logger } from "@/features/lab/utils/Logger";
 import { useRequestClient } from "../network/requests";
 import { showAddPackageToast } from "./toast-components";
 

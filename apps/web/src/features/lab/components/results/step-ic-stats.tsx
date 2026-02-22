@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import type { ICStats } from "../../types";
+import type { ICStats } from "@/features/lab/types";
 
 // ─── KPI Item ───────────────────────────────────────────
 

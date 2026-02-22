@@ -10,16 +10,16 @@ import {
 } from "lucide-react";
 import React from "react";
 import { useLocale } from "react-aria";
-import { logNever } from "../../utils/assertNever";
-import { copyToClipboard } from "../../utils/copy";
-import { downloadByURL } from "../../utils/download";
-import { prettyError } from "../../utils/errors";
-import { Filenames } from "../../utils/filenames";
+import { logNever } from "@/features/lab/utils/assertNever";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { downloadByURL } from "@/features/lab/utils/download";
+import { prettyError } from "@/features/lab/utils/errors";
+import { Filenames } from "@/features/lab/utils/filenames";
 import {
   jsonParseWithSpecialChar,
   jsonToMarkdown,
   jsonToTSV,
-} from "../../utils/json/json-parser";
+} from "@/features/lab/utils/json/json-parser";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,

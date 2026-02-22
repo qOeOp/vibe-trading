@@ -17,12 +17,12 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import useEvent from "react-use-event-hook";
-import { waitForConnectionOpen } from "../../core/network/connection";
-import { useRuntimeManager } from "../../core/runtime/config";
-import { useDebouncedCallback } from "../../hooks/useDebounce";
-import { cn } from "../../utils/cn";
-import { copyToClipboard } from "../../utils/copy";
-import { Logger } from "../../utils/Logger";
+import { waitForConnectionOpen } from "@/features/lab/core/network/connection";
+import { useRuntimeManager } from "@/features/lab/core/runtime/config";
+import { useDebouncedCallback } from "@/features/lab/hooks/useDebounce";
+import { cn } from "@/features/lab/utils/cn";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { Logger } from "@/features/lab/utils/Logger";
 import { MinimalHotkeys } from "../shortcuts/renderShortcut";
 import { useTerminalActions, useTerminalState } from "./state";
 import { createTerminalTheme } from "./theme";

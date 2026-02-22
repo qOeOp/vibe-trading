@@ -2,8 +2,8 @@
 /* Stub: VT lab migration — MarimoErrorOutput */
 
 import type { JSX } from 'react';
-import type { CellId } from '../../../core/cells/ids';
-import type { MarimoError } from '../../../core/kernel/messages';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import type { MarimoError } from '@/features/lab/core/kernel/messages';
 
 interface Props {
   cellId: CellId | undefined;

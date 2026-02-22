@@ -2,8 +2,8 @@
 
 import type { PopoverContentProps } from "@radix-ui/react-popover";
 import React, { useState } from "react";
-import { isInVscodeExtension } from "../../core/vscode/is-in-vscode";
-import { useEventListener } from "../../hooks/useEventListener";
+import { isInVscodeExtension } from "@/features/lab/core/vscode/is-in-vscode";
+import { useEventListener } from "@/features/lab/hooks/useEventListener";
 
 const VSCODE_OUTPUT_CONTAINER_SELECTOR = "[data-vscode-output-container]";
 

@@ -10,7 +10,7 @@ import {
   VariableIcon,
   XCircleIcon,
 } from 'lucide-react';
-import type { Capabilities } from '../../../core/kernel/messages';
+import type { Capabilities } from '@/features/lab/core/kernel/messages';
 
 /**
  * Unified panel ID for all panels in sidebar and developer panel

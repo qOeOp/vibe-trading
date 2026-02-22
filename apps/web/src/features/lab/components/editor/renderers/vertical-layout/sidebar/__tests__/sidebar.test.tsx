@@ -3,7 +3,7 @@
 import { Provider as SlotzProvider } from "@marimo-team/react-slotz";
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { Functions } from "../../../../../../utils/functions";
+import { Functions } from "@/features/lab/utils/functions";
 import { Sidebar } from "../sidebar";
 import { normalizeWidth } from "../state";
 

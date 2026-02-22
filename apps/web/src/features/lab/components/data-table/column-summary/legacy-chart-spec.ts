@@ -7,15 +7,15 @@ import type { TopLevelSpec } from "vega-lite";
 import type { Scale } from "vega-lite/build/scale";
 // @ts-expect-error vega-typings does not include formats
 import { formats } from "vega-loader";
-import { asRemoteURL } from "../../../core/runtime/config";
-import type { TopLevelFacetedUnitSpec } from "../../../plugins/impl/data-explorer/queries/types";
-import { arrow } from "../../../plugins/impl/vega/formats";
-import { parseCsvData } from "../../../plugins/impl/vega/loader";
+import { asRemoteURL } from "@/features/lab/core/runtime/config";
+import type { TopLevelFacetedUnitSpec } from "@/features/lab/plugins/impl/data-explorer/queries/types";
+import { arrow } from "@/features/lab/plugins/impl/vega/formats";
+import { parseCsvData } from "@/features/lab/plugins/impl/vega/loader";
 import {
   base64ToUint8Array,
   extractBase64FromDataURL,
   isDataURLString,
-} from "../../../utils/json/base64";
+} from "@/features/lab/utils/json/base64";
 
 export function getLegacyNumericSpec(
   column: string,

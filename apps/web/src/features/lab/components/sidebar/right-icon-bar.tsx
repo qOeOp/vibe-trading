@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../../store/use-lab-cell-store";
-import type { SidebarPanel } from "../../types";
+import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
+import type { SidebarPanel } from "@/features/lab/types";
 import {
   Database,
   Code2,

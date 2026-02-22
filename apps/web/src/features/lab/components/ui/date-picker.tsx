@@ -15,7 +15,7 @@ import {
   composeRenderProps,
   Text,
 } from "react-aria-components";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 import { Popover } from "./aria-popover";
 import { buttonVariants } from "./button";
 import {

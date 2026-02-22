@@ -4,14 +4,14 @@ import { useAtom, useAtomValue } from "jotai";
 import { UsersIcon } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { Input } from "../../../../ui/input";
+import { Input } from "@/features/lab/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../../../ui/popover";
-import { connectedDocAtom } from "../../../../../core/codemirror/rtc/extension";
-import { isRtcEnabled, usernameAtom } from "../../../../../core/rtc/state";
+} from "@/features/lab/components/ui/popover";
+import { connectedDocAtom } from "@/features/lab/core/codemirror/rtc/extension";
+import { isRtcEnabled, usernameAtom } from "@/features/lab/core/rtc/state";
 import { FooterItem } from "../footer-item";
 
 export const RTCStatus: React.FC = () => {

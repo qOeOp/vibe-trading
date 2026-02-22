@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
-import { DatabaseLogo, type DBLogoName } from '../../databases/icon';
-import { type FormRenderer, ZodForm } from '../../forms/form';
-import { getDefaults } from '../../forms/form-utils';
-import { Button } from '../../ui/button';
+import { DatabaseLogo, type DBLogoName } from '@/features/lab/components/databases/icon';
+import { type FormRenderer, ZodForm } from '@/features/lab/components/forms/form';
+import { getDefaults } from '@/features/lab/components/forms/form-utils';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -15,9 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../../ui/dialog';
-import { FormErrorsBanner } from '../../ui/form';
-import { ExternalLink } from '../../ui/links';
+} from '@/features/lab/components/ui/dialog';
+import { FormErrorsBanner } from '@/features/lab/components/ui/form';
+import { ExternalLink } from '@/features/lab/components/ui/links';
 import {
   Select,
   SelectContent,
@@ -25,9 +25,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../ui/select';
-import { useCellActions } from '../../../core/cells/cells';
-import { useLastFocusedCellId } from '../../../core/cells/focus';
+} from '@/features/lab/components/ui/select';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { useLastFocusedCellId } from '@/features/lab/core/cells/focus';
 import {
   ConnectionDisplayNames,
   type ConnectionLibrary,

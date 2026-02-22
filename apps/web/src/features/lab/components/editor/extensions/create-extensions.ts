@@ -1,7 +1,7 @@
 import type { Extension } from "@codemirror/state";
 import type { Compartment } from "@codemirror/state";
 import type { EditorView as EditorViewType } from "@codemirror/view";
-import type { EditorStats } from "../../../types";
+import type { EditorStats } from "@/features/lab/types";
 import { createMineTheme } from "./mine-theme";
 import { mineHighlight } from "./mine-highlight";
 import { vtCompletionSource } from "./vt-completions";

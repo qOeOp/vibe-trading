@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { z } from "zod";
-import { Logger } from "../../utils/Logger";
-import { isZodArray, isZodPipe, isZodTuple } from "../../utils/zod-utils";
+import { Logger } from "@/features/lab/utils/Logger";
+import { isZodArray, isZodPipe, isZodTuple } from "@/features/lab/utils/zod-utils";
 
 export function maybeUnwrap<T extends z.ZodType>(schema: T): z.ZodType {
   if ("unwrap" in schema) {

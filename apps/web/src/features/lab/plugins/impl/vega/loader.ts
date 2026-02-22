@@ -2,8 +2,8 @@
 
 import { tableFromIPC } from "@uwdata/flechette";
 import { isNumber } from "lodash-es";
-import { Logger } from "../../../utils/Logger";
-import { Objects } from "../../../utils/objects";
+import { Logger } from "@/features/lab/utils/Logger";
+import { Objects } from "@/features/lab/utils/objects";
 import { batchedArrowLoader, createBatchedLoader } from "./batched";
 import type { DataFormat } from "./types";
 import { type DataType, read, typeParsers } from "./vega-loader";

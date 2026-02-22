@@ -3,9 +3,9 @@
 import { render, screen } from "@testing-library/react";
 import { Provider } from "jotai";
 import { describe, expect, it, vi } from "vitest";
-import { TooltipProvider } from "../../../ui/tooltip";
-import type { GetRowResult } from "../../../../plugins/impl/DataTablePlugin";
-import type { FieldTypesWithExternalType } from "../../types";
+import { TooltipProvider } from "@/features/lab/components/ui/tooltip";
+import type { GetRowResult } from "@/features/lab/plugins/impl/DataTablePlugin";
+import type { FieldTypesWithExternalType } from "@/features/lab/components/data-table/types";
 import { RowViewerPanel } from "../row-viewer";
 
 const renderWithProviders = (component: React.ReactNode) => {

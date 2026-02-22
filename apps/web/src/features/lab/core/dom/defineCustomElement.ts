@@ -1,5 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { Logger } from '../../utils/Logger';
+import { Logger } from '@/features/lab/utils/Logger';
 
 /**
  * Wrapper for the customElements.define() method to add safety checks.

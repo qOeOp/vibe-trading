@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { scrollAndHighlightCell } from "../../components/editor/links/cell-link";
-import { Objects } from "../../utils/objects";
+import { scrollAndHighlightCell } from "@/features/lab/components/editor/links/cell-link";
+import { Objects } from "@/features/lab/utils/objects";
 import { store } from "../state/jotai";
 import { notebookAtom } from "./cells";
 

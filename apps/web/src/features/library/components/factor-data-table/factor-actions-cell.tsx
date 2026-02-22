@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Factor, FactorLifecycleStatus } from "../../types";
-import { useLibraryStore } from "../../store/use-library-store";
+import type { Factor, FactorLifecycleStatus } from "@/features/library/types";
+import { useLibraryStore } from "@/features/library/store/use-library-store";
 import { StatusChangeDialog } from "../status-change-dialog";
 
 // ─── Action Types ────────────────────────────────────────

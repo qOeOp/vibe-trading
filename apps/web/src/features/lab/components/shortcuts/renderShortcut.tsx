@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import { hotkeysAtom } from "../../core/config/config";
-import { type HotkeyAction, NOT_SET } from "../../core/hotkeys/hotkeys";
-import { isPlatformMac } from "../../core/hotkeys/shortcuts";
-import { cn } from "../../utils/cn";
+import { hotkeysAtom } from "@/features/lab/core/config/config";
+import { type HotkeyAction, NOT_SET } from "@/features/lab/core/hotkeys/hotkeys";
+import { isPlatformMac } from "@/features/lab/core/hotkeys/shortcuts";
+import { cn } from "@/features/lab/utils/cn";
 import { DropdownMenuShortcut } from "../ui/dropdown-menu";
 import { Kbd } from "../ui/kbd";
 import { Tooltip } from "../ui/tooltip";

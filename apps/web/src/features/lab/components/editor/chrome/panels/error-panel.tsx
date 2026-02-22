@@ -2,9 +2,9 @@
 
 import { PartyPopperIcon } from "lucide-react";
 import React from "react";
-import { CellLinkError } from "../../links/cell-link";
-import { useCellErrors } from "../../../../core/cells/cells";
-import { MarimoErrorOutput } from "../../output/MarimoErrorOutput";
+import { CellLinkError } from "@/features/lab/components/editor/links/cell-link";
+import { useCellErrors } from "@/features/lab/core/cells/cells";
+import { MarimoErrorOutput } from "@/features/lab/components/editor/output/MarimoErrorOutput";
 import { PanelEmptyState } from "./empty-state";
 
 const ErrorsPanel: React.FC = () => {

@@ -2,15 +2,15 @@
 
 import type { Completion } from "@codemirror/autocomplete";
 import type { FileUIPart } from "ai";
-import { processOutput } from "../../../../components/editor/output/console/process-output";
-import { type NotebookState, notebookAtom } from "../../../cells/cells";
-import { type CellId, CellOutputId } from "../../../cells/ids";
-import { displayCellName } from "../../../cells/names";
-import { isOutputEmpty } from "../../../cells/outputs";
-import type { OutputMessage } from "../../../kernel/messages";
-import type { JotaiStore } from "../../../state/jotai";
-import { toPng } from "../../../../utils/html-to-image";
-import { Logger } from "../../../../utils/Logger";
+import { processOutput } from "@/features/lab/components/editor/output/console/process-output";
+import { type NotebookState, notebookAtom } from "@/features/lab/core/cells/cells";
+import { type CellId, CellOutputId } from "@/features/lab/core/cells/ids";
+import { displayCellName } from "@/features/lab/core/cells/names";
+import { isOutputEmpty } from "@/features/lab/core/cells/outputs";
+import type { OutputMessage } from "@/features/lab/core/kernel/messages";
+import type { JotaiStore } from "@/features/lab/core/state/jotai";
+import { toPng } from "@/features/lab/utils/html-to-image";
+import { Logger } from "@/features/lab/utils/Logger";
 import { type AIContextItem, AIContextProvider } from "../registry";
 import { contextToXml } from "../utils";
 import { Boosts, Sections } from "./common";

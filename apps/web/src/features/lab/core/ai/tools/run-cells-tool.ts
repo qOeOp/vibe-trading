@@ -2,11 +2,11 @@
 
 import type { FileUIPart } from "ai";
 import { z } from "zod";
-import { runCells } from "../../../components/editor/cell/useRunCells";
-import { notebookAtom } from "../../cells/cells";
-import type { CellId } from "../../cells/ids";
-import { staleCellIds } from "../../cells/utils";
-import { type JotaiStore, waitFor } from "../../state/jotai";
+import { runCells } from "@/features/lab/components/editor/cell/useRunCells";
+import { notebookAtom } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { staleCellIds } from "@/features/lab/core/cells/utils";
+import { type JotaiStore, waitFor } from "@/features/lab/core/state/jotai";
 import {
   type BaseOutput,
   getCellContextData,

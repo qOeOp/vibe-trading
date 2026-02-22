@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { CellId } from "../../core/cells/ids";
-import { HTMLCellId } from "../../core/cells/ids";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { HTMLCellId } from "@/features/lab/core/cells/ids";
 
 /**
  * Create DOM properties for a cell.

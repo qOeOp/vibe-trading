@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { BigQueryDialect } from "@marimo-team/codemirror-sql/dialects";
-import { isKnownDialect } from "../../core/codemirror/language/languages/sql/utils";
-import type { SQLTableContext } from "../../core/datasets/data-source-connections";
-import { DUCKDB_ENGINE } from "../../core/datasets/engines";
-import type { DataTable, DataType } from "../../core/kernel/messages";
-import { logNever } from "../../utils/assertNever";
+import { isKnownDialect } from "@/features/lab/core/codemirror/language/languages/sql/utils";
+import type { SQLTableContext } from "@/features/lab/core/datasets/data-source-connections";
+import { DUCKDB_ENGINE } from "@/features/lab/core/datasets/engines";
+import type { DataTable, DataType } from "@/features/lab/core/kernel/messages";
+import { logNever } from "@/features/lab/utils/assertNever";
 import type { ColumnHeaderStatsKey } from "../data-table/types";
 
 // Some databases have no schemas, so we don't show it (eg. Clickhouse)

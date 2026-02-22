@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { ChartPieIcon, Loader2 } from "lucide-react";
-import { ErrorBanner } from "../../../../plugins/impl/common/error-banner";
-import { cn } from "../../../../utils/cn";
+import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
+import { cn } from "@/features/lab/utils/cn";
 
 export const ChartLoadingState: React.FC = () => (
   <div className="flex items-center gap-2 justify-center">

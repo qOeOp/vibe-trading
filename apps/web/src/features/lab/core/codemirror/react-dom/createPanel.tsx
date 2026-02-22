@@ -3,7 +3,7 @@
 import type { EditorView, Panel } from "@codemirror/view";
 import { Provider } from "jotai";
 import { createRoot, type Root } from "react-dom/client";
-import { store } from "../../state/jotai";
+import { store } from "@/features/lab/core/state/jotai";
 
 /**
  * Bridge between Codemirror panels and React

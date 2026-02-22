@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { MenuIcon } from "lucide-react";
 
-import { Button } from "../../../../ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "../../../../ui/sheet";
+import { Button } from "@/features/lab/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/features/lab/components/ui/sheet";
 import { SidebarSlot } from "./sidebar-slot";
 
 interface SheetMenuProps {

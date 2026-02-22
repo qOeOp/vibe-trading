@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { ZodType } from "zod";
-import { filenameAtom } from "../../core/saving/file-state";
-import { store } from "../../core/state/jotai";
+import { filenameAtom } from "@/features/lab/core/saving/file-state";
+import { store } from "@/features/lab/core/state/jotai";
 import { Logger } from "../Logger";
 import { availableStorage } from "./storage";
 

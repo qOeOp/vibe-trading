@@ -3,8 +3,8 @@
 import { capitalize } from "lodash-es";
 import { InfoIcon, TriangleAlert } from "lucide-react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { Accordion } from "../../../ui/accordion";
-import { Tooltip } from "../../../ui/tooltip";
+import { Accordion } from "@/features/lab/components/ui/accordion";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
 import { isFieldSet } from "../chart-spec/spec";
 import { ColorByAxis, Facet, XAxis, YAxis } from "../components/chart-items";
 import {

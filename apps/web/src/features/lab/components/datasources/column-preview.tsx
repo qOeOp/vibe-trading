@@ -4,23 +4,23 @@ import { useAtomValue } from 'jotai';
 import { PlusSquareIcon } from 'lucide-react';
 import React, { Suspense } from 'react';
 import { useLocale } from 'react-aria';
-import { maybeAddAltairImport } from '../../core/cells/add-missing-import';
-import { useCellActions } from '../../core/cells/cells';
-import { useLastFocusedCellId } from '../../core/cells/focus';
-import { autoInstantiateAtom } from '../../core/config/config';
-import type { SQLTableContext } from '../../core/datasets/data-source-connections';
+import { maybeAddAltairImport } from '@/features/lab/core/cells/add-missing-import';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { useLastFocusedCellId } from '@/features/lab/core/cells/focus';
+import { autoInstantiateAtom } from '@/features/lab/core/config/config';
+import type { SQLTableContext } from '@/features/lab/core/datasets/data-source-connections';
 import type {
   DataColumnPreview,
   DataTable,
   DataTableColumn,
   DataType,
-} from '../../core/kernel/messages';
-import { useRequestClient } from '../../core/network/requests';
-import { useOnMount } from '../../hooks/useLifecycle';
-import type { TopLevelFacetedUnitSpec } from '../../plugins/impl/data-explorer/queries/types';
-import { type Theme, useTheme } from '../../theme/useTheme';
-import { Events } from '../../utils/events';
-import { prettyNumber } from '../../utils/numbers';
+} from '@/features/lab/core/kernel/messages';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { useOnMount } from '@/features/lab/hooks/useLifecycle';
+import type { TopLevelFacetedUnitSpec } from '@/features/lab/plugins/impl/data-explorer/queries/types';
+import { type Theme, useTheme } from '@/features/lab/theme/useTheme';
+import { Events } from '@/features/lab/utils/events';
+import { prettyNumber } from '@/features/lab/utils/numbers';
 import { LazyVegaEmbed } from '@/components/charts/lazy';
 import type { ColumnHeaderStatsKey } from '../data-table/types';
 import { CopyClipboardIcon } from '../icons/copy-icon';

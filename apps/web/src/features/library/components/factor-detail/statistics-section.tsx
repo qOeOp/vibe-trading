@@ -8,8 +8,8 @@ import {
 } from "@/components/shared/detail-panel";
 import { BarHorizontal } from "@/lib/ngx-charts/bar-chart";
 import type { DataItem } from "@/lib/ngx-charts/types";
-import type { Factor } from "../../types";
-import { WINSORIZATION_LABELS } from "../../types";
+import type { Factor } from "@/features/library/types";
+import { WINSORIZATION_LABELS } from "@/features/library/types";
 
 // ─── Helpers ─────────────────────────────────────────────
 

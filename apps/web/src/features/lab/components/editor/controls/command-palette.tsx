@@ -10,16 +10,16 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "../../ui/command";
-import { lastFocusedCellAtom } from "../../../core/cells/focus";
-import { hotkeysAtom } from "../../../core/config/config";
-import { type HotkeyAction, isHotkeyAction } from "../../../core/hotkeys/hotkeys";
-import { parseShortcut } from "../../../core/hotkeys/shortcuts";
-import { useEventListener } from "../../../hooks/useEventListener";
-import { Objects } from "../../../utils/objects";
-import { useRegisteredActions } from "../../../core/hotkeys/actions";
-import { useRecentCommands } from "../../../hooks/useRecentCommands";
-import { KeyboardHotkeys } from "../../shortcuts/renderShortcut";
+} from "@/features/lab/components/ui/command";
+import { lastFocusedCellAtom } from "@/features/lab/core/cells/focus";
+import { hotkeysAtom } from "@/features/lab/core/config/config";
+import { type HotkeyAction, isHotkeyAction } from "@/features/lab/core/hotkeys/hotkeys";
+import { parseShortcut } from "@/features/lab/core/hotkeys/shortcuts";
+import { useEventListener } from "@/features/lab/hooks/useEventListener";
+import { Objects } from "@/features/lab/utils/objects";
+import { useRegisteredActions } from "@/features/lab/core/hotkeys/actions";
+import { useRecentCommands } from "@/features/lab/hooks/useRecentCommands";
+import { KeyboardHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
 import {
   type ActionButton,
   flattenActions,

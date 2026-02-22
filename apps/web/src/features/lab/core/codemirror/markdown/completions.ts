@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { Completion, CompletionSource } from "@codemirror/autocomplete";
-import { once } from "../../../utils/once";
+import { once } from "@/features/lab/utils/once";
 
 const emojiCompletionSource: CompletionSource = async (context) => {
   // Check if the cursor is at a position where an emoji can be inserted

@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { atom, type createStore, useAtomValue } from "jotai";
 import { useMemo } from "react";
-import type { CellId } from "../../../core/cells/ids";
-import { createReducerAndAtoms } from "../../../utils/createReducer";
-import type { MultiColumn } from "../../../utils/id-tree";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
+import type { MultiColumn } from "@/features/lab/utils/id-tree";
 
 export interface CellSelectionState {
   selectionStart: CellId | null;

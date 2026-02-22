@@ -5,8 +5,8 @@ import { useAtomValue } from "jotai";
 import { CopyIcon, FilterIcon, SquareStack } from "lucide-react";
 import type { RefObject } from "react";
 import useEvent from "react-use-event-hook";
-import { copyToClipboard } from "../../utils/copy";
-import { Logger } from "../../utils/Logger";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { Logger } from "@/features/lab/utils/Logger";
 import {
   ContextMenu,
   ContextMenuContent,

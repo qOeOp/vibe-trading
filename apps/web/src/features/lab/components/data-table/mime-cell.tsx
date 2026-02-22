@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { OutputMessage } from "../../core/kernel/messages";
-import { cn } from "../../utils/cn";
+import type { OutputMessage } from "@/features/lab/core/kernel/messages";
+import { cn } from "@/features/lab/utils/cn";
 import { OutputRenderer } from "../editor/Output";
 
 interface MimeCellProps {

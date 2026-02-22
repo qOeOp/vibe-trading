@@ -4,9 +4,9 @@ import { type Atom, atom, useAtom } from "jotai";
 
 import React from "react";
 import { ReactFlowProvider } from "reactflow";
-import type { CellId } from "../../core/cells/ids";
-import type { CellData } from "../../core/cells/types";
-import type { Variables } from "../../core/variables/types";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import type { CellData } from "@/features/lab/core/cells/types";
+import type { Variables } from "@/features/lab/core/variables/types";
 import { DependencyGraphTree } from "./dependency-graph-tree";
 import { GraphToolbar } from "./panels";
 import type { GraphSettings, LayoutDirection } from "./types";

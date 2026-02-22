@@ -2,7 +2,7 @@
 
 import type { PositionDef } from "vega-lite/build/channeldef";
 import { describe, expect, it } from "vitest";
-import { invariant } from "../../../../utils/invariant";
+import { invariant } from "@/features/lab/utils/invariant";
 import {
   getAggregate,
   getBinEncoding,

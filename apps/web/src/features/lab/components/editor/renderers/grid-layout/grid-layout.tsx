@@ -7,8 +7,8 @@ import React, {
   useState,
 } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { OutputArea } from '../../Output';
-import type { CellRuntimeState } from '../../../../core/cells/types';
+import { OutputArea } from '@/features/lab/components/editor/Output';
+import type { CellRuntimeState } from '@/features/lab/core/cells/types';
 import type { ICellRendererProps } from '../types';
 import type { GridLayout, GridLayoutCellSide } from './types';
 
@@ -26,23 +26,23 @@ import {
   ScrollIcon,
   XIcon,
 } from 'lucide-react';
-import { TinyCode } from '../../cell/TinyCode';
+import { TinyCode } from '@/features/lab/components/editor/cell/TinyCode';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../../ui/dropdown-menu';
-import { Label } from '../../../ui/label';
-import { NumberField } from '../../../ui/number-field';
-import { Switch } from '../../../ui/switch';
-import { outputIsLoading } from '../../../../core/cells/cell';
-import type { CellId } from '../../../../core/cells/ids';
-import type { AppMode } from '../../../../core/mode';
-import { useIsDragging } from '../../../../hooks/useIsDragging';
-import { cn } from '../../../../utils/cn';
-import { Maps } from '../../../../utils/maps';
-import { Objects } from '../../../../utils/objects';
+} from '@/features/lab/components/ui/dropdown-menu';
+import { Label } from '@/features/lab/components/ui/label';
+import { NumberField } from '@/features/lab/components/ui/number-field';
+import { Switch } from '@/features/lab/components/ui/switch';
+import { outputIsLoading } from '@/features/lab/core/cells/cell';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import type { AppMode } from '@/features/lab/core/mode';
+import { useIsDragging } from '@/features/lab/hooks/useIsDragging';
+import { cn } from '@/features/lab/utils/cn';
+import { Maps } from '@/features/lab/utils/maps';
+import { Objects } from '@/features/lab/utils/objects';
 
 type Props = ICellRendererProps<GridLayout>;
 

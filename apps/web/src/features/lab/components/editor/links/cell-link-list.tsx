@@ -5,9 +5,9 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../ui/popover";
-import { useCellIds } from "../../../core/cells/cells";
-import type { CellId } from "../../../core/cells/ids";
+} from "@/features/lab/components/ui/popover";
+import { useCellIds } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
 import { CellLink } from "./cell-link";
 
 interface Props {

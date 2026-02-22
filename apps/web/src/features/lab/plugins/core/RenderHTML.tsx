@@ -12,9 +12,9 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { CopyClipboardIcon } from "../../components/icons/copy-icon";
+import { CopyClipboardIcon } from "@/features/lab/components/icons/copy-icon";
 import { QueryParamPreservingLink } from "@/components/ui/query-param-preserving-link";
-import { DocHoverTarget } from "../../core/documentation/DocHoverTarget";
+import { DocHoverTarget } from "@/features/lab/core/documentation/DocHoverTarget";
 import { sanitizeHtml, useSanitizeHtml } from "./sanitize";
 
 type ReplacementFn = NonNullable<HTMLReactParserOptions["replace"]>;

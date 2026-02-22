@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { tableFromIPC } from "@uwdata/flechette";
-import { batch } from "../../../utils/batch-requests";
+import { batch } from "@/features/lab/utils/batch-requests";
 import { createLoader, type Loader } from "./vega-loader";
 
 export function createBatchedLoader(): Loader {

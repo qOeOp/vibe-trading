@@ -12,11 +12,11 @@ import React, {
   useState,
 } from "react";
 import useEvent from "react-use-event-hook";
-import { getCellForDomProps } from "../../data-table/cell-utils";
+import { getCellForDomProps } from "@/features/lab/components/data-table/cell-utils";
 import {
   renderMinimalShortcut,
   renderShortcut,
-} from "../../shortcuts/renderShortcut";
+} from "@/features/lab/components/shortcuts/renderShortcut";
 import {
   Command,
   CommandEmpty,
@@ -24,22 +24,22 @@ import {
   CommandInput,
   CommandItem,
   CommandSeparator,
-} from "../../ui/command";
+} from "@/features/lab/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../ui/popover";
+} from "@/features/lab/components/ui/popover";
 import {
   Tooltip,
   TooltipContent,
   TooltipRoot,
   TooltipTrigger,
-} from "../../ui/tooltip";
-import { useRestoreFocus } from "../../ui/use-restore-focus";
-import { cellFocusDetailsAtom } from "../../../core/cells/focus";
-import type { CellId } from "../../../core/cells/ids";
-import { cn } from "../../../utils/cn";
+} from "@/features/lab/components/ui/tooltip";
+import { useRestoreFocus } from "@/features/lab/components/ui/use-restore-focus";
+import { cellFocusDetailsAtom } from "@/features/lab/core/cells/focus";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { cn } from "@/features/lab/utils/cn";
 import {
   type CellActionButtonProps,
   useCellActionButtons,

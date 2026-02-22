@@ -8,9 +8,9 @@ import { python } from "@codemirror/lang-python";
 import { type Parser, parseMixed } from "@lezer/common";
 import { tags } from "@lezer/highlight";
 import type { InlineContext, MarkdownConfig } from "@lezer/markdown";
-import { store } from "../../../state/jotai";
-import { variablesAtom } from "../../../variables/state";
-import { getVariableCompletions } from "../../completion/variable-completions";
+import { store } from "@/features/lab/core/state/jotai";
+import { variablesAtom } from "@/features/lab/core/variables/state";
+import { getVariableCompletions } from "@/features/lab/core/codemirror/completion/variable-completions";
 
 // Python code block delimiters
 const PYTHON = "Python";

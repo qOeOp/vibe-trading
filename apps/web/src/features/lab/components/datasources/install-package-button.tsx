@@ -2,8 +2,8 @@
 
 import React from "react";
 import { Button } from "../ui/button";
-import { useInstallPackages } from "../../core/packages/useInstallPackage";
-import { cn } from "../../utils/cn";
+import { useInstallPackages } from "@/features/lab/core/packages/useInstallPackage";
+import { cn } from "@/features/lab/utils/cn";
 
 interface InstallPackageButtonProps {
   packages: string[] | undefined;

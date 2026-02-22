@@ -5,7 +5,7 @@ import type {
   PositionDef,
   StringFieldDef,
 } from "vega-lite/build/channeldef";
-import type { DataType } from "../../../../core/kernel/messages";
+import type { DataType } from "@/features/lab/core/kernel/messages";
 import type { ChartSchemaType } from "../schemas";
 import { isFieldSet } from "./spec";
 import { escapeFieldName } from "./utils";

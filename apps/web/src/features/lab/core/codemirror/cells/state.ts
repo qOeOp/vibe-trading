@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { Facet } from "@codemirror/state";
-import type { CellActions } from "../../cells/cells";
-import type { CellId } from "../../cells/ids";
+import type { CellActions } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
 
 export interface CodemirrorCellActions extends CellActions {
   toggleHideCode: () => boolean;

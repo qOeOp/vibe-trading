@@ -11,11 +11,11 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { toast } from "../ui/use-toast";
-import { Constants } from "../../core/constants";
-import { useRequestClient } from "../../core/network/requests";
-import { VirtualFileTracker } from "../../core/static/virtual-file-tracker";
-import { copyToClipboard } from "../../utils/copy";
-import { Events } from "../../utils/events";
+import { Constants } from "@/features/lab/core/constants";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { VirtualFileTracker } from "@/features/lab/core/static/virtual-file-tracker";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { Events } from "@/features/lab/utils/events";
 import { Input } from "../ui/input";
 import { Tooltip } from "../ui/tooltip";
 

@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { Completion } from "@codemirror/autocomplete";
-import type { Variable, Variables } from "../../variables/types";
+import type { Variable, Variables } from "@/features/lab/core/variables/types";
 
 /**
  * Gets completions for variables defined in the notebook.

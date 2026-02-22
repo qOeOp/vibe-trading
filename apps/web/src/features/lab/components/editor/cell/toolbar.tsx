@@ -3,9 +3,9 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import React from "react";
 import { Toolbar as ReactAriaToolbar } from "react-aria-components";
-import { Tooltip } from "../../ui/tooltip";
-import { cn } from "../../../utils/cn";
-import { Events } from "../../../utils/events";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { cn } from "@/features/lab/utils/cn";
+import { Events } from "@/features/lab/utils/events";
 
 const toolbarItemVariants = cva(
   "rounded-full shadow-xs-solid border p-[5px] transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 [&>svg]:size-3 active:shadow-none bg-background",

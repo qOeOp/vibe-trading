@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import type { Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { focusPackagesInput } from "../../../components/editor/chrome/panels/packages-utils";
-import { chromeAtom } from "../../../components/editor/chrome/state";
-import { Kbd } from "../../../components/ui/kbd";
-import { userConfigAtom } from "../../config/config";
-import { getRequestClient } from "../../network/requests";
-import { store } from "../../state/jotai";
-import { toast } from "../../../components/ui/use-toast";
+import { focusPackagesInput } from "@/features/lab/components/editor/chrome/panels/packages-utils";
+import { chromeAtom } from "@/features/lab/components/editor/chrome/state";
+import { Kbd } from "@/features/lab/components/ui/kbd";
+import { userConfigAtom } from "@/features/lab/core/config/config";
+import { getRequestClient } from "@/features/lab/core/network/requests";
+import { store } from "@/features/lab/core/state/jotai";
+import { toast } from "@/features/lab/components/ui/use-toast";
 
 interface ReplaceCommand {
   match: string;

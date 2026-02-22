@@ -2,14 +2,14 @@
 
 import { ClipboardCheck, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../../store/use-lab-cell-store";
+import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
 import { ResultsPanel } from "../results/results-panel";
 import { LabAIPanel } from "../ai-panel/lab-ai-panel";
 import { DataCatalogPanel } from "../sidebar/data-catalog-panel";
 import { SnippetsPanel } from "../sidebar/snippets-panel";
 import { VariablesPanel } from "../sidebar/variables-panel";
 import { ConsolePanel } from "../sidebar/console-panel";
-import type { ContextPanelTab } from "../../types";
+import type { ContextPanelTab } from "@/features/lab/types";
 
 // ─── Tab Button ─────────────────────────────────────────
 

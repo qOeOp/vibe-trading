@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import React, { type PropsWithChildren } from 'react';
-import type { ConnectionStatus } from '../../../core/websocket/types';
+import type { ConnectionStatus } from '@/features/lab/core/websocket/types';
 
 interface Props {
   className?: string;

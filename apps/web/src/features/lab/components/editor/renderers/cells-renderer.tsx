@@ -3,15 +3,15 @@
 import { useAtomValue } from "jotai";
 import type React from "react";
 import { memo, type PropsWithChildren } from "react";
-import { flattenTopLevelNotebookCells, useNotebook } from "../../../core/cells/cells";
-import type { AppConfig } from "../../../core/config/config-schema";
-import { KnownQueryParams } from "../../../core/constants";
+import { flattenTopLevelNotebookCells, useNotebook } from "@/features/lab/core/cells/cells";
+import type { AppConfig } from "@/features/lab/core/config/config-schema";
+import { KnownQueryParams } from "@/features/lab/core/constants";
 import {
   type LayoutData,
   useLayoutActions,
   useLayoutState,
-} from "../../../core/layout/layout";
-import { type AppMode, kioskModeAtom } from "../../../core/mode";
+} from "@/features/lab/core/layout/layout";
+import { type AppMode, kioskModeAtom } from "@/features/lab/core/mode";
 import { cellRendererPlugins } from "./plugins";
 import {
   type ICellRendererPlugin,

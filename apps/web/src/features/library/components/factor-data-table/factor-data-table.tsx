@@ -9,12 +9,12 @@ import { DataTableAdvancedToolbar } from "@/lib/data-table/components/data-table
 import { DataTableFacetedFilter } from "@/lib/data-table/components/data-table-faceted-filter";
 import { DataTableDateFilter } from "@/lib/data-table/components/data-table-date-filter";
 import { DataTableSortList } from "@/lib/data-table/components/data-table-sort-list";
-import type { Factor } from "../../types";
+import type { Factor } from "@/features/library/types";
 import {
   FACTOR_CATEGORIES,
   FACTOR_LIFECYCLE_STATUSES,
-} from "../../types";
-import { useLibraryStore } from "../../store/use-library-store";
+} from "@/features/library/types";
+import { useLibraryStore } from "@/features/library/store/use-library-store";
 import { useFactorTable } from "./use-factor-table";
 import { useFactorRowClick } from "./use-factor-row-click";
 import { FactorRowRenderer } from "./factor-row-renderer";

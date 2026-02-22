@@ -3,13 +3,13 @@
 import type { EditorState, Text } from "@codemirror/state";
 import { EditorView, hoverTooltip } from "@codemirror/view";
 import { debounce } from "lodash-es";
-import { chromeAtom } from "../../../components/editor/chrome/state";
-import { HTMLCellId } from "../../cells/ids";
-import { hasCapability } from "../../config/capabilities";
-import type { LSPConfig } from "../../config/config-schema";
-import { documentationAtom } from "../../documentation/state";
-import { store } from "../../state/jotai";
-import { Logger } from "../../../utils/Logger";
+import { chromeAtom } from "@/features/lab/components/editor/chrome/state";
+import { HTMLCellId } from "@/features/lab/core/cells/ids";
+import { hasCapability } from "@/features/lab/core/config/capabilities";
+import type { LSPConfig } from "@/features/lab/core/config/config-schema";
+import { documentationAtom } from "@/features/lab/core/documentation/state";
+import { store } from "@/features/lab/core/state/jotai";
+import { Logger } from "@/features/lab/utils/Logger";
 import { reactiveReferencesField } from "../reactive-references/extension";
 import { AUTOCOMPLETER, Autocompleter } from "./Autocompleter";
 

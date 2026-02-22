@@ -13,44 +13,44 @@ import {
 import type React from "react";
 import { memo, useRef, useState } from "react";
 import { z } from "zod";
-import { ReadonlyCode } from "../../code/readonly-python-code";
-import { OutputArea } from "../../Output";
-import { ConsoleOutput } from "../../output/console/ConsoleOutput";
-import { Alert, AlertDescription, AlertTitle } from "../../../ui/alert";
-import { Button } from "../../../ui/button";
+import { ReadonlyCode } from "@/features/lab/components/editor/code/readonly-python-code";
+import { OutputArea } from "@/features/lab/components/editor/Output";
+import { ConsoleOutput } from "@/features/lab/components/editor/output/console/ConsoleOutput";
+import { Alert, AlertDescription, AlertTitle } from "@/features/lab/components/ui/alert";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../../ui/dropdown-menu";
-import { outputIsLoading, outputIsStale } from "../../../../core/cells/cell";
-import type { CellId } from "../../../../core/cells/ids";
-import { isOutputEmpty } from "../../../../core/cells/outputs";
-import type { CellData, CellRuntimeState } from "../../../../core/cells/types";
-import { MarkdownLanguageAdapter } from "../../../../core/codemirror/language/languages/markdown";
-import { useResolvedMarimoConfig } from "../../../../core/config/config";
-import { CSSClasses, KnownQueryParams } from "../../../../core/constants";
-import type { OutputMessage } from "../../../../core/kernel/messages";
-import { kernelStateAtom } from "../../../../core/kernel/state";
-import { showCodeInRunModeAtom } from "../../../../core/meta/state";
-import { isErrorMime } from "../../../../core/mime";
-import { type AppMode, kioskModeAtom } from "../../../../core/mode";
-import { useRequestClient } from "../../../../core/network/requests";
-import type { CellConfig } from "../../../../core/network/types";
-import { downloadAsHTML } from "../../../../core/static/download-html";
-import { isStaticNotebook } from "../../../../core/static/static-state";
-import { isWasm } from "../../../../core/wasm/utils";
-import { cn } from "../../../../utils/cn";
+} from "@/features/lab/components/ui/dropdown-menu";
+import { outputIsLoading, outputIsStale } from "@/features/lab/core/cells/cell";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { isOutputEmpty } from "@/features/lab/core/cells/outputs";
+import type { CellData, CellRuntimeState } from "@/features/lab/core/cells/types";
+import { MarkdownLanguageAdapter } from "@/features/lab/core/codemirror/language/languages/markdown";
+import { useResolvedMarimoConfig } from "@/features/lab/core/config/config";
+import { CSSClasses, KnownQueryParams } from "@/features/lab/core/constants";
+import type { OutputMessage } from "@/features/lab/core/kernel/messages";
+import { kernelStateAtom } from "@/features/lab/core/kernel/state";
+import { showCodeInRunModeAtom } from "@/features/lab/core/meta/state";
+import { isErrorMime } from "@/features/lab/core/mime";
+import { type AppMode, kioskModeAtom } from "@/features/lab/core/mode";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import type { CellConfig } from "@/features/lab/core/network/types";
+import { downloadAsHTML } from "@/features/lab/core/static/download-html";
+import { isStaticNotebook } from "@/features/lab/core/static/static-state";
+import { isWasm } from "@/features/lab/core/wasm/utils";
+import { cn } from "@/features/lab/utils/cn";
 import {
   ADD_PRINTING_CLASS,
   downloadBlob,
   downloadHTMLAsImage,
-} from "../../../../utils/download";
-import { Filenames } from "../../../../utils/filenames";
-import { FloatingOutline } from "../../chrome/panels/outline/floating-outline";
-import { cellDomProps } from "../../common";
+} from "@/features/lab/utils/download";
+import { Filenames } from "@/features/lab/utils/filenames";
+import { FloatingOutline } from "@/features/lab/components/editor/chrome/panels/outline/floating-outline";
+import { cellDomProps } from "@/features/lab/components/editor/common";
 import type { ICellRendererPlugin, ICellRendererProps } from "../types";
 import { useDelayVisibility } from "./useDelayVisibility";
 import { VerticalLayoutWrapper } from "./vertical-layout-wrapper";

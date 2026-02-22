@@ -13,7 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CellStatus } from "../../types";
+import type { CellStatus } from "@/features/lab/types";
 
 // ─── Cell Toolbar ────────────────────────────────────────
 

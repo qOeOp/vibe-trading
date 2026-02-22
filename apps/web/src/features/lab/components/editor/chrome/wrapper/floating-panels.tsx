@@ -6,11 +6,11 @@ import { XIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Suspense } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
-import { ErrorBoundary } from '../../boundary/ErrorBoundary';
+import { ErrorBoundary } from '@/features/lab/components/editor/boundary/ErrorBoundary';
 import { PanelSectionProvider } from '../panels/panel-context';
-import { LazyActivity } from '../../../utils/lazy-mount';
+import { LazyActivity } from '@/features/lab/components/utils/lazy-mount';
 import { PANEL_MAP, type PanelDescriptor, type PanelType } from '../types';
-import { useLabChromeStore } from '../../../../store/use-lab-chrome-store';
+import { useLabChromeStore } from '@/features/lab/store/use-lab-chrome-store';
 import { handleDragging } from './utils';
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;

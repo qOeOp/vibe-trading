@@ -11,7 +11,7 @@ import type {
   ColumnFiltersState,
   SortingState,
 } from "@tanstack/react-table";
-import type { Factor } from "../../types";
+import type { Factor } from "@/features/library/types";
 import { useFactorColumns } from "./factor-columns";
 
 interface UseFactorTableProps {

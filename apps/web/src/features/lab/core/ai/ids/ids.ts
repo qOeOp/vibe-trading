@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { TypedString } from "../../../utils/typed";
+import type { TypedString } from "@/features/lab/utils/typed";
 
 export const KNOWN_PROVIDERS = [
   "openai",

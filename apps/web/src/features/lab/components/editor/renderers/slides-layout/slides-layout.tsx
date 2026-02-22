@@ -1,17 +1,17 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import React, { memo } from "react";
-import { outputIsLoading } from "../../../../core/cells/cell";
-import type { CellId } from "../../../../core/cells/ids";
-import type { CellRuntimeState } from "../../../../core/cells/types";
-import type { AppMode } from "../../../../core/mode";
-import { OutputArea } from "../../Output";
+import { outputIsLoading } from "@/features/lab/core/cells/cell";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import type { CellRuntimeState } from "@/features/lab/core/cells/types";
+import type { AppMode } from "@/features/lab/core/mode";
+import { OutputArea } from "@/features/lab/components/editor/Output";
 import type { ICellRendererProps } from "../types";
 import type { SlidesLayout } from "./types";
 
 type Props = ICellRendererProps<SlidesLayout>;
 
 const LazySlidesComponent = React.lazy(
-  () => import("../../../slides/slides-component"),
+  () => import("@/features/lab/components/slides/slides-component"),
 );
 
 export const SlidesLayoutRenderer: React.FC<Props> = ({

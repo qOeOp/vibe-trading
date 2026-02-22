@@ -3,10 +3,10 @@
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { parseShortcut } from '../../core/hotkeys/shortcuts';
-import { useEventListener } from '../../hooks/useEventListener';
-import { cn } from '../../utils/cn';
-import { Events } from '../../utils/events';
+import { parseShortcut } from '@/features/lab/core/hotkeys/shortcuts';
+import { useEventListener } from '@/features/lab/hooks/useEventListener';
+import { cn } from '@/features/lab/utils/cn';
+import { Events } from '@/features/lab/utils/events';
 
 const activeCommon = 'active:shadow-none';
 

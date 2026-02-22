@@ -5,8 +5,8 @@ import { get } from "lodash-es";
 import { FolderCog2 } from "lucide-react";
 import type { FieldPath } from "react-hook-form";
 import { Tooltip } from "../ui/tooltip";
-import { configOverridesAtom, useUserConfig } from "../../core/config/config";
-import type { UserConfig } from "../../core/config/config-schema";
+import { configOverridesAtom, useUserConfig } from "@/features/lab/core/config/config";
+import type { UserConfig } from "@/features/lab/core/config/config-schema";
 import { Kbd } from "../ui/kbd";
 
 /**

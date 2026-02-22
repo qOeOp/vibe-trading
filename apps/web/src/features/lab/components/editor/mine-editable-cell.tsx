@@ -24,23 +24,23 @@ import {
 } from 'react';
 import useEvent from 'react-use-event-hook';
 
-import { aiCompletionCellAtom } from '../../core/ai/state';
-import { outputIsLoading, outputIsStale } from '../../core/cells/cell';
+import { aiCompletionCellAtom } from '@/features/lab/core/ai/state';
+import { outputIsLoading, outputIsStale } from '@/features/lab/core/cells/cell';
 import {
   createUntouchedCellAtom,
   useCellActions,
   useCellData,
   useCellRuntime,
-} from '../../core/cells/cells';
-import { isOutputEmpty } from '../../core/cells/outputs';
-import { isUninstantiated } from '../../core/cells/utils';
-import { autocompletionKeymap } from '../../core/codemirror/cm';
-import type { LanguageAdapterType } from '../../core/codemirror/language/types';
-import { CSSClasses } from '../../core/constants';
-import { canCollapseOutline } from '../../core/dom/outline';
-import { connectionAtom } from '../../core/network/connection';
-import { useRequestClient } from '../../core/network/requests';
-import { isAppInteractionDisabled } from '../../core/websocket/connection-utils';
+} from '@/features/lab/core/cells/cells';
+import { isOutputEmpty } from '@/features/lab/core/cells/outputs';
+import { isUninstantiated } from '@/features/lab/core/cells/utils';
+import { autocompletionKeymap } from '@/features/lab/core/codemirror/cm';
+import type { LanguageAdapterType } from '@/features/lab/core/codemirror/language/types';
+import { CSSClasses } from '@/features/lab/core/constants';
+import { canCollapseOutline } from '@/features/lab/core/dom/outline';
+import { connectionAtom } from '@/features/lab/core/network/connection';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { isAppInteractionDisabled } from '@/features/lab/core/websocket/connection-utils';
 
 import type { CellProps } from './notebook-cell';
 import { cellDomProps } from './common';
@@ -67,7 +67,7 @@ import {
   type CellActionsDropdownHandle,
   CellActionsDropdown,
 } from './cell/cell-actions';
-import { switchLanguage } from '../../core/codemirror/language/extension';
+import { switchLanguage } from '@/features/lab/core/codemirror/language/extension';
 import { PythonIcon, MarkdownIcon } from './cell/code/icons';
 import { MineCell } from '../shell/mine-cell';
 

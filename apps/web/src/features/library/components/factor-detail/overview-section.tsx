@@ -7,8 +7,8 @@ import {
   computeRadarScores,
   radarScoresToValues,
   RADAR_LABELS,
-} from "../../utils/compute-radar-scores";
-import type { Factor } from "../../types";
+} from "@/features/library/utils/compute-radar-scores";
+import type { Factor } from "@/features/library/types";
 
 // ─── V-Score Indicator ──────────────────────────────────
 

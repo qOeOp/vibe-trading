@@ -1,18 +1,18 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { components } from '../../core/marimo-api';
+import type { components } from '@/features/lab/core/marimo-api';
 import type { FileUIPart, ToolUIPart, UIMessage } from 'ai';
 import { useState } from 'react';
 import useEvent from 'react-use-event-hook';
-import type { ProviderId } from '../../core/ai/ids/ids';
-import type { ToolNotebookContext } from '../../core/ai/tools/base';
-import { FRONTEND_TOOL_REGISTRY } from '../../core/ai/tools/registry';
+import type { ProviderId } from '@/features/lab/core/ai/ids/ids';
+import type { ToolNotebookContext } from '@/features/lab/core/ai/tools/base';
+import { FRONTEND_TOOL_REGISTRY } from '@/features/lab/core/ai/tools/registry';
 import type {
   InvokeAiToolRequest,
   InvokeAiToolResponse,
-} from '../../core/network/types';
-import { blobToString } from '../../utils/fileToBase64';
-import { Logger } from '../../utils/Logger';
+} from '@/features/lab/core/network/types';
+import { blobToString } from '@/features/lab/utils/fileToBase64';
+import { Logger } from '@/features/lab/utils/Logger';
 import { getAICompletionBodyWithAttachments } from '../editor/ai/completion-utils';
 import { toast } from '../ui/use-toast';
 

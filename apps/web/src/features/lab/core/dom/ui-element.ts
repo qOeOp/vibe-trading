@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { isCustomMarimoElement } from '../../plugins/core/registerReactComponent';
-import { Functions } from '../../utils/functions';
-import { Logger } from '../../utils/Logger';
+import { isCustomMarimoElement } from '@/features/lab/plugins/core/registerReactComponent';
+import { Functions } from '@/features/lab/utils/functions';
+import { Logger } from '@/features/lab/utils/Logger';
 import { UIElementId } from '../cells/ids';
 import { defineCustomElement } from './defineCustomElement';
 import {

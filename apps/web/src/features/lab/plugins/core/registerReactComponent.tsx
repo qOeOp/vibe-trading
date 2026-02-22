@@ -23,34 +23,34 @@ import React, {
 import ReactDOM, { type Root } from "react-dom/client";
 import useEvent from "react-use-event-hook";
 import { type ZodSchema, z } from "zod";
-import { notebookAtom } from "../../core/cells/cells";
-import { HTMLCellId } from "../../core/cells/ids";
-import { isUninstantiated } from "../../core/cells/utils";
-import { createInputEvent, MarimoValueUpdateEvent } from "../../core/dom/events";
-import { getUIElementObjectId } from "../../core/dom/ui-element";
-import { UIElementRegistry } from "../../core/dom/uiregistry";
-import { FUNCTIONS_REGISTRY } from "../../core/functions/FunctionRegistry";
-import { LocaleProvider } from "../../core/i18n/locale-provider";
-import { store } from "../../core/state/jotai";
-import { isStaticNotebook } from "../../core/static/static-state";
+import { notebookAtom } from "@/features/lab/core/cells/cells";
+import { HTMLCellId } from "@/features/lab/core/cells/ids";
+import { isUninstantiated } from "@/features/lab/core/cells/utils";
+import { createInputEvent, MarimoValueUpdateEvent } from "@/features/lab/core/dom/events";
+import { getUIElementObjectId } from "@/features/lab/core/dom/ui-element";
+import { UIElementRegistry } from "@/features/lab/core/dom/uiregistry";
+import { FUNCTIONS_REGISTRY } from "@/features/lab/core/functions/FunctionRegistry";
+import { LocaleProvider } from "@/features/lab/core/i18n/locale-provider";
+import { store } from "@/features/lab/core/state/jotai";
+import { isStaticNotebook } from "@/features/lab/core/static/static-state";
 import {
   type HTMLElementNotDerivedFromRef,
   useEventListener,
-} from "../../hooks/useEventListener";
-import { StyleNamespace } from "../../theme/namespace";
-import { useTheme } from "../../theme/useTheme";
-import { CellNotInitializedError } from "../../utils/errors";
-import { Functions } from "../../utils/functions";
-import { shallowCompare } from "../../utils/shallow-compare";
-import { defineCustomElement } from "../../core/dom/defineCustomElement";
+} from "@/features/lab/hooks/useEventListener";
+import { StyleNamespace } from "@/features/lab/theme/namespace";
+import { useTheme } from "@/features/lab/theme/useTheme";
+import { CellNotInitializedError } from "@/features/lab/utils/errors";
+import { Functions } from "@/features/lab/utils/functions";
+import { shallowCompare } from "@/features/lab/utils/shallow-compare";
+import { defineCustomElement } from "@/features/lab/core/dom/defineCustomElement";
 import {
   parseAttrValue,
   parseDataset,
   parseInitialValue,
-} from "../../core/dom/htmlUtils";
-import { invariant } from "../../utils/invariant";
-import { Logger } from "../../utils/Logger";
-import { Objects } from "../../utils/objects";
+} from "@/features/lab/core/dom/htmlUtils";
+import { invariant } from "@/features/lab/utils/invariant";
+import { Logger } from "@/features/lab/utils/Logger";
+import { Objects } from "@/features/lab/utils/objects";
 import type { IPlugin } from "../types";
 import { renderError } from "./BadPlugin";
 import { renderHTML } from "./RenderHTML";

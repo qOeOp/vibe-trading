@@ -12,7 +12,7 @@ import {
   type TableFeature,
 } from "@tanstack/react-table";
 
-import { Functions } from "../../../utils/functions";
+import { Functions } from "@/features/lab/utils/functions";
 import { getStableRowId } from "../utils";
 import type {
   CellSelectionOptions,

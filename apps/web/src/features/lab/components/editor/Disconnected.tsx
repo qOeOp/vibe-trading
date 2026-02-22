@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { ArrowRightSquareIcon } from 'lucide-react';
-import { API } from '../../core/network/api';
-import { getRuntimeManager } from '../../core/runtime/config';
-import { Banner } from '../../plugins/impl/common/error-banner';
-import { prettyError } from '../../utils/errors';
-import { reloadSafe } from '../../utils/reload-safe';
+import { API } from '@/features/lab/core/network/api';
+import { getRuntimeManager } from '@/features/lab/core/runtime/config';
+import { Banner } from '@/features/lab/plugins/impl/common/error-banner';
+import { prettyError } from '@/features/lab/utils/errors';
+import { reloadSafe } from '@/features/lab/utils/reload-safe';
 import { Button } from '../ui/button';
 import { toast } from '../ui/use-toast';
 

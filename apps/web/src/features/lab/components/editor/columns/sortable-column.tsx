@@ -11,18 +11,18 @@ import {
   X,
 } from "lucide-react";
 import React, { memo } from "react";
-import { Button } from "../../ui/button";
+import { Button } from "@/features/lab/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-import { Tooltip } from "../../ui/tooltip";
-import { useCellActions } from "../../../core/cells/cells";
-import { cn } from "../../../utils/cn";
-import type { CellColumnId } from "../../../utils/id-tree";
-import { mergeRefs } from "../../../utils/mergeRefs";
+} from "@/features/lab/components/ui/dropdown-menu";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { useCellActions } from "@/features/lab/core/cells/cells";
+import { cn } from "@/features/lab/utils/cn";
+import type { CellColumnId } from "@/features/lab/utils/id-tree";
+import { mergeRefs } from "@/features/lab/utils/mergeRefs";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   columnId: CellColumnId;

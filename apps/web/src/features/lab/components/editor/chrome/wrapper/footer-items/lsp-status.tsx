@@ -3,19 +3,19 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { AlertCircleIcon, CheckCircle2Icon } from 'lucide-react';
 import type React from 'react';
-import { Spinner } from '../../../../icons/spinner';
-import { Tooltip } from '../../../../ui/tooltip';
-import { toast } from '../../../../ui/use-toast';
-import { API } from '../../../../../core/network/api';
-import { connectionAtom } from '../../../../../core/network/connection';
+import { Spinner } from '@/features/lab/components/icons/spinner';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { API } from '@/features/lab/core/network/api';
+import { connectionAtom } from '@/features/lab/core/network/connection';
 import type {
   LspHealthResponse,
   LspRestartRequest,
   LspRestartResponse,
-} from '../../../../../core/network/types';
-import { isAppConnected } from '../../../../../core/websocket/connection-utils';
-import { useAsyncData } from '../../../../../hooks/useAsyncData';
-import { useInterval } from '../../../../../hooks/useInterval';
+} from '@/features/lab/core/network/types';
+import { isAppConnected } from '@/features/lab/core/websocket/connection-utils';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { useInterval } from '@/features/lab/hooks/useInterval';
 
 const CHECK_LSP_HEALTH_INTERVAL_MS = 60_000;
 

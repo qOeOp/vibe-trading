@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { StandardType } from "vega-lite/build/type";
-import type { DataType } from "../../../../core/kernel/messages";
-import type { Mark } from "../../../../plugins/impl/vega/types";
-import { logNever } from "../../../../utils/assertNever";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import type { Mark } from "@/features/lab/plugins/impl/vega/types";
+import { logNever } from "@/features/lab/utils/assertNever";
 import { ChartType, type SelectableDataType } from "../types";
 
 export interface BaseSpec {

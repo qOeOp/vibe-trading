@@ -2,10 +2,10 @@
 
 import { PlayIcon } from "lucide-react";
 import React from "react";
-import { MinimalHotkeys } from "../../shortcuts/renderShortcut";
-import { Button } from "../../ui/button";
-import { Tooltip } from "../../ui/tooltip";
-import { isPlatformMac } from "../../../core/hotkeys/shortcuts";
+import { MinimalHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
+import { Button } from "@/features/lab/components/ui/button";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { isPlatformMac } from "@/features/lab/core/hotkeys/shortcuts";
 
 /**
  * Common keyboard shortcut handlers for AI completions

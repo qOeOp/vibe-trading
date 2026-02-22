@@ -14,13 +14,13 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-import { Tooltip } from "../../ui/tooltip";
-import { getMarimoVersion } from "../../../core/meta/globals";
+} from "@/features/lab/components/ui/dropdown-menu";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { getMarimoVersion } from "@/features/lab/core/meta/globals";
 import {
   MinimalShortcut,
   renderShortcut,
-} from "../../shortcuts/renderShortcut";
+} from "@/features/lab/components/shortcuts/renderShortcut";
 import type { ActionButton } from "../actions/types";
 import { useNotebookActions } from "../actions/useNotebookActions";
 

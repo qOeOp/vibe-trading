@@ -1,12 +1,12 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
-import { toast } from "../../ui/use-toast";
-import { useRequestClient } from "../../../core/network/requests";
-import { serializeBlob } from "../../../utils/blob";
-import { withLoadingToast } from "../../../utils/download";
-import { Logger } from "../../../utils/Logger";
-import { type FilePath, PathBuilder } from "../../../utils/paths";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import { serializeBlob } from "@/features/lab/utils/blob";
+import { withLoadingToast } from "@/features/lab/utils/download";
+import { Logger } from "@/features/lab/utils/Logger";
+import { type FilePath, PathBuilder } from "@/features/lab/utils/paths";
 import { refreshRoot } from "./state";
 
 const MAX_SIZE = 1024 * 1024 * 100; // 100MB

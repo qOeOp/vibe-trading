@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { FileCode, Database, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DATA_CATALOG } from "../../data/data-catalog";
-import { CODE_SNIPPETS } from "../../data/code-snippets";
-import { useLabCellStore } from "../../store/use-lab-cell-store";
+import { DATA_CATALOG } from "@/features/lab/data/data-catalog";
+import { CODE_SNIPPETS } from "@/features/lab/data/code-snippets";
+import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
 
 // ─── File Explorer Panel ────────────────────────────────
 

@@ -3,25 +3,25 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { useRef } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
-import { toast } from '../../components/ui/use-toast';
+import { toast } from '@/features/lab/components/ui/use-toast';
 import { getNotebook, useCellActions } from '../cells/cells';
 import { AUTOCOMPLETER } from '../codemirror/completion/Autocompleter';
 import type { NotificationPayload } from '../kernel/messages';
 import { useConnectionTransport } from './useWebSocket';
-import { renderHTML } from '../../plugins/core/RenderHTML';
+import { renderHTML } from '@/features/lab/plugins/core/RenderHTML';
 import {
   handleWidgetMessage,
   MODEL_MANAGER,
-} from '../../plugins/impl/anywidget/model';
-import { logNever } from '../../utils/assertNever';
-import { prettyError } from '../../utils/errors';
+} from '@/features/lab/plugins/impl/anywidget/model';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { prettyError } from '@/features/lab/utils/errors';
 import {
   type JsonString,
   safeExtractSetUIElementMessageBuffers,
-} from '../../utils/json/base64';
-import { jsonParseWithSpecialChar } from '../../utils/json/json-parser';
-import { Logger } from '../../utils/Logger';
-import { reloadSafe } from '../../utils/reload-safe';
+} from '@/features/lab/utils/json/base64';
+import { jsonParseWithSpecialChar } from '@/features/lab/utils/json/json-parser';
+import { Logger } from '@/features/lab/utils/Logger';
+import { reloadSafe } from '@/features/lab/utils/reload-safe';
 import { useAlertActions } from '../alerts/state';
 import { cacheInfoAtom } from '../cache/requests';
 import { type CellId, SCRATCH_CELL_ID, type UIElementId } from '../cells/ids';

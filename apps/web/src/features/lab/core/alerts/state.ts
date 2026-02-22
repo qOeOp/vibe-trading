@@ -2,8 +2,8 @@
 
 import { useAtomValue } from "jotai";
 import type { PackageInstallationStatus } from "../kernel/messages";
-import { createReducerAndAtoms } from "../../utils/createReducer";
-import { generateUUID } from "../../utils/uuid";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
+import { generateUUID } from "@/features/lab/utils/uuid";
 
 type Identified<T> = { id: string } & T;
 

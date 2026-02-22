@@ -9,24 +9,24 @@ import {
   SearchIcon,
 } from "lucide-react";
 import React, { Fragment } from "react";
-import { renderMinimalShortcut } from "../../shortcuts/renderShortcut";
+import { renderMinimalShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuTrigger,
-} from "../../ui/context-menu";
-import { menuItemVariants } from "../../ui/menu-items";
-import { Tooltip } from "../../ui/tooltip";
-import { toast } from "../../ui/use-toast";
-import { useCellData, useCellRuntime } from "../../../core/cells/cells";
-import { CellOutputId } from "../../../core/cells/ids";
-import { isOutputEmpty } from "../../../core/cells/outputs";
-import { goToDefinitionAtCursorPosition } from "../../../core/codemirror/go-to-definition/utils";
-import { sendToPanelManager } from "../../../core/vscode/vscode-bindings";
-import { copyToClipboard } from "../../../utils/copy";
-import { Logger } from "../../../utils/Logger";
+} from "@/features/lab/components/ui/context-menu";
+import { menuItemVariants } from "@/features/lab/components/ui/menu-items";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { useCellData, useCellRuntime } from "@/features/lab/core/cells/cells";
+import { CellOutputId } from "@/features/lab/core/cells/ids";
+import { isOutputEmpty } from "@/features/lab/core/cells/outputs";
+import { goToDefinitionAtCursorPosition } from "@/features/lab/core/codemirror/go-to-definition/utils";
+import { sendToPanelManager } from "@/features/lab/core/vscode/vscode-bindings";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { Logger } from "@/features/lab/utils/Logger";
 import type { ActionButton } from "../actions/types";
 import {
   type CellActionButtonProps,

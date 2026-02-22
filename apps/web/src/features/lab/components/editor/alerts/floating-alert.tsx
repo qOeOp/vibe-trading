@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { ReactNode } from "react";
-import { Banner } from "../../../plugins/impl/common/error-banner";
-import { DelayMount } from "../../utils/delay-mount";
+import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
+import { DelayMount } from "@/features/lab/components/utils/delay-mount";
 
 interface FloatingAlertProps {
   title?: string;

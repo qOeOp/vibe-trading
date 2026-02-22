@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 import { getCellDomProps } from "./cell-utils";
 import { COLUMN_WRAPPING_STYLES } from "./column-wrapping/feature";
 import { DataTableContextMenu } from "./context-menu";

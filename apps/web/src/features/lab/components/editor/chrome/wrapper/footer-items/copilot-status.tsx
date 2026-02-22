@@ -2,23 +2,23 @@
 
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import React from "react";
-import { useOpenSettingsToTab } from "../../../../app-config/state";
-import { GitHubCopilotIcon } from "../../../../icons/github-copilot";
-import { Spinner } from "../../../../icons/spinner";
-import { Button } from "../../../../ui/button";
-import { toast } from "../../../../ui/use-toast";
-import { getCopilotClient } from "../../../../../core/codemirror/copilot/client";
+import { useOpenSettingsToTab } from "@/features/lab/components/app-config/state";
+import { GitHubCopilotIcon } from "@/features/lab/components/icons/github-copilot";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { Button } from "@/features/lab/components/ui/button";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { getCopilotClient } from "@/features/lab/core/codemirror/copilot/client";
 import {
   copilotSignedInState,
   copilotStatusState,
   githubCopilotLoadingVersion,
   isGitHubCopilotSignedInState,
-} from "../../../../../core/codemirror/copilot/state";
-import { resolvedMarimoConfigAtom } from "../../../../../core/config/config";
-import { useOnMount } from "../../../../../hooks/useLifecycle";
-import { cn } from "../../../../../utils/cn";
-import { prettyError } from "../../../../../utils/errors";
-import { Logger } from "../../../../../utils/Logger";
+} from "@/features/lab/core/codemirror/copilot/state";
+import { resolvedMarimoConfigAtom } from "@/features/lab/core/config/config";
+import { useOnMount } from "@/features/lab/hooks/useLifecycle";
+import { cn } from "@/features/lab/utils/cn";
+import { prettyError } from "@/features/lab/utils/errors";
+import { Logger } from "@/features/lab/utils/Logger";
 import { FooterItem } from "../footer-item";
 
 const copilotAtom = atom((get) => {

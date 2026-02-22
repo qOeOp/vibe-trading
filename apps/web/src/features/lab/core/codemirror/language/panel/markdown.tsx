@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { QuotePrefixKind } from '../../../../packages/smart-cells';
+import type { QuotePrefixKind } from '@/features/lab/packages/smart-cells';
 
 // Based on the current quote prefix and the checkbox state, return the new quote prefix
 export function getQuotePrefix({

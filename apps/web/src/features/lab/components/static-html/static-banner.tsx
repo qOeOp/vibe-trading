@@ -5,13 +5,13 @@
 import { useAtomValue } from "jotai";
 import { CopyIcon, DownloadIcon } from "lucide-react";
 import type React from "react";
-import { Constants } from "../../core/constants";
-import { codeAtom } from "../../core/saving/file-state";
-import { useFilename } from "../../core/saving/filename";
-import { isStaticNotebook } from "../../core/static/static-state";
-import { createShareableLink } from "../../core/wasm/share";
-import { copyToClipboard } from "../../utils/copy";
-import { downloadBlob } from "../../utils/download";
+import { Constants } from "@/features/lab/core/constants";
+import { codeAtom } from "@/features/lab/core/saving/file-state";
+import { useFilename } from "@/features/lab/core/saving/filename";
+import { isStaticNotebook } from "@/features/lab/core/static/static-state";
+import { createShareableLink } from "@/features/lab/core/wasm/share";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { downloadBlob } from "@/features/lab/utils/download";
 import { Button } from "../ui/button";
 import {
   Dialog,

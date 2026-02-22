@@ -2,7 +2,7 @@
 
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ValidationResult, VerdictLevel, StepConclusion } from "../../types";
+import type { ValidationResult, VerdictLevel, StepConclusion } from "@/features/lab/types";
 
 // ─── Verdict Config ─────────────────────────────────────
 

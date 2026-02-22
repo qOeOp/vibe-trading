@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight, Terminal } from "lucide-react";
-import type { OutputMessage } from "../../types";
+import type { OutputMessage } from "@/features/lab/types";
 import { OutputDispatcher } from "../output/output-dispatcher";
 import { ConsoleOutput } from "../output/console-output";
 

@@ -5,15 +5,15 @@ import { CpuIcon, MemoryStickIcon, MicrochipIcon } from 'lucide-react';
 import type React from 'react';
 import { useState } from 'react';
 import { useNumberFormatter } from 'react-aria';
-import { Tooltip } from '../../../../ui/tooltip';
-import { connectionAtom } from '../../../../../core/network/connection';
-import { useRequestClient } from '../../../../../core/network/requests';
-import type { UsageResponse } from '../../../../../core/network/types';
-import { isWasm } from '../../../../../core/wasm/utils';
-import { WebSocketState } from '../../../../../core/websocket/types';
-import { useAsyncData } from '../../../../../hooks/useAsyncData';
-import { useInterval } from '../../../../../hooks/useInterval';
-import { cn } from '../../../../../utils/cn';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { connectionAtom } from '@/features/lab/core/network/connection';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import type { UsageResponse } from '@/features/lab/core/network/types';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { WebSocketState } from '@/features/lab/core/websocket/types';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { useInterval } from '@/features/lab/hooks/useInterval';
+import { cn } from '@/features/lab/utils/cn';
 
 export const MachineStats: React.FC = () => {
   const [nonce, setNonce] = useState(0);

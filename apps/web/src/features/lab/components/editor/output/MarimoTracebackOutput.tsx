@@ -2,8 +2,8 @@
 /* Stub: VT lab migration — MarimoTracebackOutput */
 
 import type { JSX } from 'react';
-import type { CellId } from '../../../core/cells/ids';
-import { renderHTML } from '../../../plugins/core/RenderHTML';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { renderHTML } from '@/features/lab/plugins/core/RenderHTML';
 
 interface Props {
   cellId: CellId | undefined;

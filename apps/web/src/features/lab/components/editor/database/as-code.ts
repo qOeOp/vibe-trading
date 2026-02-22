@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import dedent from "string-dedent";
-import { assertNever } from "../../../utils/assertNever";
+import { assertNever } from "@/features/lab/utils/assertNever";
 import { type DatabaseConnection, DatabaseConnectionSchema } from "./schemas";
 import { isSecret, unprefixSecret } from "./secrets";
 

@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { CellData } from "../../../core/cells/types";
+import type { CellData } from "@/features/lab/core/cells/types";
 import { GridLayoutPlugin } from "./grid-layout/plugin";
 import { SlidesLayoutPlugin } from "./slides-layout/plugin";
 import type { ICellRendererPlugin, LayoutType } from "./types";

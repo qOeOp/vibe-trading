@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { DetailSection } from "@/components/shared/detail-panel";
 import { BarVertical } from "@/lib/ngx-charts/bar-chart";
 import type { DataItem } from "@/lib/ngx-charts/types";
-import type { Factor } from "../../../types";
+import type { Factor } from "@/features/library/types";
 
 /* ── Visual constants ──────────────────────────────────────── */
 

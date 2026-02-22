@@ -11,17 +11,17 @@ import {
 import React from "react";
 import { type Path, useFormContext, useWatch } from "react-hook-form";
 import type { z } from "zod";
-import { DATA_TYPE_ICON } from "../../../datasets/icons";
-import { Button } from "../../../ui/button";
-import { Checkbox } from "../../../ui/checkbox";
+import { DATA_TYPE_ICON } from "@/features/lab/components/datasets/icons";
+import { Button } from "@/features/lab/components/ui/button";
+import { Checkbox } from "@/features/lab/components/ui/checkbox";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from "../../../ui/form";
-import { DebouncedInput, DebouncedNumberInput } from "../../../ui/input";
-import type { NumberFieldProps } from "../../../ui/number-field";
+} from "@/features/lab/components/ui/form";
+import { DebouncedInput, DebouncedNumberInput } from "@/features/lab/components/ui/input";
+import type { NumberFieldProps } from "@/features/lab/components/ui/number-field";
 import {
   Select,
   SelectContent,
@@ -31,11 +31,11 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "../../../ui/select";
-import { Slider } from "../../../ui/slider";
-import type { DataType } from "../../../../core/kernel/messages";
-import { Multiselect } from "../../../../plugins/impl/MultiselectPlugin";
-import { cn } from "../../../../utils/cn";
+} from "@/features/lab/components/ui/select";
+import { Slider } from "@/features/lab/components/ui/slider";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import { Multiselect } from "@/features/lab/plugins/impl/MultiselectPlugin";
+import { cn } from "@/features/lab/utils/cn";
 import { convertDataTypeToSelectable } from "../chart-spec/types";
 import {
   AGGREGATION_TYPE_DESCRIPTIONS,

@@ -13,41 +13,41 @@ import {
   SquareMIcon,
 } from 'lucide-react';
 import { useEffect } from 'react';
-import { useOpenSettingsToTab } from '../../app-config/state';
+import { useOpenSettingsToTab } from '@/features/lab/components/app-config/state';
 import { Cell } from '../notebook-cell';
-import { SortableCellsProvider } from '../../sort/SortableCellsProvider';
-import { Button } from '../../ui/button';
-import { Tooltip } from '../../ui/tooltip';
-import { maybeAddMarimoImport } from '../../../core/cells/add-missing-import';
-import { SETUP_CELL_ID } from '../../../core/cells/ids';
-import { LanguageAdapters } from '../../../core/codemirror/language/LanguageAdapters';
-import { MARKDOWN_INITIAL_HIDE_CODE } from '../../../core/codemirror/language/languages/markdown';
-import { aiEnabledAtom } from '../../../core/config/config';
-import { canInteractWithAppAtom } from '../../../core/network/connection';
-import { useBoolean } from '../../../hooks/useBoolean';
-import { cn } from '../../../utils/cn';
-import { Functions } from '../../../utils/functions';
-import type { CellColumnId } from '../../../utils/id-tree';
-import { invariant } from '../../../utils/invariant';
+import { SortableCellsProvider } from '@/features/lab/components/sort/SortableCellsProvider';
+import { Button } from '@/features/lab/components/ui/button';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { maybeAddMarimoImport } from '@/features/lab/core/cells/add-missing-import';
+import { SETUP_CELL_ID } from '@/features/lab/core/cells/ids';
+import { LanguageAdapters } from '@/features/lab/core/codemirror/language/LanguageAdapters';
+import { MARKDOWN_INITIAL_HIDE_CODE } from '@/features/lab/core/codemirror/language/languages/markdown';
+import { aiEnabledAtom } from '@/features/lab/core/config/config';
+import { canInteractWithAppAtom } from '@/features/lab/core/network/connection';
+import { useBoolean } from '@/features/lab/hooks/useBoolean';
+import { cn } from '@/features/lab/utils/cn';
+import { Functions } from '@/features/lab/utils/functions';
+import type { CellColumnId } from '@/features/lab/utils/id-tree';
+import { invariant } from '@/features/lab/utils/invariant';
 import {
   columnIdsAtom,
   useCellActions,
   useCellIds,
   useScrollKey,
-} from '../../../core/cells/cells';
-import { formatAll } from '../../../core/codemirror/format';
-import type { AppConfig, UserConfig } from '../../../core/config/config-schema';
-import type { AppMode } from '../../../core/mode';
-import { useHotkey } from '../../../hooks/useHotkey';
-import { type Theme, useTheme } from '../../../theme/useTheme';
+} from '@/features/lab/core/cells/cells';
+import { formatAll } from '@/features/lab/core/codemirror/format';
+import type { AppConfig, UserConfig } from '@/features/lab/core/config/config-schema';
+import type { AppMode } from '@/features/lab/core/mode';
+import { useHotkey } from '@/features/lab/hooks/useHotkey';
+import { type Theme, useTheme } from '@/features/lab/theme/useTheme';
 import { AddCellWithAI } from '../ai/add-cell-with-ai';
 import { FloatingOutline } from '../chrome/panels/outline/floating-outline';
 import { useChromeActions } from '../chrome/state';
 import { Column } from '../columns/cell-column';
 import { useFocusFirstEditor } from './vertical-layout/useFocusFirstEditor';
 import { VerticalLayoutWrapper } from './vertical-layout/vertical-layout-wrapper';
-import { useLabMode } from '../../lab-mode-context';
-import { MineAddCellArea } from '../../cell/mine-add-cell-area';
+import { useLabMode } from '@/features/lab/components/lab-mode-context';
+import { MineAddCellArea } from '@/features/lab/components/cell/mine-add-cell-area';
 
 interface CellArrayProps {
   mode: AppMode;

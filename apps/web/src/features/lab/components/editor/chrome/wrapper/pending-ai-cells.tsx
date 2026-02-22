@@ -3,18 +3,18 @@
 import { useAtomValue, useStore } from "jotai";
 import { ChevronDown, ChevronUp, SparklesIcon } from "lucide-react";
 import { useState } from "react";
-import { Button } from "../../../ui/button";
-import { stagedAICellsAtom, useStagedCells } from "../../../../core/ai/staged-cells";
-import type { CellId } from "../../../../core/cells/ids";
-import { getNextIndex } from "../../../../utils/arrays";
-import { cn } from "../../../../utils/cn";
+import { Button } from "@/features/lab/components/ui/button";
+import { stagedAICellsAtom, useStagedCells } from "@/features/lab/core/ai/staged-cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { getNextIndex } from "@/features/lab/utils/arrays";
+import { cn } from "@/features/lab/utils/cn";
 import {
   AcceptCompletionButton,
   RejectCompletionButton,
-} from "../../ai/completion-handlers";
-import { acceptStagedCell, rejectStagedCell } from "../../cell/StagedAICell";
-import { useRunCells } from "../../cell/useRunCells";
-import { scrollAndHighlightCell } from "../../links/cell-link";
+} from "@/features/lab/components/editor/ai/completion-handlers";
+import { acceptStagedCell, rejectStagedCell } from "@/features/lab/components/editor/cell/StagedAICell";
+import { useRunCells } from "@/features/lab/components/editor/cell/useRunCells";
+import { scrollAndHighlightCell } from "@/features/lab/components/editor/links/cell-link";
 
 export const PendingAICells: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);

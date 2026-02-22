@@ -3,7 +3,7 @@
  *
  * Provides Marimo-compatible hooks backed by VT's Zustand stores.
  * This lets forked Marimo components work with minimal import path changes:
- *   - Replace `from "../core/cells/cells"` → `from "../../lib/marimo-compat"`
+ *   - Replace `from "../core/cells/cells"` → `from "@/features/lib/marimo-compat"`
  *   - Replace `from "../core/network/connection"` → same
  *   - Replace `useAtomValue(someAtom)` → use named hook from this module
  *

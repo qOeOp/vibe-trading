@@ -4,14 +4,14 @@ import type {
   AiModel as AiModelType,
   AiProvider,
   Role,
-} from '../../lib/marimo-team-llm-info';
+} from '@/features/lab/lib/marimo-team-llm-info';
 
 // Local stubs — empty until real @marimo-team/llm-info is available
 const models: AiModelType[] = [];
 const providers: AiProvider[] = [];
-import { Logger } from '../../utils/Logger';
-import { MultiMap } from '../../utils/multi-map';
-import { once } from '../../utils/once';
+import { Logger } from '@/features/lab/utils/Logger';
+import { MultiMap } from '@/features/lab/utils/multi-map';
+import { once } from '@/features/lab/utils/once';
 import type { ProviderId } from './ids/ids';
 import { AiModelId, type QualifiedModelId, type ShortModelId } from './ids/ids';
 

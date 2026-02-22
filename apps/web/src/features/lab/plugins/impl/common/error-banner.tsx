@@ -10,10 +10,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../../components/ui/alert-dialog";
-import { cn } from "../../../utils/cn";
-import { prettyError } from "../../../utils/errors";
-import { Logger } from "../../../utils/Logger";
+} from "@/features/lab/components/ui/alert-dialog";
+import { cn } from "@/features/lab/utils/cn";
+import { prettyError } from "@/features/lab/utils/errors";
+import { Logger } from "@/features/lab/utils/Logger";
 
 export const ErrorBanner = ({
   error,

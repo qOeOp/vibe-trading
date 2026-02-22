@@ -8,12 +8,12 @@ import {
 } from "@codemirror/autocomplete";
 import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import type { FileUIPart } from "ai";
-import { getAIContextRegistry } from "../../../core/ai/context/context";
-import { getCodes } from "../../../core/codemirror/copilot/getCodes";
-import type { LanguageAdapterType } from "../../../core/codemirror/language/types";
-import type { AiCompletionRequest } from "../../../core/network/types";
-import { store } from "../../../core/state/jotai";
-import { Logger } from "../../../utils/Logger";
+import { getAIContextRegistry } from "@/features/lab/core/ai/context/context";
+import { getCodes } from "@/features/lab/core/codemirror/copilot/getCodes";
+import type { LanguageAdapterType } from "@/features/lab/core/codemirror/language/types";
+import type { AiCompletionRequest } from "@/features/lab/core/network/types";
+import { store } from "@/features/lab/core/state/jotai";
+import { Logger } from "@/features/lab/utils/Logger";
 
 export const CONTEXT_TRIGGER = "@";
 

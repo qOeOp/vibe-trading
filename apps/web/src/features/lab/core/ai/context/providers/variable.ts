@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { Completion } from "@codemirror/autocomplete";
-import { createVariableInfoElement } from "../../../codemirror/completion/variable-completions";
-import type { DatasetTablesMap } from "../../../datasets/data-source-connections";
-import type { Variable, Variables } from "../../../variables/types";
+import { createVariableInfoElement } from "@/features/lab/core/codemirror/completion/variable-completions";
+import type { DatasetTablesMap } from "@/features/lab/core/datasets/data-source-connections";
+import type { Variable, Variables } from "@/features/lab/core/variables/types";
 import { type AIContextItem, AIContextProvider } from "../registry";
 import { contextToXml } from "../utils";
 import { Sections } from "./common";

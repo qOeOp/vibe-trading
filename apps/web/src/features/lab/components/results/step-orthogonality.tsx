@@ -11,7 +11,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import type { OrthogonalityTest } from "../../types";
+import type { OrthogonalityTest } from "@/features/lab/types";
 
 // ─── Correlation Heatmap (SVG) ──────────────────────────
 

@@ -1,12 +1,12 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { CellId } from "../../cells/ids";
+import type { CellId } from "@/features/lab/core/cells/ids";
 import type {
   CompletionConfig,
   DiagnosticsConfig,
   LSPConfig,
-} from "../../config/config-schema";
-import type { HotkeyProvider } from "../../hotkeys/hotkeys";
+} from "@/features/lab/core/config/config-schema";
+import type { HotkeyProvider } from "@/features/lab/core/hotkeys/hotkeys";
 import { singleFacet } from "../facet";
 import type { PlaceholderType } from "./types";
 

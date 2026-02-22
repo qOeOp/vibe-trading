@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 /* eslint-disable @typescript-eslint/no-redeclare */
-import { Deferred } from "../../utils/Deferred";
-import { generateUUID } from "../../utils/uuid";
-import type { TypedString } from "../../utils/typed";
+import { Deferred } from "@/features/lab/utils/Deferred";
+import { generateUUID } from "@/features/lab/utils/uuid";
+import type { TypedString } from "@/features/lab/utils/typed";
 
 export type RequestId = TypedString<"RequestId">;
 export const RequestId = {

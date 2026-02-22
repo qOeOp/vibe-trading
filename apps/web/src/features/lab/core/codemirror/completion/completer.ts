@@ -4,10 +4,10 @@ import type {
   CompletionResult,
   CompletionSource,
 } from "@codemirror/autocomplete";
-import { type CellId, HTMLCellId } from "../../cells/ids";
-import { documentationAtom } from "../../documentation/state";
-import { store } from "../../state/jotai";
-import { Logger } from "../../../utils/Logger";
+import { type CellId, HTMLCellId } from "@/features/lab/core/cells/ids";
+import { documentationAtom } from "@/features/lab/core/documentation/state";
+import { store } from "@/features/lab/core/state/jotai";
+import { Logger } from "@/features/lab/utils/Logger";
 import { AUTOCOMPLETER, Autocompleter } from "./Autocompleter";
 
 /**

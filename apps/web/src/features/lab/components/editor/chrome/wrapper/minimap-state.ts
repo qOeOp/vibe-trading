@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom } from "jotai";
-import { cellIdsAtom } from "../../../../core/cells/cells";
-import type { CellId } from "../../../../core/cells/ids";
-import { variablesAtom } from "../../../../core/variables/state";
-import type { Variable, VariableName, Variables } from "../../../../core/variables/types";
+import { cellIdsAtom } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { variablesAtom } from "@/features/lab/core/variables/state";
+import type { Variable, VariableName, Variables } from "@/features/lab/core/variables/types";
 
 export interface CellGraph {
   variables: readonly VariableName[];

@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import DOMPurify, { type Config } from "dompurify";
 import { atom, useAtomValue } from "jotai";
-import { hasRunAnyCellAtom } from "../../components/editor/cell/useRunCells";
-import { autoInstantiateAtom } from "../../core/config/config";
-import { getInitialAppMode } from "../../core/mode";
+import { hasRunAnyCellAtom } from "@/features/lab/components/editor/cell/useRunCells";
+import { autoInstantiateAtom } from "@/features/lab/core/config/config";
+import { getInitialAppMode } from "@/features/lab/core/mode";
 
 /**
  * Whether to sanitize the html.

@@ -15,7 +15,7 @@ import {
   composeRenderProps,
   Text,
 } from "react-aria-components";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 import { FieldError, fieldGroupVariants, Label } from "./field";
 
 const DateSegment = ({ className, ...props }: AriaDateSegmentProps) => {

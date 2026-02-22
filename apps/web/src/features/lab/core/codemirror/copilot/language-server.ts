@@ -15,8 +15,8 @@ import type {
   InlineCompletionParams,
 } from "vscode-languageserver-protocol";
 import { VersionedTextDocumentIdentifier } from "vscode-languageserver-protocol";
-import { store } from "../../state/jotai";
-import { Logger } from "../../../utils/Logger";
+import { store } from "@/features/lab/core/state/jotai";
+import { Logger } from "@/features/lab/utils/Logger";
 import { getCodes } from "./getCodes";
 import {
   clearGitHubCopilotLoadingVersion,

@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { createContext, use } from "react";
-import { Functions } from "../../../utils/functions";
+import { Functions } from "@/features/lab/utils/functions";
 import type { Field } from "./components/form-fields";
 import { ChartType } from "./types";
 

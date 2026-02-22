@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { HTMLProps, PropsWithChildren } from "react";
-import type { SqlOutputType } from "../../core/config/config-schema";
-import { cn } from "../../utils/cn";
+import type { SqlOutputType } from "@/features/lab/core/config/config-schema";
+import { cn } from "@/features/lab/utils/cn";
 
 export const formItemClasses = "flex flex-row items-center space-x-1 space-y-0";
 

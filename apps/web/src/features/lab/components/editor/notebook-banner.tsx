@@ -2,11 +2,11 @@
 
 import { AlertCircleIcon, RotateCcwIcon, XIcon } from "lucide-react";
 import type React from "react";
-import type { AppConfig } from "../../core/config/config-schema";
-import { useBanners, useBannersActions } from "../../core/errors/state";
-import { renderHTML } from "../../plugins/core/RenderHTML";
-import { Banner } from "../../plugins/impl/common/error-banner";
-import { cn } from "../../utils/cn";
+import type { AppConfig } from "@/features/lab/core/config/config-schema";
+import { useBanners, useBannersActions } from "@/features/lab/core/errors/state";
+import { renderHTML } from "@/features/lab/plugins/core/RenderHTML";
+import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
+import { cn } from "@/features/lab/utils/cn";
 import { Button } from "../ui/button";
 import { useRestartKernel } from "./actions/useRestartKernel";
 

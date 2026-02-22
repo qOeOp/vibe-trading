@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { LRUCache } from "../../utils/lru";
+import { LRUCache } from "@/features/lab/utils/lru";
 import type {
   DeferredRequestRegistry,
   RequestId,

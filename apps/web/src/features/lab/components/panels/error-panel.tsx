@@ -2,7 +2,7 @@
 
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLabCellStore } from "../../store/use-lab-cell-store";
+import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
 
 // ─── Error Panel ─────────────────────────────────────────
 

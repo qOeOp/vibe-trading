@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
 import type { OnChangeFn, RowData } from '@tanstack/react-table';
-import type { DataType } from '../../../core/kernel/messages';
+import type { DataType } from '@/features/lab/core/kernel/messages';
 
 // define all format options
 export const formatOptions = {

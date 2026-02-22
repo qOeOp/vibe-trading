@@ -6,10 +6,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS, type Transform } from '@dnd-kit/utilities';
 import { GripVerticalIcon } from 'lucide-react';
 import React, { memo, use } from 'react';
-import type { CellId } from '../../core/cells/ids';
-import { cn } from '../../utils/cn';
-import { Events } from '../../utils/events';
-import { mergeRefs } from '../../utils/mergeRefs';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { cn } from '@/features/lab/utils/cn';
+import { Events } from '@/features/lab/utils/events';
+import { mergeRefs } from '@/features/lab/utils/mergeRefs';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;

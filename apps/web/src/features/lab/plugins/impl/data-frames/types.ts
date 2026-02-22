@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { DataType } from "../../../core/kernel/messages";
-import { logNever } from "../../../utils/assertNever";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import { logNever } from "@/features/lab/utils/assertNever";
 
 /**
  * Strongly typed string/number

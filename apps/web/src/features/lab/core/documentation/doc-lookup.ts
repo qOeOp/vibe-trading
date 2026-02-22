@@ -3,7 +3,7 @@
 import { getCells } from '../cells/cells';
 import { AUTOCOMPLETER } from '../codemirror/completion/Autocompleter';
 import { store } from '../state/jotai';
-import { Logger } from '../../utils/Logger';
+import { Logger } from '@/features/lab/utils/Logger';
 import { documentationAtom } from './state';
 
 /**

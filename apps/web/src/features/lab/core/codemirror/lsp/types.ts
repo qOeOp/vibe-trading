@@ -2,9 +2,9 @@
 
 import type { LanguageServerClient } from "@marimo-team/codemirror-languageserver";
 import type { DocumentUri } from "vscode-languageserver-protocol";
-import type { CellId } from "../../cells/ids";
-import { invariant } from "../../../utils/invariant";
-import type { TypedString } from "../../../utils/typed";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { invariant } from "@/features/lab/utils/invariant";
+import type { TypedString } from "@/features/lab/utils/typed";
 
 export type ILanguageServerClient = {
   [key in keyof LanguageServerClient]: LanguageServerClient[key];

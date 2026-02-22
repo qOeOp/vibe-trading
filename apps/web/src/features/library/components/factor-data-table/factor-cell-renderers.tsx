@@ -19,13 +19,13 @@ import {
   Pen,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Factor } from "../../types";
-import { SOURCE_LABELS } from "../../types";
+import type { Factor } from "@/features/library/types";
+import { SOURCE_LABELS } from "@/features/library/types";
 import type {
   FactorCategory,
   FactorLifecycleStatus,
   FactorSource,
-} from "../../types";
+} from "@/features/library/types";
 
 // ─── Name Cell ──────────────────────────────────────────
 

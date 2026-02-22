@@ -23,9 +23,9 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "../ui/dropdown-menu";
-import type { DataType } from "../../core/kernel/messages";
-import { cn } from "../../utils/cn";
-import { copyToClipboard } from "../../utils/copy";
+import type { DataType } from "@/features/lab/core/kernel/messages";
+import { cn } from "@/features/lab/utils/cn";
+import { copyToClipboard } from "@/features/lab/utils/copy";
 import { DATA_TYPE_ICON } from "../datasets/icons";
 import { Button } from "../ui/button";
 import { formattingExample } from "./column-formatting/feature";

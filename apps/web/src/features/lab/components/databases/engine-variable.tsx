@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { getCellEditorView } from "../../core/cells/cells";
-import type { CellId } from "../../core/cells/ids";
-import { goToVariableDefinition } from "../../core/codemirror/go-to-definition/commands";
-import { store } from "../../core/state/jotai";
-import { variablesAtom } from "../../core/variables/state";
-import type { VariableName } from "../../core/variables/types";
-import { cn } from "../../utils/cn";
+import { getCellEditorView } from "@/features/lab/core/cells/cells";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { goToVariableDefinition } from "@/features/lab/core/codemirror/go-to-definition/commands";
+import { store } from "@/features/lab/core/state/jotai";
+import { variablesAtom } from "@/features/lab/core/variables/state";
+import type { VariableName } from "@/features/lab/core/variables/types";
+import { cn } from "@/features/lab/utils/cn";
 
 interface Props {
   variableName: VariableName;

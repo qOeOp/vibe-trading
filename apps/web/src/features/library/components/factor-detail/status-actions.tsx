@@ -3,10 +3,10 @@
 import { useState, useCallback } from "react";
 import { ArrowRight } from "lucide-react";
 import { DetailSection } from "@/components/shared/detail-panel";
-import { useLibraryStore } from "../../store/use-library-store";
+import { useLibraryStore } from "@/features/library/store/use-library-store";
 import { StatusChangeDialog } from "../status-change-dialog";
-import type { Factor, FactorLifecycleStatus } from "../../types";
-import { VALID_STATUS_TRANSITIONS, STATUS_COLORS, STATUS_LABELS } from "../../types";
+import type { Factor, FactorLifecycleStatus } from "@/features/library/types";
+import { VALID_STATUS_TRANSITIONS, STATUS_COLORS, STATUS_LABELS } from "@/features/library/types";
 
 interface StatusActionsSectionProps {
   factor: Factor;

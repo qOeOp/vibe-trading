@@ -2,7 +2,7 @@
 
 import { useAtomValue } from "jotai";
 import React from "react";
-import { kioskModeAtom } from "../../core/mode";
+import { kioskModeAtom } from "@/features/lab/core/mode";
 
 interface Props {
   children: React.ReactNode;

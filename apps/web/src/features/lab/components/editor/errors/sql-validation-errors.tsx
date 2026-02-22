@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { AlertCircleIcon } from "lucide-react";
-import type { CellId } from "../../../core/cells/ids";
-import { useSqlValidationErrorsForCell } from "../../../core/codemirror/language/languages/sql/banner-validation-errors";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { useSqlValidationErrorsForCell } from "@/features/lab/core/codemirror/language/languages/sql/banner-validation-errors";
 
 export const SqlValidationErrorBanner = ({
   cellId,

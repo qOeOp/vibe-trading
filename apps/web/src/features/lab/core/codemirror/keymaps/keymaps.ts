@@ -14,10 +14,10 @@ import {
   keymap,
 } from "@codemirror/view";
 import { getCM, vim } from "@replit/codemirror-vim";
-import type { KeymapConfig } from "../../config/config-schema";
-import type { HotkeyProvider } from "../../hotkeys/hotkeys";
-import { logNever } from "../../../utils/assertNever";
-import { once } from "../../../utils/once";
+import type { KeymapConfig } from "@/features/lab/core/config/config-schema";
+import type { HotkeyProvider } from "@/features/lab/core/hotkeys/hotkeys";
+import { logNever } from "@/features/lab/utils/assertNever";
+import { once } from "@/features/lab/utils/once";
 import { cellActionsState } from "../cells/state";
 import { vimKeymapExtension } from "./vim";
 

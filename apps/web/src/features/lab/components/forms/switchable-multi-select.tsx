@@ -2,7 +2,7 @@
 
 import { EditIcon } from "lucide-react";
 import React, { useState } from "react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 import { Combobox, ComboboxItem } from "../ui/combobox";
 import { Textarea } from "../ui/textarea";
 import { Toggle } from "../ui/toggle";

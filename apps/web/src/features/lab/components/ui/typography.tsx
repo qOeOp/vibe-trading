@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import * as React from "react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/features/lab/utils/cn";
 
 const H1 = React.forwardRef<
   HTMLHeadingElement,

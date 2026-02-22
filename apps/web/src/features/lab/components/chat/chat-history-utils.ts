@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { Chat } from "../../core/ai/state";
+import type { Chat } from "@/features/lab/core/ai/state";
 
 const DATE_GROUP_CONFIG = [
   { label: "Today", days: 0 },

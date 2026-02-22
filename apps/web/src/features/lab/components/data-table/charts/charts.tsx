@@ -16,17 +16,17 @@ import type { JSX } from 'react';
 import React, { useMemo, useState } from 'react';
 import { type UseFormReturn, useForm } from 'react-hook-form';
 import useResizeObserver from 'use-resize-observer';
-import { PythonIcon } from '../../editor/cell/code/icons';
-import { Alert, AlertDescription } from '../../ui/alert';
-import { Button } from '../../ui/button';
-import { Form } from '../../ui/form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
-import type { CellId } from '../../../core/cells/ids';
-import { useAsyncData } from '../../../hooks/useAsyncData';
-import { useDebouncedCallback } from '../../../hooks/useDebounce';
-import type { GetDataUrl } from '../../../plugins/impl/DataTablePlugin';
-import { vegaLoadData } from '../../../plugins/impl/vega/loader';
-import { useTheme } from '../../../theme/useTheme';
+import { PythonIcon } from '@/features/lab/components/editor/cell/code/icons';
+import { Alert, AlertDescription } from '@/features/lab/components/ui/alert';
+import { Button } from '@/features/lab/components/ui/button';
+import { Form } from '@/features/lab/components/ui/form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/lab/components/ui/tabs';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { useDebouncedCallback } from '@/features/lab/hooks/useDebounce';
+import type { GetDataUrl } from '@/features/lab/plugins/impl/DataTablePlugin';
+import { vegaLoadData } from '@/features/lab/plugins/impl/vega/loader';
+import { useTheme } from '@/features/lab/theme/useTheme';
 import { inferFieldTypes } from '../columns';
 import {
   type FieldTypesWithExternalType,

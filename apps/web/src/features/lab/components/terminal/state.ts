@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import { createReducerAndAtoms } from "../../utils/createReducer";
-import { generateUUID } from "../../utils/uuid";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
+import { generateUUID } from "@/features/lab/utils/uuid";
 
 export interface TerminalCommand {
   id: string;

@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { describe, expect, it } from "vitest";
-import type { VegaLiteSpec } from "../../../../plugins/impl/vega/types";
+import type { VegaLiteSpec } from "@/features/lab/plugins/impl/vega/types";
 import {
   generateAltairChart,
   generateAltairChartSnippet,

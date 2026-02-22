@@ -8,7 +8,7 @@ import type {
 } from "@tanstack/react-table";
 import { XIcon } from "lucide-react";
 import { type DateFormatter, useDateFormatter } from "react-aria";
-import { logNever } from "../../utils/assertNever";
+import { logNever } from "@/features/lab/utils/assertNever";
 import { Badge } from "../ui/badge";
 import type { ColumnFilterValue } from "./filters";
 import { stringifyUnknownValue } from "./utils";

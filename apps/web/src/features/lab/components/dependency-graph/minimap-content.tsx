@@ -12,11 +12,11 @@ import {
   useCellData,
   useCellIds,
   useCellRuntime,
-} from "../../core/cells/cells";
-import { cellFocusAtom, useCellFocusActions } from "../../core/cells/focus";
-import type { CellId } from "../../core/cells/ids";
-import { useVariables } from "../../core/variables/state";
-import { cn } from "../../utils/cn";
+} from "@/features/lab/core/cells/cells";
+import { cellFocusAtom, useCellFocusActions } from "@/features/lab/core/cells/focus";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { useVariables } from "@/features/lab/core/variables/state";
+import { cn } from "@/features/lab/utils/cn";
 
 interface MinimapCellProps {
   cellId: CellId;

@@ -1,8 +1,8 @@
 import { cva } from "class-variance-authority";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { transition } from "../../animations";
-import type { TEventColor } from "../../types";
+import { transition } from "@/features/journal/calendar/animations";
+import type { TEventColor } from "@/features/journal/calendar/types";
 
 const eventBulletVariants = cva("size-2 rounded-full", {
   variants: {

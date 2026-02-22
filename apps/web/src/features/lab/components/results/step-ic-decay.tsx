@@ -9,7 +9,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import type { ICDecay } from "../../types";
+import type { ICDecay } from "@/features/lab/types";
 
 // ─── IC Decay Chart (SVG) ───────────────────────────────
 

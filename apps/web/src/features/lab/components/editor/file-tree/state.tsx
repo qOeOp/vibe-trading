@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom } from "jotai";
-import { requestClientAtom } from "../../../core/network/requests";
-import { store } from "../../../core/state/jotai";
-import { invariant } from "../../../utils/invariant";
+import { requestClientAtom } from "@/features/lab/core/network/requests";
+import { store } from "@/features/lab/core/state/jotai";
+import { invariant } from "@/features/lab/utils/invariant";
 import { RequestingTree } from "./requesting-tree";
 
 // State lives outside of the component

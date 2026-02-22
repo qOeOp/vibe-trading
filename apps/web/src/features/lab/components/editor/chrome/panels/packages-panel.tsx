@@ -7,9 +7,9 @@ import {
   HelpCircleIcon,
 } from "lucide-react";
 import React from "react";
-import { useOpenSettingsToTab } from "../../../app-config/state";
-import { Spinner } from "../../../icons/spinner";
-import { SearchInput } from "../../../ui/input";
+import { useOpenSettingsToTab } from "@/features/lab/components/app-config/state";
+import { Spinner } from "@/features/lab/components/icons/spinner";
+import { SearchInput } from "@/features/lab/components/ui/input";
 import {
   Table,
   TableBody,
@@ -17,24 +17,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../ui/table";
-import { Tooltip } from "../../../ui/tooltip";
-import { toast } from "../../../ui/use-toast";
-import { useResolvedMarimoConfig } from "../../../../core/config/config";
-import { useRequestClient } from "../../../../core/network/requests";
-import type { DependencyTreeNode } from "../../../../core/network/types";
-import { stripPackageManagerPrefix } from "../../../../core/packages/package-input-utils";
+} from "@/features/lab/components/ui/table";
+import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { toast } from "@/features/lab/components/ui/use-toast";
+import { useResolvedMarimoConfig } from "@/features/lab/core/config/config";
+import { useRequestClient } from "@/features/lab/core/network/requests";
+import type { DependencyTreeNode } from "@/features/lab/core/network/types";
+import { stripPackageManagerPrefix } from "@/features/lab/core/packages/package-input-utils";
 import {
   showRemovePackageToast,
   showUpgradePackageToast,
-} from "../../../../core/packages/toast-components";
-import { useInstallPackages } from "../../../../core/packages/useInstallPackage";
-import { isWasm } from "../../../../core/wasm/utils";
-import { useAsyncData } from "../../../../hooks/useAsyncData";
-import { ErrorBanner } from "../../../../plugins/impl/common/error-banner";
-import { cn } from "../../../../utils/cn";
-import { copyToClipboard } from "../../../../utils/copy";
-import { Events } from "../../../../utils/events";
+} from "@/features/lab/core/packages/toast-components";
+import { useInstallPackages } from "@/features/lab/core/packages/useInstallPackage";
+import { isWasm } from "@/features/lab/core/wasm/utils";
+import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
+import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
+import { cn } from "@/features/lab/utils/cn";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { Events } from "@/features/lab/utils/events";
 import { PanelEmptyState } from "./empty-state";
 import { PACKAGES_INPUT_ID, packagesToInstallAtom } from "./packages-utils";
 

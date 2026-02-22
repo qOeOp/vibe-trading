@@ -2,8 +2,8 @@
 
 import type { Cell, Table } from "@tanstack/react-table";
 import { atom } from "jotai";
-import { copyToClipboard } from "../../../utils/copy";
-import { createReducerAndAtoms } from "../../../utils/createReducer";
+import { copyToClipboard } from "@/features/lab/utils/copy";
+import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
 import { getCellsBetween, getCellValues } from "./utils";
 
 export interface SelectedCell {

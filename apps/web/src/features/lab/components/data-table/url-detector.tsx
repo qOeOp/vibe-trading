@@ -8,8 +8,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../ui/popover";
-import { Events } from "../../utils/events";
-import type { ContentPart } from "../../utils/url-parser";
+import { Events } from "@/features/lab/utils/events";
+import type { ContentPart } from "@/features/lab/utils/url-parser";
 
 const ImageWithFallback = ({ url }: { url: string }) => {
   const [error, setError] = useState(false);

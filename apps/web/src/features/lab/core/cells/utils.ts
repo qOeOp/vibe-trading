@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type { EditorView } from "@codemirror/view";
-import { Objects } from "../../utils/objects";
+import { Objects } from "@/features/lab/utils/objects";
 import type { RuntimeState } from "../network/types";
 import type { NotebookState } from "./cells";
 import type { CellId } from "./ids";

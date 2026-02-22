@@ -11,11 +11,11 @@ import {
 } from "lucide-react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import type { Factor, FactorLifecycleStatus } from "../../types";
-import { useLibraryStore } from "../../store/use-library-store";
+import type { Factor, FactorLifecycleStatus } from "@/features/library/types";
+import { useLibraryStore } from "@/features/library/store/use-library-store";
 import { StatusChangeDialog } from "../status-change-dialog";
 import { ComparisonPanel } from "../comparison-panel";
-import { exportAsCSV, exportAsJSON } from "../../utils/export-factors";
+import { exportAsCSV, exportAsJSON } from "@/features/library/utils/export-factors";
 import { NameCell } from "./factor-cell-renderers";
 import { TypeIconCell } from "./factor-columns";
 import { FactorActionsCell } from "./factor-actions-cell";

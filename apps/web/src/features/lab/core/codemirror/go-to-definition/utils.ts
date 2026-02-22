@@ -3,11 +3,11 @@
 import { closeCompletion } from "@codemirror/autocomplete";
 import type { EditorState } from "@codemirror/state";
 import { closeHoverTooltips, type EditorView } from "@codemirror/view";
-import type { CellId } from "../../cells/ids";
-import { notebookAtom } from "../../cells/cells";
-import { store } from "../../state/jotai";
-import { variablesAtom } from "../../variables/state";
-import type { VariableName, Variables } from "../../variables/types";
+import type { CellId } from "@/features/lab/core/cells/ids";
+import { notebookAtom } from "@/features/lab/core/cells/cells";
+import { store } from "@/features/lab/core/state/jotai";
+import { variablesAtom } from "@/features/lab/core/variables/state";
+import type { VariableName, Variables } from "@/features/lab/core/variables/types";
 import { getPositionAtWordBounds } from "../completion/hints";
 import { goToLine, goToVariableDefinition } from "./commands";
 

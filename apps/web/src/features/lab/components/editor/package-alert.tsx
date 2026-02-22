@@ -28,22 +28,22 @@ import {
   isMissingPackageAlert,
   useAlertActions,
   useAlerts,
-} from '../../core/alerts/state';
-import { useResolvedMarimoConfig } from '../../core/config/config';
-import type { PackageInstallationStatus } from '../../core/kernel/messages';
-import { useRequestClient } from '../../core/network/requests';
-import { isWasm } from '../../core/wasm/utils';
-import { usePackageMetadata } from '../../hooks/usePackageMetadata';
-import { Banner } from '../../plugins/impl/common/error-banner';
-import { logNever } from '../../utils/assertNever';
-import { cn } from '../../utils/cn';
-import { Logger } from '../../utils/Logger';
+} from '@/features/lab/core/alerts/state';
+import { useResolvedMarimoConfig } from '@/features/lab/core/config/config';
+import type { PackageInstallationStatus } from '@/features/lab/core/kernel/messages';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { usePackageMetadata } from '@/features/lab/hooks/usePackageMetadata';
+import { Banner } from '@/features/lab/plugins/impl/common/error-banner';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { cn } from '@/features/lab/utils/cn';
+import { Logger } from '@/features/lab/utils/Logger';
 import {
   type PackageManagerName,
   PackageManagerNames,
   type UserConfig,
   UserConfigSchema,
-} from '../../core/config/config-schema';
+} from '@/features/lab/core/config/config-schema';
 import { getDirtyValues } from '../app-config/user-config-form';
 import { Button } from '../ui/button';
 import {

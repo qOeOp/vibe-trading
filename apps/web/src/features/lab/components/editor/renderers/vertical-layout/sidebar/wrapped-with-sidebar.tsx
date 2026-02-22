@@ -3,7 +3,7 @@
 import { useSlot } from "@marimo-team/react-slotz";
 import { useAtom } from "jotai";
 import type React from "react";
-import { SlotNames } from "../../../../../core/slots/slots";
+import { SlotNames } from "@/features/lab/core/slots/slots";
 import { SheetMenu } from "./sheet-sidebar";
 import { Sidebar } from "./sidebar";
 import { normalizeWidth, sidebarAtom } from "./state";
