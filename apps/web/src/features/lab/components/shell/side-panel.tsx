@@ -30,11 +30,7 @@ const LazyErrorsPanel = lazy(
 const LazyValidationPanel = lazy(
   () => import('../editor/chrome/panels/validation-panel'),
 );
-const LazySystemStatusPanel = lazy(() =>
-  import('./panels/system-status-panel').then((m) => ({
-    default: m.SystemStatusPanel,
-  })),
-);
+// SystemStatusPanel removed — CPU/memory moved to ActivityBar
 
 // ─── Disconnected-mode lite panel lazy imports ──────────
 
@@ -48,11 +44,7 @@ const LiteErrorPanel = lazy(() =>
     default: m.ErrorPanel,
   })),
 );
-const LiteSystemStatusPanel = lazy(() =>
-  import('./panels/system-status-panel').then((m) => ({
-    default: m.SystemStatusPanelLite,
-  })),
-);
+// LiteSystemStatusPanel removed — CPU/memory moved to ActivityBar
 
 // ─── Marimo panel IDs that have real implementations ────
 
@@ -62,7 +54,6 @@ const MARIMO_PANEL_IDS = new Set([
   'snippets',
   'errors',
   'validation',
-  'system-status',
 ]);
 
 // ─── Panel Content Routers ──────────────────────────────
@@ -97,8 +88,6 @@ function ConnectedPanelRouter({ panelId }: { panelId: string }) {
       return <LazyErrorsPanel />;
     case 'validation':
       return <LazyValidationPanel />;
-    case 'system-status':
-      return <LazySystemStatusPanel />;
     default:
       return null;
   }
@@ -110,8 +99,6 @@ function DisconnectedPanelContent({ panelId }: { panelId: string }) {
       return <LiteVariablePanel />;
     case 'errors':
       return <LiteErrorPanel />;
-    case 'system-status':
-      return <LiteSystemStatusPanel />;
     default:
       return <PlaceholderPanel panelId={panelId} />;
   }

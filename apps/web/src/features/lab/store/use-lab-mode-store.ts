@@ -19,6 +19,11 @@ interface LabModeState {
   /** Bridged jotai actions for ChromeHeader */
   actions: BridgedActions;
   setActions: (actions: Partial<BridgedActions>) => void;
+  /** Fixed workspace path (e.g. /Users/vx/.vt-lab), set during bootstrap */
+  workspacePath: string;
+  /** Notebook path opened on connect */
+  notebookPath: string;
+  setWorkspace: (workspacePath: string, notebookPath: string) => void;
 }
 
 export const useLabModeStore = create<LabModeState>((set) => ({
@@ -29,4 +34,8 @@ export const useLabModeStore = create<LabModeState>((set) => ({
   actions: { runAll: null, openSettings: null },
   setActions: (actions) =>
     set((s) => ({ actions: { ...s.actions, ...actions } })),
+  workspacePath: '',
+  notebookPath: '',
+  setWorkspace: (workspacePath, notebookPath) =>
+    set({ workspacePath, notebookPath }),
 }));

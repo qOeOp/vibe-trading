@@ -4,9 +4,10 @@ import {
   type PropsWithChildren,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { Provider } from 'jotai';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { LabModeContext } from '../lab-mode-context';
@@ -15,8 +16,9 @@ import { useLabFileTabStore } from '../../store/use-lab-file-tab-store';
 import { MineFileTree } from './mine-file-tree';
 import { MineTabBar } from './mine-tab-bar';
 import { FileEditor } from './file-editor';
-import { Footer } from '../editor/chrome/wrapper/footer';
-import { treeAtom } from '../editor/file-tree/state';
+// Footer dock removed — CPU/memory stats moved to ActivityBar
+import { requestClientAtom } from '../../core/network/requests';
+import { RequestingTree } from '../editor/file-tree/requesting-tree';
 import { filenameAtom } from '../../core/saving/file-state';
 import { store } from '../../core/state/jotai';
 import { ErrorBoundary } from '../editor/boundary/ErrorBoundary';
@@ -42,54 +44,67 @@ function fileInfoToTreeElements(files: FileInfo[]): TreeViewElement[] {
   });
 }
 
-/** Fetches real file tree from marimo kernel via treeAtom */
+/**
+ * Fetches file tree from marimo kernel, rooted at the VT workspace path.
+ * Builds its own RequestingTree with a patched listFiles callback that
+ * redirects the initial empty-path request to the workspace directory.
+ */
 function useMarimoFileTree() {
-  const [tree] = useAtom(treeAtom);
+  const client = useAtomValue(requestClientAtom);
+  const workspacePath = useLabModeStore((s) => s.workspacePath);
   const [files, setFiles] = useState<TreeViewElement[] | null>(null);
+  const treeRef = useRef<RequestingTree | null>(null);
 
   useEffect(() => {
+    if (!client) return;
+
     let cancelled = false;
+
+    const tree = new RequestingTree({
+      listFiles: (req) => {
+        const resolvedPath =
+          !req.path && workspacePath ? workspacePath : req.path;
+        return client.sendListFiles({ ...req, path: resolvedPath });
+      },
+      createFileOrFolder: client.sendCreateFileOrFolder,
+      deleteFileOrFolder: client.sendDeleteFileOrFolder,
+      renameFileOrFolder: client.sendRenameFileOrFolder,
+    });
+    treeRef.current = tree;
+
     tree.initialize((data: FileInfo[]) => {
       if (!cancelled) {
         setFiles(fileInfoToTreeElements(data));
       }
     });
+
     return () => {
       cancelled = true;
     };
-  }, [tree]);
+  }, [client, workspacePath]);
 
-  // Lazy-load directory contents when folder is expanded.
-  // RequestingTree.expand() fetches children from kernel and calls onChange
-  // which triggers setFiles. As a safety net, we also read the tree data
-  // directly after expand to ensure React state is in sync.
-  const expandFolder = useCallback(
-    async (id: string) => {
-      const result = await tree.expand(id);
-      if (result) {
-        // Directly read tree data and update state, in case the onChange
-        // callback was stale or cancelled by a concurrent effect cleanup
-        setFiles(fileInfoToTreeElements(tree.getData()));
-      }
-    },
-    [tree],
-  );
+  const expandFolder = useCallback(async (id: string) => {
+    const tree = treeRef.current;
+    if (!tree) return;
+    const result = await tree.expand(id);
+    if (result) {
+      setFiles(fileInfoToTreeElements(tree.getData()));
+    }
+  }, []);
 
   return { files, expandFolder };
 }
 
-const DEFAULT_NOTEBOOK = '/tmp/vt-lab.py';
-
-/** Initialize notebook tab from marimo's filenameAtom (with fallback) */
+/** Initialize notebook tab from marimo's filenameAtom (with fallback to store path) */
 function useInitNotebookTab() {
   const filename = useAtomValue(filenameAtom);
+  const notebookPath = useLabModeStore((s) => s.notebookPath);
   const initNotebookTab = useLabFileTabStore((s) => s.initNotebookTab);
 
   useEffect(() => {
-    // Use real filename if available, otherwise fall back to default
-    const path = filename || DEFAULT_NOTEBOOK;
+    const path = filename || notebookPath || '/tmp/vt-lab.py';
     initNotebookTab(path);
-  }, [filename, initNotebookTab]);
+  }, [filename, notebookPath, initNotebookTab]);
 }
 
 function MineAppChrome({ children }: PropsWithChildren) {
@@ -108,7 +123,7 @@ function MineAppChrome({ children }: PropsWithChildren) {
     <LabModeContext.Provider value={{ isLabMode: true, onExit: null }}>
       <div
         data-slot="mine-app-chrome"
-        className="relative flex-1 flex overflow-hidden h-full"
+        className="relative flex-1 flex gap-2 overflow-hidden h-full"
       >
         {/* Column 1: File tree (toggle via chrome header Menu) */}
         {fileTreeVisible && (
@@ -119,21 +134,20 @@ function MineAppChrome({ children }: PropsWithChildren) {
         )}
 
         {/* Column 2: Editor (tabs + content) */}
-        <div className="flex-1 min-w-0 flex flex-col ml-2 gap-2 overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
           <MineTabBar />
 
           {isNotebookTab ? (
             /* Notebook tab: marimo EditApp renders real cells from kernel */
             <div
               data-slot="lab-fullscreen"
-              className="relative flex-1 min-h-0 overflow-y-auto rounded-lg"
+              className="relative flex-1 min-h-0 mt-1 overflow-y-auto rounded-lg"
             >
               {children}
-              <div data-slot="editor-progressive-blur" />
             </div>
           ) : (
             /* File tab: single-file CodeMirror editor with auto-save */
-            <div className="relative flex-1 min-h-0 overflow-hidden rounded-lg bg-white shadow-sm">
+            <div className="relative flex-1 min-h-0 mt-1 overflow-hidden rounded-lg bg-white shadow-sm">
               <Provider store={store}>
                 <TooltipProvider>
                   <ErrorBoundary>
@@ -143,11 +157,6 @@ function MineAppChrome({ children }: PropsWithChildren) {
               </Provider>
             </div>
           )}
-        </div>
-
-        {/* Floating dock at bottom center */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
-          <Footer />
         </div>
       </div>
     </LabModeContext.Provider>

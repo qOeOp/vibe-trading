@@ -12,8 +12,6 @@ import {
   Package,
   Database,
   AlertCircle,
-  // System
-  Activity,
   // Footer
   MoreHorizontal,
 } from 'lucide-react';
@@ -72,15 +70,6 @@ const PANEL_ITEMS: PanelDef[] = [
   // ── Marimo developer panels ──
   { id: 'errors', icon: AlertCircle, label: '错误', width: 300, group: 'dev' },
   { id: 'validation', icon: FlaskConical, label: '因子验证', width: 340 },
-
-  // ── System status ──
-  {
-    id: 'system-status',
-    icon: Activity,
-    label: '系统状态',
-    width: 300,
-    group: 'dev',
-  },
 ];
 
 // ─── Activity Bar ─────────────────────────────────────────
@@ -96,14 +85,15 @@ function ActivityBar({
   onPanelToggle,
   className,
   ...props
-}: ActivityBarProps & React.ComponentProps<'div'>) {
+}: ActivityBarProps &
+  Omit<React.ComponentProps<'div'>, keyof ActivityBarProps>) {
   let lastGroup: string | undefined;
 
   return (
     <div
       data-slot="activity-bar"
       className={cn(
-        'shrink-0 flex flex-col items-center pt-0 pb-3 gap-2 px-[9px]',
+        'shrink-0 flex flex-col items-center pt-0 pb-2 gap-2',
         className,
       )}
       {...props}
@@ -154,7 +144,11 @@ function ActivityBar({
           </div>
         );
       })}
+
+      {/* Spacer */}
       <div className="flex-1" />
+
+      {/* More options */}
       <button
         className="w-[36px] h-[36px] flex items-center justify-center rounded-[9px] bg-white text-mine-text relative hover:scale-105 transition-transform"
         style={{ boxShadow: BUTTON_SHADOW }}
