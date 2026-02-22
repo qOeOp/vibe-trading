@@ -1,123 +1,94 @@
 'use client';
 
-import { Folder, FileText, ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Tree,
+  Folder,
+  File,
+  type TreeViewElement,
+} from '@/components/ui/file-tree';
 
 // ─── Mine File Tree ──────────────────────────────────────
 //
-// Decorative file tree panel shared between static (disconnected)
-// and live (connected) states.  Same component — same pixels.
-//
-// Phase 3+: will accept real file list from marimo kernel.
+// Uses Magic UI file-tree for expand/collapse animation.
+// Accepts TreeViewElement[] from marimo kernel (connected)
+// or falls back to DEFAULT_ELEMENTS (disconnected).
 
-type FileEntry = {
-  name: string;
-  type: 'file' | 'folder';
-  /** Folder expanded? (only for type='folder') */
-  expanded?: boolean;
-  /** Folder icon accent color */
-  iconColor?: string;
-  /** Nested children (only for type='folder') */
-  children?: FileEntry[];
-  /** Whether this file is currently selected/active */
-  active?: boolean;
-};
-
-const DEFAULT_FILES: FileEntry[] = [
-  { name: 'cache', type: 'folder', expanded: false },
+const DEFAULT_ELEMENTS: TreeViewElement[] = [
+  { id: 'cache', name: 'cache', children: [] },
   {
+    id: 'strategies',
     name: 'strategies',
-    type: 'folder',
-    expanded: true,
-    iconColor: '#d4a853',
     children: [
-      { name: 'momentum.py', type: 'file' },
-      { name: 'mean_revert.py', type: 'file' },
-      { name: 'pairs.py', type: 'file' },
+      { id: 'momentum.py', name: 'momentum.py' },
+      { id: 'mean_revert.py', name: 'mean_revert.py' },
+      { id: 'pairs.py', name: 'pairs.py' },
     ],
   },
-  { name: 'data', type: 'folder', expanded: false },
-  { name: 'vt-lab.py', type: 'file', active: true },
-  { name: 'config.toml', type: 'file' },
-  { name: 'requirements.txt', type: 'file' },
-  { name: 'backtest_result.json', type: 'file' },
+  { id: 'data', name: 'data', children: [] },
+  { id: 'vt-lab.py', name: 'vt-lab.py' },
+  { id: 'config.toml', name: 'config.toml' },
+  { id: 'requirements.txt', name: 'requirements.txt' },
+  { id: 'backtest_result.json', name: 'backtest_result.json' },
 ];
 
 type MineFileTreeProps = {
-  files?: FileEntry[];
+  files?: TreeViewElement[];
   className?: string;
 };
 
-function MineFileTree({ files = DEFAULT_FILES, className }: MineFileTreeProps) {
+/** Recursive renderer: TreeViewElement[] → Folder/File JSX */
+function renderElements(elements: TreeViewElement[]) {
+  return elements.map((el) => {
+    if (el.children && el.children.length >= 0 && Array.isArray(el.children)) {
+      return (
+        <Folder
+          key={el.id}
+          element={el.name}
+          value={el.id}
+          className="text-[13px] font-mono"
+        >
+          {el.children.length > 0 && renderElements(el.children)}
+        </Folder>
+      );
+    }
+    return (
+      <File key={el.id} value={el.id}>
+        <span>{el.name}</span>
+      </File>
+    );
+  });
+}
+
+function MineFileTree({
+  files = DEFAULT_ELEMENTS,
+  className,
+}: MineFileTreeProps) {
   return (
     <div
       data-slot="mine-file-tree"
       className={cn(
-        'w-[240px] shrink-0 flex flex-col bg-white rounded-lg overflow-hidden shadow-sm',
+        'w-[280px] shrink-0 flex flex-col bg-white rounded-lg overflow-hidden shadow-sm',
         className,
       )}
     >
       <div className="flex items-center px-3 py-2 border-b border-mine-border/30">
-        <span className="text-[11px] font-semibold text-[#737373] uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-mine-muted uppercase tracking-wider">
           Files
         </span>
       </div>
-      <div className="flex-1 overflow-y-auto py-2 text-[13px] text-[#525252]">
-        {files.map((entry) => (
-          <FileTreeEntry key={entry.name} entry={entry} depth={0} />
-        ))}
+      <div className="flex-1 overflow-hidden text-[13px] font-mono text-mine-text">
+        <Tree
+          initialSelectedId="vt-lab.py"
+          initialExpandedItems={['strategies']}
+          elements={files}
+          className="py-1"
+        >
+          {renderElements(files)}
+        </Tree>
       </div>
     </div>
   );
 }
 
-// ─── Recursive Entry ─────────────────────────────────────
-
-function FileTreeEntry({ entry, depth }: { entry: FileEntry; depth: number }) {
-  if (entry.type === 'folder') {
-    return (
-      <>
-        <div
-          className="flex items-center gap-1.5 px-3 py-1 hover:bg-[#f5f5f5] cursor-pointer"
-          style={{ paddingLeft: `${12 + depth * 20}px` }}
-        >
-          {entry.expanded ? (
-            <ChevronDown className="w-3 h-3 text-[#a3a3a3]" strokeWidth={1.5} />
-          ) : (
-            <ChevronRight
-              className="w-3 h-3 text-[#a3a3a3]"
-              strokeWidth={1.5}
-            />
-          )}
-          <Folder
-            className="w-3.5 h-3.5"
-            style={{ color: entry.iconColor ?? '#a3a3a3' }}
-            strokeWidth={1.5}
-          />
-          <span>{entry.name}</span>
-        </div>
-        {entry.expanded &&
-          entry.children?.map((child) => (
-            <FileTreeEntry key={child.name} entry={child} depth={depth + 1} />
-          ))}
-      </>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        'flex items-center gap-1.5 px-3 py-1 hover:bg-[#f5f5f5] cursor-pointer',
-        entry.active && 'bg-[#f05023]/[0.06]',
-      )}
-      style={{ paddingLeft: `${12 + depth * 20}px` }}
-    >
-      {/* Spacer for chevron alignment (only at depth 0) */}
-      {depth === 0 && <div className="w-3 h-3" />}
-      <FileText className="w-3.5 h-3.5 text-[#a3a3a3]" strokeWidth={1.5} />
-      <span className="font-mono text-[12px]">{entry.name}</span>
-    </div>
-  );
-}
-
-export { MineFileTree, type FileEntry };
+export { MineFileTree, DEFAULT_ELEMENTS, type MineFileTreeProps };

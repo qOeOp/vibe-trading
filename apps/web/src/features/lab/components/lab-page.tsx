@@ -47,6 +47,8 @@ import { MineCell } from './shell/mine-cell';
 import { MineCodeEditor } from './shell/mine-code-editor';
 import { MineFileTree } from './shell/mine-file-tree';
 import { MineTabBar } from './shell/mine-tab-bar';
+import { useRunAllCells } from './editor/cell/useRunCells';
+import { useChromeActions } from './editor/chrome/state';
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -138,10 +140,12 @@ mo.ui.table(df.head())`;
 
 /** Static IDE content — shown when disconnected */
 function StaticIDEBody() {
+  const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
+
   return (
     <>
-      {/* Column 1: File tree */}
-      <MineFileTree />
+      {/* Column 1: File tree (toggle via chrome header Menu) */}
+      {fileTreeVisible && <MineFileTree />}
 
       {/* Column 2: Editor (tabs + cells) */}
       <div className="flex-1 min-w-0 flex flex-col ml-2 gap-2 overflow-y-auto">
@@ -166,6 +170,24 @@ function StaticIDEBody() {
   );
 }
 
+// ─── Action Bridge (jotai → zustand) ─────────────────────
+
+function ActionBridge() {
+  const runAll = useRunAllCells();
+  const { toggleSidebarPanel } = useChromeActions();
+  const setActions = useLabModeStore((s) => s.setActions);
+
+  useEffect(() => {
+    setActions({
+      runAll,
+      openSettings: toggleSidebarPanel,
+    });
+    return () => setActions({ runAll: null, openSettings: null });
+  }, [runAll, toggleSidebarPanel, setActions]);
+
+  return null;
+}
+
 // ─── Live IDE Content (connected state) ───────────────────
 
 function LiveIDEBody({ sessionKey }: { sessionKey: number }) {
@@ -175,6 +197,7 @@ function LiveIDEBody({ sessionKey }: { sessionKey: number }) {
         <Suspense>
           <SlotzProvider controller={slotsController}>
             <TooltipProvider>
+              <ActionBridge />
               <MineAppChrome>
                 <LabEditor />
               </MineAppChrome>
@@ -191,6 +214,9 @@ function LiveIDEBody({ sessionKey }: { sessionKey: number }) {
 function LabOrchestrator() {
   const labMode = useLabModeStore((s) => s.mode);
   const setLabMode = useLabModeStore((s) => s.setMode);
+  const toggleFileTree = useLabModeStore((s) => s.toggleFileTree);
+  const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
+  const bridgedActions = useLabModeStore((s) => s.actions);
   const [error, setError] = useState<string | null>(null);
   const [sessionKey, setSessionKey] = useState(0);
   const [connectStep, setConnectStep] = useState<ConnectStep>('start');
@@ -321,6 +347,16 @@ function LabOrchestrator() {
     connectingRef.current = false;
   }, []);
 
+  const handleDisconnect = useCallback(() => {
+    if (isConnected) {
+      store.set(connectionAtom, { state: WebSocketState.NOT_STARTED });
+      store.set(runtimeConfigAtom, DEFAULT_RUNTIME_CONFIG);
+      setLabMode('idle');
+    } else {
+      doConnect();
+    }
+  }, [isConnected, setLabMode, doConnect]);
+
   return (
     <div
       data-slot="lab-shell"
@@ -344,7 +380,14 @@ function LabOrchestrator() {
           />
 
           {/* Chrome header — always present */}
-          <ChromeHeader step={connectStep} />
+          <ChromeHeader
+            step={connectStep}
+            isConnected={isConnected}
+            onToggleFileTree={toggleFileTree}
+            onRunAll={bridgedActions.runAll ?? undefined}
+            onDisconnect={handleDisconnect}
+            onOpenSettings={bridgedActions.openSettings ?? undefined}
+          />
 
           {/* IDE Body — always present container */}
           <div className="flex bg-[#f7f7f7] flex-1 min-h-0 pl-2">

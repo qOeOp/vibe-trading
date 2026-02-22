@@ -161,11 +161,21 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
 
 type ChromeHeaderProps = {
   step: ConnectStep;
+  isConnected?: boolean;
+  onToggleFileTree?: () => void;
+  onRunAll?: () => void;
+  onDisconnect?: () => void;
+  onOpenSettings?: () => void;
   className?: string;
 };
 
 function ChromeHeader({
   step,
+  isConnected = false,
+  onToggleFileTree,
+  onRunAll,
+  onDisconnect,
+  onOpenSettings,
   className,
   ...props
 }: ChromeHeaderProps & React.ComponentProps<'div'>) {
@@ -177,12 +187,43 @@ function ChromeHeader({
     >
       {/* Left: editor control icons */}
       <div className="flex items-center gap-3 shrink-0">
-        <Menu className="w-[18px] h-[18px] text-[#8f8f8f]" strokeWidth={1.5} />
-        <Settings
-          className="w-[18px] h-[18px] text-[#8f8f8f]"
-          strokeWidth={1.5}
-        />
-        <Power className="w-[18px] h-[18px] text-[#e74c3c]" strokeWidth={1.5} />
+        <button
+          type="button"
+          onClick={onToggleFileTree}
+          className="hover:opacity-70 transition-opacity"
+          title="Toggle file tree"
+        >
+          <Menu
+            className="w-[18px] h-[18px] text-mine-muted"
+            strokeWidth={1.5}
+          />
+        </button>
+        <button
+          type="button"
+          onClick={isConnected ? onOpenSettings : undefined}
+          className={cn(
+            'transition-opacity',
+            isConnected ? 'hover:opacity-70' : 'opacity-40 cursor-not-allowed',
+          )}
+          disabled={!isConnected}
+          title={isConnected ? 'Settings' : 'Connect to open settings'}
+        >
+          <Settings
+            className="w-[18px] h-[18px] text-mine-muted"
+            strokeWidth={1.5}
+          />
+        </button>
+        <button
+          type="button"
+          onClick={onDisconnect}
+          className="hover:opacity-70 transition-opacity"
+          title={isConnected ? 'Disconnect' : 'Connect'}
+        >
+          <Power
+            className="w-[18px] h-[18px] text-mine-accent-red"
+            strokeWidth={1.5}
+          />
+        </button>
       </div>
 
       {/* Center: connection stepper */}
@@ -195,11 +236,24 @@ function ChromeHeader({
         className="shrink-0 flex items-center justify-center"
         style={{ width: 54, marginRight: -16 }}
       >
-        <Play
-          className="w-5 h-5 text-[#4caf50] cursor-pointer hover:scale-110 transition-transform"
-          strokeWidth={2}
-          fill="currentColor"
-        />
+        <button
+          type="button"
+          onClick={isConnected ? onRunAll : undefined}
+          className={cn(
+            'transition-all',
+            isConnected
+              ? 'hover:scale-110 cursor-pointer'
+              : 'opacity-40 cursor-not-allowed',
+          )}
+          disabled={!isConnected}
+          title={isConnected ? 'Run all cells' : 'Connect to run cells'}
+        >
+          <Play
+            className="w-5 h-5 text-mine-accent-green"
+            strokeWidth={2}
+            fill="currentColor"
+          />
+        </button>
       </div>
     </div>
   );

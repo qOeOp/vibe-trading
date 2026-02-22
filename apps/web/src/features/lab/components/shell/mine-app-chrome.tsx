@@ -1,9 +1,14 @@
 'use client';
 
-import type { PropsWithChildren } from 'react';
+import { type PropsWithChildren, useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
 import { LabModeContext } from '../lab-mode-context';
+import { useLabModeStore } from '../../store/use-lab-mode-store';
 import { MineFileTree } from './mine-file-tree';
 import { MineTabBar } from './mine-tab-bar';
+import { treeAtom } from '../editor/file-tree/state';
+import type { TreeViewElement } from '@/components/ui/file-tree';
+import type { FileInfo } from '../../core/network/types';
 
 // ─── Mine App Chrome ─────────────────────────────────────
 //
@@ -14,15 +19,49 @@ import { MineTabBar } from './mine-tab-bar';
 // EditApp handles ALL kernel communication internally.
 // This component is purely visual layout.
 
+/** Convert marimo FileInfo[] → Magic UI TreeViewElement[] */
+function fileInfoToTreeElements(files: FileInfo[]): TreeViewElement[] {
+  return files.map((f) => {
+    const el: TreeViewElement = { id: f.path || f.name, name: f.name };
+    if (f.isDirectory) {
+      el.children = f.children ? fileInfoToTreeElements(f.children) : [];
+    }
+    return el;
+  });
+}
+
+/** Fetches real file tree from marimo kernel via treeAtom */
+function useMarimoFileTree(): TreeViewElement[] | null {
+  const [tree] = useAtom(treeAtom);
+  const [files, setFiles] = useState<TreeViewElement[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    tree.initialize((data: FileInfo[]) => {
+      if (!cancelled) {
+        setFiles(fileInfoToTreeElements(data));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [tree]);
+
+  return files;
+}
+
 function MineAppChrome({ children }: PropsWithChildren) {
+  const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
+  const realFiles = useMarimoFileTree();
+
   return (
     <LabModeContext.Provider value={{ isLabMode: true, onExit: null }}>
       <div
         data-slot="mine-app-chrome"
         className="flex-1 flex overflow-hidden h-full"
       >
-        {/* Column 1: File tree */}
-        <MineFileTree />
+        {/* Column 1: File tree (toggle via chrome header Menu) */}
+        {fileTreeVisible && <MineFileTree files={realFiles ?? undefined} />}
 
         {/* Column 2: Editor (tabs + marimo cells) */}
         <div className="flex-1 min-w-0 flex flex-col ml-2 gap-2 overflow-hidden">

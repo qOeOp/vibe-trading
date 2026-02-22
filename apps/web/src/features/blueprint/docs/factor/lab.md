@@ -869,3 +869,37 @@ banner 下方: 8 步检验各自的 ✅/⚠️/❌ 一行概要
 - 用户可修改任何配置后运行
 - Lab 不执行回测, 只是快捷跳转 + 参数预填
 - 价值: 用户在 Lab 完成单因子检验后, 能立即验证 "这个因子做成策略能不能赚钱"
+
+---
+
+## IDE Shell — 剩余迁移任务
+
+Phase 2 (Cell 换骨) 和 Pyodide cleanup 已合并。以下是 IDE shell 的补全工作:
+
+### Chrome Header 功能接入
+
+Chrome header 的 Menu/Settings/Power/Play 四个按钮接入实际功能:
+
+| Icon | 功能 | 实现 |
+|------|------|------|
+| Menu | 切换左侧文件树显示/隐藏 | `onToggleFileTree` callback |
+| Settings | 打开 marimo Settings 面板 | zustand → jotai bridge |
+| Power | 断开/重连 kernel | reset labMode |
+| Play | Run All Cells | zustand bridge → `useRunAllCells()` |
+
+zustand store (`useLabModeStore`) 新增 `actions` 字段桥接 jotai hooks，因为 ChromeHeader 在 Provider 树外层。
+LiveIDEBody 挂载时注册 jotai actions → ChromeHeader 从 store 读取调用。
+
+### Add Cell 按钮
+
+Cell 换骨移除了 `CellLeftSideActions`，需要新的 Mine 风格添加 cell UI:
+- 低透明度虚线边框卡片，hover 增强
+- 点击创建 Python cell，支持 Markdown/SQL 下拉
+- 替换 cell-array.tsx 的 footer（lab mode 条件）
+
+### File Tree 真实化 (Phase 3)
+
+用 Magic UI file-tree 组件替换手写递归 MineFileTree:
+- 断连态: Magic UI Tree 渲染 DEFAULT_FILES mock 数据
+- 连接态: 从 marimo `treeAtom` (RequestingTree) 读取真实文件系统数据
+- MineAppChrome 负责数据转换和注入

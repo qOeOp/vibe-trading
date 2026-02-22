@@ -46,6 +46,8 @@ import { useChromeActions } from '../chrome/state';
 import { Column } from '../columns/cell-column';
 import { useFocusFirstEditor } from './vertical-layout/useFocusFirstEditor';
 import { VerticalLayoutWrapper } from './vertical-layout/vertical-layout-wrapper';
+import { useLabMode } from '../../lab-mode-context';
+import { MineAddCellArea } from '../../cell/mine-add-cell-area';
 
 interface CellArrayProps {
   mode: AppMode;
@@ -167,6 +169,19 @@ const CellColumn: React.FC<{
 
   const hasOnlyOneCell = cellIds.hasOnlyOneId();
   const hasSetupCell = cellIds.inOrderIds.includes(SETUP_CELL_ID);
+  const { isLabMode } = useLabMode();
+
+  const footer = isLabMode ? (
+    <MineAddCellArea columnId={columnId} />
+  ) : (
+    <AddCellButtons
+      columnId={columnId}
+      className={cn(
+        appConfig.width === 'columns' &&
+          'opacity-0 group-hover/column:opacity-100',
+      )}
+    />
+  );
 
   return (
     <Column
@@ -176,15 +191,7 @@ const CellColumn: React.FC<{
       canMoveRight={index < columnsLength - 1}
       width={appConfig.width}
       canDelete={columnsLength > 1}
-      footer={
-        <AddCellButtons
-          columnId={columnId}
-          className={cn(
-            appConfig.width === 'columns' &&
-              'opacity-0 group-hover/column:opacity-100',
-          )}
-        />
-      }
+      footer={footer}
     >
       <SortableContext
         id={`column-${index + 1}`}
