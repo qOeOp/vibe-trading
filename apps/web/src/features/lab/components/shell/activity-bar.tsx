@@ -12,6 +12,8 @@ import {
   Package,
   Database,
   AlertCircle,
+  // System
+  Activity,
   // Footer
   MoreHorizontal,
 } from 'lucide-react';
@@ -70,6 +72,15 @@ const PANEL_ITEMS: PanelDef[] = [
   // ── Marimo developer panels ──
   { id: 'errors', icon: AlertCircle, label: '错误', width: 300, group: 'dev' },
   { id: 'validation', icon: FlaskConical, label: '因子验证', width: 340 },
+
+  // ── System status ──
+  {
+    id: 'system-status',
+    icon: Activity,
+    label: '系统状态',
+    width: 300,
+    group: 'dev',
+  },
 ];
 
 // ─── Activity Bar ─────────────────────────────────────────

@@ -37,6 +37,7 @@ const DEFAULT_ELEMENTS: TreeViewElement[] = [
 
 type MineFileTreeProps = {
   files?: TreeViewElement[];
+  onFolderExpand?: (id: string) => void;
   className?: string;
 };
 
@@ -73,6 +74,7 @@ function renderElements(
 
 function MineFileTree({
   files = DEFAULT_ELEMENTS,
+  onFolderExpand,
   className,
 }: MineFileTreeProps) {
   const openFile = useLabFileTabStore((s) => s.openFile);
@@ -100,6 +102,7 @@ function MineFileTree({
           initialSelectedId="vt-lab.py"
           initialExpandedItems={['strategies']}
           elements={files}
+          onExpand={onFolderExpand}
           className="py-1"
         >
           {renderElements(files, handleFileDoubleClick)}

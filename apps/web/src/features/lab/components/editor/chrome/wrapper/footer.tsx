@@ -128,20 +128,6 @@ export const Footer: React.FC = () => {
         {/* Divider */}
         <div className="w-px h-4 bg-mine-border/50" />
 
-        {/* Machine stats (CPU/Memory) */}
-        <MachineStats />
-
-        {/* Runtime settings */}
-        <RuntimeSettings />
-
-        {/* AI & Copilot status */}
-        <AIStatusIcon />
-        <CopilotStatusIcon />
-        <RTCStatus />
-
-        {/* Divider */}
-        <div className="w-px h-4 bg-mine-border/50" />
-
         {/* Keyboard shortcuts */}
         <Tooltip content="Keyboard shortcuts ⌘K">
           <button

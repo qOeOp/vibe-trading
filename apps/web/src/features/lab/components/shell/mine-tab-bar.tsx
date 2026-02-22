@@ -174,21 +174,30 @@ function MineTabBar({ className }: MineTabBarProps) {
         className,
       )}
     >
-      {isConnected && tabs.length > 0
-        ? tabs.map((tab) => (
+      {isConnected ? (
+        tabs.length > 0 ? (
+          tabs.map((tab) => (
             <ConnectedTab
               key={tab.id}
               tab={tab}
               isActive={tab.id === activeTabId}
             />
           ))
-        : DEFAULT_TABS.map((tab) => (
-            <StaticTabItem
-              key={tab.id}
-              tab={tab}
-              isActive={tab.id === 'notebook'}
-            />
-          ))}
+        ) : (
+          /* Connected but no tabs yet — show minimal placeholder */
+          <div className="flex items-center px-3 py-1.5 text-[12px] font-mono text-[#a3a3a3]">
+            等待 notebook 初始化...
+          </div>
+        )
+      ) : (
+        DEFAULT_TABS.map((tab) => (
+          <StaticTabItem
+            key={tab.id}
+            tab={tab}
+            isActive={tab.id === 'notebook'}
+          />
+        ))
+      )}
     </div>
   );
 }

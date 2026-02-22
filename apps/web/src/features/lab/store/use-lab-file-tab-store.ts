@@ -42,15 +42,23 @@ export const useLabFileTabStore = create<LabFileTabState>((set, get) => ({
   activeTabId: null,
 
   initNotebookTab: (path) => {
-    const existing = get().tabs.find((t) => t.id === path);
+    const { tabs } = get();
+    const existing = tabs.find((t) => t.id === path);
     if (existing) {
       set({ activeTabId: path });
       return;
     }
+    // Replace any existing pinned tab, keep other tabs
+    const nonPinned = tabs.filter((t) => !t.pinned);
+    const notebookTab: FileTab = {
+      id: path,
+      label: basename(path),
+      path,
+      isDirty: false,
+      pinned: true,
+    };
     set({
-      tabs: [
-        { id: path, label: basename(path), path, isDirty: false, pinned: true },
-      ],
+      tabs: [notebookTab, ...nonPinned],
       activeTabId: path,
     });
   },

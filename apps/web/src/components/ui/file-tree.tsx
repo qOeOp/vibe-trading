@@ -53,6 +53,7 @@ type TreeViewProps = {
   initialExpandedItems?: string[];
   openIcon?: React.ReactNode;
   closeIcon?: React.ReactNode;
+  onExpand?: (id: string) => void;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
@@ -66,6 +67,7 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
       indicator = true,
       openIcon,
       closeIcon,
+      onExpand,
       dir,
       ...props
     },
@@ -82,14 +84,18 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
       setSelectedId(id);
     }, []);
 
-    const handleExpand = useCallback((id: string) => {
-      setExpandedItems((prev) => {
-        if (prev?.includes(id)) {
-          return prev.filter((item) => item !== id);
-        }
-        return [...(prev ?? []), id];
-      });
-    }, []);
+    const handleExpand = useCallback(
+      (id: string) => {
+        setExpandedItems((prev) => {
+          if (prev?.includes(id)) {
+            return prev.filter((item) => item !== id);
+          }
+          return [...(prev ?? []), id];
+        });
+        onExpand?.(id);
+      },
+      [onExpand],
+    );
 
     const expandSpecificTargetedElements = useCallback(
       (elements?: TreeViewElement[], selectId?: string) => {

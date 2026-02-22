@@ -646,8 +646,8 @@ with sync_playwright() as p:
         panel_btns = activity_bar.locator('button')
         total_btns = count(panel_btns)
         check(f"Activity bar has panel buttons ({total_btns})",
-              total_btns >= 10,
-              f"Expected >=10, got {total_btns}")
+              total_btns >= 11,
+              f"Expected >=11, got {total_btns}")
 
         # Marimo's original panels that MUST work:
         # Activity bar uses title={label} not data-panel-id.
@@ -658,6 +658,7 @@ with sync_playwright() as p:
             "数据目录":   "Data catalog",
             "错误":       "Error panel",
             "因子验证":   "Validation",
+            "系统状态":   "System status",
         }
 
         for title_zh, label_en in MARIMO_PANELS.items():

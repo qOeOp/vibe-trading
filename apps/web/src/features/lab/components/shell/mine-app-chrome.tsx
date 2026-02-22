@@ -1,6 +1,11 @@
 'use client';
 
-import { type PropsWithChildren, useEffect, useState } from 'react';
+import {
+  type PropsWithChildren,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { Provider } from 'jotai';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
@@ -38,7 +43,7 @@ function fileInfoToTreeElements(files: FileInfo[]): TreeViewElement[] {
 }
 
 /** Fetches real file tree from marimo kernel via treeAtom */
-function useMarimoFileTree(): TreeViewElement[] | null {
+function useMarimoFileTree() {
   const [tree] = useAtom(treeAtom);
   const [files, setFiles] = useState<TreeViewElement[] | null>(null);
 
@@ -54,24 +59,35 @@ function useMarimoFileTree(): TreeViewElement[] | null {
     };
   }, [tree]);
 
-  return files;
+  // Lazy-load directory contents when folder is expanded
+  const expandFolder = useCallback(
+    async (id: string) => {
+      await tree.expand(id);
+      // expand() calls this.onChange internally → triggers setFiles update
+    },
+    [tree],
+  );
+
+  return { files, expandFolder };
 }
 
-/** Initialize notebook tab from marimo's filenameAtom */
+const DEFAULT_NOTEBOOK = '/tmp/vt-lab.py';
+
+/** Initialize notebook tab from marimo's filenameAtom (with fallback) */
 function useInitNotebookTab() {
   const filename = useAtomValue(filenameAtom);
   const initNotebookTab = useLabFileTabStore((s) => s.initNotebookTab);
 
   useEffect(() => {
-    if (filename) {
-      initNotebookTab(filename);
-    }
+    // Use real filename if available, otherwise fall back to default
+    const path = filename || DEFAULT_NOTEBOOK;
+    initNotebookTab(path);
   }, [filename, initNotebookTab]);
 }
 
 function MineAppChrome({ children }: PropsWithChildren) {
   const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
-  const realFiles = useMarimoFileTree();
+  const { files: realFiles, expandFolder } = useMarimoFileTree();
   const activeTabId = useLabFileTabStore((s) => s.activeTabId);
   const tabs = useLabFileTabStore((s) => s.tabs);
 
@@ -88,7 +104,12 @@ function MineAppChrome({ children }: PropsWithChildren) {
         className="relative flex-1 flex overflow-hidden h-full"
       >
         {/* Column 1: File tree (toggle via chrome header Menu) */}
-        {fileTreeVisible && <MineFileTree files={realFiles ?? undefined} />}
+        {fileTreeVisible && (
+          <MineFileTree
+            files={realFiles ?? undefined}
+            onFolderExpand={expandFolder}
+          />
+        )}
 
         {/* Column 2: Editor (tabs + content) */}
         <div className="flex-1 min-w-0 flex flex-col ml-2 gap-2 overflow-hidden">
