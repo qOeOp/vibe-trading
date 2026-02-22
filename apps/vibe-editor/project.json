@@ -1,0 +1,23 @@
+{
+  "name": "vibe-editor",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/vibe-editor",
+  "projectType": "application",
+  "tags": ["python", "service"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python main.py",
+        "cwd": "apps/vibe-editor"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python -m py_compile main.py",
+        "cwd": "apps/vibe-editor"
+      }
+    }
+  }
+}

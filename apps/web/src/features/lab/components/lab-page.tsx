@@ -59,47 +59,31 @@ import { useChromeActions } from './editor/chrome/state';
 // ─── Constants ────────────────────────────────────────────
 
 import { MARIMO_KERNEL_BASE } from '../constants';
-const DEFAULT_NOTEBOOK = '/tmp/vt-lab.py';
+
 const EASE = [0.25, 0.1, 0.25, 1] as const;
+const HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
+const VT_SESSION_KEY = 'vt-lab-session'; // TODO: auth — include userId in key
 
 const FRAME_SHADOW =
   '0px 12px 12px -6px rgba(41,41,41,0.04), 0px 24px 24px -12px rgba(41,41,41,0.04), 0px 48px 48px -24px rgba(41,41,41,0.04), 0px 0px 0px 1px #d4d4d4';
 
 // ─── Marimo Connection Helpers ────────────────────────────
 
-async function fetchServerToken(): Promise<string | undefined> {
-  try {
-    const res = await fetch(MARIMO_KERNEL_BASE);
-    const html = await res.text();
-    const match = html.match(/data-token="([^"]+)"/);
-    return match?.[1] ?? undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function buildRuntimeURL(serverToken?: string): string {
+function buildRuntimeURL(notebookPath: string): string {
   const url = new URL(MARIMO_KERNEL_BASE);
-  url.searchParams.set('file', DEFAULT_NOTEBOOK);
-  if (serverToken) {
-    url.searchParams.set('server_token', serverToken);
-  }
+  url.searchParams.set('file', notebookPath);
   return url.toString();
 }
 
-async function takeoverSession(serverToken?: string): Promise<void> {
+async function takeoverSession(notebookPath: string): Promise<void> {
   try {
     const url = new URL(`${MARIMO_KERNEL_BASE}/api/kernel/takeover`);
-    url.searchParams.set('file', DEFAULT_NOTEBOOK);
-    if (serverToken) {
-      url.searchParams.set('server_token', serverToken);
-    }
+    url.searchParams.set('file', notebookPath);
     await fetch(url.toString(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Marimo-Session-Id': getSessionId(),
-        'Marimo-Server-Token': serverToken ?? '',
       },
     });
   } catch {
@@ -153,22 +137,22 @@ function StaticIDEBody() {
       {fileTreeVisible && <MineFileTree />}
 
       {/* Column 2: Editor (tabs + cells) */}
-      <div className="flex-1 min-w-0 flex flex-col ml-2 gap-2 overflow-y-auto">
+      <div className="flex-1 min-w-0 flex flex-col overflow-y-auto">
         <MineTabBar />
 
         {/* Cell 1: imports & setup */}
-        <MineCell disabled>
+        <MineCell disabled className="mt-1">
           <MineCodeEditor code={CELL_1_CODE} readOnly />
         </MineCell>
 
         {/* Cell 2: main logic */}
-        <MineCell flex disabled>
+        <MineCell flex disabled className="mt-1">
           <MineCodeEditor code={CELL_2_CODE} readOnly />
         </MineCell>
       </div>
 
       {/* Column 3: Factor analytics sidebar */}
-      <div className="w-[400px] shrink-0 overflow-y-auto relative bg-white rounded-lg shadow-sm ml-2">
+      <div className="w-[400px] shrink-0 overflow-y-auto relative bg-white rounded-lg shadow-sm">
         <FactorPreviewPanel />
       </div>
     </>
@@ -220,7 +204,6 @@ function LabOrchestrator() {
   const labMode = useLabModeStore((s) => s.mode);
   const setLabMode = useLabModeStore((s) => s.setMode);
   const toggleFileTree = useLabModeStore((s) => s.toggleFileTree);
-  const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
   const bridgedActions = useLabModeStore((s) => s.actions);
   const [error, setError] = useState<string | null>(null);
   const [sessionKey, setSessionKey] = useState(0);
@@ -260,35 +243,57 @@ function LabOrchestrator() {
     };
   }, []);
 
-  // Auto-detect kernel: poll every 2s when on step 'start'
+  // Auto-connect via session API: poll /api/sessions/connect until service is up
   useEffect(() => {
     if (labMode !== 'idle' || connectStep !== 'start') return;
     if (manualDisconnectRef.current) return;
 
-    const checkKernel = async () => {
+    const tryConnect = async () => {
       if (connectingRef.current || manualDisconnectRef.current) return;
       try {
-        const res = await fetch(MARIMO_KERNEL_BASE, {
-          method: 'HEAD',
-          signal: AbortSignal.timeout(1500),
+        const res = await fetch(`${MARIMO_KERNEL_BASE}/api/sessions/connect`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: 'root' }), // TODO: auth — use real userId
+          signal: AbortSignal.timeout(2000),
         });
         if (res.ok) {
+          const session: { workspacePath: string; notebookPath: string } =
+            await res.json();
           connectingRef.current = true;
           if (pollingRef.current) clearInterval(pollingRef.current);
-          doConnect();
+          doConnect(session.workspacePath, session.notebookPath);
         }
       } catch {
-        // Not running yet — keep polling
+        // Service not running yet — keep polling
       }
     };
 
-    checkKernel();
-    pollingRef.current = setInterval(checkKernel, 2000);
+    tryConnect();
+    pollingRef.current = setInterval(tryConnect, 2000);
 
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [labMode, connectStep]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Heartbeat: keep session alive while connected
+  useEffect(() => {
+    if (labMode !== 'active') return;
+
+    const heartbeat = setInterval(() => {
+      fetch(`${MARIMO_KERNEL_BASE}/api/sessions/heartbeat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 'root' }), // TODO: auth
+        signal: AbortSignal.timeout(5000),
+      }).catch(() => {
+        // Server unreachable — will be caught by WebSocket disconnect
+      });
+    }, HEARTBEAT_INTERVAL_MS);
+
+    return () => clearInterval(heartbeat);
+  }, [labMode]);
 
   // Marimo <base> tag fix
   useEffect(() => {
@@ -316,38 +321,53 @@ function LabOrchestrator() {
     };
   }, [labMode]);
 
-  const doConnect = useCallback(async () => {
-    setConnectStep('connecting');
-    setLabMode('connecting');
-    setError(null);
+  const doConnect = useCallback(
+    async (workspacePath: string, notebookPath: string) => {
+      setConnectStep('connecting');
+      setLabMode('connecting');
+      setError(null);
 
-    try {
-      const serverToken = await fetchServerToken();
-      await takeoverSession(serverToken);
+      try {
+        // Workspace already bootstrapped by /api/sessions/connect
+        useLabModeStore.getState().setWorkspace(workspacePath, notebookPath);
 
-      store.set(initialModeAtom, 'edit');
-      store.set(viewStateAtom, { mode: 'edit', cellAnchor: null });
-      store.set(runtimeConfigAtom, {
-        url: buildRuntimeURL(serverToken),
-        lazy: false,
-        serverToken,
-      });
-      store.set(requestClientAtom, resolveRequestClient());
+        await takeoverSession(notebookPath);
 
-      // Show "Ready" step briefly before transitioning
-      setConnectStep('ready');
-      await new Promise((r) => setTimeout(r, 800));
+        store.set(initialModeAtom, 'edit');
+        store.set(viewStateAtom, { mode: 'edit', cellAnchor: null });
+        store.set(runtimeConfigAtom, {
+          url: buildRuntimeURL(notebookPath),
+          lazy: false,
+          serverToken: '',
+        });
+        store.set(requestClientAtom, resolveRequestClient());
 
-      setSessionKey((k) => k + 1);
-      setLabMode('active');
-      setConnectStep('connected');
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to connect');
-      setConnectStep('start');
-      setLabMode('idle');
-      connectingRef.current = false;
-    }
-  }, [setLabMode]);
+        // Show "Ready" step briefly before transitioning
+        setConnectStep('ready');
+        await new Promise((r) => setTimeout(r, 800));
+
+        // Persist session info for fast reconnect after page refresh
+        try {
+          localStorage.setItem(
+            VT_SESSION_KEY,
+            JSON.stringify({ userId: 'root', workspacePath, notebookPath }),
+          );
+        } catch {
+          // localStorage unavailable — non-fatal
+        }
+
+        setSessionKey((k) => k + 1);
+        setLabMode('active');
+        setConnectStep('connected');
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to connect');
+        setConnectStep('start');
+        setLabMode('idle');
+        connectingRef.current = false;
+      }
+    },
+    [setLabMode],
+  );
 
   const handleRetry = useCallback(() => {
     setError(null);
@@ -362,12 +382,27 @@ function LabOrchestrator() {
       store.set(connectionAtom, { state: WebSocketState.NOT_STARTED });
       store.set(runtimeConfigAtom, DEFAULT_RUNTIME_CONFIG);
       useLabFileTabStore.getState().reset();
+
+      // Notify backend of disconnect (fire-and-forget)
+      fetch(`${MARIMO_KERNEL_BASE}/api/sessions/disconnect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 'root' }), // TODO: auth
+      }).catch(() => undefined);
+      try {
+        localStorage.removeItem(VT_SESSION_KEY);
+      } catch {
+        // localStorage unavailable
+      }
+
       setLabMode('idle');
     } else {
+      // Re-enable auto-connect polling by resetting state
       manualDisconnectRef.current = false;
-      doConnect();
+      connectingRef.current = false;
+      setConnectStep('start');
     }
-  }, [isConnected, setLabMode, doConnect]);
+  }, [isConnected, setLabMode]);
 
   return (
     <div
@@ -376,13 +411,13 @@ function LabOrchestrator() {
     >
       {/* ═══ Device Frame (fills all available height) ═══ */}
       <motion.div
-        className="flex-1 min-h-0 relative pt-3"
+        className="flex-1 min-h-0 relative py-3"
         initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.7, ease: EASE }}
       >
         <div
-          className="h-full overflow-hidden rounded-t-[26px] relative flex flex-col font-sans"
+          className="h-full overflow-hidden rounded-t-[20px] rounded-b-xl relative flex flex-col font-sans"
           style={{ boxShadow: FRAME_SHADOW }}
         >
           {/* Inner highlight */}
@@ -402,7 +437,7 @@ function LabOrchestrator() {
           />
 
           {/* IDE Body — always present container */}
-          <div className="flex bg-[#f7f7f7] flex-1 min-h-0 pl-2">
+          <div className="flex bg-[#f7f7f7] flex-1 min-h-0 gap-2 p-2">
             <AnimatePresence mode="wait">
               {isConnected ? (
                 <motion.div
@@ -418,7 +453,7 @@ function LabOrchestrator() {
               ) : (
                 <motion.div
                   key="static"
-                  className="flex-1 min-w-0 flex"
+                  className="flex-1 min-w-0 flex gap-2"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
