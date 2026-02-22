@@ -1,0 +1,3 @@
+/* UIElement web component styles — placeholder */
+/* The marimo-ui-element custom element uses shadow DOM for its children,
+   so global styles don't directly affect plugin internals. */

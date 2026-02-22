@@ -59,11 +59,18 @@ function useMarimoFileTree() {
     };
   }, [tree]);
 
-  // Lazy-load directory contents when folder is expanded
+  // Lazy-load directory contents when folder is expanded.
+  // RequestingTree.expand() fetches children from kernel and calls onChange
+  // which triggers setFiles. As a safety net, we also read the tree data
+  // directly after expand to ensure React state is in sync.
   const expandFolder = useCallback(
     async (id: string) => {
-      await tree.expand(id);
-      // expand() calls this.onChange internally → triggers setFiles update
+      const result = await tree.expand(id);
+      if (result) {
+        // Directly read tree data and update state, in case the onChange
+        // callback was stale or cancelled by a concurrent effect cleanup
+        setFiles(fileInfoToTreeElements(tree.getData()));
+      }
     },
     [tree],
   );

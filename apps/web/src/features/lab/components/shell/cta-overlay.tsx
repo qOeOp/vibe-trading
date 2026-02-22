@@ -14,8 +14,7 @@ import type { ConnectStep } from './chrome-header';
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 
-const MARIMO_KERNEL_PORT = 2728;
-const MARIMO_COMMAND = `marimo edit --headless --port ${MARIMO_KERNEL_PORT} --no-token --allow-origins "http://localhost:4200"`;
+import { MARIMO_COMMAND } from '../../constants';
 
 const CTA_BUTTON_SHADOW =
   '0px 16px 8px rgba(31,31,31,0.01), 0px 12px 6px rgba(31,31,31,0.04), 0px 4px 4px rgba(31,31,31,0.07), 0px 1.5px 3px rgba(31,31,31,0.08), 0px 0px 0px 1px #0f0f0f, inset 0px 1px 2px rgba(255,255,255,0.12)';
@@ -76,12 +75,12 @@ function CTAOverlay({ step, error, onRetry }: CTAOverlayProps) {
         </div>
 
         {/* Heading */}
-        <h1 className="mt-4 text-[19px] font-semibold text-[#3d3d3d] tracking-[-0.4px] leading-7">
+        <h1 className="mt-4 text-[19px] font-semibold text-mine-text tracking-[-0.4px] leading-7">
           Try live editor
         </h1>
 
         {/* Description */}
-        <p className="mt-1 text-[14px] text-[#717784] tracking-[-0.08px]">
+        <p className="mt-1 text-[14px] text-mine-muted tracking-[-0.08px]">
           Click on the button to use the code editor
         </p>
 

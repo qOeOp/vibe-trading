@@ -1,37 +1,37 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { SimpleTree } from "react-arborist";
-import { toast } from "../../ui/use-toast";
+import { SimpleTree } from 'react-arborist';
+import { toast } from '../../ui/use-toast';
 import type {
   EditRequests,
   FileInfo,
   FileUpdateResponse,
-} from "../../../core/network/types";
-import { prettyError } from "../../../utils/errors";
-import { Functions } from "../../../utils/functions";
-import { type FilePath, PathBuilder } from "../../../utils/paths";
+} from '../../../core/network/types';
+import { prettyError } from '../../../utils/errors';
+import { Functions } from '../../../utils/functions';
+import { type FilePath, PathBuilder } from '../../../utils/paths';
 
 export class RequestingTree {
   private delegate = new SimpleTree<FileInfo>([]);
   private callbacks: {
-    listFiles: EditRequests["sendListFiles"];
-    createFileOrFolder: EditRequests["sendCreateFileOrFolder"];
-    deleteFileOrFolder: EditRequests["sendDeleteFileOrFolder"];
-    renameFileOrFolder: EditRequests["sendRenameFileOrFolder"];
+    listFiles: EditRequests['sendListFiles'];
+    createFileOrFolder: EditRequests['sendCreateFileOrFolder'];
+    deleteFileOrFolder: EditRequests['sendDeleteFileOrFolder'];
+    renameFileOrFolder: EditRequests['sendRenameFileOrFolder'];
   };
 
   constructor(callbacks: {
-    listFiles: EditRequests["sendListFiles"];
-    createFileOrFolder: EditRequests["sendCreateFileOrFolder"];
-    deleteFileOrFolder: EditRequests["sendDeleteFileOrFolder"];
-    renameFileOrFolder: EditRequests["sendRenameFileOrFolder"];
+    listFiles: EditRequests['sendListFiles'];
+    createFileOrFolder: EditRequests['sendCreateFileOrFolder'];
+    deleteFileOrFolder: EditRequests['sendDeleteFileOrFolder'];
+    renameFileOrFolder: EditRequests['sendRenameFileOrFolder'];
   }) {
     this.callbacks = callbacks;
   }
 
-  private rootPath: FilePath = "" as FilePath;
+  private rootPath: FilePath = '' as FilePath;
   private onChange: (data: FileInfo[]) => void = Functions.NOOP;
-  private path = new PathBuilder("/");
+  private path = new PathBuilder('/');
 
   initialize = async (onChange: (data: FileInfo[]) => void): Promise<void> => {
     this.onChange = onChange;
@@ -43,7 +43,7 @@ export class RequestingTree {
         this.path = PathBuilder.guessDeliminator(data.root);
       } catch (error) {
         toast({
-          title: "Failed",
+          title: 'Failed',
           description: prettyError(error),
         });
       }
@@ -51,6 +51,11 @@ export class RequestingTree {
 
     this.onChange(this.delegate.data);
   };
+
+  /** Read current tree data (for direct state sync after expand) */
+  getData(): FileInfo[] {
+    return this.delegate.data;
+  }
 
   async expand(id: string): Promise<boolean> {
     const node = this.delegate.find(id);
@@ -130,7 +135,7 @@ export class RequestingTree {
       ? (this.delegate.find(parentId)?.data.path ?? parentId)
       : this.rootPath;
     const newFile = await this.callbacks
-      .createFileOrFolder({ path: parentPath, type: "file", name: name })
+      .createFileOrFolder({ path: parentPath, type: 'file', name: name })
       .then(this.handleResponse);
     if (!newFile?.info) {
       return;
@@ -150,7 +155,7 @@ export class RequestingTree {
       ? (this.delegate.find(parentId)?.data.path ?? parentId)
       : this.rootPath;
     const newFolder = await this.callbacks
-      .createFileOrFolder({ path: parentPath, type: "directory", name: name })
+      .createFileOrFolder({ path: parentPath, type: 'directory', name: name })
       .then(this.handleResponse);
     if (!newFolder?.info) {
       return;
@@ -223,7 +228,7 @@ export class RequestingTree {
   ): FileUpdateResponse | null => {
     if (!response.success) {
       toast({
-        title: "Failed",
+        title: 'Failed',
         description: response.message,
       });
       return null;

@@ -7,6 +7,11 @@ import '../css/app.css';
 import '../css/outputs.css';
 import '../css/cell-status.css';
 
+// Must run at module scope (not in useEffect) — custom elements must be
+// defined before the browser parses any marimo output HTML in the DOM.
+import { initializePlugins } from '../plugins/plugins';
+initializePlugins();
+
 import { Provider } from 'jotai';
 import { Provider as SlotzProvider } from '@marimo-team/react-slotz';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
@@ -53,8 +58,7 @@ import { useChromeActions } from './editor/chrome/state';
 
 // ─── Constants ────────────────────────────────────────────
 
-const MARIMO_KERNEL_PORT = 2728;
-const MARIMO_KERNEL_BASE = `http://localhost:${MARIMO_KERNEL_PORT}`;
+import { MARIMO_KERNEL_BASE } from '../constants';
 const DEFAULT_NOTEBOOK = '/tmp/vt-lab.py';
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 
