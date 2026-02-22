@@ -343,6 +343,7 @@ function LabOrchestrator() {
     setConnectStep('connecting');
 
     const tryConnect = async () => {
+      if (connectingRef.current) return; // guard against overlapping poll responses
       try {
         const res = await fetch(`${MARIMO_KERNEL_BASE}/api/sessions/connect`, {
           method: 'POST',
@@ -429,7 +430,7 @@ function LabOrchestrator() {
           />
 
           {/* IDE Body — 3-column layout */}
-          <div className="flex bg-[#f7f7f7] flex-1 min-h-0 gap-2 p-2 pt-0">
+          <div className="flex bg-mine-bg flex-1 min-h-0 gap-2 p-2 pt-0">
             <AnimatePresence mode="wait">
               {isConnected ? (
                 <motion.div

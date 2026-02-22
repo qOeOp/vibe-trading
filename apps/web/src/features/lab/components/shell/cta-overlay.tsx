@@ -39,9 +39,10 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
   }, []);
 
   return (
-    <>
+    <div data-slot="cta-overlay" className="contents">
       {/* Progressive blur overlay at device frame bottom */}
       <div
+        data-slot="progressive-blur"
         className="absolute bottom-0 left-0 right-0 h-[200px] pointer-events-none z-20"
         style={{
           background:
@@ -93,7 +94,7 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
                 key="cta"
                 type="button"
                 onClick={onConnect}
-                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] relative cursor-pointer hover:bg-[#3a3a3a] transition-colors"
+                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-mine-nav-active text-white text-sm font-medium rounded-[11px] relative cursor-pointer hover:bg-mine-nav-active/90 transition-colors"
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -113,7 +114,7 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
             {step === 'connecting' && (
               <motion.div
                 key="connecting-btn"
-                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] relative"
+                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-mine-nav-active text-white text-sm font-medium rounded-[11px] relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -132,7 +133,7 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
             {step === 'ready' && (
               <motion.div
                 key="ready-btn"
-                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] relative"
+                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-mine-nav-active text-white text-sm font-medium rounded-[11px] relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -160,7 +161,7 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
                 <button
                   type="button"
                   onClick={onRetry}
-                  className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] hover:bg-[#3a3a3a] transition-colors cursor-pointer"
+                  className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-mine-nav-active text-white text-sm font-medium rounded-[11px] hover:bg-mine-nav-active/90 transition-colors cursor-pointer"
                   style={{
                     boxShadow:
                       '0px 4px 4px rgba(31,31,31,0.07), 0px 1.5px 3px rgba(31,31,31,0.08), 0px 0px 0px 1px #0f0f0f, inset 0px 1px 2px rgba(255,255,255,0.12)',
@@ -223,7 +224,7 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
           </div>
         </details>
       </motion.div>
-    </>
+    </div>
   );
 }
 
