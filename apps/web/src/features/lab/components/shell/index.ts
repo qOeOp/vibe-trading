@@ -11,4 +11,5 @@ export { MineCodeEditor } from './mine-code-editor';
 export { ConnectedMineCell } from './connected-mine-cell';
 export { MineAppChrome } from './mine-app-chrome';
 export { MineFileTree, type MineFileTreeProps } from './mine-file-tree';
-export { MineTabBar, type TabDef } from './mine-tab-bar';
+export { MineTabBar } from './mine-tab-bar';
+export { FileEditor } from './file-editor';

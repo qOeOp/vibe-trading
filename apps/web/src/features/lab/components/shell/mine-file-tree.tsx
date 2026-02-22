@@ -7,12 +7,15 @@ import {
   File,
   type TreeViewElement,
 } from '@/components/ui/file-tree';
+import { useLabFileTabStore } from '../../store/use-lab-file-tab-store';
+import { useLabModeStore } from '../../store/use-lab-mode-store';
 
 // ─── Mine File Tree ──────────────────────────────────────
 //
 // Uses Magic UI file-tree for expand/collapse animation.
 // Accepts TreeViewElement[] from marimo kernel (connected)
 // or falls back to DEFAULT_ELEMENTS (disconnected).
+// Double-click a file → opens a tab in MineTabBar.
 
 const DEFAULT_ELEMENTS: TreeViewElement[] = [
   { id: 'cache', name: 'cache', children: [] },
@@ -38,9 +41,12 @@ type MineFileTreeProps = {
 };
 
 /** Recursive renderer: TreeViewElement[] → Folder/File JSX */
-function renderElements(elements: TreeViewElement[]) {
+function renderElements(
+  elements: TreeViewElement[],
+  onFileDoubleClick?: (path: string) => void,
+) {
   return elements.map((el) => {
-    if (el.children && el.children.length >= 0 && Array.isArray(el.children)) {
+    if (el.children && Array.isArray(el.children)) {
       return (
         <Folder
           key={el.id}
@@ -48,12 +54,17 @@ function renderElements(elements: TreeViewElement[]) {
           value={el.id}
           className="text-[13px] font-mono"
         >
-          {el.children.length > 0 && renderElements(el.children)}
+          {el.children.length > 0 &&
+            renderElements(el.children, onFileDoubleClick)}
         </Folder>
       );
     }
     return (
-      <File key={el.id} value={el.id}>
+      <File
+        key={el.id}
+        value={el.id}
+        onDoubleClick={() => onFileDoubleClick?.(el.id)}
+      >
         <span>{el.name}</span>
       </File>
     );
@@ -64,6 +75,13 @@ function MineFileTree({
   files = DEFAULT_ELEMENTS,
   className,
 }: MineFileTreeProps) {
+  const openFile = useLabFileTabStore((s) => s.openFile);
+  const isConnected = useLabModeStore((s) => s.mode) === 'active';
+
+  const handleFileDoubleClick = isConnected
+    ? (path: string) => openFile(path)
+    : undefined;
+
   return (
     <div
       data-slot="mine-file-tree"
@@ -84,7 +102,7 @@ function MineFileTree({
           elements={files}
           className="py-1"
         >
-          {renderElements(files)}
+          {renderElements(files, handleFileDoubleClick)}
         </Tree>
       </div>
     </div>

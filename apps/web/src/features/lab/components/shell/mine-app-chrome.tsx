@@ -1,24 +1,30 @@
 'use client';
 
 import { type PropsWithChildren, useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
+import { Provider } from 'jotai';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { LabModeContext } from '../lab-mode-context';
 import { useLabModeStore } from '../../store/use-lab-mode-store';
+import { useLabFileTabStore } from '../../store/use-lab-file-tab-store';
 import { MineFileTree } from './mine-file-tree';
 import { MineTabBar } from './mine-tab-bar';
+import { FileEditor } from './file-editor';
 import { Footer } from '../editor/chrome/wrapper/footer';
 import { treeAtom } from '../editor/file-tree/state';
+import { filenameAtom } from '../../core/saving/file-state';
+import { store } from '../../core/state/jotai';
+import { ErrorBoundary } from '../editor/boundary/ErrorBoundary';
 import type { TreeViewElement } from '@/components/ui/file-tree';
 import type { FileInfo } from '../../core/network/types';
 
 // ─── Mine App Chrome ─────────────────────────────────────
 //
 // Replaces marimo's AppChrome with our Mine visual frame.
-// Wraps EditApp (children) with the same file tree + tabs
-// as the disconnected static view — "CSS artwork comes alive".
+// Wraps EditApp (children) with file tree + tabs.
 //
-// EditApp handles ALL kernel communication internally.
-// This component is purely visual layout.
+// Tab switching: notebook tab → children (marimo cells),
+// other tabs → FileEditor with auto-save.
 
 /** Convert marimo FileInfo[] → Magic UI TreeViewElement[] */
 function fileInfoToTreeElements(files: FileInfo[]): TreeViewElement[] {
@@ -51,9 +57,29 @@ function useMarimoFileTree(): TreeViewElement[] | null {
   return files;
 }
 
+/** Initialize notebook tab from marimo's filenameAtom */
+function useInitNotebookTab() {
+  const filename = useAtomValue(filenameAtom);
+  const initNotebookTab = useLabFileTabStore((s) => s.initNotebookTab);
+
+  useEffect(() => {
+    if (filename) {
+      initNotebookTab(filename);
+    }
+  }, [filename, initNotebookTab]);
+}
+
 function MineAppChrome({ children }: PropsWithChildren) {
   const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
   const realFiles = useMarimoFileTree();
+  const activeTabId = useLabFileTabStore((s) => s.activeTabId);
+  const tabs = useLabFileTabStore((s) => s.tabs);
+
+  useInitNotebookTab();
+
+  // Determine if the active tab is the notebook (pinned) tab
+  const activeTab = tabs.find((t) => t.id === activeTabId);
+  const isNotebookTab = !activeTab || activeTab.pinned;
 
   return (
     <LabModeContext.Provider value={{ isLabMode: true, onExit: null }}>
@@ -64,23 +90,33 @@ function MineAppChrome({ children }: PropsWithChildren) {
         {/* Column 1: File tree (toggle via chrome header Menu) */}
         {fileTreeVisible && <MineFileTree files={realFiles ?? undefined} />}
 
-        {/* Column 2: Editor (tabs + marimo cells) */}
+        {/* Column 2: Editor (tabs + content) */}
         <div className="flex-1 min-w-0 flex flex-col ml-2 gap-2 overflow-hidden">
           <MineTabBar />
 
-          {/* Marimo EditApp renders here — real cells from kernel */}
-          {/* data-slot="lab-fullscreen" scopes cell.css lab-mode styles:
-              dashed separators, focus-based controls, shine borders,
-              gutter run button, cell type indicator, progressive blur */}
-          <div
-            data-slot="lab-fullscreen"
-            className="relative flex-1 min-h-0 overflow-y-auto rounded-lg"
-          >
-            {children}
-            {/* Progressive blur — fades editor bottom into dock area */}
-            <div data-slot="editor-progressive-blur" />
-          </div>
+          {isNotebookTab ? (
+            /* Notebook tab: marimo EditApp renders real cells from kernel */
+            <div
+              data-slot="lab-fullscreen"
+              className="relative flex-1 min-h-0 overflow-y-auto rounded-lg"
+            >
+              {children}
+              <div data-slot="editor-progressive-blur" />
+            </div>
+          ) : (
+            /* File tab: single-file CodeMirror editor with auto-save */
+            <div className="relative flex-1 min-h-0 overflow-hidden rounded-lg bg-white shadow-sm">
+              <Provider store={store}>
+                <TooltipProvider>
+                  <ErrorBoundary>
+                    <FileEditor path={activeTab.path} />
+                  </ErrorBoundary>
+                </TooltipProvider>
+              </Provider>
+            </div>
+          )}
         </div>
+
         {/* Floating dock at bottom center */}
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
           <Footer />

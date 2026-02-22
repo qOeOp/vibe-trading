@@ -653,7 +653,6 @@ with sync_playwright() as p:
         # Activity bar uses title={label} not data-panel-id.
         # Labels are Chinese: "文件浏览", "变量检查器", "依赖图", "大纲", "错误", "日志"
         MARIMO_PANELS = {
-            "文件浏览":   "File explorer",
             "变量检查器": "Variable inspector",
             "包管理":     "Packages",
             "数据目录":   "Data catalog",

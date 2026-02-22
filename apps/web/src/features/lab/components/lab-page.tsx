@@ -37,6 +37,7 @@ import { store } from '../core/state/jotai';
 import { WebSocketState } from '../core/websocket/types';
 import { getSessionId } from '../core/kernel/session';
 import { useLabModeStore } from '../store/use-lab-mode-store';
+import { useLabFileTabStore } from '../store/use-lab-file-tab-store';
 
 // Shell components
 import { ChromeHeader, type ConnectStep } from './shell/chrome-header';
@@ -250,6 +251,7 @@ function LabOrchestrator() {
       store.set(connectionAtom, { state: WebSocketState.NOT_STARTED });
       store.set(runtimeConfigAtom, DEFAULT_RUNTIME_CONFIG);
       useLabModeStore.getState().setMode('idle');
+      useLabFileTabStore.getState().reset();
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, []);
@@ -355,6 +357,7 @@ function LabOrchestrator() {
       if (pollingRef.current) clearInterval(pollingRef.current);
       store.set(connectionAtom, { state: WebSocketState.NOT_STARTED });
       store.set(runtimeConfigAtom, DEFAULT_RUNTIME_CONFIG);
+      useLabFileTabStore.getState().reset();
       setLabMode('idle');
     } else {
       manualDisconnectRef.current = false;

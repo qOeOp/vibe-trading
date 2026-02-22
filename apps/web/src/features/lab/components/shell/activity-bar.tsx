@@ -9,7 +9,6 @@ import {
   SquareDashedBottomCode,
   FlaskConical,
   // Marimo panel icons
-  FolderOpen,
   Package,
   Database,
   AlertCircle,
@@ -59,13 +58,12 @@ const PANEL_ITEMS: PanelDef[] = [
 
   // ── Marimo panels (real kernel data in connected mode) ──
   {
-    id: 'files',
-    icon: FolderOpen,
-    label: '文件浏览',
-    width: 260,
+    id: 'variables',
+    icon: Package,
+    label: '变量检查器',
+    width: 280,
     group: 'data',
   },
-  { id: 'variables', icon: Package, label: '变量检查器', width: 280 },
   { id: 'packages', icon: Box, label: '包管理', width: 280 },
   { id: 'snippets', icon: Database, label: '数据目录', width: 320 },
 

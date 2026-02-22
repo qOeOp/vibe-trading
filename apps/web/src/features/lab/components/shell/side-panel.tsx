@@ -13,9 +13,6 @@ import { PANEL_ITEMS } from './activity-bar';
 
 // ─── Marimo real panel lazy imports (connected mode) ────
 
-const LazyFileExplorerPanel = lazy(
-  () => import('../editor/chrome/panels/file-explorer-panel'),
-);
 const LazySessionPanel = lazy(
   () => import('../editor/chrome/panels/session-panel'),
 );
@@ -36,11 +33,6 @@ const LazyValidationPanel = lazy(
 
 // ─── Disconnected-mode lite panel lazy imports ──────────
 
-const LiteFileExplorerPanel = lazy(() =>
-  import('../panels/file-explorer-panel').then((m) => ({
-    default: m.FileExplorerPanel,
-  })),
-);
 const LiteVariablePanel = lazy(() =>
   import('../panels/variable-panel').then((m) => ({
     default: m.VariablePanel,
@@ -55,7 +47,6 @@ const LiteErrorPanel = lazy(() =>
 // ─── Marimo panel IDs that have real implementations ────
 
 const MARIMO_PANEL_IDS = new Set([
-  'files',
   'variables',
   'packages',
   'snippets',
@@ -85,8 +76,6 @@ function ConnectedPanelContent({ panelId }: { panelId: string }) {
 
 function ConnectedPanelRouter({ panelId }: { panelId: string }) {
   switch (panelId) {
-    case 'files':
-      return <LazyFileExplorerPanel />;
     case 'variables':
       return <LazySessionPanel />;
     case 'packages':
@@ -104,8 +93,6 @@ function ConnectedPanelRouter({ panelId }: { panelId: string }) {
 
 function DisconnectedPanelContent({ panelId }: { panelId: string }) {
   switch (panelId) {
-    case 'files':
-      return <LiteFileExplorerPanel />;
     case 'variables':
       return <LiteVariablePanel />;
     case 'errors':
