@@ -77,3 +77,6 @@ skills/
 # Screenshots (local testing)
 screenshots/
 docs/
+
+# Playwright MCP artifacts
+.playwright-mcp/
