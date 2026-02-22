@@ -28,7 +28,7 @@
 
 /* global importScripts, loadPyodide */
 
-const PYODIDE_CDN = "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/";
+const PYODIDE_CDN = 'https://cdn.jsdelivr.net/pyodide/v0.27.5/full/';
 
 let pyodide = null;
 let initPromise = null;
@@ -45,37 +45,37 @@ async function ensureInit() {
 
   initPromise = (async () => {
     const t0 = performance.now();
-    self.postMessage({ type: "INIT_START" });
+    globalThis.postMessage({ type: 'INIT_START' });
 
     try {
       // Load the Pyodide bootstrap script from CDN
-      importScripts(PYODIDE_CDN + "pyodide.js");
+      importScripts(PYODIDE_CDN + 'pyodide.js');
 
       pyodide = await loadPyodide({
         indexURL: PYODIDE_CDN,
-        stdout: (text) => {
+        stdout: (_text) => {
           // Will be overridden per-execution with id
         },
-        stderr: (text) => {
+        stderr: (_text) => {
           // Will be overridden per-execution with id
         },
       });
 
       // Pre-load scientific computing packages (built-in Pyodide wasm packages)
       // numpy + pandas are essential for quant research workflows
-      self.postMessage({ type: "INIT_PROGRESS", stage: "packages" });
-      await pyodide.loadPackage(["numpy", "pandas"]);
+      globalThis.postMessage({ type: 'INIT_PROGRESS', stage: 'packages' });
+      await pyodide.loadPackage(['numpy', 'pandas']);
 
       // Install the AST analysis helper (used by ANALYZE and EXEC_CELL)
       pyodide.runPython(ANALYZE_HELPER_PY);
 
       const duration = Math.round(performance.now() - t0);
-      self.postMessage({ type: "INIT_DONE", duration });
+      globalThis.postMessage({ type: 'INIT_DONE', duration });
       return pyodide;
     } catch (err) {
       initPromise = null; // Allow retry on failure
       const msg = err instanceof Error ? err.message : String(err);
-      self.postMessage({ type: "INIT_ERROR", error: msg });
+      globalThis.postMessage({ type: 'INIT_ERROR', error: msg });
       throw err;
     }
   })();
@@ -449,10 +449,10 @@ async function injectVTData() {
   const py = await ensureInit();
   try {
     await py.runPythonAsync(VT_DATA_MODULE_PY);
-    self.postMessage({ type: "VT_DATA_READY" });
+    globalThis.postMessage({ type: 'VT_DATA_READY' });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
-    self.postMessage({ type: "VT_DATA_ERROR", error });
+    globalThis.postMessage({ type: 'VT_DATA_ERROR', error });
   }
 }
 
@@ -467,28 +467,28 @@ async function executeCode(code, id) {
   // Wire up stdout/stderr to forward to main thread with exec id
   py.setStdout({
     batched: (text) => {
-      self.postMessage({ type: "STDOUT", text, id });
+      globalThis.postMessage({ type: 'STDOUT', text, id });
     },
   });
 
   py.setStderr({
     batched: (text) => {
-      self.postMessage({ type: "STDERR", text, id });
+      globalThis.postMessage({ type: 'STDERR', text, id });
     },
   });
 
   try {
     await py.runPythonAsync(code);
     const duration = Math.round(performance.now() - t0);
-    self.postMessage({ type: "EXEC_DONE", id, duration });
+    globalThis.postMessage({ type: 'EXEC_DONE', id, duration });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     // Try to extract Python traceback
     let traceback;
-    if (err && typeof err === "object" && "message" in err) {
+    if (err && typeof err === 'object' && 'message' in err) {
       traceback = err.message;
     }
-    self.postMessage({ type: "EXEC_ERROR", id, error, traceback });
+    globalThis.postMessage({ type: 'EXEC_ERROR', id, error, traceback });
   }
 }
 
@@ -502,16 +502,16 @@ async function analyzeCode(code, id) {
   try {
     const result = py.runPython(`_vt_analyze(${JSON.stringify(code)})`);
     const parsed = JSON.parse(result);
-    self.postMessage({
-      type: "ANALYZE_RESULT",
+    globalThis.postMessage({
+      type: 'ANALYZE_RESULT',
       id,
       defines: parsed.defines || [],
       uses: parsed.uses || [],
     });
   } catch (err) {
     // On failure, return empty analysis
-    self.postMessage({
-      type: "ANALYZE_RESULT",
+    globalThis.postMessage({
+      type: 'ANALYZE_RESULT',
       id,
       defines: [],
       uses: [],
@@ -531,13 +531,13 @@ async function executeCellCode(code, cellId, execId) {
   // Route stdout/stderr to cell-specific messages
   py.setStdout({
     batched: (text) => {
-      self.postMessage({ type: "CELL_STDOUT", text, cellId });
+      globalThis.postMessage({ type: 'CELL_STDOUT', text, cellId });
     },
   });
 
   py.setStderr({
     batched: (text) => {
-      self.postMessage({ type: "CELL_STDERR", text, cellId });
+      globalThis.postMessage({ type: 'CELL_STDERR', text, cellId });
     },
   });
 
@@ -555,14 +555,26 @@ async function executeCellCode(code, cellId, execId) {
       // Analysis failure is non-fatal
     }
 
-    self.postMessage({ type: "CELL_DONE", cellId, execId, duration, defines });
+    globalThis.postMessage({
+      type: 'CELL_DONE',
+      cellId,
+      execId,
+      duration,
+      defines,
+    });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     let traceback;
-    if (err && typeof err === "object" && "message" in err) {
+    if (err && typeof err === 'object' && 'message' in err) {
       traceback = err.message;
     }
-    self.postMessage({ type: "CELL_ERROR", cellId, execId, error, traceback });
+    globalThis.postMessage({
+      type: 'CELL_ERROR',
+      cellId,
+      execId,
+      error,
+      traceback,
+    });
   }
 }
 
@@ -601,20 +613,20 @@ _vt_lint(${JSON.stringify(code)})
 `);
 
     const diagnostics = JSON.parse(result);
-    self.postMessage({ type: "LINT_RESULT", id, diagnostics });
+    globalThis.postMessage({ type: 'LINT_RESULT', id, diagnostics });
   } catch (err) {
     // If linting itself fails, return empty diagnostics
-    self.postMessage({ type: "LINT_RESULT", id, diagnostics: [] });
+    globalThis.postMessage({ type: 'LINT_RESULT', id, diagnostics: [] });
   }
 }
 
 // ─── Message Handler ──────────────────────────────────────
 
-self.onmessage = async function (event) {
+globalThis.onmessage = async function (event) {
   const msg = event.data;
 
   switch (msg.type) {
-    case "INIT":
+    case 'INIT':
       try {
         await ensureInit();
       } catch {
@@ -622,7 +634,7 @@ self.onmessage = async function (event) {
       }
       break;
 
-    case "EXEC":
+    case 'EXEC':
       try {
         await executeCode(msg.code, msg.id);
       } catch {
@@ -630,21 +642,25 @@ self.onmessage = async function (event) {
       }
       break;
 
-    case "LINT":
+    case 'LINT':
       try {
         await lintCode(msg.code, msg.id);
       } catch {
         // Return empty diagnostics on failure
-        self.postMessage({ type: "LINT_RESULT", id: msg.id, diagnostics: [] });
+        globalThis.postMessage({
+          type: 'LINT_RESULT',
+          id: msg.id,
+          diagnostics: [],
+        });
       }
       break;
 
-    case "ANALYZE":
+    case 'ANALYZE':
       try {
         await analyzeCode(msg.code, msg.id);
       } catch {
-        self.postMessage({
-          type: "ANALYZE_RESULT",
+        globalThis.postMessage({
+          type: 'ANALYZE_RESULT',
           id: msg.id,
           defines: [],
           uses: [],
@@ -652,7 +668,7 @@ self.onmessage = async function (event) {
       }
       break;
 
-    case "EXEC_CELL":
+    case 'EXEC_CELL':
       try {
         await executeCellCode(msg.code, msg.cellId, msg.execId);
       } catch {
@@ -660,7 +676,7 @@ self.onmessage = async function (event) {
       }
       break;
 
-    case "INJECT_VT_DATA":
+    case 'INJECT_VT_DATA':
       try {
         await injectVTData();
       } catch {
@@ -669,6 +685,6 @@ self.onmessage = async function (event) {
       break;
 
     default:
-      console.warn("[pyodide-worker] Unknown message type:", msg.type);
+      console.warn('[pyodide-worker] Unknown message type:', msg.type);
   }
 };

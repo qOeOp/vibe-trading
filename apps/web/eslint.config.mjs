@@ -32,28 +32,4 @@ export default [
       'prefer-spread': 'warn',
     },
   },
-  // Vendored marimo editor: internal imports use deep relative paths and
-  // worker files use `self` global. These are upstream patterns we preserve.
-  {
-    files: [
-      '**/features/lab/components/data-table/**',
-      '**/features/lab/components/editor/**',
-      '**/features/lab/core/**',
-      '**/features/lab/plugins/**',
-      '**/features/lab/hooks/**',
-      '**/features/lab/utils/**',
-      '**/features/lab/theme/**',
-    ],
-    rules: {
-      'no-restricted-imports': 'off',
-      'no-console': 'off',
-    },
-  },
-  {
-    files: ['**/public/pyodide-worker.js'],
-    rules: {
-      'no-restricted-globals': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-    },
-  },
 ];
