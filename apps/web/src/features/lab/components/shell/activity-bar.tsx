@@ -8,14 +8,11 @@ import {
   Bot,
   SquareDashedBottomCode,
   FlaskConical,
-  // Marimo data panel icons
+  // Marimo panel icons
   FolderOpen,
   Package,
-  GitBranch,
-  List,
-  // Marimo developer panel icons
+  Database,
   AlertCircle,
-  Terminal,
   // Footer
   MoreHorizontal,
 } from 'lucide-react';
@@ -60,7 +57,7 @@ const PANEL_ITEMS: PanelDef[] = [
   },
   { id: 'experiments', icon: FlaskConical, label: '实验', width: 340 },
 
-  // ── Marimo data panels ──
+  // ── Marimo panels (real kernel data in connected mode) ──
   {
     id: 'files',
     icon: FolderOpen,
@@ -69,12 +66,12 @@ const PANEL_ITEMS: PanelDef[] = [
     group: 'data',
   },
   { id: 'variables', icon: Package, label: '变量检查器', width: 280 },
-  { id: 'dependencies', icon: GitBranch, label: '依赖图', width: 300 },
-  { id: 'outline', icon: List, label: '大纲', width: 260 },
+  { id: 'packages', icon: Box, label: '包管理', width: 280 },
+  { id: 'snippets', icon: Database, label: '数据目录', width: 320 },
 
   // ── Marimo developer panels ──
   { id: 'errors', icon: AlertCircle, label: '错误', width: 300, group: 'dev' },
-  { id: 'logs', icon: Terminal, label: '日志', width: 320 },
+  { id: 'validation', icon: FlaskConical, label: '因子验证', width: 340 },
 ];
 
 // ─── Activity Bar ─────────────────────────────────────────
@@ -138,7 +135,10 @@ function ActivityBar({
                   borderWidth={2}
                 />
               )}
-              <item.icon className="w-[18px] h-[18px] relative z-[1]" strokeWidth={1.5} />
+              <item.icon
+                className="w-[18px] h-[18px] relative z-[1]"
+                strokeWidth={1.5}
+              />
             </button>
           </div>
         );
@@ -160,7 +160,10 @@ function ActivityBar({
           inactiveZone={0.01}
           borderWidth={2}
         />
-        <MoreHorizontal className="w-[18px] h-[18px] relative z-[1]" strokeWidth={1.5} />
+        <MoreHorizontal
+          className="w-[18px] h-[18px] relative z-[1]"
+          strokeWidth={1.5}
+        />
       </button>
     </div>
   );

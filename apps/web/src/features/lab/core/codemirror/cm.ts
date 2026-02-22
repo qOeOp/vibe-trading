@@ -23,11 +23,17 @@ import {
   syntaxHighlighting,
 } from '@codemirror/language';
 import { lintGutter } from '@codemirror/lint';
-import { EditorState, type Extension, Prec } from '@codemirror/state';
+import {
+  Compartment,
+  EditorState,
+  type Extension,
+  Prec,
+} from '@codemirror/state';
 import {
   drawSelection,
   dropCursor,
   EditorView,
+  ViewPlugin,
   highlightActiveLine,
   highlightActiveLineGutter,
   highlightSpecialChars,
@@ -173,6 +179,10 @@ const startCompletionAtEndOfLine = (cm: EditorView): boolean => {
 /**
  * Compute the cumulative line offset for a cell based on cells above it.
  * Returns 0-based offset (number of lines in all preceding cells).
+ *
+ * Uses actual EditorView document line counts when available (preferred),
+ * falling back to cellData.code for cells whose editor hasn't mounted yet.
+ * This avoids mismatches when marimo reformats code (e.g. triple-quoted strings).
  */
 function getCumulativeLineOffset(cellId: CellId): number {
   const notebook = getNotebook();
@@ -182,11 +192,59 @@ function getCumulativeLineOffset(cellId: CellId): number {
     if (id === cellId) {
       return offset;
     }
-    const code = notebook.cellData[id]?.code ?? '';
-    // Count lines: empty string = 1 line, "a\nb" = 2 lines
-    offset += code.split('\n').length;
+    // Prefer the actual editor's line count over cellData.code parsing,
+    // because marimo may reformat code (e.g. single-line → triple-quoted string)
+    const handle = notebook.cellHandles[id]?.current;
+    const editorView = handle?.editorViewOrNull;
+    if (editorView) {
+      offset += editorView.state.doc.lines;
+    } else {
+      // Fallback for cells whose editor hasn't mounted yet
+      const code = notebook.cellData[id]?.code ?? '';
+      offset += code === '' ? 1 : code.split('\n').length;
+    }
   }
   return offset;
+}
+
+/**
+ * Compartment for line numbers — allows reconfiguring when cell order changes.
+ */
+export const lineNumberCompartment = new Compartment();
+
+/**
+ * Create a line numbers extension with the current offset for a cell.
+ */
+function createLineNumbersExtension(cellId: CellId) {
+  return lineNumbers({
+    formatNumber: (n: number) => String(n + getCumulativeLineOffset(cellId)),
+  });
+}
+
+/**
+ * ViewPlugin that watches for cell order changes and reconfigures line numbers.
+ * Polls periodically to detect changes from cell additions/deletions/reordering.
+ */
+function lineNumberRefreshPlugin(cellId: CellId) {
+  return ViewPlugin.define((view) => {
+    let lastOffset = getCumulativeLineOffset(cellId);
+    const interval = setInterval(() => {
+      const newOffset = getCumulativeLineOffset(cellId);
+      if (newOffset !== lastOffset) {
+        lastOffset = newOffset;
+        view.dispatch({
+          effects: lineNumberCompartment.reconfigure(
+            createLineNumbersExtension(cellId),
+          ),
+        });
+      }
+    }, 1000);
+    return {
+      destroy() {
+        clearInterval(interval);
+      },
+    };
+  });
 }
 
 // Based on codemirror's basicSetup extension
@@ -209,9 +267,8 @@ export const basicBundle = (opts: CodeMirrorSetupOpts): Extension[] => {
     highlightActiveLine(),
     highlightActiveLineGutter(),
     highlightSpecialChars(),
-    lineNumbers({
-      formatNumber: (n: number) => String(n + getCumulativeLineOffset(cellId)),
-    }),
+    lineNumberCompartment.of(createLineNumbersExtension(cellId)),
+    lineNumberRefreshPlugin(cellId),
     rectangularSelection(),
     tooltips({
       // Having fixed position prevents tooltips from being repositioned

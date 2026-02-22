@@ -6,6 +6,7 @@ import { LabModeContext } from '../lab-mode-context';
 import { useLabModeStore } from '../../store/use-lab-mode-store';
 import { MineFileTree } from './mine-file-tree';
 import { MineTabBar } from './mine-tab-bar';
+import { Footer } from '../editor/chrome/wrapper/footer';
 import { treeAtom } from '../editor/file-tree/state';
 import type { TreeViewElement } from '@/components/ui/file-tree';
 import type { FileInfo } from '../../core/network/types';
@@ -58,7 +59,7 @@ function MineAppChrome({ children }: PropsWithChildren) {
     <LabModeContext.Provider value={{ isLabMode: true, onExit: null }}>
       <div
         data-slot="mine-app-chrome"
-        className="flex-1 flex overflow-hidden h-full"
+        className="relative flex-1 flex overflow-hidden h-full"
       >
         {/* Column 1: File tree (toggle via chrome header Menu) */}
         {fileTreeVisible && <MineFileTree files={realFiles ?? undefined} />}
@@ -79,6 +80,10 @@ function MineAppChrome({ children }: PropsWithChildren) {
             {/* Progressive blur — fades editor bottom into dock area */}
             <div data-slot="editor-progressive-blur" />
           </div>
+        </div>
+        {/* Floating dock at bottom center */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+          <Footer />
         </div>
       </div>
     </LabModeContext.Provider>

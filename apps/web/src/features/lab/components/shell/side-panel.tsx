@@ -1,77 +1,117 @@
 'use client';
 
 import { lazy, Suspense } from 'react';
+import { Provider } from 'jotai';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/utils';
+import { store } from '../../core/state/jotai';
+import { PanelSectionProvider } from '../editor/chrome/panels/panel-context';
+import { ErrorBoundary } from '../editor/boundary/ErrorBoundary';
 import { PANEL_ITEMS } from './activity-bar';
 
-// ─── Lazy-load panel components ──────────────────────────
+// ─── Marimo real panel lazy imports (connected mode) ────
 
-// Marimo data panels
-const FileExplorerPanel = lazy(() =>
+const LazyFileExplorerPanel = lazy(
+  () => import('../editor/chrome/panels/file-explorer-panel'),
+);
+const LazySessionPanel = lazy(
+  () => import('../editor/chrome/panels/session-panel'),
+);
+const LazyPackagesPanel = lazy(
+  () => import('../editor/chrome/panels/packages-panel'),
+);
+const LazyDataCatalogPanel = lazy(() =>
+  import('../editor/chrome/panels/data-catalog/data-catalog-panel').then(
+    (m) => ({ default: m.DataCatalogPanel }),
+  ),
+);
+const LazyErrorsPanel = lazy(
+  () => import('../editor/chrome/panels/error-panel'),
+);
+const LazyValidationPanel = lazy(
+  () => import('../editor/chrome/panels/validation-panel'),
+);
+
+// ─── Disconnected-mode lite panel lazy imports ──────────
+
+const LiteFileExplorerPanel = lazy(() =>
   import('../panels/file-explorer-panel').then((m) => ({
     default: m.FileExplorerPanel,
   })),
 );
-const VariablePanel = lazy(() =>
+const LiteVariablePanel = lazy(() =>
   import('../panels/variable-panel').then((m) => ({
     default: m.VariablePanel,
   })),
 );
-const DependencyGraphPanel = lazy(() =>
-  import('../panels/dependency-graph-panel').then((m) => ({
-    default: m.DependencyGraphPanel,
-  })),
-);
-const OutlinePanel = lazy(() =>
-  import('../panels/outline-panel').then((m) => ({
-    default: m.OutlinePanel,
-  })),
-);
-
-// Marimo developer panels
-const ErrorPanel = lazy(() =>
+const LiteErrorPanel = lazy(() =>
   import('../panels/error-panel').then((m) => ({
     default: m.ErrorPanel,
   })),
 );
-const LogsPanel = lazy(() =>
-  import('../panels/logs-panel').then((m) => ({
-    default: m.LogsPanel,
-  })),
-);
 
-// ─── Panel Content Router ────────────────────────────────
+// ─── Marimo panel IDs that have real implementations ────
 
-function PanelContent({ panelId }: { panelId: string }) {
+const MARIMO_PANEL_IDS = new Set([
+  'files',
+  'variables',
+  'packages',
+  'snippets',
+  'errors',
+  'validation',
+]);
+
+// ─── Panel Content Routers ──────────────────────────────
+
+function ConnectedPanelContent({ panelId }: { panelId: string }) {
+  if (!MARIMO_PANEL_IDS.has(panelId)) {
+    return <DisconnectedPanelContent panelId={panelId} />;
+  }
+
+  return (
+    <Provider store={store}>
+      <PanelSectionProvider value="sidebar">
+        <TooltipProvider>
+          <ErrorBoundary>
+            <ConnectedPanelRouter panelId={panelId} />
+          </ErrorBoundary>
+        </TooltipProvider>
+      </PanelSectionProvider>
+    </Provider>
+  );
+}
+
+function ConnectedPanelRouter({ panelId }: { panelId: string }) {
   switch (panelId) {
-    // Marimo data panels
     case 'files':
-      return <FileExplorerPanel />;
+      return <LazyFileExplorerPanel />;
     case 'variables':
-      return <VariablePanel />;
-    case 'dependencies':
-      return <DependencyGraphPanel />;
-    case 'outline':
-      return <OutlinePanel />;
-
-    // Marimo developer panels
+      return <LazySessionPanel />;
+    case 'packages':
+      return <LazyPackagesPanel />;
+    case 'snippets':
+      return <LazyDataCatalogPanel />;
     case 'errors':
-      return <ErrorPanel />;
-    case 'logs':
-      return <LogsPanel />;
-
-    // Mine custom panels — placeholder until business design
-    case 'variables-mine':
-    case 'components':
-    case 'ai':
-    case 'snippets-mine':
-    case 'experiments':
-      return <PlaceholderPanel panelId={panelId} />;
-
+      return <LazyErrorsPanel />;
+    case 'validation':
+      return <LazyValidationPanel />;
     default:
       return null;
+  }
+}
+
+function DisconnectedPanelContent({ panelId }: { panelId: string }) {
+  switch (panelId) {
+    case 'files':
+      return <LiteFileExplorerPanel />;
+    case 'variables':
+      return <LiteVariablePanel />;
+    case 'errors':
+      return <LiteErrorPanel />;
+    default:
+      return <PlaceholderPanel panelId={panelId} />;
   }
 }
 
@@ -90,17 +130,20 @@ function PlaceholderPanel({ panelId }: { panelId: string }) {
 }
 
 // ─── Side Panel ──────────────────────────────────────────
-//
-// Push-aside panel container. Renders between editor and
-// activity bar. Width varies per panel definition.
 
 type SidePanelProps = {
   panelId: string | null;
   onClose: () => void;
+  isConnected: boolean;
   className?: string;
 };
 
-function SidePanel({ panelId, onClose, className }: SidePanelProps) {
+function SidePanel({
+  panelId,
+  onClose,
+  isConnected,
+  className,
+}: SidePanelProps) {
   const item = panelId ? PANEL_ITEMS.find((p) => p.id === panelId) : null;
   const width = item?.width ?? 280;
 
@@ -141,7 +184,11 @@ function SidePanel({ panelId, onClose, className }: SidePanelProps) {
                 </div>
               }
             >
-              <PanelContent panelId={panelId} />
+              {isConnected ? (
+                <ConnectedPanelContent panelId={panelId} />
+              ) : (
+                <DisconnectedPanelContent panelId={panelId} />
+              )}
             </Suspense>
           </div>
         </motion.div>

@@ -223,6 +223,7 @@ function LabOrchestrator() {
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const connectingRef = useRef(false);
+  const manualDisconnectRef = useRef(false);
 
   const isConnected = labMode === 'active';
 
@@ -256,9 +257,10 @@ function LabOrchestrator() {
   // Auto-detect kernel: poll every 2s when on step 'start'
   useEffect(() => {
     if (labMode !== 'idle' || connectStep !== 'start') return;
+    if (manualDisconnectRef.current) return;
 
     const checkKernel = async () => {
-      if (connectingRef.current) return;
+      if (connectingRef.current || manualDisconnectRef.current) return;
       try {
         const res = await fetch(MARIMO_KERNEL_BASE, {
           method: 'HEAD',
@@ -349,10 +351,13 @@ function LabOrchestrator() {
 
   const handleDisconnect = useCallback(() => {
     if (isConnected) {
+      manualDisconnectRef.current = true;
+      if (pollingRef.current) clearInterval(pollingRef.current);
       store.set(connectionAtom, { state: WebSocketState.NOT_STARTED });
       store.set(runtimeConfigAtom, DEFAULT_RUNTIME_CONFIG);
       setLabMode('idle');
     } else {
+      manualDisconnectRef.current = false;
       doConnect();
     }
   }, [isConnected, setLabMode, doConnect]);
@@ -417,7 +422,11 @@ function LabOrchestrator() {
             </AnimatePresence>
 
             {/* Side panel — push-aside, between editor and activity bar */}
-            <SidePanel panelId={activePanel} onClose={handlePanelClose} />
+            <SidePanel
+              panelId={activePanel}
+              onClose={handlePanelClose}
+              isConnected={isConnected}
+            />
 
             {/* Activity bar — always present */}
             <ActivityBar

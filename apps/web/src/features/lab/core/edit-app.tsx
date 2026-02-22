@@ -34,7 +34,7 @@ import { useTogglePresenting } from './layout/useTogglePresenting';
 import { viewStateAtom } from './mode';
 import { useRequestClient } from './network/requests';
 import { useFilename } from './saving/filename';
-import { lastSavedNotebookAtom } from './saving/state';
+import { lastSavedNotebookAtom, needsSaveAtom } from './saving/state';
 import { useJotaiEffect } from './state/jotai';
 import { useMarimoKernelConnection } from './websocket/useMarimoKernelConnection';
 import { useLabModeStore } from '../store/use-lab-mode-store';
@@ -74,6 +74,7 @@ export const EditApp: React.FC<AppProps> = ({
   const isPresenting = viewState.mode === 'present';
   const isRunning = useAtomValue(notebookIsRunningAtom);
   const isLabActive = useLabModeStore((s) => s.mode) === 'active';
+  const needsSave = useAtomValue(needsSaveAtom);
 
   // Initialize RuntimeState event-listeners
   useEffect(() => {
@@ -95,17 +96,18 @@ export const EditApp: React.FC<AppProps> = ({
     sessionId: getSessionId(),
   });
 
-  // Update document title whenever filename or app_title changes
+  // Update document title whenever filename, app_title, or save state changes
   useEffect(() => {
     const previousTitle = document.title;
-    document.title =
+    const base =
       appConfig.app_title ||
       Paths.basename(filename ?? '') ||
       'Untitled Notebook';
+    document.title = needsSave ? `${base} *` : base;
     return () => {
       document.title = previousTitle;
     };
-  }, [appConfig.app_title, filename]);
+  }, [appConfig.app_title, filename, needsSave]);
 
   // Delete column breakpoints if app width changes from "columns"
   const previousWidth = usePrevious(appConfig.width);

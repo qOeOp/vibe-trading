@@ -1,48 +1,51 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { historyField } from "@codemirror/commands";
-import { type Atom, atom, useAtom, useAtomValue } from "jotai";
-import { atomFamily, selectAtom, splitAtom } from "jotai/utils";
-import { isEqual, zip } from "lodash-es";
-import { createRef, type ReducerWithoutAction } from "react";
-import type { CellHandle } from "../../components/editor/notebook-cell";
+import { historyField } from '@codemirror/commands';
+import { type Atom, atom, useAtom, useAtomValue } from 'jotai';
+import { atomFamily, selectAtom, splitAtom } from 'jotai/utils';
+import { isEqual, zip } from 'lodash-es';
+import { createRef, type ReducerWithoutAction } from 'react';
+import type { CellHandle } from '../../components/editor/notebook-cell';
 import {
   type CellColumnId,
   type CellIndex,
   MultiColumn,
-} from "../../utils/id-tree";
-import { invariant } from "../../utils/invariant";
-import { Logger } from "../../utils/Logger";
-import { clamp } from "../../utils/math";
-import { Objects } from "../../utils/objects";
-import { extractAllTracebackInfo, type TracebackInfo } from "../../utils/traceback";
-import { createReducerAndAtoms } from "../../utils/createReducer";
-import { foldAllBulk, unfoldAllBulk } from "../codemirror/editing/commands";
+} from '../../utils/id-tree';
+import { invariant } from '../../utils/invariant';
+import { Logger } from '../../utils/Logger';
+import { clamp } from '../../utils/math';
+import { Objects } from '../../utils/objects';
+import {
+  extractAllTracebackInfo,
+  type TracebackInfo,
+} from '../../utils/traceback';
+import { createReducerAndAtoms } from '../../utils/createReducer';
+import { foldAllBulk, unfoldAllBulk } from '../codemirror/editing/commands';
 import {
   splitEditor,
   updateEditorCodeFromPython,
-} from "../codemirror/language/utils";
-import { findCollapseRange, mergeOutlines } from "../dom/outline";
-import type { CellMessage } from "../kernel/messages";
-import { isErrorMime } from "../mime";
-import type { CellConfig } from "../network/types";
-import { isRtcEnabled } from "../rtc/state";
-import { createDeepEqualAtom, store } from "../state/jotai";
-import { prepareCellForExecution, transitionCell } from "./cell";
-import { CellId, SCRATCH_CELL_ID, SETUP_CELL_ID } from "./ids";
-import { type CellLog, getCellLogsForMessage } from "./logs";
+} from '../codemirror/language/utils';
+import { findCollapseRange, mergeOutlines } from '../dom/outline';
+import type { CellMessage } from '../kernel/messages';
+import { isErrorMime } from '../mime';
+import type { CellConfig } from '../network/types';
+import { isRtcEnabled } from '../rtc/state';
+import { createDeepEqualAtom, store } from '../state/jotai';
+import { prepareCellForExecution, transitionCell } from './cell';
+import { CellId, SCRATCH_CELL_ID, SETUP_CELL_ID } from './ids';
+import { type CellLog, getCellLogsForMessage } from './logs';
 import {
   focusAndScrollCellIntoView,
   scrollToBottom,
   scrollToTop,
-} from "./scrollCellIntoView";
+} from './scrollCellIntoView';
 import {
   type CellData,
   type CellRuntimeState,
   createCell,
   createCellConfig,
   createCellRuntimeState,
-} from "./types";
+} from './types';
 import {
   canUndoDeletes,
   disabledCellIds,
@@ -50,7 +53,7 @@ import {
   notebookIsRunning,
   notebookNeedsRun,
   notebookQueueOrRunningCount,
-} from "./utils";
+} from './utils';
 
 /**
  * The state of the notebook.
@@ -145,8 +148,8 @@ export function initialNotebookState(): NotebookState {
  */
 export type CellPosition =
   | CellId
-  | "__end__"
-  | { type: "__end__"; columnId: CellColumnId };
+  | '__end__'
+  | { type: '__end__'; columnId: CellColumnId };
 
 export interface CreateNewCellAction {
   cellId: CellPosition;
@@ -201,21 +204,32 @@ const {
       }
     }
 
-    if (cellId === "__end__") {
+    // Only one empty cell at a time: if creating an empty cell and one already
+    // exists, focus the existing empty cell instead of creating a new one
+    if (!code) {
+      const existingEmptyCellId = state.cellIds.inOrderIds.find(
+        (id) => state.cellData[id]?.code.trim() === '',
+      );
+      if (existingEmptyCellId) {
+        return { ...state, scrollKey: autoFocus ? existingEmptyCellId : null };
+      }
+    }
+
+    if (cellId === '__end__') {
       const column = state.cellIds.atOrThrow(0);
       columnId = column.id;
       cellIndex = column.length;
-    } else if (typeof cellId === "string") {
+    } else if (typeof cellId === 'string') {
       const column = state.cellIds.findWithId(cellId);
       columnId = column.id;
       cellIndex = column.topLevelIds.indexOf(cellId);
-    } else if (cellId.type === "__end__") {
+    } else if (cellId.type === '__end__') {
       const column =
         state.cellIds.get(cellId.columnId) || state.cellIds.atOrThrow(0);
       columnId = column.id;
       cellIndex = column.length;
     } else {
-      throw new Error("Invalid cellId");
+      throw new Error('Invalid cellId');
     }
 
     const newCellId = action.newCellId || CellId.create();
@@ -254,14 +268,14 @@ const {
     action: {
       cellId: CellId;
       before?: boolean;
-      direction?: "left" | "right";
+      direction?: 'left' | 'right';
     },
   ) => {
     const { cellId, before, direction } = action;
 
     if (before !== undefined && direction !== undefined) {
       Logger.warn(
-        "Both before and direction specified for moveCell. Ignoring one.",
+        'Both before and direction specified for moveCell. Ignoring one.',
       );
     }
 
@@ -270,7 +284,7 @@ const {
       const fromColumn = state.cellIds.findWithId(cellId);
       const fromColumnIndex = state.cellIds.indexOf(fromColumn);
       const toColumnIndex =
-        direction === "left" ? fromColumnIndex - 1 : fromColumnIndex + 1;
+        direction === 'left' ? fromColumnIndex - 1 : fromColumnIndex + 1;
       const toColumn = state.cellIds.at(toColumnIndex);
 
       // If no column to move to, return unchanged state
@@ -396,7 +410,7 @@ const {
     state,
     action: {
       column: CellColumnId;
-      overColumn: CellColumnId | "_left_" | "_right_";
+      overColumn: CellColumnId | '_left_' | '_right_';
     },
   ) => {
     if (action.column === action.overColumn) {
@@ -409,7 +423,7 @@ const {
   },
   focusCell: (
     state,
-    action: { cellId: CellId; where: "before" | "after" | "exact" },
+    action: { cellId: CellId; where: 'before' | 'after' | 'exact' },
   ) => {
     const column = state.cellIds.findWithId(action.cellId);
     if (column.length === 0) {
@@ -420,9 +434,9 @@ const {
     const index = column.indexOfOrThrow(cellId);
 
     let focusIndex: number;
-    if (where === "before") {
+    if (where === 'before') {
       focusIndex = clamp(index - 1, 0, column.length - 1);
-    } else if (where === "after") {
+    } else if (where === 'after') {
       focusIndex = clamp(index + 1, 0, column.length - 1);
     } else {
       focusIndex = index;
@@ -434,7 +448,7 @@ const {
       cellId: focusCellId,
       cell: state.cellHandles[focusCellId],
       isCodeHidden: isCellCodeHidden(state, focusCellId),
-      codeFocus: where === "after" ? "top" : "bottom",
+      codeFocus: where === 'after' ? 'top' : 'bottom',
       variableName: undefined,
     });
     return state;
@@ -615,7 +629,7 @@ const {
 
     const {
       name,
-      serializedEditorState = { doc: "" },
+      serializedEditorState = { doc: '' },
       column,
       index,
       isSetupCell,
@@ -800,7 +814,7 @@ const {
   ) => {
     invariant(
       action.codes.length === action.ids.length,
-      "Expected codes and ids to have the same length",
+      'Expected codes and ids to have the same length',
     );
 
     let nextState = { ...state };
@@ -888,13 +902,13 @@ const {
       cellReducer: (cell) => {
         const consoleOutputs = [...cell.consoleOutputs];
         const stdinOutput = consoleOutputs[outputIndex];
-        if (stdinOutput.channel !== "stdin") {
-          Logger.warn("Expected stdin output");
+        if (stdinOutput.channel !== 'stdin') {
+          Logger.warn('Expected stdin output');
           return cell;
         }
 
         consoleOutputs[outputIndex] = {
-          channel: "stdin",
+          channel: 'stdin',
           mimetype: stdinOutput.mimetype,
           data: stdinOutput.data,
           timestamp: stdinOutput.timestamp,
@@ -1012,7 +1026,7 @@ const {
         cellId: nextCellId,
         cell: state.cellHandles[nextCellId],
         isCodeHidden: isCellCodeHidden(state, nextCellId),
-        codeFocus: before ? "bottom" : "top",
+        codeFocus: before ? 'bottom' : 'top',
         variableName: undefined,
       });
     }
@@ -1319,7 +1333,7 @@ const {
         ...cell,
         // Remove everything except unresponsed stdin
         consoleOutputs: cell.consoleOutputs.filter(
-          (output) => output.channel === "stdin" && output.response == null,
+          (output) => output.channel === 'stdin' && output.response == null,
         ),
       }),
     });
@@ -1507,9 +1521,9 @@ export const cellErrorsAtom = atom((get) => {
         // Filter out ancestor-stopped errors
         // These are errors that are caused by a cell that was stopped,
         // but nothing the user can take action on.
-        invariant(Array.isArray(cell.output.data), "Expected array data");
+        invariant(Array.isArray(cell.output.data), 'Expected array data');
         const nonAncestorErrors = cell.output.data.filter(
-          (error) => !error.type.includes("ancestor"),
+          (error) => !error.type.includes('ancestor'),
         );
 
         if (nonAncestorErrors.length > 0) {
@@ -1706,7 +1720,7 @@ export function createTracebackInfoAtom(
       return undefined;
     }
 
-    if (data.status === "queued" || data.status === "running") {
+    if (data.status === 'queued' || data.status === 'running') {
       return undefined;
     }
 
@@ -1716,7 +1730,7 @@ export function createTracebackInfoAtom(
     const outputs = data.consoleOutputs;
     if (outputs && outputs.length > 0) {
       const firstTraceback = outputs.find(
-        (output) => output.mimetype === "application/vnd.marimo+traceback",
+        (output) => output.mimetype === 'application/vnd.marimo+traceback',
       );
       if (firstTraceback) {
         const traceback = firstTraceback.data as string;
@@ -1726,20 +1740,20 @@ export function createTracebackInfoAtom(
 
     // Syntax errors
     const output = data.output;
-    if (output?.mimetype === "application/vnd.marimo+error") {
+    if (output?.mimetype === 'application/vnd.marimo+error') {
       const errors = output.data;
       if (Array.isArray(errors)) {
         for (const error of errors) {
-          if (error.type === "syntax" && error.lineno != null) {
+          if (error.type === 'syntax' && error.lineno != null) {
             tracebackInfo.push({
-              kind: "cell",
+              kind: 'cell',
               cellId: cellId,
               lineNumber: error.lineno,
             });
           }
-          if (error.type === "import-star" && error.lineno != null) {
+          if (error.type === 'import-star' && error.lineno != null) {
             tracebackInfo.push({
-              kind: "cell",
+              kind: 'cell',
               cellId: cellId,
               lineNumber: error.lineno,
             });
