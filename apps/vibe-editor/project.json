@@ -15,15 +15,8 @@
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "python -m py_compile main.py",
-          "python -m py_compile vt_sessions/manager.py",
-          "python -m py_compile vt_sessions/models.py",
-          "python -m py_compile vt_sessions/workspace.py",
-          "python -m py_compile vt_sessions/routes.py"
-        ],
-        "cwd": "apps/vibe-editor",
-        "parallel": false
+        "command": "python -m ruff check main.py vt_sessions/",
+        "cwd": "apps/vibe-editor"
       }
     },
     "test": {

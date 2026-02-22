@@ -16,8 +16,8 @@ class SessionStatus(str, Enum):
     """High-level session state visible to the frontend."""
     CREATED = "created"       # Fresh session, workspace just allocated
     RECONNECTED = "reconnected"  # Existing session found for this userId
-    ACTIVE = "active"         # Session is running
-    IDLE = "idle"             # Session exists but no active WebSocket
+    ACTIVE = "active"         # Reserved: future WebSocket-aware state tracking
+    IDLE = "idle"             # Reserved: future WebSocket-aware state tracking
     CLOSED = "closed"         # Session terminated
 
 

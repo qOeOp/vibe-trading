@@ -62,6 +62,7 @@ import { MARIMO_KERNEL_BASE } from '../constants';
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 const HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
+const VT_USER_ID = 'root'; // TODO: auth — replace with real userId from auth system
 const VT_SESSION_KEY = 'vt-lab-session'; // TODO: auth — include userId in key
 
 const FRAME_SHADOW =
@@ -252,7 +253,7 @@ function LabOrchestrator() {
       fetch(`${MARIMO_KERNEL_BASE}/api/sessions/heartbeat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: 'root' }), // TODO: auth
+        body: JSON.stringify({ userId: VT_USER_ID }), // TODO: auth
         signal: AbortSignal.timeout(5000),
       }).catch(() => {
         // Server unreachable — will be caught by WebSocket disconnect
@@ -317,7 +318,7 @@ function LabOrchestrator() {
         try {
           localStorage.setItem(
             VT_SESSION_KEY,
-            JSON.stringify({ userId: 'root', workspacePath, notebookPath }),
+            JSON.stringify({ userId: VT_USER_ID, workspacePath, notebookPath }),
           );
         } catch {
           // localStorage unavailable — non-fatal
@@ -346,7 +347,7 @@ function LabOrchestrator() {
         const res = await fetch(`${MARIMO_KERNEL_BASE}/api/sessions/connect`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: 'root' }), // TODO: auth
+          body: JSON.stringify({ userId: VT_USER_ID }), // TODO: auth
           signal: AbortSignal.timeout(2000),
         });
         if (res.ok) {
@@ -382,7 +383,7 @@ function LabOrchestrator() {
       fetch(`${MARIMO_KERNEL_BASE}/api/sessions/disconnect`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: 'root' }), // TODO: auth
+        body: JSON.stringify({ userId: VT_USER_ID }), // TODO: auth
       }).catch(() => undefined);
       try {
         localStorage.removeItem(VT_SESSION_KEY);

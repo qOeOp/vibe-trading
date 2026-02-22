@@ -312,6 +312,10 @@ def start(
     async def _start_vt_cleanup() -> None:
         await vt_manager.start_cleanup_loop()
 
+    @app.on_event("shutdown")
+    async def _stop_vt_cleanup() -> None:
+        vt_manager.stop_cleanup_loop()
+
     # Resource initialization
     # Increase the limit on open file descriptors to prevent resource
     # exhaustion when opening multiple notebooks in the same server.

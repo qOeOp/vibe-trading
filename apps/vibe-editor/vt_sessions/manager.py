@@ -32,9 +32,9 @@ class VTSessionManager:
     """
     Manages VT-level session metadata.
 
-    Thread-safe for single-writer scenarios (Starlette runs handlers
-    sequentially per request). If we need concurrent writes later,
-    add asyncio.Lock.
+    Concurrency-safe because all methods are synchronous (no await points),
+    so they execute atomically within a single asyncio event loop tick.
+    If any method becomes async in the future, add asyncio.Lock.
     """
 
     def __init__(
@@ -120,11 +120,15 @@ class VTSessionManager:
         return True
 
     def get_status(self, user_id: str) -> Optional[dict]:
-        """Get serialized session status for API response."""
+        """Get serialized session status for API response.
+
+        Does NOT update last_active_at — only heartbeat and connect
+        should extend the idle timeout. This prevents monitoring tools
+        from inadvertently keeping sessions alive.
+        """
         session = self._sessions.get(user_id)
         if session is None:
             return None
-        session.touch()
         return session.to_dict()
 
     def heartbeat(self, user_id: str) -> bool:

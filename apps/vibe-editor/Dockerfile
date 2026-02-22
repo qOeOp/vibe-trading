@@ -10,10 +10,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# ── Dependencies ──
+# ── Dependencies (separate layer for caching) ──
 COPY apps/vibe-editor/pyproject.toml .
-RUN pip install --no-cache-dir . && \
-    rm -rf /root/.cache/pip
+RUN pip install --no-cache-dir $(python -c "\
+import tomllib; \
+deps = tomllib.load(open('pyproject.toml','rb'))['project']['dependencies']; \
+print(' '.join(deps))")
 
 # ── Application code ──
 COPY apps/vibe-editor/ .
