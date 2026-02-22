@@ -14,7 +14,7 @@ import type { ConnectStep } from './chrome-header';
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 
-import { MARIMO_COMMAND } from '../../constants';
+const SERVER_COMMAND = 'nx run vibe-editor:serve';
 
 const CTA_BUTTON_SHADOW =
   '0px 16px 8px rgba(31,31,31,0.01), 0px 12px 6px rgba(31,31,31,0.04), 0px 4px 4px rgba(31,31,31,0.07), 0px 1.5px 3px rgba(31,31,31,0.08), 0px 0px 0px 1px #0f0f0f, inset 0px 1px 2px rgba(255,255,255,0.12)';
@@ -32,7 +32,7 @@ function CTAOverlay({ step, error, onRetry }: CTAOverlayProps) {
   const [commandOpen, setCommandOpen] = useState(false);
 
   const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(MARIMO_COMMAND);
+    navigator.clipboard.writeText(SERVER_COMMAND);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, []);
@@ -81,7 +81,7 @@ function CTAOverlay({ step, error, onRetry }: CTAOverlayProps) {
 
         {/* Description */}
         <p className="mt-1 text-[14px] text-mine-muted tracking-[-0.08px]">
-          Click on the button to use the code editor
+          正在自动连接编辑器后端...
         </p>
 
         {/* CTA button */}
@@ -177,7 +177,7 @@ function CTAOverlay({ step, error, onRetry }: CTAOverlayProps) {
           </AnimatePresence>
         </div>
 
-        {/* Collapsible terminal command */}
+        {/* Collapsible server command (for manual start) */}
         <details
           className="w-full max-w-md pointer-events-auto mt-2"
           open={commandOpen}
@@ -187,7 +187,7 @@ function CTAOverlay({ step, error, onRetry }: CTAOverlayProps) {
         >
           <summary className="flex items-center justify-center gap-1.5 text-xs text-mine-muted cursor-pointer hover:text-mine-text transition-colors select-none">
             <Terminal className="w-3 h-3" strokeWidth={1.5} />
-            <span>启动命令</span>
+            <span>手动启动服务</span>
           </summary>
           <div className="mt-2">
             <div
@@ -199,7 +199,7 @@ function CTAOverlay({ step, error, onRetry }: CTAOverlayProps) {
                   $
                 </span>
                 <code className="flex-1 text-[12px] font-mono text-[#d4d4d4] leading-[20px] select-all break-all">
-                  {MARIMO_COMMAND}
+                  {SERVER_COMMAND}
                 </code>
                 <button
                   type="button"
