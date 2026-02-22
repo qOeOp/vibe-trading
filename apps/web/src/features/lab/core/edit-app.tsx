@@ -159,7 +159,7 @@ export const EditApp: React.FC<AppProps> = ({
             // Keep the header sticky when scrolling horizontally, for column mode
             'sticky left-0',
             // In lab mode, minimize header padding (filename is in dock)
-            isLabActive ? 'pt-2 pb-1 mb-2' : 'pt-4 sm:pt-12 pb-2 mb-4',
+            isLabActive ? 'pt-0 pb-0 mb-0' : 'pt-4 sm:pt-12 pb-2 mb-4',
           )}
         >
           {/* FilenameForm hidden in lab mode — filename editing moves to dock */}

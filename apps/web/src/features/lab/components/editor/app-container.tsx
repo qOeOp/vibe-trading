@@ -36,6 +36,7 @@ export const AppContainer: React.FC<PropsWithChildren<Props>> = ({
             isLabActive ? 'bg-transparent' : 'bg-background',
             'w-full h-full text-textColor',
             'flex flex-col overflow-y-auto',
+            isLabActive && 'scrollbar-none',
             width === 'full' && 'config-width-full',
             width === 'columns' ? 'overflow-x-auto' : 'overflow-x-hidden',
             'print:height-fit',

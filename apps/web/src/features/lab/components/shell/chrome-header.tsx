@@ -231,7 +231,7 @@ function ChromeHeader({
         <ConnectionStepper step={step} />
       </div>
 
-      {/* Right: run icon aligned above activity bar */}
+      {/* Right: run icon — width matches activity bar column (36px + gap) */}
       <div
         className="shrink-0 flex items-center justify-center"
         style={{ width: 54, marginRight: -16 }}

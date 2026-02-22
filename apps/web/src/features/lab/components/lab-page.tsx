@@ -127,17 +127,19 @@ const CELL_2_CODE = `ic_series = factor.corr(df['close'].shift(-1))
 
 mo.ui.table(df.head())`;
 
-/** Static IDE content — shown when disconnected */
-function StaticIDEBody() {
+/** File tree — shown in disconnected left column */
+function StaticFileTree() {
   const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
+  if (!fileTreeVisible) return null;
+  return <MineFileTree />;
+}
 
+/** Editor cells + factor sidebar — center column content when disconnected */
+function StaticEditorContent() {
   return (
     <>
-      {/* Column 1: File tree (toggle via chrome header Menu) */}
-      {fileTreeVisible && <MineFileTree />}
-
-      {/* Column 2: Editor (tabs + cells) */}
-      <div className="flex-1 min-w-0 flex flex-col overflow-y-auto">
+      {/* Editor (tabs + cells) */}
+      <div className="flex-1 min-w-0 flex flex-col overflow-y-auto relative">
         <MineTabBar />
 
         {/* Cell 1: imports & setup */}
@@ -151,7 +153,7 @@ function StaticIDEBody() {
         </MineCell>
       </div>
 
-      {/* Column 3: Factor analytics sidebar */}
+      {/* Factor analytics sidebar */}
       <div className="w-[400px] shrink-0 overflow-y-auto relative bg-white rounded-lg shadow-sm">
         <FactorPreviewPanel />
       </div>
@@ -211,7 +213,6 @@ function LabOrchestrator() {
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const connectingRef = useRef(false);
-  const manualDisconnectRef = useRef(false);
 
   const isConnected = labMode === 'active';
 
@@ -242,40 +243,6 @@ function LabOrchestrator() {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, []);
-
-  // Auto-connect via session API: poll /api/sessions/connect until service is up
-  useEffect(() => {
-    if (labMode !== 'idle' || connectStep !== 'start') return;
-    if (manualDisconnectRef.current) return;
-
-    const tryConnect = async () => {
-      if (connectingRef.current || manualDisconnectRef.current) return;
-      try {
-        const res = await fetch(`${MARIMO_KERNEL_BASE}/api/sessions/connect`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: 'root' }), // TODO: auth — use real userId
-          signal: AbortSignal.timeout(2000),
-        });
-        if (res.ok) {
-          const session: { workspacePath: string; notebookPath: string } =
-            await res.json();
-          connectingRef.current = true;
-          if (pollingRef.current) clearInterval(pollingRef.current);
-          doConnect(session.workspacePath, session.notebookPath);
-        }
-      } catch {
-        // Service not running yet — keep polling
-      }
-    };
-
-    tryConnect();
-    pollingRef.current = setInterval(tryConnect, 2000);
-
-    return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-    };
-  }, [labMode, connectStep]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Heartbeat: keep session alive while connected
   useEffect(() => {
@@ -369,6 +336,35 @@ function LabOrchestrator() {
     [setLabMode],
   );
 
+  // Manual connect: user clicks CTA → poll until backend responds
+  const handleConnect = useCallback(() => {
+    if (connectingRef.current || labMode !== 'idle') return;
+    setConnectStep('connecting');
+
+    const tryConnect = async () => {
+      try {
+        const res = await fetch(`${MARIMO_KERNEL_BASE}/api/sessions/connect`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: 'root' }), // TODO: auth
+          signal: AbortSignal.timeout(2000),
+        });
+        if (res.ok) {
+          const session: { workspacePath: string; notebookPath: string } =
+            await res.json();
+          connectingRef.current = true;
+          if (pollingRef.current) clearInterval(pollingRef.current);
+          doConnect(session.workspacePath, session.notebookPath);
+        }
+      } catch {
+        // Service not running yet — keep polling
+      }
+    };
+
+    tryConnect();
+    pollingRef.current = setInterval(tryConnect, 2000);
+  }, [labMode, doConnect]);
+
   const handleRetry = useCallback(() => {
     setError(null);
     setConnectStep('start');
@@ -377,7 +373,6 @@ function LabOrchestrator() {
 
   const handleDisconnect = useCallback(() => {
     if (isConnected) {
-      manualDisconnectRef.current = true;
       if (pollingRef.current) clearInterval(pollingRef.current);
       store.set(connectionAtom, { state: WebSocketState.NOT_STARTED });
       store.set(runtimeConfigAtom, DEFAULT_RUNTIME_CONFIG);
@@ -395,12 +390,8 @@ function LabOrchestrator() {
         // localStorage unavailable
       }
 
-      setLabMode('idle');
-    } else {
-      // Re-enable auto-connect polling by resetting state
-      manualDisconnectRef.current = false;
       connectingRef.current = false;
-      setConnectStep('start');
+      setLabMode('idle');
     }
   }, [isConnected, setLabMode]);
 
@@ -417,7 +408,7 @@ function LabOrchestrator() {
         transition={{ duration: 0.7, ease: EASE }}
       >
         <div
-          className="h-full overflow-hidden rounded-t-[20px] rounded-b-xl relative flex flex-col font-sans"
+          className="h-full overflow-hidden rounded-[26px] relative flex flex-col font-sans"
           style={{ boxShadow: FRAME_SHADOW }}
         >
           {/* Inner highlight */}
@@ -426,7 +417,7 @@ function LabOrchestrator() {
             style={{ boxShadow: 'inset 0px 1px 2px rgba(255,255,255,0.12)' }}
           />
 
-          {/* Chrome header — always present */}
+          {/* Chrome header — full width */}
           <ChromeHeader
             step={connectStep}
             isConnected={isConnected}
@@ -436,8 +427,8 @@ function LabOrchestrator() {
             onOpenSettings={bridgedActions.openSettings ?? undefined}
           />
 
-          {/* IDE Body — always present container */}
-          <div className="flex bg-[#f7f7f7] flex-1 min-h-0 gap-2 p-2">
+          {/* IDE Body — 3-column layout */}
+          <div className="flex bg-[#f7f7f7] flex-1 min-h-0 gap-2 p-2 pt-0">
             <AnimatePresence mode="wait">
               {isConnected ? (
                 <motion.div
@@ -458,7 +449,8 @@ function LabOrchestrator() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <StaticIDEBody />
+                  <StaticFileTree />
+                  <StaticEditorContent />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -490,6 +482,7 @@ function LabOrchestrator() {
               <CTAOverlay
                 step={connectStep}
                 error={error}
+                onConnect={handleConnect}
                 onRetry={handleRetry}
               />
             </motion.div>

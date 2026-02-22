@@ -116,7 +116,7 @@ const CellArrayInternal: React.FC<CellArrayProps> = ({
       className="pb-[40vh]"
       invisible={false}
       appConfig={appConfig}
-      innerClassName="pr-4" // For the floating actions
+      innerClassName={undefined} // lab mode: no right padding; floating actions handled by cell
     >
       {/* Connection status handled by dock's BackendConnectionStatus */}
       <div

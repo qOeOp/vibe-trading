@@ -136,18 +136,19 @@ function MineAppChrome({ children }: PropsWithChildren) {
         {/* Column 2: Editor (tabs + content) */}
         <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
           <MineTabBar />
+          <div className="h-2 shrink-0" />
 
           {isNotebookTab ? (
             /* Notebook tab: marimo EditApp renders real cells from kernel */
             <div
               data-slot="lab-fullscreen"
-              className="relative flex-1 min-h-0 mt-1 overflow-y-auto rounded-lg"
+              className="relative flex-1 min-h-0 overflow-y-auto rounded-lg"
             >
               {children}
             </div>
           ) : (
             /* File tab: single-file CodeMirror editor with auto-save */
-            <div className="relative flex-1 min-h-0 mt-1 overflow-hidden rounded-lg bg-white shadow-sm">
+            <div className="relative flex-1 min-h-0 overflow-hidden rounded-lg bg-white shadow-sm">
               <Provider store={store}>
                 <TooltipProvider>
                   <ErrorBoundary>

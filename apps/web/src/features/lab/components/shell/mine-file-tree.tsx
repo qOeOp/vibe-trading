@@ -88,7 +88,7 @@ function MineFileTree({
     <div
       data-slot="mine-file-tree"
       className={cn(
-        'w-[280px] shrink-0 flex flex-col bg-white rounded-lg overflow-hidden shadow-sm',
+        'w-[280px] shrink-0 flex flex-col bg-white rounded-lg rounded-bl-[18px] overflow-hidden shadow-sm',
         className,
       )}
     >

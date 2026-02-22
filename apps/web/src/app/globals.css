@@ -352,6 +352,14 @@
   opacity: 1 !important;
 }
 
+/* Hide scrollbar completely while keeping scroll functionality */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Custom scrollbar styles - auto-hide when not scrolling */
 .scrollbar-thin {
   scrollbar-width: thin;

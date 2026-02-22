@@ -93,7 +93,7 @@ function ActivityBar({
     <div
       data-slot="activity-bar"
       className={cn(
-        'shrink-0 flex flex-col items-center pt-0 pb-2 gap-2',
+        'shrink-0 flex flex-col items-center pt-0 pb-0 gap-2',
         className,
       )}
       {...props}
@@ -148,13 +148,13 @@ function ActivityBar({
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* More options */}
+      {/* More options — circular, positioned to align with frame corner radius */}
       <button
-        className="w-[36px] h-[36px] flex items-center justify-center rounded-[9px] bg-white text-mine-text relative hover:scale-105 transition-transform"
+        className="w-[36px] h-[36px] flex items-center justify-center rounded-full bg-white text-mine-text relative hover:scale-105 transition-transform"
         style={{ boxShadow: BUTTON_SHADOW }}
       >
         <div
-          className="absolute inset-0 rounded-[9px] pointer-events-none"
+          className="absolute inset-0 rounded-full pointer-events-none"
           style={{ boxShadow: BUTTON_INSET }}
         />
         <GlowingEffect

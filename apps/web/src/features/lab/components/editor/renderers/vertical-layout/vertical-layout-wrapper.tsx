@@ -24,7 +24,7 @@ export const VerticalLayoutWrapper: React.FC<PropsWithChildren<Props>> = ({
     <div
       className={cn(
         isLabMode
-          ? 'px-2 pb-4'
+          ? 'pb-4'
           : 'px-1 sm:px-16 md:px-20 xl:px-24 print:px-0 print:pb-0 pb-24 sm:pb-12',
         className,
       )}

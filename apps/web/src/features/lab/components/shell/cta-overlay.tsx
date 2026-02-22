@@ -24,10 +24,11 @@ const CTA_BUTTON_SHADOW =
 type CTAOverlayProps = {
   step: ConnectStep;
   error: string | null;
+  onConnect: () => void;
   onRetry: () => void;
 };
 
-function CTAOverlay({ step, error, onRetry }: CTAOverlayProps) {
+function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
   const [copied, setCopied] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
 
@@ -81,34 +82,33 @@ function CTAOverlay({ step, error, onRetry }: CTAOverlayProps) {
 
         {/* Description */}
         <p className="mt-1 text-[14px] text-mine-muted tracking-[-0.08px]">
-          正在自动连接编辑器后端...
+          点击按钮启动代码编辑器
         </p>
 
         {/* CTA button */}
         <div className="mt-6 pointer-events-auto">
           <AnimatePresence mode="wait">
             {step === 'start' && !error && (
-              <motion.div
+              <motion.button
                 key="cta"
-                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] relative"
+                type="button"
+                onClick={onConnect}
+                className="flex items-center gap-0.5 h-8 pl-3.5 pr-1.5 bg-[#2e2e2e] text-white text-sm font-medium rounded-[11px] relative cursor-pointer hover:bg-[#3a3a3a] transition-colors"
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
                 style={{ boxShadow: CTA_BUTTON_SHADOW }}
               >
-                <div className="relative w-1.5 h-1.5 mr-1.5">
-                  <div className="absolute inset-0 rounded-full bg-white/40 animate-ping" />
-                  <div className="absolute inset-0 rounded-full bg-white/70" />
-                </div>
+                <Code2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
                 <span className="leading-5 tracking-[-0.08px]">
-                  Waiting for kernel
+                  Launch editor
                 </span>
                 <ChevronRight
                   className="w-5 h-5 opacity-60"
                   strokeWidth={1.5}
                 />
-              </motion.div>
+              </motion.button>
             )}
             {step === 'connecting' && (
               <motion.div
