@@ -1,23 +1,22 @@
 'use client';
 
-import { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import {
-  Terminal,
-  Check,
-  Loader2,
-  Copy,
-  Code2,
-  ChevronRight,
-} from 'lucide-react';
+import { Check, Loader2, ChevronRight } from 'lucide-react';
 import type { ConnectStep } from './chrome-header';
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
 
-const SERVER_COMMAND = 'nx run vibe-editor:serve';
-
 const CTA_BUTTON_SHADOW =
   '0px 16px 8px rgba(31,31,31,0.01), 0px 12px 6px rgba(31,31,31,0.04), 0px 4px 4px rgba(31,31,31,0.07), 0px 1.5px 3px rgba(31,31,31,0.08), 0px 0px 0px 1px #0f0f0f, inset 0px 1px 2px rgba(255,255,255,0.12)';
+
+// ─── Progressive Blur (11-layer Align UI technique) ─────
+// Each layer: 52px tall, offset 26px apart (50% overlap),
+// masked with a top-opaque → bottom-transparent gradient.
+// Blur descends 5.5px → 0.5px from bottom to top.
+const BLUR_MASK =
+  'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)';
+
+const BLUR_LAYERS = [5.5, 5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5] as const;
 
 // ─── CTA Overlay ──────────────────────────────────────────
 
@@ -29,26 +28,36 @@ type CTAOverlayProps = {
 };
 
 function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
-  const [copied, setCopied] = useState(false);
-  const [commandOpen, setCommandOpen] = useState(false);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(SERVER_COMMAND);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, []);
-
   return (
     <div data-slot="cta-overlay" className="contents">
-      {/* Progressive blur overlay at device frame bottom */}
+      {/* Progressive blur — 11 stacked backdrop-blur layers with gradient masks */}
       <div
         data-slot="progressive-blur"
-        className="absolute bottom-0 left-0 right-0 h-[200px] pointer-events-none z-20"
-        style={{
-          background:
-            'linear-gradient(to top, var(--color-mine-page-bg) 0%, var(--color-mine-page-bg) 20%, transparent 100%)',
-        }}
-      />
+        className="absolute bottom-0 left-0 right-0 h-[286px] pointer-events-none z-20 overflow-hidden"
+      >
+        {/* Background color gradient (transparent → mine-bg at 65%) */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(247,247,247,0) 0%, var(--color-mine-bg) 65%)',
+          }}
+        />
+        {/* 11 blur layers — strongest (5.5px) at bottom, weakest (0.5px) at top */}
+        {BLUR_LAYERS.map((blur, i) => (
+          <div
+            key={blur}
+            className="absolute left-0 right-0 h-[52px]"
+            style={{
+              bottom: `${i * 26 - 26}px`,
+              backdropFilter: `blur(${blur}px)`,
+              WebkitBackdropFilter: `blur(${blur}px)`,
+              maskImage: BLUR_MASK,
+              WebkitMaskImage: BLUR_MASK,
+            }}
+          />
+        ))}
+      </div>
 
       {/* CTA content floating over the blur */}
       <motion.div
@@ -72,7 +81,8 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
                 '0px 4px 8px rgba(116,27,2,0.06), 0px 2px 4px rgba(116,27,2,0.04), 0px 1px 2px rgba(116,27,2,0.04), inset 0px -0.5px 0.5px rgba(240,80,35,0.08)',
             }}
           >
-            <Code2 className="w-6 h-6 text-[#f05023]" strokeWidth={1.5} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brackets.gif" alt="" className="w-6 h-6" />
           </div>
         </div>
 
@@ -83,7 +93,7 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
 
         {/* Description */}
         <p className="mt-1 text-[14px] text-mine-muted tracking-[-0.08px]">
-          点击按钮启动代码编辑器
+          Click on the button to use the code editor
         </p>
 
         {/* CTA button */}
@@ -101,10 +111,7 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
                 transition={{ duration: 0.3 }}
                 style={{ boxShadow: CTA_BUTTON_SHADOW }}
               >
-                <Code2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
-                <span className="leading-5 tracking-[-0.08px]">
-                  Launch editor
-                </span>
+                <span className="leading-5 tracking-[-0.08px]">Try live</span>
                 <ChevronRight
                   className="w-5 h-5 opacity-60"
                   strokeWidth={1.5}
@@ -177,52 +184,6 @@ function CTAOverlay({ step, error, onConnect, onRetry }: CTAOverlayProps) {
             )}
           </AnimatePresence>
         </div>
-
-        {/* Collapsible server command (for manual start) */}
-        <details
-          className="w-full max-w-md pointer-events-auto mt-2"
-          open={commandOpen}
-          onToggle={(e) =>
-            setCommandOpen((e.target as HTMLDetailsElement).open)
-          }
-        >
-          <summary className="flex items-center justify-center gap-1.5 text-xs text-mine-muted cursor-pointer hover:text-mine-text transition-colors select-none">
-            <Terminal className="w-3 h-3" strokeWidth={1.5} />
-            <span>手动启动服务</span>
-          </summary>
-          <div className="mt-2">
-            <div
-              className="rounded-lg overflow-hidden border border-black/10"
-              style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
-            >
-              <div className="flex items-start gap-3 bg-[#1e1e1e] px-3 py-3">
-                <span className="text-[12px] text-[#6ee7b7] font-mono shrink-0 leading-[20px]">
-                  $
-                </span>
-                <code className="flex-1 text-[12px] font-mono text-[#d4d4d4] leading-[20px] select-all break-all">
-                  {SERVER_COMMAND}
-                </code>
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/15 text-[10px] text-[#a3a3a3] hover:text-white transition-colors cursor-pointer font-medium"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-3 h-3" strokeWidth={2} />
-                      Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3" strokeWidth={2} />
-                      Copy
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </details>
       </motion.div>
     </div>
   );

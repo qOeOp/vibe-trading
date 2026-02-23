@@ -230,20 +230,23 @@ function MineCell({
         onToggleLanguage={onToggleLanguage}
       />
 
-      {/* Code content */}
-      <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
+      {/* Body — accent line targets this via [data-slot="mine-cell-body"]::before */}
+      <div data-slot="mine-cell-body" className="relative">
+        {/* Code content */}
+        <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
 
-      {/* Fold/collapse indicator (bottom-right) */}
-      <button
-        type="button"
-        onClick={onCollapse}
-        className="absolute bottom-1.5 right-1.5 opacity-40 hover:opacity-80 transition-opacity cursor-pointer"
-      >
-        <Minimize2 className="w-3 h-3 text-mine-muted" strokeWidth={1.5} />
-      </button>
+        {/* Fold/collapse indicator (bottom-right) */}
+        <button
+          type="button"
+          onClick={onCollapse}
+          className="absolute bottom-1.5 right-1.5 opacity-40 hover:opacity-80 transition-opacity cursor-pointer"
+        >
+          <Minimize2 className="w-3 h-3 text-mine-muted" strokeWidth={1.5} />
+        </button>
 
-      {/* Output area (if any) */}
-      {output}
+        {/* Output area (if any) */}
+        {output}
+      </div>
     </div>
   );
 }

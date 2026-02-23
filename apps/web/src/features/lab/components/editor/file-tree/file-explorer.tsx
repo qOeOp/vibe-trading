@@ -3,7 +3,6 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import {
-  ArrowLeftIcon,
   BetweenHorizontalStartIcon,
   BracesIcon,
   ChevronDownIcon,
@@ -12,19 +11,17 @@ import {
   CopyMinusIcon,
   DownloadIcon,
   Edit3Icon,
-  ExternalLinkIcon,
   EyeOffIcon,
   FilePlus2Icon,
   FolderPlusIcon,
   ListTreeIcon,
   MoreVerticalIcon,
-  PlaySquareIcon,
   RefreshCcwIcon,
   Trash2Icon,
   UploadIcon,
   ViewIcon,
 } from 'lucide-react';
-import React, { Suspense, use, useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 import {
   type NodeApi,
   type NodeRendererProps,
@@ -50,19 +47,16 @@ import { useLastFocusedCellId } from '@/features/lab/core/cells/focus';
 import { disableFileDownloadsAtom } from '@/features/lab/core/config/config';
 import { useRequestClient } from '@/features/lab/core/network/requests';
 import type { FileInfo } from '@/features/lab/core/network/types';
-import { isWasm } from '@/features/lab/core/wasm/utils';
 import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
 import { ErrorBanner } from '@/features/lab/plugins/impl/common/error-banner';
 import { cn } from '@/features/lab/utils/cn';
 import { copyToClipboard } from '@/features/lab/utils/copy';
 import { downloadBlob } from '@/features/lab/utils/download';
-import { openNotebook } from '@/features/lab/utils/links';
 import type { FilePath } from '@/features/lab/utils/paths';
 import { fileSplit } from '@/features/lab/utils/pathUtils';
 import { jotaiJsonStorage } from '@/features/lab/utils/storage/jotai';
-import marimoIcon from '@/features/lab/assets/icon-32x32.png';
+import { useLabFileTabStore } from '@/features/lab/store/use-lab-file-tab-store';
 import { useTreeDndManager } from './dnd-wrapper';
-import { FileViewer } from './file-viewer';
 import type { RequestingTree } from './requesting-tree';
 import { openStateAtom, treeAtom } from './state';
 import {
@@ -91,7 +85,6 @@ export const FileExplorer: React.FC<{
   const dndManager = useTreeDndManager();
   const [tree] = useAtom(treeAtom);
   const [data, setData] = useState<FileInfo[]>([]);
-  const [openFile, setOpenFile] = useState<FileInfo | null>(null);
   const [showHiddenFiles, setShowHiddenFiles] =
     useAtom<boolean>(hiddenFilesState);
 
@@ -146,36 +139,6 @@ export const FileExplorer: React.FC<{
     return <ErrorBanner error={error} />;
   }
 
-  if (openFile) {
-    return (
-      <>
-        <div className="flex items-center pl-1 pr-3 shrink-0 border-b justify-between">
-          <Button
-            onClick={() => setOpenFile(null)}
-            data-testid="file-explorer-back-button"
-            variant="text"
-            size="xs"
-            className="mb-0"
-          >
-            <ArrowLeftIcon size={16} />
-          </Button>
-          <span className="font-bold">{openFile.name}</span>
-        </div>
-        <Suspense>
-          <FileViewer
-            onOpenNotebook={(evt) =>
-              openMarimoNotebook(
-                evt,
-                tree.relativeFromRoot(openFile.path as FilePath),
-              )
-            }
-            file={openFile}
-          />
-        </Suspense>
-      </>
-    );
-  }
-
   return (
     <>
       <Toolbar
@@ -218,7 +181,8 @@ export const FileExplorer: React.FC<{
               return;
             }
             if (!first.data.isDirectory) {
-              setOpenFile(first.data);
+              // VT: open in tab instead of inline FileViewer
+              useLabFileTabStore.getState().openFile(first.data.path);
             }
           }}
           onToggle={async (id) => {
@@ -334,15 +298,7 @@ const Toolbar = ({
   );
 };
 
-const Show = ({
-  node,
-  onOpenMarimoFile,
-}: {
-  node: NodeApi<FileInfo>;
-  onOpenMarimoFile: (
-    evt: Pick<Event, 'stopPropagation' | 'preventDefault'>,
-  ) => void;
-}) => {
+const Show = ({ node }: { node: NodeApi<FileInfo> }) => {
   return (
     <span
       className="flex-1 overflow-hidden text-ellipsis"
@@ -355,14 +311,6 @@ const Show = ({
       }}
     >
       {node.data.name}
-      {node.data.isMarimoFile && !isWasm() && (
-        <span
-          className="shrink-0 ml-2 text-sm hidden group-hover:inline hover:underline"
-          onClick={onOpenMarimoFile}
-        >
-          open <ExternalLinkIcon className="inline ml-1" size={12} />
-        </span>
-      )}
     </span>
   );
 };
@@ -395,8 +343,7 @@ const Edit = ({ node }: { node: NodeApi<FileInfo> }) => {
 };
 
 const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
-  const { openFile, sendCreateFileOrFolder, sendFileDetails } =
-    useRequestClient();
+  const { sendCreateFileOrFolder, sendFileDetails } = useRequestClient();
   const disableFileDownloads = useAtomValue(disableFileDownloadsAtom);
 
   const fileType: FileType = node.data.isDirectory
@@ -417,15 +364,6 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
   };
 
   const tree = use(RequestingTreeContext);
-
-  const handleOpenMarimoFile = async (
-    evt: Pick<Event, 'stopPropagation' | 'preventDefault'>,
-  ) => {
-    const path = tree
-      ? tree.relativeFromRoot(node.data.path as FilePath)
-      : node.data.path;
-    openMarimoNotebook(evt, path);
-  };
 
   const handleDeleteFile = async (evt: Event) => {
     evt.stopPropagation();
@@ -515,19 +453,13 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
         {!node.data.isDirectory && (
-          <DropdownMenuItem onSelect={() => node.select()}>
+          <DropdownMenuItem
+            onSelect={() =>
+              useLabFileTabStore.getState().openFile(node.data.path)
+            }
+          >
             <ViewIcon {...iconProps} />
             Open file
-          </DropdownMenuItem>
-        )}
-        {!node.data.isDirectory && !isWasm() && (
-          <DropdownMenuItem
-            onSelect={() => {
-              openFile({ path: node.data.path });
-            }}
-          >
-            <ExternalLinkIcon {...iconProps} />
-            Open file in external editor
           </DropdownMenuItem>
         )}
         {node.data.isDirectory && (
@@ -602,16 +534,6 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
           <BracesIcon {...iconProps} />
           Copy snippet for reading file
         </DropdownMenuItem>
-        {/* Not shown in WASM */}
-        {node.data.isMarimoFile && !isWasm() && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={handleOpenMarimoFile}>
-              <PlaySquareIcon {...iconProps} />
-              Open notebook
-            </DropdownMenuItem>
-          </>
-        )}
         <DropdownMenuSeparator />
         {!node.data.isDirectory && !disableFileDownloads && (
           <>
@@ -660,20 +582,8 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
             'bg-accent/80 hover:bg-accent/80 text-accent-foreground',
         )}
       >
-        {node.data.isMarimoFile ? (
-          <img
-            src={typeof marimoIcon === 'string' ? marimoIcon : marimoIcon.src}
-            className="w-5 h-5 shrink-0 mr-2 filter grayscale"
-            alt="Marimo"
-          />
-        ) : (
-          <Icon className="w-5 h-5 shrink-0 mr-2" strokeWidth={1.5} />
-        )}
-        {node.isEditing ? (
-          <Edit node={node} />
-        ) : (
-          <Show node={node} onOpenMarimoFile={handleOpenMarimoFile} />
-        )}
+        <Icon className="w-5 h-5 shrink-0 mr-2" strokeWidth={1.5} />
+        {node.isEditing ? <Edit node={node} /> : <Show node={node} />}
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger
             asChild={true}
@@ -712,15 +622,6 @@ const FolderArrow = ({ node }: { node: NodeApi<FileInfo> }) => {
     <ChevronRightIcon className="w-5 h-5 shrink-0" />
   );
 };
-
-function openMarimoNotebook(
-  event: Pick<Event, 'stopPropagation' | 'preventDefault'>,
-  path: string,
-) {
-  event.stopPropagation();
-  event.preventDefault();
-  openNotebook(path);
-}
 
 export function filterHiddenTree(
   list: FileInfo[],

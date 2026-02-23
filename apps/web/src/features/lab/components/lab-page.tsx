@@ -51,10 +51,11 @@ import { SidePanel } from './shell/side-panel';
 import { CTAOverlay } from './shell/cta-overlay';
 import { MineCell } from './shell/mine-cell';
 import { MineCodeEditor } from './shell/mine-code-editor';
-import { MineFileTree } from './shell/mine-file-tree';
+import { DisconnectedFileTree } from './shell/mine-file-tree';
 import { MineTabBar } from './shell/mine-tab-bar';
 import { useRunAllCells } from './editor/cell/useRunCells';
 import { useChromeActions } from './editor/chrome/state';
+import { ModalProvider } from './modal/ImperativeModal';
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -66,7 +67,7 @@ const VT_USER_ID = 'root'; // TODO: auth — replace with real userId from auth 
 const VT_SESSION_KEY = 'vt-lab-session'; // TODO: auth — include userId in key
 
 const FRAME_SHADOW =
-  '0px 12px 12px -6px rgba(41,41,41,0.04), 0px 24px 24px -12px rgba(41,41,41,0.04), 0px 48px 48px -24px rgba(41,41,41,0.04), 0px 0px 0px 1px #d4d4d4';
+  '0px 12px 12px -6px rgba(41,41,41,0.04), 0px 24px 24px -12px rgba(41,41,41,0.04), 0px 48px 48px -24px rgba(41,41,41,0.04), 0px 0px 0px 1px #e0e0e0';
 
 // ─── Marimo Connection Helpers ────────────────────────────
 
@@ -128,11 +129,11 @@ const CELL_2_CODE = `ic_series = factor.corr(df['close'].shift(-1))
 
 mo.ui.table(df.head())`;
 
-/** File tree — shown in disconnected left column */
+/** File tree — shown in disconnected left column (always static preview) */
 function StaticFileTree() {
   const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
   if (!fileTreeVisible) return null;
-  return <MineFileTree />;
+  return <DisconnectedFileTree />;
 }
 
 /** Editor cells + factor sidebar — center column content when disconnected */
@@ -189,10 +190,12 @@ function LiveIDEBody({ sessionKey }: { sessionKey: number }) {
         <Suspense>
           <SlotzProvider controller={slotsController}>
             <TooltipProvider>
-              <ActionBridge />
-              <MineAppChrome>
-                <LabEditor />
-              </MineAppChrome>
+              <ModalProvider>
+                <ActionBridge />
+                <MineAppChrome>
+                  <LabEditor />
+                </MineAppChrome>
+              </ModalProvider>
             </TooltipProvider>
           </SlotzProvider>
         </Suspense>
@@ -410,7 +413,7 @@ function LabOrchestrator() {
         transition={{ duration: 0.7, ease: EASE }}
       >
         <div
-          className="h-full overflow-hidden rounded-[26px] relative flex flex-col font-sans"
+          className="h-full overflow-hidden rounded-[28px] bg-[#f7f7f7] relative flex flex-col font-sans"
           style={{ boxShadow: FRAME_SHADOW }}
         >
           {/* Inner highlight */}
@@ -430,7 +433,7 @@ function LabOrchestrator() {
           />
 
           {/* IDE Body — 3-column layout */}
-          <div className="flex bg-mine-bg flex-1 min-h-0 gap-2 p-2 pt-0">
+          <div className="flex bg-[#f7f7f7] flex-1 min-h-0 gap-2 p-2 pt-0">
             <AnimatePresence mode="wait">
               {isConnected ? (
                 <motion.div

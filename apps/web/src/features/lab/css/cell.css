@@ -471,12 +471,15 @@
 }
 
 /* ── Lab Mode: Shine Border — Left Accent Bar ────────────────── */
-[data-slot='lab-fullscreen'] .marimo-cell.interactive::after {
+/* Positioned on mine-cell-body (below toolbar) so it never overlaps the header */
+[data-slot='lab-fullscreen']
+  .marimo-cell.interactive
+  [data-slot='mine-cell-body']::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 8px;
-  bottom: 8px;
+  top: 4px;
+  bottom: 4px;
   width: 3px;
   border-radius: 0 2px 2px 0;
   background: transparent;
@@ -485,7 +488,9 @@
   pointer-events: none;
 }
 
-[data-slot='lab-fullscreen'] .marimo-cell.interactive:focus-within::after {
+[data-slot='lab-fullscreen']
+  .marimo-cell.interactive:focus-within
+  [data-slot='mine-cell-body']::before {
   background: var(--color-mine-accent-teal);
 }
 

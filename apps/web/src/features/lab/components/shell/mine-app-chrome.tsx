@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  type PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type PropsWithChildren, useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import { Provider } from 'jotai';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
@@ -16,14 +10,9 @@ import { useLabFileTabStore } from '@/features/lab/store/use-lab-file-tab-store'
 import { MineFileTree } from './mine-file-tree';
 import { MineTabBar } from './mine-tab-bar';
 import { FileEditor } from './file-editor';
-// Footer dock removed — CPU/memory stats moved to ActivityBar
-import { requestClientAtom } from '@/features/lab/core/network/requests';
-import { RequestingTree } from '../editor/file-tree/requesting-tree';
 import { filenameAtom } from '@/features/lab/core/saving/file-state';
 import { store } from '@/features/lab/core/state/jotai';
 import { ErrorBoundary } from '../editor/boundary/ErrorBoundary';
-import type { TreeViewElement } from '@/components/ui/file-tree';
-import type { FileInfo } from '@/features/lab/core/network/types';
 
 // ─── Mine App Chrome ─────────────────────────────────────
 //
@@ -32,68 +21,6 @@ import type { FileInfo } from '@/features/lab/core/network/types';
 //
 // Tab switching: notebook tab → children (marimo cells),
 // other tabs → FileEditor with auto-save.
-
-/** Convert marimo FileInfo[] → Magic UI TreeViewElement[] */
-function fileInfoToTreeElements(files: FileInfo[]): TreeViewElement[] {
-  return files.map((f) => {
-    const el: TreeViewElement = { id: f.path || f.name, name: f.name };
-    if (f.isDirectory) {
-      el.children = f.children ? fileInfoToTreeElements(f.children) : [];
-    }
-    return el;
-  });
-}
-
-/**
- * Fetches file tree from marimo kernel, rooted at the VT workspace path.
- * Builds its own RequestingTree with a patched listFiles callback that
- * redirects the initial empty-path request to the workspace directory.
- */
-function useMarimoFileTree() {
-  const client = useAtomValue(requestClientAtom);
-  const workspacePath = useLabModeStore((s) => s.workspacePath);
-  const [files, setFiles] = useState<TreeViewElement[] | null>(null);
-  const treeRef = useRef<RequestingTree | null>(null);
-
-  useEffect(() => {
-    if (!client) return;
-
-    let cancelled = false;
-
-    const tree = new RequestingTree({
-      listFiles: (req) => {
-        const resolvedPath =
-          !req.path && workspacePath ? workspacePath : req.path;
-        return client.sendListFiles({ ...req, path: resolvedPath });
-      },
-      createFileOrFolder: client.sendCreateFileOrFolder,
-      deleteFileOrFolder: client.sendDeleteFileOrFolder,
-      renameFileOrFolder: client.sendRenameFileOrFolder,
-    });
-    treeRef.current = tree;
-
-    tree.initialize((data: FileInfo[]) => {
-      if (!cancelled) {
-        setFiles(fileInfoToTreeElements(data));
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [client, workspacePath]);
-
-  const expandFolder = useCallback(async (id: string) => {
-    const tree = treeRef.current;
-    if (!tree) return;
-    const result = await tree.expand(id);
-    if (result) {
-      setFiles(fileInfoToTreeElements(tree.getData()));
-    }
-  }, []);
-
-  return { files, expandFolder };
-}
 
 /** Initialize notebook tab from marimo's filenameAtom (with fallback to store path) */
 function useInitNotebookTab() {
@@ -109,7 +36,6 @@ function useInitNotebookTab() {
 
 function MineAppChrome({ children }: PropsWithChildren) {
   const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
-  const { files: realFiles, expandFolder } = useMarimoFileTree();
   const activeTabId = useLabFileTabStore((s) => s.activeTabId);
   const tabs = useLabFileTabStore((s) => s.tabs);
 
@@ -126,29 +52,29 @@ function MineAppChrome({ children }: PropsWithChildren) {
         className="relative flex-1 flex gap-2 overflow-hidden h-full"
       >
         {/* Column 1: File tree (toggle via chrome header Menu) */}
-        {fileTreeVisible && (
-          <MineFileTree
-            files={realFiles ?? undefined}
-            onFolderExpand={expandFolder}
-          />
-        )}
+        {fileTreeVisible && <MineFileTree />}
 
-        {/* Column 2: Editor (tabs + content) */}
-        <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        {/* Column 2: Editor frame (Align UI rounded container) */}
+        <div
+          data-slot="editor-frame"
+          className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#f2f2f2] rounded-[20px] pb-1.5"
+          style={{
+            boxShadow: 'inset 0px 0.75px 0.75px rgba(0,0,0,0.04)',
+          }}
+        >
           <MineTabBar />
-          <div className="h-2 shrink-0" />
 
           {isNotebookTab ? (
             /* Notebook tab: marimo EditApp renders real cells from kernel */
             <div
               data-slot="lab-fullscreen"
-              className="relative flex-1 min-h-0 overflow-y-auto rounded-lg"
+              className="relative flex-1 min-h-0 overflow-y-auto bg-white rounded-2xl mx-1.5 p-2"
             >
               {children}
             </div>
           ) : (
             /* File tab: single-file CodeMirror editor with auto-save */
-            <div className="relative flex-1 min-h-0 overflow-hidden rounded-lg bg-white shadow-sm">
+            <div className="relative flex-1 min-h-0 overflow-hidden bg-white rounded-2xl mx-1.5">
               <Provider store={store}>
                 <TooltipProvider>
                   <ErrorBoundary>
