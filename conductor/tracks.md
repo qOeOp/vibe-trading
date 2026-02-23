@@ -17,6 +17,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 *ClickUp: Space "Vibe Trading" > Epic "市场表现" > Story "Treemap Heatmap"*
 *Docs: [../docs/treemap-preview/](../docs/treemap-preview/)*
 
-
-
-
+- [ ] **Track: Vibe Editor Feature & Architecture Audit**
+*Link: [./tracks/vibe-editor-audit_20260223/](./tracks/vibe-editor-audit_20260223/)*
