@@ -41,6 +41,7 @@ A modern, event-driven trading platform built with a multi-language monorepo arc
 vibe-trading/
 ├── apps/
 │   ├── web/                    # React frontend (Next.js 15, static export)
+│   ├── vibe-editor/            # Factor Lab notebook server (marimo 0.20.1)
 │   ├── wiki/                   # Documentation site (Next.js/MDX)
 │   ├── api/                    # Express API gateway (TypeScript)
 │   ├── trading-engine/         # Trading logic service (Python/FastAPI)
@@ -66,59 +67,60 @@ vibe-trading/
 
 ### Pages & Routes
 
-| Route | Feature | Description |
-|-------|---------|-------------|
-| `/login` | Auth | Login page |
-| `/market` | Market | Sector treemap, k-line charts, market breadth, AI chat |
-| `/factor` | Factor Analysis | Band chart, polar calendar, leaderboard, quantile charts |
-| `/factor/home` | Factor Home | Alternative factor view |
-| `/factor/library` | Factor Library | Factor discovery grid with filters |
-| `/analysis` | Stock Analysis | TradingView integration, watchlist, stock details |
+| Route             | Feature         | Description                                              |
+| ----------------- | --------------- | -------------------------------------------------------- |
+| `/login`          | Auth            | Login page                                               |
+| `/market`         | Market          | Sector treemap, k-line charts, market breadth, AI chat   |
+| `/factor`         | Factor Analysis | Band chart, polar calendar, leaderboard, quantile charts |
+| `/factor/home`    | Factor Home     | Alternative factor view                                  |
+| `/factor/library` | Factor Library  | Factor discovery grid with filters                       |
+| `/analysis`       | Stock Analysis  | TradingView integration, watchlist, stock details        |
 
 ### ngx-charts Library
 
 Custom D3-based chart library at `apps/web/src/lib/ngx-charts/` with 13 chart families:
 
-| Chart Type | Description |
-|------------|-------------|
-| **line-chart** | Line charts with circle markers |
-| **area-chart** | Area charts (standard, stacked, normalized) |
-| **bar-chart** | Bar charts (vertical, horizontal, stacked) |
-| **band-chart** | Box plot bands with symmetric power scale |
-| **pie-chart** | Pie and donut charts |
-| **gauge** | Radial and linear gauges |
-| **heat-map** | Grid heatmaps |
-| **tree-map** | Hierarchical rectangles |
-| **bubble-chart** | Scatter plots with sized bubbles |
-| **polar-chart** | Polar/radar charts |
-| **number-card** | Numeric KPI cards |
-| **sankey** | Flow diagrams |
-| **line-race** | Animated racing line chart with leaderboard |
+| Chart Type       | Description                                 |
+| ---------------- | ------------------------------------------- |
+| **line-chart**   | Line charts with circle markers             |
+| **area-chart**   | Area charts (standard, stacked, normalized) |
+| **bar-chart**    | Bar charts (vertical, horizontal, stacked)  |
+| **band-chart**   | Box plot bands with symmetric power scale   |
+| **pie-chart**    | Pie and donut charts                        |
+| **gauge**        | Radial and linear gauges                    |
+| **heat-map**     | Grid heatmaps                               |
+| **tree-map**     | Hierarchical rectangles                     |
+| **bubble-chart** | Scatter plots with sized bubbles            |
+| **polar-chart**  | Polar/radar charts                          |
+| **number-card**  | Numeric KPI cards                           |
+| **sankey**       | Flow diagrams                               |
+| **line-race**    | Animated racing line chart with leaderboard |
 
 Built with D3.js for calculations, Framer Motion for animations, and ResizeObserver for responsive sizing.
 
 ## Services
 
-| Service | Language | Port | Purpose |
-|---------|----------|------|---------|
-| **web** | TypeScript/React | 4200 (dev) / 8200 (prod) | Frontend dashboard |
-| **wiki** | TypeScript/Next.js | - | Documentation site |
-| **api** | TypeScript/Express | 8201 | REST API gateway |
-| **trading-engine** | Python/FastAPI | 8202 | Order execution and strategy |
-| **market-data** | Python/FastAPI | 8203 | Real-time market data processing |
-| **analytics** | Python/FastAPI | 8204 | Trading analytics and reporting |
-| **ml-models** | Python/FastAPI | 8205 | ML predictions and insights |
+| Service            | Language           | Port                     | Purpose                             |
+| ------------------ | ------------------ | ------------------------ | ----------------------------------- |
+| **web**            | TypeScript/React   | 4200 (dev) / 8200 (prod) | Frontend dashboard                  |
+| **vibe-editor**    | Python/marimo      | 2728                     | Notebook server (Factor Lab kernel) |
+| **wiki**           | TypeScript/Next.js | -                        | Documentation site                  |
+| **api**            | TypeScript/Express | 8201                     | REST API gateway                    |
+| **trading-engine** | Python/FastAPI     | 8202                     | Order execution and strategy        |
+| **market-data**    | Python/FastAPI     | 8203                     | Real-time market data processing    |
+| **analytics**      | Python/FastAPI     | 8204                     | Trading analytics and reporting     |
+| **ml-models**      | Python/FastAPI     | 8205                     | ML predictions and insights         |
 
 ### Infrastructure
 
-| Component | Port | Purpose |
-|-----------|------|---------|
-| **Redis** | 8206 | Caching and state management |
-| **Kafka** | 8207 | Event streaming |
-| **Zookeeper** | 8208 | Kafka coordination |
-| **Portainer** | 8210 | Docker management UI |
-| **Kafka UI** | 8211 | Kafka monitoring |
-| **Redis Commander** | 8212 | Redis management UI |
+| Component           | Port | Purpose                      |
+| ------------------- | ---- | ---------------------------- |
+| **Redis**           | 8206 | Caching and state management |
+| **Kafka**           | 8207 | Event streaming              |
+| **Zookeeper**       | 8208 | Kafka coordination           |
+| **Portainer**       | 8210 | Docker management UI         |
+| **Kafka UI**        | 8211 | Kafka monitoring             |
+| **Redis Commander** | 8212 | Redis management UI          |
 
 ## Quick Start
 
@@ -146,10 +148,15 @@ docker-compose up -d
 
 # 4. Start frontend dev server
 npx nx run web:serve --port=4200
+
+# 5. Start Factor Lab notebook server (required for /factor/lab)
+npx nx run vibe-editor:serve
 ```
 
 **Access the application:**
+
 - Frontend: http://localhost:4200 (dev) / http://localhost:8200 (prod)
+- Factor Lab kernel: http://localhost:2728/health
 - API: http://localhost:8201/health
 - Portainer: http://localhost:8210
 - Kafka UI: http://localhost:8211
@@ -163,6 +170,9 @@ npx nx run web:serve          # Start frontend dev server
 npx nx run web:build          # Build frontend
 npx nx run api:serve          # Start API dev server
 npx nx run api:build          # Build API
+
+# Factor Lab (marimo notebook server)
+npx nx run vibe-editor:serve       # Start on port 2728
 
 # Python services
 npx nx run trading-engine:serve    # Start on port 8202
@@ -213,6 +223,7 @@ docker-compose -f docker-compose.prod.yml --profile local-kafka up -d
 ```
 
 **Multi-platform Build Notes:**
+
 - Uses `docker buildx` to build for both linux/amd64 and linux/arm64
 - First run will create a multiplatform builder (takes a few minutes)
 - Push to registry enables both architectures to be pulled by different platforms
@@ -225,6 +236,7 @@ docker-compose -f docker-compose.prod.yml --profile local-kafka up -d
 Despite the `dark` CSS class, the actual visual appearance is a warm, light beige theme.
 
 **Core Colors:**
+
 ```
 Page background:   oklch(0.92 0.01 85)  (warm light gray)
 Panel background:  #f5f3ef               (light beige)
@@ -235,6 +247,7 @@ Borders:           #e0ddd8               (warm gray)
 ```
 
 **Market Colors (Chinese convention: Red=Up, Green=Down):**
+
 ```
 Up/Positive:    #F6465D  (red)
 Down/Negative:  #2EBD85  (green)
@@ -244,6 +257,7 @@ Flat/Unchanged: #76808E  (gray)
 ## Tech Stack
 
 ### Frontend (`apps/web`)
+
 - React 19 with TypeScript
 - Next.js 15 (static export mode)
 - Tailwind CSS v4 with OKLCH colors
@@ -254,11 +268,13 @@ Flat/Unchanged: #76808E  (gray)
 - Lucide React icons
 
 ### Backend (`apps/api`)
+
 - Express.js with TypeScript
 - Kafka producer/consumer
 - Redis for caching
 
 ### Python Services
+
 - FastAPI for HTTP APIs
 - aiokafka for async Kafka
 - Redis for state management
@@ -266,6 +282,7 @@ Flat/Unchanged: #76808E  (gray)
 - Poetry for dependency management
 
 ### Infrastructure
+
 - Nx 22.3.3 for monorepo management
 - Apache Kafka 7.6.0 for event streaming
 - Redis 7 for caching
@@ -290,12 +307,14 @@ Follow conventional commit messages. Keep commits atomic.
 **Docker health check failures:** All health checks use `127.0.0.1` (not `localhost`) to avoid IPv6 resolution issues in Alpine Linux containers.
 
 **Build failures:**
+
 ```bash
 npx nx reset                           # Clear Nx cache
 npx nx run web:build --skip-nx-cache   # Rebuild without cache
 ```
 
 **Python import errors:**
+
 ```bash
 cd apps/[service] && poetry install    # Reinstall dependencies
 ```

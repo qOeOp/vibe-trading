@@ -1,0 +1,9 @@
+# Ignore redundant skill directories for Gemini CLI to avoid conflicts
+/.agents/
+/.claude/
+/.junie/
+/.qoder/
+/.windsurf/
+/.codex/
+/.agent/
+/skills/
