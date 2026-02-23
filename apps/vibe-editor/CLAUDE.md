@@ -69,7 +69,7 @@ apps/vibe-editor/
 ### Workspace
 
 - **Base path**: `~/.vt-lab/` (configurable via `VIBE_EDITOR_WORKSPACE` env var — not yet implemented)
-- **Welcome notebook**: `welcome.py` created automatically if missing
+- **Welcome notebook**: `factor.py` created automatically if missing
 - **Persistence**: Files survive server restarts (filesystem-based)
 
 ## Configuration

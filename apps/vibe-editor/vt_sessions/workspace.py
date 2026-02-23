@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # For now, single-user mode uses ~/.vt-lab/
 DEFAULT_WORKSPACE_BASE = os.path.expanduser("~/.vt-lab")
 
-WELCOME_NOTEBOOK_NAME = "welcome.py"
+WELCOME_NOTEBOOK_NAME = "factor.py"
 
 # fmt: off
 WELCOME_NOTEBOOK_CONTENT = '''import marimo

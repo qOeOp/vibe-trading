@@ -79,7 +79,7 @@ async def list_files(
 async def file_details(
     *,
     request: Request,
-) -> FileDetailsResponse:
+) -> FileDetailsResponse | ErrorResponse:
     """
     requestBody:
         content:
@@ -95,9 +95,15 @@ async def file_details(
                         $ref: "#/components/schemas/FileDetailsResponse"
     """
     body = await parse_request(request, cls=FileDetailsRequest)
-    # This fails if the file isn't encoded as utf-8
-    # TODO: support returning raw bytes
-    return file_system.get_details(body.path)
+    try:
+        return file_system.get_details(body.path)
+    except FileNotFoundError:
+        LOGGER.warning("File not found: %s", body.path)
+        from starlette.responses import JSONResponse
+        return JSONResponse(
+            status_code=404,
+            content={"error": f"File not found: {body.path}"},
+        )
 
 
 @router.post("/create")

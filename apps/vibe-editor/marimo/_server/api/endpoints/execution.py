@@ -429,12 +429,11 @@ async def takeover_endpoint(
             content={"error": "Cannot take over session."},
         )
 
-    # Find and close any existing sessions for this file
+    # If another session already holds this file, disconnect it first
     existing_session = app_state.session_manager.get_session_by_file_key(
         file_key
     )
     if existing_session is not None:
-        # Send a disconnect message to the client
         existing_session.notify(
             AlertNotification(
                 title="Session taken over",
@@ -443,10 +442,7 @@ async def takeover_endpoint(
             ),
             from_consumer_id=None,
         )
-        # Wait 100ms to ensure the client has received the message
         await asyncio.sleep(0.1)
         existing_session.disconnect_main_consumer()
-    else:
-        LOGGER.warning("No existing session found for file key %s", file_key)
 
     return JSONResponse(status_code=200, content={"status": "ok"})
