@@ -7,6 +7,7 @@
 - **UI**: Radix UI + CVA + `cn()` from `@/lib/utils`
 - **Charts**: ngx-charts (D3 + Framer Motion), xycharts (visx), Recharts (legacy)
 - **State**: Zustand | **Validation**: Zod | **Animation**: Framer Motion | **Icons**: Lucide
+- **Testing**: Vitest + React Testing Library (单测), Playwright (E2E), pytest (Python)
 - **Monorepo**: Nx 22.3 | **Backend** (未激活): FastAPI + Kafka + Redis — 规范见 `guidelines/`
 
 ## Architecture
@@ -67,6 +68,12 @@ apps/web/src/
 - `motion.path` must include `d` in ALL variants (initial, animate, exit)
 - Data: feature hooks transform raw data → chart-ready props. Keep transforms in feature layer
 
+### Testing
+
+- 新功能和 bugfix 优先写测试（`*.test.ts`/`*.test.tsx`），使用 Vitest + React Testing Library
+- 运行测试：`npx nx run web:test`
+- E2E 测试在 `apps/web/e2e/`（Playwright Python）
+
 ### Blueprint (Doc Mode)
 
 - MineCard MUST have height constraints (`max-h-[420px]`); cards scroll, not stretch
@@ -77,6 +84,7 @@ apps/web/src/
 ```bash
 npx nx run web:serve --port=4200    # Dev server
 npx nx run web:build                # Production build
+npx nx run web:test                 # Unit tests (Vitest)
 npx nx run web:lint                 # Lint
 ```
 
