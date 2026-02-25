@@ -18,7 +18,6 @@ from marimo._server.api.auth import (
 )
 from marimo._server.api.middleware import (
     AuthBackend,
-    OpenTelemetryMiddleware,
     ProxyMiddleware,
     SkewProtectionMiddleware,
     TimeoutMiddleware,
@@ -54,6 +53,7 @@ def create_starlette_app(
     lifespan: Optional[Lifespan[Starlette]] = None,
     enable_auth: bool = True,
     allow_origins: Optional[tuple[str, ...]] = None,
+    allow_origin_regex: Optional[str] = None,
     lsp_servers: Optional[list[LspServer]] = None,
     skew_protection: bool = True,
     timeout: Optional[float] = None,
@@ -77,7 +77,6 @@ def create_starlette_app(
 
     final_middlewares.extend(
         [
-            Middleware(OpenTelemetryMiddleware),
             Middleware(
                 CustomAuthenticationMiddleware,
                 backend=AuthBackend(should_authenticate=enable_auth),
@@ -86,6 +85,7 @@ def create_starlette_app(
             Middleware(
                 CORSMiddleware,
                 allow_origins=allow_origins,
+                allow_origin_regex=allow_origin_regex,
                 allow_credentials=True,
                 allow_methods=["*"],
                 allow_headers=["*"],

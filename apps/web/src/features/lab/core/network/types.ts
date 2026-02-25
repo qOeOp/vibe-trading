@@ -67,7 +67,6 @@ export type ReadCodeResponse = schemas['ReadCodeResponse'];
 export type RecentFilesResponse = schemas['RecentFilesResponse'];
 export type RenameNotebookRequest = schemas['RenameNotebookRequest'];
 export type ExecuteCellsRequest = schemas['ExecuteCellsRequest'];
-export type ExecuteScratchpadRequest = schemas['ExecuteScratchpadRequest'];
 export type SaveAppConfigurationRequest =
   schemas['SaveAppConfigurationRequest'];
 export type SaveNotebookRequest = schemas['SaveNotebookRequest'];
@@ -98,6 +97,8 @@ export type OpenTutorialRequest = schemas['OpenTutorialRequest'];
 export type TutorialId = OpenTutorialRequest['tutorialId'];
 export type InvokeAiToolRequest = schemas['InvokeAiToolRequest'];
 export type InvokeAiToolResponse = schemas['InvokeAiToolResponse'];
+export type MCPStatusResponse = schemas['MCPStatusResponse'];
+export type MCPRefreshResponse = schemas['MCPRefreshResponse'];
 export type ClearCacheRequest = schemas['ClearCacheRequest'];
 export type GetCacheInfoRequest = schemas['GetCacheInfoRequest'];
 export type LspHealthResponse = schemas['LspHealthResponse'];
@@ -124,7 +125,6 @@ export interface EditRequests {
   sendCopy: (request: CopyNotebookRequest) => Promise<null>;
   sendStdin: (request: StdinRequest) => Promise<null>;
   sendRun: (request: ExecuteCellsRequest) => Promise<null>;
-  sendRunScratchpad: (request: ExecuteScratchpadRequest) => Promise<null>;
   sendInterrupt: () => Promise<null>;
   sendShutdown: () => Promise<null>;
   sendFormat: (request: FormatCellsRequest) => Promise<FormatResponse>;
@@ -195,6 +195,8 @@ export interface EditRequests {
   writeSecret: (request: CreateSecretRequest) => Promise<null>;
   // AI Tool requests
   invokeAiTool: (request: InvokeAiToolRequest) => Promise<InvokeAiToolResponse>;
+  getMcpStatus: () => Promise<MCPStatusResponse>;
+  refreshMcp: () => Promise<MCPRefreshResponse>;
   // Cache requests
   clearCache: () => Promise<null>;
   getCacheInfo: () => Promise<null>;

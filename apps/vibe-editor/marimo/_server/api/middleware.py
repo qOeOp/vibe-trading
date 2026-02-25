@@ -35,14 +35,11 @@ from starlette.websockets import WebSocket, WebSocketState
 from websockets import ClientConnection, ConnectionClosed, connect
 
 from marimo import _loggers
-from marimo._config.settings import GLOBAL_SETTINGS
-from marimo._dependencies.dependencies import DependencyManager
 from marimo._server.api.auth import validate_auth
 from marimo._server.api.deps import AppState, AppStateBase
 from marimo._server.codes import WebSocketCodes
 from marimo._server.uvicorn_utils import close_uvicorn
 from marimo._session.model import SessionMode
-from marimo._tracer import server_tracer
 from marimo._utils.print import print_tabbed
 
 if TYPE_CHECKING:
@@ -174,49 +171,6 @@ class SkewProtectionMiddleware:
         return await self.app(scope, receive, send)
 
 
-class OpenTelemetryMiddleware(BaseHTTPMiddleware):
-    def __init__(
-        self, app: ASGIApp, dispatch: DispatchFunction | None = None
-    ) -> None:
-        super().__init__(app, dispatch)
-
-        if not GLOBAL_SETTINGS.TRACING:
-            return
-
-        DependencyManager.opentelemetry.require("for tracing.")
-
-        # Import once and store for later
-        from opentelemetry import trace
-        from opentelemetry.trace.status import Status, StatusCode
-
-        self.trace = trace
-        self.Status = Status
-        self.StatusCode = StatusCode
-
-    async def dispatch(
-        self,
-        request: Request,
-        call_next: RequestResponseEndpoint,
-    ) -> Response:
-        if not GLOBAL_SETTINGS.TRACING:
-            return await call_next(request)
-
-        with server_tracer.start_as_current_span(
-            f"{request.method} {request.url.path}",
-            kind=self.trace.SpanKind.SERVER,
-            attributes={
-                "http.method": request.method,
-                "http.target": request.url.path or "",
-            },
-        ) as span:
-            try:
-                response = await call_next(request)
-                span.set_attribute("http.status_code", response.status_code)
-                span.set_status(self.Status(self.StatusCode.OK))
-            except Exception as e:
-                span.set_status(self.Status(self.StatusCode.ERROR, str(e)))
-                raise
-            return response
 
 
 @dataclass

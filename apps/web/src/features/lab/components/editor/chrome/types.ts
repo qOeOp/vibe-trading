@@ -23,8 +23,7 @@ export type PanelType =
   | 'snippets'
   | 'errors'
   | 'validation'
-  | 'terminal'
-  | 'documentation';
+  | 'terminal';
 
 export type PanelSection = 'sidebar' | 'developer-panel';
 

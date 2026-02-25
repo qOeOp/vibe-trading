@@ -12,7 +12,6 @@ from marimo._runtime.commands import (
     DebugCellCommand,
     DeleteCellCommand,
     ExecuteCellsCommand,
-    ExecuteScratchpadCommand,
     GetCacheInfoCommand,
     HTTPRequest,
     InstallPackagesCommand,
@@ -49,11 +48,6 @@ class GetCacheInfoRequest(GetCacheInfoCommand, tag=False):
 class DebugCellRequest(DebugCellCommand, tag=False):
     def as_command(self) -> DebugCellCommand:
         return DebugCellCommand(cell_id=self.cell_id, request=self.request)
-
-
-class ExecuteScratchpadRequest(ExecuteScratchpadCommand, tag=False):
-    def as_command(self) -> ExecuteScratchpadCommand:
-        return ExecuteScratchpadCommand(code=self.code, request=self.request)
 
 
 class InvokeFunctionRequest(InvokeFunctionCommand, tag=False):

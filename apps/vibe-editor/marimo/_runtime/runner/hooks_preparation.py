@@ -4,10 +4,8 @@ from __future__ import annotations
 from marimo._runtime import dataflow
 from marimo._runtime.runner.hook_context import PreparationHookContext
 from marimo._runtime.runner.hooks import PreparationHook
-from marimo._tracer import kernel_tracer
 
 
-@kernel_tracer.start_as_current_span("update_stale_statuses")
 def _update_stale_statuses(ctx: PreparationHookContext) -> None:
     graph = ctx.graph
 

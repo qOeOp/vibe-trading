@@ -11,7 +11,10 @@ import { aiCompletionCellAtom } from '@/features/lab/core/ai/state';
 import { maybeAddMarimoImport } from '@/features/lab/core/cells/add-missing-import';
 import { useCellActions } from '@/features/lab/core/cells/cells';
 import { usePendingDeleteService } from '@/features/lab/core/cells/pending-delete-service';
-import type { CellData, CellRuntimeState } from '@/features/lab/core/cells/types';
+import type {
+  CellData,
+  CellRuntimeState,
+} from '@/features/lab/core/cells/types';
 import { setupCodeMirror } from '@/features/lab/core/codemirror/cm';
 import {
   getInitialLanguageAdapter,
@@ -69,7 +72,6 @@ export interface CellEditorProps
   setLanguageAdapter: React.Dispatch<
     React.SetStateAction<LanguageAdapterType | undefined>
   >;
-  // Props below are not used by scratchpad.
   // DOM node where the editorView will be mounted
   editorViewParentRef?: React.RefObject<HTMLDivElement | null>;
   showHiddenCode: (opts?: { focus?: boolean }) => void;

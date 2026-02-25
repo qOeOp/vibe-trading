@@ -53,14 +53,12 @@ from marimo._sql.get_engines import (
     engine_to_data_source_connection,
     get_engines_from_variables,
 )
-from marimo._tracer import kernel_tracer
 from marimo._types.ids import VariableName
 from marimo._utils.flatten import contains_instance
 
 LOGGER = _loggers.marimo_logger()
 
 
-@kernel_tracer.start_as_current_span("set_imported_defs")
 def _set_imported_defs(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -76,7 +74,6 @@ def _set_imported_defs(
             )
 
 
-@kernel_tracer.start_as_current_span("set_status_idle")
 def _set_status_idle(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -87,7 +84,6 @@ def _set_status_idle(
     cell.set_runtime_state(status="idle")
 
 
-@kernel_tracer.start_as_current_span("set_run_result_status")
 def _set_run_result_status(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -113,7 +109,6 @@ def _set_run_result_status(
         cell.set_run_result_status("success")
 
 
-@kernel_tracer.start_as_current_span("broadcast_variables")
 def _broadcast_variables(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -134,7 +129,6 @@ def _broadcast_variables(
         broadcast_notification(VariableValuesNotification(variables=values))
 
 
-@kernel_tracer.start_as_current_span("broadcast_datasets")
 def _broadcast_datasets(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -156,7 +150,6 @@ def _broadcast_datasets(
         broadcast_notification(DatasetsNotification(tables=tables))
 
 
-@kernel_tracer.start_as_current_span("broadcast_data_source_connection")
 def _broadcast_data_source_connection(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -188,7 +181,6 @@ def _broadcast_data_source_connection(
     )
 
 
-@kernel_tracer.start_as_current_span("broadcast_duckdb_datasource")
 def _broadcast_duckdb_datasource(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -225,7 +217,6 @@ def _broadcast_duckdb_datasource(
         return
 
 
-@kernel_tracer.start_as_current_span("broadcast_storage_backends")
 def broadcast_storage_backends(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -257,7 +248,6 @@ def broadcast_storage_backends(
         LOGGER.debug("Error getting storage backends", exc_info=True)
 
 
-@kernel_tracer.start_as_current_span("store_reference_to_output")
 def _store_reference_to_output(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -289,7 +279,6 @@ def _store_state_reference(
     )
 
 
-@kernel_tracer.start_as_current_span("issue_exception_side_effect")
 def _issue_exception_side_effect(
     _cell: CellImpl,
     _ctx: PostExecutionHookContext,
@@ -315,7 +304,6 @@ def _issue_exception_side_effect(
         runtime_ctx.cell_lifecycle_registry.add(SideEffect(key))
 
 
-@kernel_tracer.start_as_current_span("broadcast_outputs")
 def _broadcast_outputs(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -414,7 +402,6 @@ def _broadcast_outputs(
         )
 
 
-@kernel_tracer.start_as_current_span("render_toplevel_defs")
 def render_toplevel_defs(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -431,7 +418,6 @@ def render_toplevel_defs(
         )
 
 
-@kernel_tracer.start_as_current_span("run_pytest")
 def attempt_pytest(
     cell: CellImpl,
     ctx: PostExecutionHookContext,
@@ -451,7 +437,6 @@ def attempt_pytest(
             pass
 
 
-@kernel_tracer.start_as_current_span("reset_matplotlib_context")
 def _reset_matplotlib_context(
     cell: CellImpl,
     ctx: PostExecutionHookContext,

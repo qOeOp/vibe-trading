@@ -112,15 +112,6 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         })
         .then(handleResponseReturnNull);
     },
-    sendRunScratchpad: async (request) => {
-      await waitForConnectionOpen();
-      return getClient()
-        .POST('/api/kernel/scratchpad/run', {
-          body: request,
-          params: getParams(),
-        })
-        .then(handleResponseReturnNull);
-    },
     sendInstantiate: async (request) => {
       await waitForConnectionOpen();
       return getClient()
@@ -469,6 +460,16 @@ export function createNetworkRequests(): EditRequests & RunRequests {
       return getClient()
         .POST('/api/ai/invoke_tool', {
           body: request,
+          params: getParams(),
+        })
+        .then(handleResponse);
+    },
+    getMcpStatus: async () => {
+      return getClient().GET('/api/ai/mcp/status').then(handleResponse);
+    },
+    refreshMcp: async () => {
+      return getClient()
+        .POST('/api/ai/mcp/refresh', {
           params: getParams(),
         })
         .then(handleResponse);

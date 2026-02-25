@@ -22,7 +22,6 @@ from marimo._server.models.models import (
     BaseResponse,
     DebugCellRequest,
     ExecuteCellsRequest,
-    ExecuteScratchpadRequest,
     InstantiateNotebookRequest,
     InvokeFunctionRequest,
     ModelRequest,
@@ -237,35 +236,6 @@ async def run_cell(
     )
 
     return SuccessResponse()
-
-
-@router.post("/scratchpad/run")
-@requires("edit")
-async def run_scratchpad(
-    *,
-    request: Request,
-) -> BaseResponse:
-    """
-    parameters:
-        - in: header
-          name: Marimo-Session-Id
-          schema:
-            type: string
-          required: true
-    requestBody:
-        content:
-            application/json:
-                schema:
-                    $ref: "#/components/schemas/ExecuteScratchpadRequest"
-    responses:
-        200:
-            description: Run the scratchpad
-            content:
-                application/json:
-                    schema:
-                        $ref: "#/components/schemas/SuccessResponse"
-    """  # noqa: E501
-    return await dispatch_control_request(request, ExecuteScratchpadRequest)
 
 
 @router.post("/pdb/pm")

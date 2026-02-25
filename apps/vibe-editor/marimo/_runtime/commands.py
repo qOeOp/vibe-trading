@@ -314,23 +314,6 @@ class SyncGraphCommand(Command):
         ]
 
 
-class ExecuteScratchpadCommand(Command):
-    """Execute code in the scratchpad.
-
-    The scratchpad is a temporary execution environment that doesn't affect
-    the notebook's cells or dependencies. Runs in an isolated cell with a copy
-    of the global namespace, useful for experimentation.
-
-    Attributes:
-        code: Python code to execute.
-        request: HTTP request context if available.
-    """
-
-    code: str
-    # incoming request, e.g. from Starlette or FastAPI
-    request: Optional[HTTPRequest] = None
-
-
 class RenameNotebookCommand(Command):
     """Rename or move the notebook file.
 
@@ -792,7 +775,6 @@ CommandMessage = Union[
     CodeCompletionCommand,
     # Cell execution and management
     ExecuteCellsCommand,
-    ExecuteScratchpadCommand,
     ExecuteStaleCellsCommand,
     DebugCellCommand,
     DeleteCellCommand,

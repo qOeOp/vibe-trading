@@ -1,12 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { EditorView } from "@codemirror/view";
-import { atom, useAtomValue } from "jotai";
-import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
-import type { CellConfig, RuntimeState } from "../network/types";
-import { type NotebookState, notebookAtom } from "./cells";
-import type { CellId } from "./ids";
-import { SCRATCH_CELL_ID } from "./ids";
+import type { EditorView } from '@codemirror/view';
+import { atom, useAtomValue } from 'jotai';
+import { createReducerAndAtoms } from '@/features/lab/utils/createReducer';
+import type { CellConfig, RuntimeState } from '../network/types';
+import { type NotebookState, notebookAtom } from './cells';
+import type { CellId } from './ids';
 export interface CellFocusState {
   focusedCellId: CellId | null;
   lastFocusedCellId: CellId | null;
@@ -85,10 +84,6 @@ export const lastFocusedCellAtom = atom<{
     return null;
   }
 
-  if (cellId === SCRATCH_CELL_ID) {
-    return null;
-  }
-
   return cellFocusDetails(cellId, get(notebookAtom));
 });
 
@@ -112,7 +107,7 @@ function cellFocusDetails(cellId: CellId, notebookState: NotebookState) {
     cellId,
     name: data.name,
     config: data.config,
-    status: runtime ? runtime.status : "idle",
+    status: runtime ? runtime.status : 'idle',
     getEditorView: getEditorView,
     hasOutput: runtime?.output != null,
     hasConsoleOutput: runtime?.consoleOutputs != null,

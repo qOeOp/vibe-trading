@@ -24,7 +24,7 @@ import { Logger } from '@/features/lab/utils/Logger';
 import { reloadSafe } from '@/features/lab/utils/reload-safe';
 import { useAlertActions } from '../alerts/state';
 import { cacheInfoAtom } from '../cache/requests';
-import { type CellId, SCRATCH_CELL_ID, type UIElementId } from '../cells/ids';
+import { type CellId, type UIElementId } from '../cells/ids';
 import { useRunsActions } from '../cells/runs';
 import { focusAndScrollCellOutputIntoView } from '../cells/scrollCellIntoView';
 import type { CellData } from '../cells/types';
@@ -39,7 +39,11 @@ import {
 } from '../datasets/request-registry';
 import { useDatasetsActions } from '../datasets/state';
 import { UI_ELEMENT_REGISTRY } from '../dom/uiregistry';
-import { kernelStartupErrorAtom, useBannersActions } from '../errors/state';
+import {
+  kernelStartupErrorAtom,
+  useBannersActions,
+  useErrorDetailsActions,
+} from '../errors/state';
 import { FUNCTIONS_REGISTRY } from '../functions/FunctionRegistry';
 import {
   handleCellNotificationeration,
@@ -68,10 +72,7 @@ function getExistingCells(): CellData[] | undefined {
     return undefined;
   }
 
-  // Remove scratch pad
-  return Object.values(getNotebook().cellData).filter(
-    (cell) => cell.id !== SCRATCH_CELL_ID,
-  );
+  return Object.values(getNotebook().cellData);
 }
 
 /**
@@ -99,6 +100,7 @@ export function useMarimoKernelConnection(opts: {
   const { setLayoutData } = useLayoutActions();
   const [connection, setConnection] = useAtom(connectionAtom);
   const { addBanner } = useBannersActions();
+  const { clearAllCellErrorDetails } = useErrorDetailsActions();
   const { addPackageAlert, addStartupLog } = useAlertActions();
   const setKioskMode = useSetAtom(kioskModeAtom);
   const setCapabilities = useSetAtom(capabilitiesAtom);
@@ -116,6 +118,7 @@ export function useMarimoKernelConnection(opts: {
         reloadSafe();
         return;
       case 'kernel-ready': {
+        clearAllCellErrorDetails();
         const existingCells = getExistingCells();
 
         handleKernelReady(msg.data, {
@@ -341,6 +344,7 @@ export function useMarimoKernelConnection(opts: {
       // await new Promise((resolve) => setTimeout(resolve, 10_000));
 
       setConnection({ state: WebSocketState.OPEN });
+      clearAllCellErrorDetails();
     },
 
     /**
@@ -381,6 +385,7 @@ export function useMarimoKernelConnection(opts: {
      */
     onClose: (e) => {
       Logger.warn('WebSocket closed', e.code, e.reason);
+      clearAllCellErrorDetails();
       switch (e.reason) {
         case 'MARIMO_ALREADY_CONNECTED':
           setConnection({

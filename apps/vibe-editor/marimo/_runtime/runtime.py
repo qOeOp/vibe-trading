@@ -113,7 +113,6 @@ from marimo._runtime.commands import (
     DeleteCellCommand,
     ExecuteCellCommand,
     ExecuteCellsCommand,
-    ExecuteScratchpadCommand,
     ExecuteStaleCellsCommand,
     GetCacheInfoCommand,
     InstallPackagesCommand,
@@ -169,7 +168,6 @@ from marimo._runtime.runner.hooks import (
     Priority,
     create_default_hooks,
 )
-from marimo._runtime.scratch import SCRATCH_CELL_ID
 from marimo._runtime.state import State
 from marimo._runtime.utils.set_ui_element_request_manager import (
     SetUIElementRequestManager,
@@ -192,7 +190,6 @@ from marimo._sql.get_engines import (
     get_engines_from_variables,
 )
 from marimo._sql.parse import SqlCatalogCheckResult, parse_sql
-from marimo._tracer import kernel_tracer
 from marimo._types.ids import CellId_t, UIElementId, VariableName
 from marimo._types.lifespan import Lifespan
 from marimo._utils.assert_never import assert_never
@@ -736,7 +733,6 @@ class Kernel:
         ).start()
         self._completion_worker_started = True
 
-    @kernel_tracer.start_as_current_span("code_completion")
     def code_completion(
         self, request: CodeCompletionCommand, docstrings_limit: int
     ) -> None:
@@ -1503,7 +1499,6 @@ class Kernel:
                     break  # cell already matched; skip remaining refs
         return result
 
-    @kernel_tracer.start_as_current_span("delete_cell")
     async def delete_cell(self, request: DeleteCellCommand) -> None:
         """Delete a cell from kernel and graph."""
         cell_id = request.cell_id
@@ -1517,7 +1512,6 @@ class Kernel:
                 )
             )
 
-    @kernel_tracer.start_as_current_span("sync_graph")
     async def sync_graph(
         self,
         cells: dict[CellId_t, str],
@@ -1561,7 +1555,6 @@ class Kernel:
         self.mutate_graph(execution_requests, deletion_requests)
         await self.run(execution_requests)
 
-    @kernel_tracer.start_as_current_span("run")
     async def run(
         self, execution_requests: Sequence[ExecuteCellCommand]
     ) -> None:
@@ -1669,7 +1662,6 @@ class Kernel:
 
         await _run_with_uninstantiated_requests(filtered_requests)
 
-    @kernel_tracer.start_as_current_span("pdb_request")
     async def pdb_request(self, cell_id: CellId_t) -> None:
         if (
             self.debugger is None
@@ -1681,7 +1673,6 @@ class Kernel:
         with self._install_execution_context(cell_id):
             self.debugger.post_mortem_by_cell_id(cell_id)
 
-    @kernel_tracer.start_as_current_span("rename_file")
     async def rename_file(self, filename: str) -> None:
         self.globals["__file__"] = filename
         self.app_metadata.filename = filename
@@ -1691,49 +1682,6 @@ class Kernel:
                 roots.add(cell.cell_id)
         await self._if_autorun_then_run_cells(roots)
 
-    @kernel_tracer.start_as_current_span("run_scratchpad")
-    async def run_scratchpad(self, code: str) -> None:
-        roots = {SCRATCH_CELL_ID}
-
-        # If cannot compile, don't run
-        cell, error = self._try_compiling_cell(SCRATCH_CELL_ID, code, [])
-        if error:
-            CellNotificationUtils.broadcast_error(
-                data=[error],
-                clear_console=True,
-                cell_id=SCRATCH_CELL_ID,
-            )
-            return
-        elif not cell:
-            return
-        cell.defs.clear()  # remove definitions
-        cell.refs.clear()  # remove references
-
-        # Create graph of just the scratchpad cell
-        graph = dataflow.DirectedGraph()
-        graph.register_cell(SCRATCH_CELL_ID, cell)
-
-        # Copy hooks and add scratchpad-specific hooks
-        scratchpad_hooks = self._hooks.copy()
-        scratchpad_hooks.add_on_finish(
-            self.packages_callbacks.missing_packages_hook
-        )
-
-        runner = cell_runner.Runner(
-            roots=roots,
-            graph=graph,
-            glbls=copy(self.globals),
-            excluded_cells=set(),
-            debugger=self.debugger,
-            execution_mode=self.reactive_execution_mode,
-            execution_type=self.execution_type,
-            execution_context=self._install_execution_context,
-            hooks=scratchpad_hooks,
-        )
-
-        await runner.run_all()
-
-    @kernel_tracer.start_as_current_span("run_stale_cells")
     async def run_stale_cells(self) -> None:
         cells_to_run: set[CellId_t] = set()
         if self._uninstantiated_execution_requests:
@@ -1759,7 +1707,6 @@ class Kernel:
         if self.module_watcher is not None:
             self.module_watcher.run_is_processed.set()
 
-    @kernel_tracer.start_as_current_span("set_cell_config")
     async def set_cell_config(self, request: UpdateCellConfigCommand) -> None:
         """Update cell configs.
 
@@ -1784,11 +1731,9 @@ class Kernel:
         if stale_cells and self.reactive_execution_mode == "autorun":
             await self._run_cells(stale_cells)
 
-    @kernel_tracer.start_as_current_span("set_user_config")
     def set_user_config(self, request: UpdateUserConfigCommand) -> None:
         self._update_runtime_from_user_config(request.config)
 
-    @kernel_tracer.start_as_current_span("set_ui_element_value")
     async def set_ui_element_value(
         self, request: UpdateUIElementCommand
     ) -> bool:
@@ -1984,7 +1929,6 @@ class Kernel:
     def reset_ui_initializers(self) -> None:
         self.ui_initializers = {}
 
-    @kernel_tracer.start_as_current_span("function_call_request")
     async def function_call_request(
         self, request: InvokeFunctionCommand
     ) -> tuple[HumanReadableStatus, JSONType, bool]:
@@ -2079,7 +2023,6 @@ class Kernel:
             found,
         )
 
-    @kernel_tracer.start_as_current_span("instantiate")
     async def instantiate(self, request: CreateNotebookCommand) -> None:
         """Instantiate the kernel with cells and UIElement initial values
 
@@ -2232,13 +2175,6 @@ class Kernel:
                 )
             broadcast_notification(CompletedRunNotification())
 
-        async def handle_execute_scratchpad(
-            request: ExecuteScratchpadCommand,
-        ) -> None:
-            with http_request_context(request.request):
-                await self.run_scratchpad(request.code)
-            broadcast_notification(CompletedRunNotification())
-
         async def handle_execute_stale(
             request: ExecuteStaleCellsCommand,
         ) -> None:
@@ -2315,7 +2251,6 @@ class Kernel:
         handler.register(DeleteCellCommand, self.delete_cell)
         handler.register(ExecuteCellsCommand, handle_execute_multiple)
         handler.register(SyncGraphCommand, handle_sync_graph)
-        handler.register(ExecuteScratchpadCommand, handle_execute_scratchpad)
         handler.register(ExecuteStaleCellsCommand, handle_execute_stale)
         handler.register(InvokeFunctionCommand, handle_function_call)
         handler.register(
@@ -2425,7 +2360,6 @@ class DatasetCallbacks:
         else:
             return None, "Connection does not support catalog operations"
 
-    @kernel_tracer.start_as_current_span("preview_dataset_column")
     async def preview_dataset_column(
         self, request: PreviewDatasetColumnCommand
     ) -> None:
@@ -2502,7 +2436,6 @@ class DatasetCallbacks:
             )
         return
 
-    @kernel_tracer.start_as_current_span("preview_sql_table")
     async def preview_sql_table(self, request: PreviewSQLTableCommand) -> None:
         """Get table details for an SQL table.
 
@@ -2564,7 +2497,6 @@ class DatasetCallbacks:
                 ),
             )
 
-    @kernel_tracer.start_as_current_span("preview_sql_table_list")
     async def preview_sql_table_list(
         self, request: ListSQLTablesCommand
     ) -> None:
@@ -2623,7 +2555,6 @@ class DatasetCallbacks:
                 ),
             )
 
-    @kernel_tracer.start_as_current_span("preview_datasource_connection")
     async def preview_datasource_connection(
         self, request: ListDataSourceConnectionCommand
     ) -> None:
@@ -2745,7 +2676,6 @@ class SqlCallbacks:
             ),
         )
 
-    @kernel_tracer.start_as_current_span("validate_sql")
     async def validate_sql(self, request: ValidateSQLCommand) -> None:
         """Validate an SQL query"""
 

@@ -123,7 +123,7 @@ test.describe.serial('Lab Page (with kernel)', () => {
     });
     await expect(devTabs).toBeVisible({ timeout: 10000 });
 
-    for (const label of ['Errors', 'Scratchpad', 'Tracing', 'Logs']) {
+    for (const label of ['Errors', 'Logs']) {
       const tab = devTabs.getByRole('option', { name: label });
       await expect(tab).toBeVisible();
     }

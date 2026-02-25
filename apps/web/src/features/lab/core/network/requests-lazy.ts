@@ -1,15 +1,15 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { NoKernelConnectedError } from "@/features/lab/utils/errors";
-import { Logger } from "@/features/lab/utils/Logger";
-import { Objects } from "@/features/lab/utils/objects";
-import { memoizeLastValue } from "@/features/lab/utils/once";
-import { waitForKernelToBeInstantiated } from "../kernel/state";
-import type { RuntimeManager } from "../runtime/runtime";
-import { store } from "../state/jotai";
-import { WebSocketState } from "../websocket/types";
-import { connectionAtom, waitForConnectionOpen } from "./connection";
-import type { EditRequests, RunRequests } from "./types";
+import { NoKernelConnectedError } from '@/features/lab/utils/errors';
+import { Logger } from '@/features/lab/utils/Logger';
+import { Objects } from '@/features/lab/utils/objects';
+import { memoizeLastValue } from '@/features/lab/utils/once';
+import { waitForKernelToBeInstantiated } from '../kernel/state';
+import type { RuntimeManager } from '../runtime/runtime';
+import { store } from '../state/jotai';
+import { WebSocketState } from '../websocket/types';
+import { connectionAtom, waitForConnectionOpen } from './connection';
+import type { EditRequests, RunRequests } from './types';
 
 type AllRequests = EditRequests & RunRequests;
 
@@ -31,92 +31,93 @@ type AllRequests = EditRequests & RunRequests;
 //   trigger to start it (e.g., saving, interrupting).
 
 type Action =
-  | "throwError"
-  | "dropRequest"
-  | "startConnection"
-  | "waitForConnectionOpen";
+  | 'throwError'
+  | 'dropRequest'
+  | 'startConnection'
+  | 'waitForConnectionOpen';
 
 const ACTIONS: Record<keyof AllRequests, Action> = {
   // These will start a connection if not already connected and then wait until the connection is open
-  sendComponentValues: "startConnection",
-  sendModelValue: "startConnection",
-  sendInstantiate: "startConnection",
-  sendRun: "startConnection",
-  sendDeleteCell: "startConnection",
-  sendRunScratchpad: "startConnection",
-  saveAppConfig: "startConnection",
-  saveCellConfig: "startConnection",
+  sendComponentValues: 'startConnection',
+  sendModelValue: 'startConnection',
+  sendInstantiate: 'startConnection',
+  sendRun: 'startConnection',
+  sendDeleteCell: 'startConnection',
+  saveAppConfig: 'startConnection',
+  saveCellConfig: 'startConnection',
 
   // Export operations start a connection
-  exportAsHTML: "startConnection",
-  exportAsMarkdown: "startConnection",
-  exportAsPDF: "startConnection",
-  readCode: "startConnection",
-  sendCopy: "throwError",
+  exportAsHTML: 'startConnection',
+  exportAsMarkdown: 'startConnection',
+  exportAsPDF: 'startConnection',
+  readCode: 'startConnection',
+  sendCopy: 'throwError',
 
   // Throw errors for operations that are not supported offline
-  sendFormat: "throwError",
-  sendRestart: "throwError",
+  sendFormat: 'throwError',
+  sendRestart: 'throwError',
 
   // These wait until the connection is open, but don't start a connection
-  sendSave: "waitForConnectionOpen",
-  invokeAiTool: "waitForConnectionOpen",
-  sendFunctionRequest: "waitForConnectionOpen",
+  sendSave: 'waitForConnectionOpen',
+  invokeAiTool: 'waitForConnectionOpen',
+  getMcpStatus: 'waitForConnectionOpen',
+  refreshMcp: 'waitForConnectionOpen',
+  sendFunctionRequest: 'waitForConnectionOpen',
 
   // Session-based operations that wait for connection
-  sendRename: "waitForConnectionOpen",
-  autoExportAsHTML: "waitForConnectionOpen",
-  autoExportAsMarkdown: "waitForConnectionOpen",
-  autoExportAsIPYNB: "waitForConnectionOpen",
-  updateCellOutputs: "waitForConnectionOpen",
+  sendRename: 'waitForConnectionOpen',
+  autoExportAsHTML: 'waitForConnectionOpen',
+  autoExportAsMarkdown: 'waitForConnectionOpen',
+  autoExportAsIPYNB: 'waitForConnectionOpen',
+  updateCellOutputs: 'waitForConnectionOpen',
 
   // Sidebar operations that wait for connection
-  listSecretKeys: "throwError",
-  writeSecret: "throwError",
-  clearCache: "throwError",
-  getCacheInfo: "throwError",
+  listSecretKeys: 'throwError',
+  writeSecret: 'throwError',
+  clearCache: 'throwError',
+  getCacheInfo: 'throwError',
 
   // Operations that throw errors (sessionless but not supported offline)
-  saveUserConfig: "throwError",
-  sendShutdown: "throwError",
-  getPackageList: "throwError",
-  getDependencyTree: "throwError",
-  addPackage: "throwError",
-  removePackage: "throwError",
+  saveUserConfig: 'throwError',
+  sendShutdown: 'throwError',
+  getPackageList: 'throwError',
+  getDependencyTree: 'throwError',
+  addPackage: 'throwError',
+  removePackage: 'throwError',
 
   // Folder and file operations throw errors
-  sendListFiles: "startConnection",
-  sendSearchFiles: "startConnection",
-  sendCreateFileOrFolder: "throwError",
-  sendDeleteFileOrFolder: "throwError",
-  sendRenameFileOrFolder: "throwError",
-  sendUpdateFile: "throwError",
-  sendFileDetails: "throwError",
-  openFile: "throwError",
+  sendListFiles: 'startConnection',
+  sendSearchFiles: 'startConnection',
+  sendCreateFileOrFolder: 'throwError',
+  sendDeleteFileOrFolder: 'throwError',
+  sendRenameFileOrFolder: 'throwError',
+  sendUpdateFile: 'throwError',
+  sendFileDetails: 'throwError',
+  openFile: 'throwError',
 
   // Home operations throw errors
-  getRecentFiles: "startConnection",
-  getWorkspaceFiles: "startConnection",
-  getRunningNotebooks: "startConnection",
-  shutdownSession: "startConnection",
-  openTutorial: "startConnection",
-  getUsageStats: "waitForConnectionOpen",
+  getRecentFiles: 'startConnection',
+  getWorkspaceFiles: 'startConnection',
+  getRunningNotebooks: 'startConnection',
+  shutdownSession: 'startConnection',
+  openTutorial: 'startConnection',
+  getUsageStats: 'waitForConnectionOpen',
 
   // These wait for connection
-  sendStdin: "waitForConnectionOpen",
-  sendInterrupt: "waitForConnectionOpen",
-  sendPdb: "waitForConnectionOpen",
-  sendInstallMissingPackages: "waitForConnectionOpen",
-  readSnippets: "waitForConnectionOpen",
-  previewDatasetColumn: "waitForConnectionOpen",
-  previewSQLTable: "waitForConnectionOpen",
-  previewSQLTableList: "waitForConnectionOpen",
-  previewDataSourceConnection: "waitForConnectionOpen",
-  validateSQL: "waitForConnectionOpen",
+  sendStdin: 'waitForConnectionOpen',
+  sendInterrupt: 'waitForConnectionOpen',
+  sendPdb: 'waitForConnectionOpen',
+  sendInstallMissingPackages: 'waitForConnectionOpen',
+  readSnippets: 'waitForConnectionOpen',
+  previewDatasetColumn: 'waitForConnectionOpen',
+  previewSQLTable: 'waitForConnectionOpen',
+  previewSQLTableList: 'waitForConnectionOpen',
+  previewDataSourceConnection: 'waitForConnectionOpen',
+  validateSQL: 'waitForConnectionOpen',
 
   // Sync operations that wait for connection
-  syncCellIds: "waitForConnectionOpen",
-  sendCodeCompletionRequest: "waitForConnectionOpen",
+  syncCellIds: 'waitForConnectionOpen',
+  sendCodeCompletionRequest: 'waitForConnectionOpen',
 };
 
 /**
@@ -149,27 +150,27 @@ export function createLazyRequests(
       }
 
       switch (action) {
-        case "dropRequest":
+        case 'dropRequest':
           Logger.debug(
             `Dropping request: ${key}, since not connected to a kernel.`,
           );
           // Silently drop the request
           return;
 
-        case "throwError":
+        case 'throwError':
           throw new NoKernelConnectedError();
 
-        case "waitForConnectionOpen":
+        case 'waitForConnectionOpen':
           // Wait for connection but don't start it
           await waitForConnectionOpen();
           await waitForKernelToBeInstantiated();
           return request(...args);
 
-        case "startConnection":
+        case 'startConnection':
           // Start connection and wait for it to be open
           await initOnce(runtimeManager);
           await waitForConnectionOpen();
-          if (key !== "sendInstantiate") {
+          if (key !== 'sendInstantiate') {
             // We don't need to wait for kernel to be instantiated if we are sending an instantiate request
             // otherwise we will wait forever
             await waitForKernelToBeInstantiated();

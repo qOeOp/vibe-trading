@@ -26,13 +26,17 @@ import {
   updateEditorCodeFromPython,
 } from '../codemirror/language/utils';
 import { findCollapseRange, mergeOutlines } from '../dom/outline';
-import type { CellMessage } from '../kernel/messages';
+import {
+  buildCellErrorSummary,
+  type CellErrorSummary,
+} from '../errors/summary';
+import type { CellMessage, MarimoError } from '../kernel/messages';
 import { isErrorMime } from '../mime';
 import type { CellConfig } from '../network/types';
 import { isRtcEnabled } from '../rtc/state';
 import { createDeepEqualAtom, store } from '../state/jotai';
 import { prepareCellForExecution, transitionCell } from './cell';
-import { CellId, SCRATCH_CELL_ID, SETUP_CELL_ID } from './ids';
+import { CellId, SETUP_CELL_ID } from './ids';
 import { type CellLog, getCellLogsForMessage } from './logs';
 import {
   focusAndScrollCellIntoView,
@@ -106,30 +110,11 @@ export interface NotebookState {
   untouchedNewCells: Set<CellId>;
 }
 
-function withScratchCell(notebookState: NotebookState): NotebookState {
-  const config = { column: 0, hide_code: false, disabled: false };
-  return {
-    ...notebookState,
-    cellData: {
-      [SCRATCH_CELL_ID]: createCell({ id: SCRATCH_CELL_ID, config: config }),
-      ...notebookState.cellData,
-    },
-    cellRuntime: {
-      [SCRATCH_CELL_ID]: createCellRuntimeState(),
-      ...notebookState.cellRuntime,
-    },
-    cellHandles: {
-      [SCRATCH_CELL_ID]: createRef(),
-      ...notebookState.cellHandles,
-    },
-  };
-}
-
 /**
  * Initial state of the notebook.
  */
 export function initialNotebookState(): NotebookState {
-  return withScratchCell({
+  return {
     cellIds: MultiColumn.from([]),
     cellData: {},
     cellRuntime: {},
@@ -138,7 +123,7 @@ export function initialNotebookState(): NotebookState {
     scrollKey: null,
     cellLogs: [],
     untouchedNewCells: new Set<CellId>(),
-  });
+  };
 }
 
 /** The target cell ID to create a new cell relative to. Can be:
@@ -930,7 +915,7 @@ const {
       cells.map((cell) => [cell.id, createCellRuntimeState()]),
     );
 
-    return withScratchCell({
+    return {
       ...state,
       cellIds: MultiColumn.fromIdsAndColumns(
         cells.map((cell) => [cell.id, cell.config.column]),
@@ -940,7 +925,7 @@ const {
       cellHandles: Object.fromEntries(
         cells.map((cell) => [cell.id, createRef()]),
       ),
-    });
+    };
   },
   /**
    * Move focus to next cell
@@ -956,11 +941,6 @@ const {
     action: { cellId: CellId; before: boolean; noCreate?: boolean },
   ) => {
     const { cellId, before, noCreate = false } = action;
-
-    // Can't move focus of scratch cell
-    if (cellId === SCRATCH_CELL_ID) {
-      return state;
-    }
 
     const column = state.cellIds.findWithId(cellId);
     const index = column.indexOfOrThrow(cellId);
@@ -1541,6 +1521,49 @@ export const cellErrorsAtom = atom((get) => {
   return errors;
 });
 
+export const cellErrorSummariesAtom = atom((get): CellErrorSummary[] => {
+  const cellErrors = get(cellErrorsAtom);
+  const summaries: CellErrorSummary[] = [];
+
+  for (const cellError of cellErrors) {
+    const groupedErrors = new Map<string, MarimoError[]>();
+
+    for (const error of cellError.output.data) {
+      const errorType = typeof error.type === 'string' ? error.type : 'unknown';
+      const existingGroup = groupedErrors.get(errorType);
+
+      if (existingGroup) {
+        existingGroup.push(error);
+      } else {
+        groupedErrors.set(errorType, [error]);
+      }
+    }
+
+    for (const errors of groupedErrors.values()) {
+      summaries.push(
+        buildCellErrorSummary({
+          cellId: cellError.cellId,
+          cellName: cellError.cellName,
+          errors,
+          updatedAt: cellError.output.timestamp ?? 0,
+        }),
+      );
+    }
+  }
+
+  return summaries.sort((a, b) => {
+    if (a.updatedAt !== b.updatedAt) {
+      return b.updatedAt - a.updatedAt;
+    }
+
+    if (a.cellId !== b.cellId) {
+      return a.cellId.localeCompare(b.cellId);
+    }
+
+    return a.errorType.localeCompare(b.errorType);
+  });
+});
+
 export const notebookOutline = atom((get) => {
   const { cellIds, cellRuntime } = get(notebookAtom);
   const outlines = cellIds.inOrderIds.map(
@@ -1584,6 +1607,11 @@ export const useCellNames = () => useAtomValue(cellIdToNamesMap);
  * React-hook for the array of cell errors.
  */
 export const useCellErrors = () => useAtomValue(cellErrorsAtom);
+
+/**
+ * React-hook for the array of summarized cell errors.
+ */
+export const useCellErrorSummaries = () => useAtomValue(cellErrorSummariesAtom);
 
 /**
  * React-hook for the cell logs.

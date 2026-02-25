@@ -14,12 +14,10 @@ from marimo._messaging.notification_utils import CellNotificationUtils
 from marimo._runtime.control_flow import MarimoStopError
 from marimo._runtime.runner.hook_context import OnFinishHookContext
 from marimo._runtime.runner.hooks import OnFinishHook
-from marimo._tracer import kernel_tracer
 
 LOGGER = _loggers.marimo_logger()
 
 
-@kernel_tracer.start_as_current_span("send_interrupt_errors")
 def _send_interrupt_errors(ctx: OnFinishHookContext) -> None:
     if ctx.cells_to_run:
         assert ctx.interrupted
@@ -36,7 +34,6 @@ def _send_interrupt_errors(ctx: OnFinishHookContext) -> None:
             )
 
 
-@kernel_tracer.start_as_current_span("send_cancellation_errors")
 def _send_cancellation_errors(ctx: OnFinishHookContext) -> None:
     for raising_cell in ctx.cancelled_cells:
         for cid in ctx.cancelled_cells[raising_cell]:

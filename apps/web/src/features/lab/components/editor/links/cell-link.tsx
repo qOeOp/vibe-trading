@@ -1,13 +1,17 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { JSX } from "react"; /* Copyright 2026 Marimo. All rights reserved. */
-import { useCellActions, useCellIds, useCellNames } from "@/features/lab/core/cells/cells";
-import { type CellId, HTMLCellId, SCRATCH_CELL_ID } from "@/features/lab/core/cells/ids";
-import { displayCellName } from "@/features/lab/core/cells/names";
-import { goToCellLine } from "@/features/lab/core/codemirror/go-to-definition/utils";
-import { useFilename } from "@/features/lab/core/saving/filename";
-import { cn } from "@/features/lab/utils/cn";
-import { Logger } from "@/features/lab/utils/Logger";
+import type { JSX } from 'react'; /* Copyright 2026 Marimo. All rights reserved. */
+import {
+  useCellActions,
+  useCellIds,
+  useCellNames,
+} from '@/features/lab/core/cells/cells';
+import { type CellId, HTMLCellId } from '@/features/lab/core/cells/ids';
+import { displayCellName } from '@/features/lab/core/cells/names';
+import { goToCellLine } from '@/features/lab/core/codemirror/go-to-definition/utils';
+import { useFilename } from '@/features/lab/core/saving/filename';
+import { cn } from '@/features/lab/utils/cn';
+import { Logger } from '@/features/lab/utils/Logger';
 
 interface Props {
   cellId: CellId;
@@ -16,14 +20,14 @@ interface Props {
   skipScroll?: boolean;
   onClick?: () => void;
   formatCellName?: (name: string) => string;
-  variant?: "destructive" | "focus";
+  variant?: 'destructive' | 'focus';
 }
 
 /* Component that adds a link to a cell, with styling. */
 export const CellLink = (props: Props): JSX.Element => {
   const { className, cellId, variant, onClick, formatCellName, skipScroll } =
     props;
-  const cellName = useCellNames()[cellId] ?? "";
+  const cellName = useCellNames()[cellId] ?? '';
   const cellIndex = useCellIds().inOrderIds.indexOf(cellId);
   const { showCellIfHidden } = useCellActions();
   const formatName = formatCellName ?? ((name: string) => name);
@@ -31,17 +35,12 @@ export const CellLink = (props: Props): JSX.Element => {
   return (
     <div
       className={cn(
-        "inline-block cursor-pointer text-link hover:underline",
+        'inline-block cursor-pointer text-link hover:underline',
         className,
       )}
       role="link"
       tabIndex={-1}
       onClick={(e) => {
-        // Scratch causes a crash since scratch is not registered like a
-        // normal cell.
-        if (cellId === SCRATCH_CELL_ID) {
-          return false;
-        }
         showCellIfHidden({ cellId });
         e.stopPropagation();
         e.preventDefault();
@@ -60,9 +59,9 @@ export const CellLink = (props: Props): JSX.Element => {
 
 /* Component that adds a link to a cell, for use in a MarimoError. */
 export const CellLinkError = (
-  props: Pick<Props, "className" | "cellId">,
+  props: Pick<Props, 'className' | 'cellId'>,
 ): JSX.Element => {
-  return <CellLink {...props} variant={"destructive"} />;
+  return <CellLink {...props} variant={'destructive'} />;
 };
 
 /* Component that adds a link to a cell, for use in tracebacks. */
@@ -79,12 +78,10 @@ export const CellLinkTraceback = ({
       cellId={cellId}
       onClick={() => goToCellLine(cellId, lineNumber)}
       skipScroll={true}
-      variant={"destructive"}
+      variant={'destructive'}
       className="traceback-cell-link"
       formatCellName={(name: string) =>
-        cellId === SCRATCH_CELL_ID
-          ? "scratch"
-          : `marimo://${filename || "untitled"}#cell=${name}`
+        `marimo://${filename || 'untitled'}#cell=${name}`
       }
     />
   );
@@ -92,7 +89,7 @@ export const CellLinkTraceback = ({
 
 export function scrollAndHighlightCell(
   cellId: CellId,
-  variant?: "destructive" | "focus",
+  variant?: 'destructive' | 'focus',
   skipScroll?: boolean,
 ): boolean {
   const cellHtmlId = HTMLCellId.create(cellId);
@@ -103,19 +100,19 @@ export function scrollAndHighlightCell(
     return false;
   }
   if (!skipScroll) {
-    cell.scrollIntoView({ behavior: "smooth", block: "center" });
+    cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  if (variant === "destructive") {
-    cell.classList.add("error-outline");
+  if (variant === 'destructive') {
+    cell.classList.add('error-outline');
     setTimeout(() => {
-      cell.classList.remove("error-outline");
+      cell.classList.remove('error-outline');
     }, 2000);
   }
-  if (variant === "focus") {
-    cell.classList.add("focus-outline");
+  if (variant === 'focus') {
+    cell.classList.add('focus-outline');
     setTimeout(() => {
-      cell.classList.remove("focus-outline");
+      cell.classList.remove('focus-outline');
     }, 2000);
   }
 

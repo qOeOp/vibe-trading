@@ -22,7 +22,6 @@ from marimo._server.models.lsp import (
     LspServerId,
     LspServerStatus,
 )
-from marimo._tracer import server_tracer
 from marimo._utils.net import find_free_port
 from marimo._utils.paths import marimo_package_path
 from marimo._utils.platform import is_windows
@@ -67,7 +66,6 @@ class BaseLspServer(LspServer):
         self._start_lock = asyncio.Lock()
         self.log_file = _loggers.get_log_directory() / f"{self.id}.log"
 
-    @server_tracer.start_as_current_span("lsp_server.start")
     async def start(self) -> Optional[AlertNotification]:
         # Use lock to prevent race conditions when start() is called concurrently
         # (e.g., user rapidly toggles LSP settings)

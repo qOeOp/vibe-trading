@@ -15,7 +15,6 @@ from marimo._config.cli_state import (
     get_cli_state,
     write_cli_state,
 )
-from marimo._tracer import server_tracer
 from marimo._version import __version__ as current_version
 
 FETCH_TIMEOUT = 3
@@ -47,7 +46,6 @@ def _is_in_uv() -> bool:
     return psutil.Process(os.getppid()).name() == "uv"
 
 
-@server_tracer.start_as_current_span("check_for_updates")
 def check_for_updates(
     on_update: Callable[[str, MarimoCLIState], None],
 ) -> None:

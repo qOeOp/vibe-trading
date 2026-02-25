@@ -119,7 +119,6 @@ def get_optional_modules_list() -> dict[str, str]:
         "mcp",
         "nbformat",
         "openai",
-        "opentelemetry",
         "pandas",
         "polars",
         "pyarrow",

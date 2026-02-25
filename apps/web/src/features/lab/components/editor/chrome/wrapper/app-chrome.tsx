@@ -285,7 +285,6 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     errors: <LazyErrorsPanel />,
     validation: <LazyValidationPanel />,
     terminal: null,
-    documentation: null,
   };
 
   const helpPaneBody = (

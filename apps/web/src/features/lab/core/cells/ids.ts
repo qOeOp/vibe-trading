@@ -1,21 +1,20 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import { invariant } from "@/features/lab/utils/invariant";
-import type { TypedString } from "@/features/lab/utils/typed";
+import { invariant } from '@/features/lab/utils/invariant';
+import type { TypedString } from '@/features/lab/utils/typed';
 
-const lowercase = "abcdefghijklmnopqrstuvwxyz";
+const lowercase = 'abcdefghijklmnopqrstuvwxyz';
 const uppercase = lowercase.toUpperCase();
 const alphabet = lowercase + uppercase;
 const seen = new Set<CellId>();
 
-export const SCRATCH_CELL_ID = "__scratch__" as CellId;
-export const SETUP_CELL_ID = "setup" as CellId;
+export const SETUP_CELL_ID = 'setup' as CellId;
 
 /**
  * A typed CellId
  */
-export type CellId = TypedString<"CellId">;
+export type CellId = TypedString<'CellId'>;
 export const CellId = {
   /**
    * Create a new CellId, a random 4 letter string.
@@ -25,7 +24,7 @@ export const CellId = {
     let cellId: CellId;
 
     do {
-      let id = "";
+      let id = '';
       for (let i = 0; i < 4; i++) {
         id += alphabet[Math.floor(Math.random() * alphabet.length)];
       }
@@ -34,7 +33,7 @@ export const CellId = {
     } while (seen.has(cellId) && attempts < 100);
 
     if (attempts >= 100) {
-      throw new Error("Failed to generate unique CellId after 100 attempts");
+      throw new Error('Failed to generate unique CellId after 100 attempts');
     }
 
     seen.add(cellId);
@@ -51,7 +50,7 @@ export const HTMLCellId = {
    * Create a new HTMLCellId
    */
   create(cellId: CellId): HTMLCellId {
-    invariant(cellId != null, "cellId is required");
+    invariant(cellId != null, 'cellId is required');
 
     return `cell-${cellId}`;
   },
@@ -110,11 +109,11 @@ export function findCellId(element: HTMLElement): CellId | null {
 export type UIElementId = `${CellId}-${string}`;
 export const UIElementId = {
   parse(element: Element): UIElementId | null {
-    return element.getAttribute("object-id") as UIElementId | null;
+    return element.getAttribute('object-id') as UIElementId | null;
   },
   parseOrThrow(element: Element): UIElementId {
     const id = UIElementId.parse(element);
-    invariant(id, "<marimo-ui-element/> missing object-id attribute");
+    invariant(id, '<marimo-ui-element/> missing object-id attribute');
     return id;
   },
 };

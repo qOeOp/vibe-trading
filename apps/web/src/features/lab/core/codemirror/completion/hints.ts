@@ -1,31 +1,30 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { EditorState, Text } from "@codemirror/state";
-import { EditorView, hoverTooltip } from "@codemirror/view";
-import { debounce } from "lodash-es";
-import { chromeAtom } from "@/features/lab/components/editor/chrome/state";
-import { HTMLCellId } from "@/features/lab/core/cells/ids";
-import { hasCapability } from "@/features/lab/core/config/capabilities";
-import type { LSPConfig } from "@/features/lab/core/config/config-schema";
-import { documentationAtom } from "@/features/lab/core/documentation/state";
-import { store } from "@/features/lab/core/state/jotai";
-import { Logger } from "@/features/lab/utils/Logger";
-import { reactiveReferencesField } from "../reactive-references/extension";
-import { AUTOCOMPLETER, Autocompleter } from "./Autocompleter";
+import type { EditorState, Text } from '@codemirror/state';
+import { EditorView, hoverTooltip } from '@codemirror/view';
+import { debounce } from 'lodash-es';
+import { HTMLCellId } from '@/features/lab/core/cells/ids';
+import { hasCapability } from '@/features/lab/core/config/capabilities';
+import type { LSPConfig } from '@/features/lab/core/config/config-schema';
+import { documentationAtom } from '@/features/lab/core/documentation/state';
+import { store } from '@/features/lab/core/state/jotai';
+import { Logger } from '@/features/lab/utils/Logger';
+import { reactiveReferencesField } from '../reactive-references/extension';
+import { AUTOCOMPLETER, Autocompleter } from './Autocompleter';
 
 export function hintTooltip(lspConfig: LSPConfig) {
   return [
     // Hover tooltip is already covered by LSP
-    lspConfig?.pylsp?.enabled && hasCapability("pylsp")
+    lspConfig?.pylsp?.enabled && hasCapability('pylsp')
       ? []
       : hoverTooltip(
           async (view, pos) => {
             const result = await requestDocumentation({
               view,
               pos,
-              excludeTypes: ["tooltip"],
+              excludeTypes: ['tooltip'],
             });
-            if (result === null || result === "cancelled") {
+            if (result === null || result === 'cancelled') {
               return null;
             }
             return result;
@@ -47,7 +46,7 @@ async function requestDocumentation({
 }) {
   const cellContainer = HTMLCellId.findElement(view.dom);
   if (!cellContainer) {
-    Logger.error("Failed to find active cell.");
+    Logger.error('Failed to find active cell.');
     return null;
   }
 
@@ -66,7 +65,7 @@ async function requestDocumentation({
     cellId: cellId,
   });
   if (!result) {
-    return "cancelled" as const;
+    return 'cancelled' as const;
   }
 
   const fullWord = view.state.doc.slice(startToken, endToken).toString();
@@ -84,12 +83,12 @@ export function getPositionAtWordBounds(doc: Text, pos: number) {
   let cursorPos = pos;
 
   const charBefore =
-    cursorPos > 0 ? doc.sliceString(cursorPos - 1, cursorPos) : "";
+    cursorPos > 0 ? doc.sliceString(cursorPos - 1, cursorPos) : '';
   const charAfter =
-    cursorPos < doc.length ? doc.sliceString(cursorPos, cursorPos + 1) : "";
+    cursorPos < doc.length ? doc.sliceString(cursorPos, cursorPos + 1) : '';
 
   // If the cursor is inside function call parentheses, move the cursor to the start of the function call
-  if (charBefore === "(" && charAfter === ")") {
+  if (charBefore === '(' && charAfter === ')') {
     cursorPos -= 1;
   }
 
@@ -129,14 +128,9 @@ function isCursorInText(state: EditorState) {
 // Debounce the request to avoid spamming the server
 const debouncedAutocomplete = debounce(
   async (view: EditorView, position: number) => {
-    // Only run if the documentation panel is open
-    if (store.get(chromeAtom).selectedPanel !== "documentation") {
-      return;
-    }
-
     const tooltip = await requestDocumentation({ view, pos: position });
     // If cancelled, don't update the documentation
-    if (tooltip === "cancelled") {
+    if (tooltip === 'cancelled') {
       return;
     }
     store.set(documentationAtom, {

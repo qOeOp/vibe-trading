@@ -139,7 +139,6 @@ def print_experimental_features(config: MarimoConfig) -> None:
         "chat_sidebar",
         "inline_ai_tooltip",
         "multi_column",
-        "scratchpad",
         "tracing",
         "markdown",
         "sql_engines",

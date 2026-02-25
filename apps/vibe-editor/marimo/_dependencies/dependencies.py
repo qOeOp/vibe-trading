@@ -224,7 +224,6 @@ class DependencyManager:
     ruff = Dependency("ruff")
     black = Dependency("black")
     geopandas = Dependency("geopandas")
-    opentelemetry = Dependency("opentelemetry")
     anthropic = Dependency("anthropic")
     google_ai = Dependency("google.genai")
     groq = Dependency("groq")

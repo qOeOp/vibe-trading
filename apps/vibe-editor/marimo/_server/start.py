@@ -10,6 +10,7 @@ from typing import Optional
 import uvicorn
 
 import marimo._server.api.lifespans as lifespans
+from marimo import _loggers
 from marimo._cli.print import echo
 from marimo._cli.sandbox import SandboxMode
 from marimo._config.manager import get_default_config_manager
@@ -32,9 +33,10 @@ from marimo._server.utils import (
 )
 from marimo._server.uvicorn_utils import initialize_signals
 from marimo._session.model import SessionMode
-from marimo._tracer import LOGGER
 from marimo._utils.lifespans import Lifespans
 from marimo._utils.net import find_free_port
+
+LOGGER = _loggers.marimo_logger()
 
 DEFAULT_PORT = 2718
 PROXY_REGEX = re.compile(r"^(.*):(\d+)$")
@@ -170,6 +172,7 @@ def start(
     argv: list[str],
     base_url: str = "",
     allow_origins: Optional[tuple[str, ...]] = None,
+    allow_origin_regex: Optional[str] = None,
     auth_token: Optional[AuthToken],
     redirect_console_to_browser: bool,
     skew_protection: bool,
@@ -275,6 +278,7 @@ def start(
         host=external_host,
         lifespan=Lifespans(lifespans_list),
         allow_origins=allow_origins,
+        allow_origin_regex=allow_origin_regex,
         enable_auth=enable_auth,
         lsp_servers=list(lsp_composite_server.servers.values())
         if lsp_composite_server is not None

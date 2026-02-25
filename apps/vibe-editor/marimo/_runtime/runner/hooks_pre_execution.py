@@ -4,10 +4,8 @@ from __future__ import annotations
 from marimo._ast.cell import CellImpl
 from marimo._runtime.runner.hook_context import PreExecutionHookContext
 from marimo._runtime.runner.hooks import PreExecutionHook
-from marimo._tracer import kernel_tracer
 
 
-@kernel_tracer.start_as_current_span("set_staleness")
 def _set_staleness(
     cell: CellImpl,
     ctx: PreExecutionHookContext,
@@ -24,7 +22,6 @@ def _set_staleness(
         cell.set_stale(stale=False)
 
 
-@kernel_tracer.start_as_current_span("set_status_to_running")
 def _set_status_to_running(
     cell: CellImpl,
     ctx: PreExecutionHookContext,
