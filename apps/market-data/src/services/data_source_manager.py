@@ -65,8 +65,10 @@ Example Usage:
 from __future__ import annotations
 
 import logging
+from datetime import date
 from typing import Callable, List
 
+from ..models.ohlcv import DailyBar, StockInfo
 from ..models.shenwan import (
     ConstituentStock,
     FirstLevelIndustry,
@@ -173,6 +175,22 @@ class DataSourceManager:
         return await self._fetch_with_fallback(
             operation=f"get_constituents({symbol})",
             fetch_func=lambda provider: provider.get_constituents(symbol),
+        )
+
+    async def get_daily_bars(
+        self, symbol: str, start_date: date, end_date: date
+    ) -> List[DailyBar]:
+        """Fetch daily OHLCV bars with provider fallback."""
+        return await self._fetch_with_fallback(
+            operation=f"get_daily_bars({symbol})",
+            fetch_func=lambda provider: provider.get_daily_bars(symbol, start_date, end_date),
+        )
+
+    async def get_stock_list(self) -> List[StockInfo]:
+        """Fetch A-share stock list with provider fallback."""
+        return await self._fetch_with_fallback(
+            operation="get_stock_list",
+            fetch_func=lambda provider: provider.get_stock_list(),
         )
 
     async def _fetch_with_fallback(
