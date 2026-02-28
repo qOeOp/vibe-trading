@@ -6,26 +6,17 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/next:build",
-      "outputs": ["{options.outputPath}"],
+      "executor": "nx:run-commands",
       "defaultConfiguration": "production",
-      "options": {
-        "outputPath": "dist/apps/web"
-      },
       "configurations": {
         "development": {
-          "outputPath": "apps/web"
+          "command": "npx next build",
+          "cwd": "apps/web"
         },
         "production": {
-          "outputPath": "dist/apps/web"
+          "command": "NEXT_BUILD_DIR=.next-prod bash scripts/safe-build.sh",
+          "cwd": "apps/web"
         }
-      }
-    },
-    "build-check": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "NEXT_BUILD_DIR=.next-prod npx next build",
-        "cwd": "apps/web"
       }
     },
     "serve": {

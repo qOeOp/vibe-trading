@@ -61,6 +61,15 @@ apps/web/src/
 - Detail panels: must use `@/components/shared/detail-panel` primitives
 - Full design spec: `.claude/rules/component-design-system.md`
 
+### 颜色纪律（强制）
+
+**禁止裸 hex**（`#2EBD85`、`text-[#CF304A]`、`bg-[#f5f3ef]`）。所有颜色必须用语义色 token 或 Tailwind 色板：
+
+1. 先查 `globals.css` 的 `@theme` 块是否有对应 token → 有则用（`text-mine-muted`、`bg-market-up-medium`）
+2. 没有 → 在 `globals.css` `@theme` 中新增语义 token，再引用
+3. Tailwind 内置色板（`bg-zinc-900`、`text-white/80`、`border-white/10`）可直接用
+4. 唯一例外：ANSI 色表、D3 绑定等需要 JS 原始值的标准映射
+
 ### ngx-charts
 
 - Architecture: `BaseChart` → render fn `({width, height})` → inner `Content` component
@@ -83,9 +92,23 @@ apps/web/src/
 
 ```bash
 npx nx run web:serve --port=4200    # Dev server
-npx nx run web:build                # Production build
 npx nx run web:test                 # Unit tests (Vitest)
 npx nx run web:lint                 # Lint
+```
+
+### Production Build (IMPORTANT)
+
+**ALWAYS** use `NEXT_BUILD_DIR=.next-prod` to avoid lock contention with the dev server:
+
+```bash
+# ✅ Correct — uses .next-prod, won't conflict with dev server
+cd apps/web && NEXT_BUILD_DIR=.next-prod npx next build
+
+# ✅ Also correct — Nx target with env already set
+npx nx run web:build:production
+
+# ❌ NEVER do this — will lock-contend with dev server on .next/
+npx next build
 ```
 
 ## Quantitative Domain

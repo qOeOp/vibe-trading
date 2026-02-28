@@ -34,3 +34,7 @@ class SecretProvider(ABC):
     @abstractmethod
     def delete_key(self, key: str) -> None:
         pass
+
+    def read_value(self, key: str) -> str | None:
+        """Read the value of a secret key. Returns None if not supported."""
+        return None

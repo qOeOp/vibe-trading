@@ -69,7 +69,7 @@ out
 .claude
 .agent
 .agents
-skills/
+.codex/skills/
 
 # TypeScript build info
 *.tsbuildinfo

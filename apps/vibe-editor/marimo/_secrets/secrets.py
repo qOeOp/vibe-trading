@@ -14,7 +14,11 @@ from marimo._secrets.models import SecretKeysWithProvider, SecretProvider
 LOGGER = _loggers.marimo_logger()
 
 if TYPE_CHECKING:
-    from marimo._server.models.secrets import CreateSecretRequest
+    from marimo._server.models.secrets import (
+        CreateSecretRequest,
+        DeleteSecretRequest,
+        ReadSecretValueRequest,
+    )
 
 
 def _get_providers(
@@ -60,6 +64,34 @@ def write_secret(request: CreateSecretRequest, config: MarimoConfig) -> None:
     for provider in providers:
         if provider.type == request.provider and provider.name == request.name:
             provider.write_key(request.key, request.value)
+            return
+    LOGGER.error(
+        f"Can't find provider {request.provider} with name {request.name}. Possible providers: {[f'{p.name} ({p.type})' for p in providers]}"
+    )
+    raise ValueError(
+        f"Can't find provider {request.provider} with name {request.name}"
+    )
+
+
+def read_secret_value(
+    request: ReadSecretValueRequest, config: MarimoConfig
+) -> str | None:
+    providers = _get_providers(config, {})
+    for provider in providers:
+        if provider.type == request.provider and provider.name == request.name:
+            return provider.read_value(request.key)
+    LOGGER.error(
+        f"Can't find provider {request.provider} with name {request.name}. Possible providers: {[f'{p.name} ({p.type})' for p in providers]}"
+    )
+    raise ValueError(
+        f"Can't find provider {request.provider} with name {request.name}"
+    )
+
+def delete_secret(request: DeleteSecretRequest, config: MarimoConfig) -> None:
+    providers = _get_providers(config, {})
+    for provider in providers:
+        if provider.type == request.provider and provider.name == request.name:
+            provider.delete_key(request.key)
             return
     LOGGER.error(
         f"Can't find provider {request.provider} with name {request.name}. Possible providers: {[f'{p.name} ({p.type})' for p in providers]}"

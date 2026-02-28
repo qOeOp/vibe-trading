@@ -903,3 +903,30 @@ Cell 换骨移除了 `CellLeftSideActions`，需要新的 Mine 风格添加 cell
 - 断连态: Magic UI Tree 渲染 DEFAULT_FILES mock 数据
 - 连接态: 从 marimo `treeAtom` (RequestingTree) 读取真实文件系统数据
 - MineAppChrome 负责数据转换和注入
+
+### File Tree 视觉优化
+
+文件树组件视觉质感改进:
+- 文件夹图标半填充效果 (`fill="currentColor" fillOpacity={0.12}`)，增加图标质感
+- 字体层级: 目录 14px `font-medium`，文件 14px 常规字重
+- 行间距收紧 (`gap-0.5`, `py-0.5`)，更紧凑
+- 工具栏 (新建文件/文件夹/上传/刷新/隐藏/折叠) 始终可见，位于面板标题下方树内容顶部
+- 面板标题保留 "Files" 文本 (由 ContentFrame title prop 渲染)
+- 移除了原来的 "PROJECT" 标签
+
+### Data Catalog 面板重设计
+
+数据目录面板从卡片式改为手风琴式三级层级:
+- L1 类别头 (白底): 类别名 + 数量 + 折叠箭头
+- L2 数据源行 (浅灰底 `bg-mine-bg/70`): 源名称 + 中文名
+- L3 描述卡 (白底纸质圆角卡 `bg-white rounded-lg shadow-xs`): 2-3 句详细描述
+- 数据源扩充至 38 个，基于 AkShare 数据字典，覆盖 6 个分类
+
+### 预览态统一 (Preview ↔ Connected 一致性)
+
+断连预览态对齐连接态布局:
+- 移除 `StaticEditorContent` 中硬编码的 FactorPreviewPanel 右侧边栏
+- 右侧面板默认打开 Data Catalog (`snippets`) 而非 null
+- 面板路由 `DisconnectedContent` 增加 `snippets` case 直接渲染 DataCatalogPanel (纯静态 mock 数据)
+- Tab bar 断连态显示 `welcome.py` (单 tab) 替代之前的 factor.py + factory.py 双 tab
+- Demo 代码更新为完整因子分析教程 (imports → 因子定义 → IC 生成 → 分位收益 → IC 衰减)

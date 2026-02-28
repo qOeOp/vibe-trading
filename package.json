@@ -210,6 +210,7 @@
     "html-react-parser": "^5.2.17",
     "html-to-image": "^1.11.13",
     "jotai": "^2.18.0",
+    "jotai-family": "^1.0.1",
     "jotai-scope": "^0.10.0",
     "lodash-es": "^4.17.23",
     "lucide-react": "^0.562.0",

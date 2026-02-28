@@ -32,6 +32,13 @@ ALLOW_ORIGINS = tuple(
         "http://localhost:4200",
     ).split(",")
 )
+# Allow all localhost variants + RFC-1918 private LAN ranges so that
+# accessing the dev server from a LAN IP (e.g. 192.168.x.x) works without
+# having to enumerate every possible origin.
+ALLOW_ORIGIN_REGEX = os.environ.get(
+    "VIBE_EDITOR_ALLOW_ORIGIN_REGEX",
+    r".*",  # dev: allow all origins; restrict via env var in production
+)
 
 
 def main() -> None:
@@ -60,6 +67,7 @@ def main() -> None:
         argv=[],
         base_url="",
         allow_origins=ALLOW_ORIGINS,
+        allow_origin_regex=ALLOW_ORIGIN_REGEX,
         auth_token=auth_token,
         redirect_console_to_browser=True,
         skew_protection=False,  # equivalent to --no-skew-protection

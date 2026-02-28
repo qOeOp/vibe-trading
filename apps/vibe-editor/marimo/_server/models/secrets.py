@@ -26,6 +26,21 @@ class CreateSecretRequest(msgspec.Struct, rename="camel"):
 
 class DeleteSecretRequest(msgspec.Struct, rename="camel"):
     key: str
+    provider: SecretProviderType = "dotenv"
+    name: str = ".env"
 
     def __post_init__(self) -> None:
         assert len(self.key) > 0, "Key must be non-empty"
+
+
+class ReadSecretValueRequest(msgspec.Struct, rename="camel"):
+    key: str
+    provider: SecretProviderType = "dotenv"
+    name: str = ".env"
+
+    def __post_init__(self) -> None:
+        assert len(self.key) > 0, "Key must be non-empty"
+
+
+class ReadSecretValueResponse(msgspec.Struct, rename="camel"):
+    value: str | None

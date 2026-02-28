@@ -44,6 +44,8 @@ class DotEnvSecretsProvider(SecretProvider):
         return set(env_dict.keys())
 
     def write_key(self, key: str, value: str) -> None:
+        import re
+
         filepath = Path(self.file)
         if not filepath.exists():
             # If is `.env`, then create it.
@@ -55,10 +57,24 @@ class DotEnvSecretsProvider(SecretProvider):
         with open(filepath, encoding="utf-8") as f:
             content = f.read()
 
+        # Upsert: remove existing key lines before appending
+        pattern = re.compile(
+            rf"^(?:export\s+)?{re.escape(key)}\s*=", re.MULTILINE
+        )
+        if pattern.search(content):
+            lines = content.splitlines(keepends=True)
+            line_pattern = re.compile(
+                rf"^(?:export\s+)?{re.escape(key)}\s*="
+            )
+            content = "".join(
+                line for line in lines if not line_pattern.match(line)
+            )
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(content)
+
         # Check if file ends with a newline
         ends_with_newline = content.endswith("\n")
 
-        # Note: there could be a race condition here, but it's unlikely
         with open(filepath, "a", encoding="utf-8") as f:
             # Add a newline if the file doesn't end with one
             if content and not ends_with_newline:
@@ -68,6 +84,28 @@ class DotEnvSecretsProvider(SecretProvider):
             escaped_value = value.replace('"', '\\"')
             f.write(f'{key}="{escaped_value}"\n')
 
+    def read_value(self, key: str) -> str | None:
+        env_dict = read_dotenv_with_fallback(self.file)
+        return env_dict.get(key)
+
     def delete_key(self, key: str) -> None:
-        del key
-        raise NotImplementedError
+        import re
+
+        filepath = Path(self.file)
+        if not filepath.exists():
+            raise FileNotFoundError(f"File {filepath} does not exist")
+
+        with open(filepath, encoding="utf-8") as f:
+            lines = f.readlines()
+
+        # Remove lines that define this key (KEY=... or KEY="..." or export KEY=...)
+        pattern = re.compile(
+            rf"^(?:export\s+)?{re.escape(key)}\s*="
+        )
+        new_lines = [line for line in lines if not pattern.match(line)]
+
+        if len(new_lines) == len(lines):
+            raise KeyError(f"Key '{key}' not found in {filepath}")
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)

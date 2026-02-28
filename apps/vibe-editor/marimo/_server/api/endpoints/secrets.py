@@ -4,11 +4,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from starlette.authentication import requires
-from starlette.responses import JSONResponse
-
 from marimo import _loggers
 from marimo._runtime.commands import RefreshSecretsCommand
-from marimo._secrets.secrets import write_secret
+from marimo._secrets.secrets import (
+    delete_secret as _delete_secret,
+    read_secret_value,
+    write_secret,
+)
 from marimo._server.api.deps import AppState
 from marimo._server.api.utils import dispatch_control_request, parse_request
 from marimo._server.models.models import (
@@ -16,7 +18,12 @@ from marimo._server.models.models import (
     ListSecretKeysRequest,
     SuccessResponse,
 )
-from marimo._server.models.secrets import CreateSecretRequest
+from marimo._server.models.secrets import (
+    CreateSecretRequest,
+    DeleteSecretRequest,
+    ReadSecretValueRequest,
+    ReadSecretValueResponse,
+)
 from marimo._server.router import APIRouter
 from marimo._types.ids import ConsumerId
 
@@ -97,8 +104,14 @@ async def create_secret(request: Request) -> BaseResponse:
 
 @router.post("/delete")
 @requires("edit")
-async def delete_secret(request: Request) -> JSONResponse:
+async def delete_secret(request: Request) -> BaseResponse:
     """
+    requestBody:
+        required: true
+        content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/DeleteSecretRequest"
     responses:
         200:
             description: Delete a secret
@@ -107,8 +120,41 @@ async def delete_secret(request: Request) -> JSONResponse:
                     schema:
                         $ref: "#/components/schemas/BaseResponse"
     """
-    del request
-    return JSONResponse(
-        content={"success": False, "message": "Not implemented"},
-        status_code=501,
+    body = await parse_request(request, cls=DeleteSecretRequest)
+    app_state = AppState(request)
+    session_id = app_state.require_current_session_id()
+
+    _delete_secret(body, app_state.config_manager.get_config(hide_secrets=False))
+
+    app_state.require_current_session().put_control_request(
+        RefreshSecretsCommand(),
+        from_consumer_id=ConsumerId(session_id),
     )
+    return SuccessResponse(success=True)
+
+
+@router.post("/read_value")
+@requires("edit")
+async def read_value(request: Request) -> ReadSecretValueResponse:
+    """
+    requestBody:
+        required: true
+        content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/ReadSecretValueRequest"
+    responses:
+        200:
+            description: Read a secret value (dotenv only)
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/ReadSecretValueResponse"
+    """
+    body = await parse_request(request, cls=ReadSecretValueRequest)
+    app_state = AppState(request)
+
+    value = read_secret_value(
+        body, app_state.config_manager.get_config(hide_secrets=False)
+    )
+    return ReadSecretValueResponse(value=value)

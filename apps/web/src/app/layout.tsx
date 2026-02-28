@@ -1,24 +1,31 @@
-import type { Metadata, Viewport } from "next";
-import { Roboto } from "next/font/google";
-import "./globals.css";
-import "@/lib/ngx-charts/ngx-charts.css";
-import { ErrorBoundary } from "@/components/error-boundary";
-import { ThemeProvider } from "@/components/theme-provider";
+import type { Metadata, Viewport } from 'next';
+import { JetBrains_Mono, Roboto } from 'next/font/google';
+import './globals.css';
+import '@/lib/ngx-charts/ngx-charts.css';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-  display: "swap",
-  variable: "--font-roboto",
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+  display: 'swap',
+  variable: '--font-roboto',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+  display: 'swap',
+  variable: '--font-jetbrains-mono',
 });
 
 export const metadata: Metadata = {
-  title: "Vibe Trading",
-  description: "Advanced Trading Platform",
+  title: 'Vibe Trading',
+  description: 'Advanced Trading Platform',
 };
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
@@ -30,11 +37,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={roboto.variable} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${roboto.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
+          forcedTheme="light"
           enableSystem={false}
           disableTransitionOnChange
         >

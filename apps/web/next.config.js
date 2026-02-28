@@ -3,10 +3,9 @@
 const { composePlugins, withNx } = require('@nx/next');
 
 /**
- * Always use separate .next directories for build vs serve so they never
- * lock-contend or corrupt each other:
- *   serve  → apps/web/.next          (default, hot-reload cache)
- *   build  → apps/web/.next-prod     (via NEXT_BUILD_DIR env set in project.json)
+ * Separate .next directories for build vs serve to avoid lock contention:
+ *   serve  → .next       (hot-reload cache, default)
+ *   build  → .next-prod  (via NEXT_BUILD_DIR env in project.json build target)
  */
 const distDir = process.env.NEXT_BUILD_DIR || '.next';
 

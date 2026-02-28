@@ -5,7 +5,6 @@ import os
 import sys
 from dataclasses import dataclass
 
-from marimo._config.packages import infer_package_manager
 from marimo._config.utils import deep_copy
 
 if sys.version_info < (3, 11):
@@ -708,7 +707,7 @@ DEFAULT_CONFIG: MarimoConfig = {
         "autosave_delay": 1000,
         "format_on_save": False,
     },
-    "package_management": {"manager": infer_package_manager()},
+    "package_management": {"manager": "uv"},
     "server": {
         "browser": "default",
         "follow_symlink": False,
