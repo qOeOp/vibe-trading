@@ -87,3 +87,21 @@ async def test_safe_float_helper():
 
     # Test invalid string
     assert provider._safe_float("invalid") is None
+
+
+from src.models.ohlcv import DailyBar, StockInfo
+
+
+@pytest.mark.asyncio
+async def test_provider_has_ohlcv_methods():
+    """Verify DataProvider ABC requires OHLCV methods"""
+    from src.services.providers.base_provider import DataProvider
+
+    class IncompleteProvider(DataProvider):
+        async def get_first_level_industries(self): return []
+        async def get_second_level_industries(self): return []
+        async def get_third_level_industries(self): return []
+        async def get_constituents(self, symbol): return []
+
+    with pytest.raises(TypeError, match="get_daily_bars|get_stock_list"):
+        IncompleteProvider()

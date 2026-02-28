@@ -1,8 +1,10 @@
 """Abstract base class for data providers"""
 
 from abc import ABC, abstractmethod
+from datetime import date
 from typing import List
 
+from ...models.ohlcv import DailyBar, StockInfo
 from ...models.shenwan import (
     FirstLevelIndustry,
     SecondLevelIndustry,
@@ -37,4 +39,16 @@ class DataProvider(ABC):
     @abstractmethod
     async def get_constituents(self, symbol: str) -> List[ConstituentStock]:
         """Fetch constituent stocks for an industry"""
+        pass
+
+    @abstractmethod
+    async def get_daily_bars(
+        self, symbol: str, start_date: date, end_date: date,
+    ) -> List[DailyBar]:
+        """Fetch daily OHLCV bars for a single stock."""
+        pass
+
+    @abstractmethod
+    async def get_stock_list(self) -> List[StockInfo]:
+        """Fetch list of all A-share stocks."""
         pass

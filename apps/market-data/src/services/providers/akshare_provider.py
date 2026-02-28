@@ -5,11 +5,13 @@ from __future__ import annotations
 import asyncio
 import logging
 from concurrent.futures import ThreadPoolExecutor
+from datetime import date
 from typing import Any, List, Type
 
 import akshare as ak
 import pandas as pd
 
+from ...models.ohlcv import DailyBar, StockInfo
 from ...models.shenwan import (
     ConstituentStock,
     FirstLevelIndustry,
@@ -150,6 +152,76 @@ class AKShareProvider(DataProvider):
 
         except Exception as e:
             logger.error(f"Error fetching constituents for {symbol}: {e}", exc_info=True)
+            return []
+
+    async def get_daily_bars(
+        self, symbol: str, start_date: date, end_date: date,
+    ) -> List[DailyBar]:
+        """Fetch daily OHLCV bars for a single stock from AKShare.
+
+        Uses ak.stock_zh_a_hist with hfq (后复权) adjustment.
+        """
+        try:
+            logger.info(f"Fetching daily bars for {symbol} from {start_date} to {end_date}")
+            loop = asyncio.get_event_loop()
+            df = await loop.run_in_executor(
+                self.executor,
+                lambda: ak.stock_zh_a_hist(
+                    symbol=symbol, period="daily",
+                    start_date=start_date.strftime("%Y%m%d"),
+                    end_date=end_date.strftime("%Y%m%d"),
+                    adjust="hfq",
+                ),
+            )
+            if df.empty:
+                logger.warning(f"AKShare returned empty DataFrame for {symbol}")
+                return []
+
+            result = []
+            for _, row in df.iterrows():
+                try:
+                    bar = DailyBar(
+                        symbol=symbol,
+                        date=pd.to_datetime(row["日期"]).date(),
+                        open=float(row["开盘"]),
+                        close=float(row["收盘"]),
+                        high=float(row["最高"]),
+                        low=float(row["最低"]),
+                        volume=float(row["成交量"]),
+                        amount=self._safe_float(row.get("成交额")),
+                        change_pct=self._safe_float(row.get("涨跌幅")),
+                        turnover=self._safe_float(row.get("换手率")),
+                    )
+                    result.append(bar)
+                except Exception as e:
+                    logger.warning(f"Failed to parse bar row for {symbol}: {e}")
+                    continue
+            logger.info(f"Fetched {len(result)} daily bars for {symbol}")
+            return result
+        except Exception as e:
+            logger.error(f"Error fetching daily bars for {symbol}: {e}", exc_info=True)
+            return []
+
+    async def get_stock_list(self) -> List[StockInfo]:
+        """Fetch list of all A-share stocks from AKShare."""
+        try:
+            logger.info("Fetching A-share stock list from AKShare")
+            loop = asyncio.get_event_loop()
+            df = await loop.run_in_executor(self.executor, ak.stock_zh_a_spot_em)
+            if df.empty:
+                logger.warning("AKShare returned empty stock list")
+                return []
+            result = []
+            for _, row in df.iterrows():
+                try:
+                    result.append(StockInfo(code=str(row["代码"]), name=str(row["名称"])))
+                except Exception as e:
+                    logger.warning(f"Failed to parse stock row: {e}")
+                    continue
+            logger.info(f"Fetched {len(result)} A-share stocks")
+            return result
+        except Exception as e:
+            logger.error(f"Error fetching stock list: {e}", exc_info=True)
             return []
 
     def _transform_industry_data(
