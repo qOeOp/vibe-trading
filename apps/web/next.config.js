@@ -32,6 +32,14 @@ const nextConfig = {
       },
     },
   },
+  // Webpack equivalent for --webpack dev server mode
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.md$/,
+      use: 'raw-loader',
+    });
+    return config;
+  },
 };
 
 const plugins = [
