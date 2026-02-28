@@ -239,6 +239,7 @@ function LabOrchestrator() {
       setConnectStep('start');
       setError(null);
       connectingRef.current = false;
+      autoConnectFiredRef.current = false;
     }
   }, [labMode]);
 
@@ -366,8 +367,12 @@ function LabOrchestrator() {
             await res.json();
           connectingRef.current = true;
           if (pollingRef.current) clearInterval(pollingRef.current);
-          // Override notebookPath with ?file= param when present
-          const notebookPath = fileParam ?? session.notebookPath;
+          // Override notebookPath with ?file= param when present.
+          // Validate: must end with .py and must not contain path traversal sequences.
+          const notebookPath =
+            fileParam && fileParam.endsWith('.py') && !fileParam.includes('..')
+              ? fileParam
+              : session.notebookPath;
           doConnect(session.workspacePath, notebookPath);
         }
       } catch {
