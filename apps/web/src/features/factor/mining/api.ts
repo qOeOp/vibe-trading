@@ -149,3 +149,38 @@ export const miningApi = {
     return `${BASE_URL}/api/mining/tasks/${taskId}/stream`;
   },
 };
+
+// ── pushFactorToLibrary ────────────────────────────────────────────
+
+import type { Factor } from '@/features/library/types';
+
+export interface PushFactorRequest {
+  taskId: string;
+  factorIndex: number;
+  name: string;
+  code: string;
+  hypothesis: string;
+  metrics: {
+    ic: number;
+    icir: number;
+    arr: number;
+    sharpe: number;
+    maxDrawdown: number;
+    turnover: number;
+  };
+}
+
+export async function pushFactorToLibrary(
+  req: PushFactorRequest,
+): Promise<Factor> {
+  const resp = await fetch(`${BASE_URL}/api/library/factors`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  if (!resp.ok) {
+    const err = (await resp.json().catch(() => ({}))) as { error?: string };
+    throw new Error(err.error ?? `Push failed: ${resp.status}`);
+  }
+  return resp.json() as Promise<Factor>;
+}

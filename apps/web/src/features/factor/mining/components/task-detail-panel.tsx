@@ -1,9 +1,11 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, XCircle, Code2, Rocket } from 'lucide-react';
 import type { MiningTask, LogEntry, DiscoveredFactor } from '../types';
+import { pushFactorToLibrary } from '../api';
+import { useLibraryStore } from '@/features/library/store/use-library-store';
 
 // ── ProgressSection ───────────────────────────────────────────────
 
@@ -169,10 +171,17 @@ function ActivityLog({ entries }: { entries: LogEntry[] }) {
 
 interface FactorResultCardProps {
   factor: DiscoveredFactor;
+  taskId: string;
+  factorIndex: number;
   onViewCode?: (factor: DiscoveredFactor) => void;
 }
 
-function FactorResultCard({ factor, onViewCode }: FactorResultCardProps) {
+function FactorResultCard({
+  factor,
+  taskId,
+  factorIndex,
+  onViewCode,
+}: FactorResultCardProps) {
   const m = factor.metrics;
 
   const kvItems = [
@@ -195,6 +204,36 @@ function FactorResultCard({ factor, onViewCode }: FactorResultCardProps) {
       positive: undefined as boolean | undefined,
     },
   ];
+
+  const [pushState, setPushState] = useState<
+    'idle' | 'loading' | 'done' | 'error'
+  >('idle');
+
+  async function handlePush() {
+    setPushState('loading');
+    try {
+      await pushFactorToLibrary({
+        taskId,
+        factorIndex,
+        name: factor.name,
+        code: factor.code,
+        hypothesis: factor.hypothesis ?? '',
+        metrics: {
+          ic: factor.metrics.ic,
+          icir: factor.metrics.icir,
+          arr: factor.metrics.arr,
+          sharpe: factor.metrics.sharpe,
+          maxDrawdown: factor.metrics.maxDrawdown,
+          turnover: factor.metrics.turnover,
+        },
+      });
+      await useLibraryStore.getState().fetchMiningFactors();
+      setPushState('done');
+    } catch {
+      setPushState('error');
+      setTimeout(() => setPushState('idle'), 3000);
+    }
+  }
 
   return (
     <div
@@ -259,12 +298,27 @@ function FactorResultCard({ factor, onViewCode }: FactorResultCardProps) {
         </button>
         {factor.accepted && (
           <button
-            className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium
-                       text-mine-accent-teal border border-mine-accent-teal/30
-                       hover:bg-mine-accent-teal/5 transition-colors"
+            onClick={handlePush}
+            disabled={pushState === 'loading' || pushState === 'done'}
+            className={cn(
+              'flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-colors',
+              pushState === 'done'
+                ? 'text-market-down-medium border border-market-down-medium/30 bg-market-down-medium/5'
+                : pushState === 'error'
+                  ? 'text-market-up-medium border border-market-up-medium/30 hover:bg-market-up-medium/5'
+                  : 'text-mine-accent-teal border border-mine-accent-teal/30 hover:bg-mine-accent-teal/5',
+              (pushState === 'loading' || pushState === 'done') &&
+                'opacity-70 cursor-not-allowed',
+            )}
           >
             <Rocket className="w-3 h-3" />
-            推送到 Library
+            {pushState === 'loading'
+              ? '推送中...'
+              : pushState === 'done'
+                ? '已推送'
+                : pushState === 'error'
+                  ? '推送失败'
+                  : '推送到 Library'}
           </button>
         )}
       </div>
@@ -345,10 +399,12 @@ export function TaskDetailPanel({
             </div>
           ) : (
             <div className="space-y-2">
-              {task.factors.map((factor) => (
+              {task.factors.map((factor, idx) => (
                 <FactorResultCard
                   key={factor.name}
                   factor={factor}
+                  taskId={task.taskId}
+                  factorIndex={idx}
                   onViewCode={onViewCode}
                 />
               ))}

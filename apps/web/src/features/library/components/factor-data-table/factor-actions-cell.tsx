@@ -9,8 +9,10 @@ import {
   Activity,
   LineChart,
   Copy,
+  ExternalLink,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Tooltip,
   TooltipTrigger,
@@ -78,6 +80,56 @@ const ACTION_CONFIG: Record<FactorLifecycleStatus, ActionItem[]> = {
 
 function isDestructive(item: ActionItem): boolean {
   return item.type === "status" && item.destructive === true;
+}
+
+// ─── OpenInLabButton ─────────────────────────────────────
+
+function OpenInLabButton({ factor }: { factor: Factor }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  if (factor.source !== "mining_llm" || !factor.codeFile) return null;
+
+  async function handleOpen() {
+    setLoading(true);
+    try {
+      const resp = await fetch("http://localhost:2728/api/lab/files/resolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          factorId: factor.id,
+          codeFile: factor.codeFile,
+        }),
+      });
+      if (!resp.ok) throw new Error("resolve failed");
+      const { workspacePath } = (await resp.json()) as {
+        workspacePath: string;
+      };
+      router.push(`/lab?file=${encodeURIComponent(workspacePath)}`);
+    } catch {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button
+      data-slot="open-in-lab-button"
+      onClick={(e) => {
+        e.stopPropagation();
+        void handleOpen();
+      }}
+      disabled={loading}
+      className={cn(
+        "flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded",
+        "text-mine-muted hover:text-mine-text hover:bg-mine-bg",
+        "border border-transparent hover:border-mine-border transition-colors",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+      )}
+    >
+      <ExternalLink className="w-3 h-3" />
+      {loading ? "打开中..." : "在 Lab 中编辑"}
+    </button>
+  );
 }
 
 // ─── Component ───────────────────────────────────────────
@@ -154,6 +206,7 @@ export function FactorActionsCell({ factor }: FactorActionsCellProps) {
             </Tooltip>
           );
         })}
+        <OpenInLabButton factor={factor} />
       </div>
 
       {/* Per-row StatusChangeDialog */}
