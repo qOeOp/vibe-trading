@@ -29,20 +29,20 @@
       }
     },
     "serve": {
-      "executor": "@nx/next:server",
+      "executor": "nx:run-commands",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "web:build",
-        "dev": true
+        "command": "npx next dev --webpack --port 4200",
+        "cwd": "apps/web"
       },
       "configurations": {
         "development": {
-          "buildTarget": "web:build:development",
-          "dev": true
+          "command": "npx next dev --webpack --port 4200",
+          "cwd": "apps/web"
         },
         "production": {
-          "buildTarget": "web:build:production",
-          "dev": false
+          "command": "NEXT_BUILD_DIR=.next-prod npx next start --port 4200",
+          "cwd": "apps/web"
         }
       }
     },
