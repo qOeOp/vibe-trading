@@ -16,11 +16,10 @@ from starlette.routing import Route, Router
 if TYPE_CHECKING:
     from .knowledge import KnowledgeStore
 
+from .config import MINING_BASE_DIR
 from .knowledge import MiningFactorRecord
 
 logger = logging.getLogger(__name__)
-
-BASE_MINING_DIR = os.path.expanduser("~/.vt-lab/mining")
 
 
 def _get_store(request: Request) -> "KnowledgeStore":
@@ -136,7 +135,7 @@ async def push_factor_endpoint(request: Request) -> JSONResponse:
     factor_id = f"{task_id}_factor_{factor_index}"
 
     # Write code to file within mining result dir
-    task_dir = os.path.join(BASE_MINING_DIR, task_id)
+    task_dir = os.path.join(MINING_BASE_DIR, task_id)
     try:
         os.makedirs(task_dir, exist_ok=True)
         safe_name = "".join(c if c.isalnum() or c == "_" else "_" for c in factor_name)

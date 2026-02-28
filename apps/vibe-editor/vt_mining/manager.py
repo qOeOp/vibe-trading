@@ -6,17 +6,57 @@ import logging
 import os
 import signal
 import subprocess
-import sys
 import time
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
+from .config import MINING_BASE_DIR
 from .models import (
-    MiningTask, MiningTaskConfig, MiningProgress,
-    DiscoveredFactor, FactorMetrics, TaskStatus,
+    MiningTask, MiningTaskConfig, MiningProgress, DateRange,
+    DiscoveredFactor, FactorMetrics, MiningMode, TaskStatus,
 )
 
 logger = logging.getLogger(__name__)
+
+# ── rdagent Python resolution ──────────────────────────────────────────────────
+# Worker must run in the 'rdagent' conda env (has rdagent + LLM deps).
+# Override via RDAGENT_PYTHON env var if conda is installed elsewhere.
+_DEFAULT_RDAGENT_PYTHON = (
+    "/opt/homebrew/Caskroom/miniconda/base/envs/rdagent/bin/python"
+)
+RDAGENT_PYTHON = os.environ.get("RDAGENT_PYTHON", _DEFAULT_RDAGENT_PYTHON)
+
+
+def _load_mining_env() -> dict[str, str]:
+    """
+    Load API keys and LLM config from .env file.
+
+    Search order:
+      1. apps/vibe-editor/.env   (project-local, gitignored)
+      2. <RD-Agent project>/.env (fallback to user's existing config)
+    """
+    candidate_paths = [
+        Path(__file__).parent.parent / ".env",  # apps/vibe-editor/.env
+        Path.home() / "PycharmProjects" / "RD-Agent" / ".env",
+    ]
+
+    env: dict[str, str] = {}
+    for dotenv_path in candidate_paths:
+        if dotenv_path.exists():
+            logger.info("Loading mining env from %s", dotenv_path)
+            with open(dotenv_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, _, value = line.partition("=")
+                    env[key.strip()] = value.strip()
+            break
+    else:
+        logger.warning("No .env file found for mining config — API keys may be missing")
+
+    return env
 
 
 class MiningTaskManager:
@@ -24,15 +64,17 @@ class MiningTaskManager:
     Manages mining task lifecycle: create, start, cancel, query.
 
     Tasks run in subprocess workers. Communication is via filesystem:
+    - {result_dir}/task.json    — written on create, enables restart recovery
     - {result_dir}/progress.json — worker writes, manager reads
     - {result_dir}/factors.jsonl — worker appends, manager reads
-    - {result_dir}/status.json — worker writes on completion/failure
+    - {result_dir}/status.json  — worker writes on completion/failure
     """
 
-    def __init__(self, base_dir: str = os.path.expanduser("~/.vt-lab/mining")) -> None:
+    def __init__(self, base_dir: str = MINING_BASE_DIR) -> None:
         self._tasks: dict[str, MiningTask] = {}
         self._base_dir = base_dir
         os.makedirs(base_dir, exist_ok=True)
+        self._recover_from_disk()
 
     def create_task(self, config: MiningTaskConfig) -> MiningTask:
         """Create a new mining task (PENDING state)."""
@@ -47,6 +89,7 @@ class MiningTaskManager:
             progress=MiningProgress(max_loops=config.max_loops),
         )
         self._tasks[task_id] = task
+        self._persist_task_manifest(task)
         logger.info(
             "Created mining task %s (mode=%s, loops=%d)",
             task_id, config.mode.value, config.max_loops,
@@ -114,16 +157,61 @@ class MiningTaskManager:
         with open(config_path, "w") as f:
             json.dump(config_data, f)
 
-        # Spawn worker subprocess
+        # Build worker environment:
+        #   - Inherit current process env (PATH, HOME, etc.)
+        #   - Overlay API keys + LLM config from .env
+        # NOTE: We do NOT add vibe-editor-root to PYTHONPATH because it contains
+        # an incomplete vendored rdagent/ that would shadow the conda env's full
+        # rdagent installation.  The worker script has no package-level imports;
+        # it only uses stdlib + rdagent (from conda site-packages).
+        worker_env = {**os.environ}
+        worker_env.update(_load_mining_env())
+        # Ensure PYTHONPATH does NOT contain the local vibe-editor root
+        vibe_editor_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if "PYTHONPATH" in worker_env:
+            paths = [p for p in worker_env["PYTHONPATH"].split(":") if p != vibe_editor_root]
+            if paths:
+                worker_env["PYTHONPATH"] = ":".join(paths)
+            else:
+                del worker_env["PYTHONPATH"]
+
+        # Worker script path (run as script, not module, to avoid local rdagent shadowing)
+        worker_script = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "worker.py"
+        )
+
+        # Log file captures rdagent's verbose output (LLM calls, qlib logs)
+        log_path = os.path.join(task.result_dir, "worker.log")
+        log_file = open(log_path, "w")  # noqa: WPS515  (closed when process exits)
+
+        # rdagent uses relative paths for its data folders:
+        #   git_ignore_folder/factor_implementation_source_data  (daily_pv.h5)
+        # We set cwd to the rdagent project root where these already exist.
+        # Override via RDAGENT_CWD env var if the project is elsewhere.
+        rdagent_cwd = worker_env.get(
+            "RDAGENT_CWD",
+            os.path.expanduser("~/PycharmProjects/RD-Agent"),
+        )
+        if not os.path.isdir(rdagent_cwd):
+            # Fall back: generate data via Docker on first run (slow, needs Docker)
+            rdagent_cwd = task.result_dir
+
+        # Spawn worker in rdagent conda env.
         proc = subprocess.Popen(
-            [sys.executable, "-m", "vt_mining.worker", config_path],
-            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            [RDAGENT_PYTHON, worker_script, config_path],
+            cwd=rdagent_cwd,
+            env=worker_env,
+            stdout=log_file,
+            stderr=subprocess.STDOUT,
         )
 
         task.pid = proc.pid
         task.status = TaskStatus.RUNNING
         task.started_at = time.time()
-        logger.info("Started worker PID %d for task %s", proc.pid, task_id)
+        logger.info(
+            "Started worker PID %d for task %s (python=%s)",
+            proc.pid, task_id, RDAGENT_PYTHON,
+        )
         return task
 
     def refresh_task_progress(self, task_id: str) -> None:
@@ -139,17 +227,18 @@ class MiningTaskManager:
         try:
             with open(progress_file) as f:
                 data = json.load(f)
-            task.progress.current_loop = data.get("current_loop", 0)
-            task.progress.max_loops = data.get("max_loops", task.config.max_loops)
-            task.progress.factors_discovered = data.get("factors_discovered", 0)
-            task.progress.factors_accepted = data.get("factors_accepted", 0)
-            task.progress.factors_rejected = data.get("factors_rejected", 0)
-            task.progress.best_ic = data.get("best_ic", 0.0)
-            task.progress.best_ir = data.get("best_ir", 0.0)
-            task.progress.elapsed_seconds = data.get("elapsed_seconds", 0.0)
-            task.progress.estimated_remaining_seconds = data.get("estimated_remaining_seconds", 0.0)
-            task.progress.current_hypothesis = data.get("current_hypothesis", "")
-            task.progress.current_step = data.get("current_step", "")
+            # Worker writes camelCase keys (matching MiningProgress.to_dict())
+            task.progress.current_loop = data.get("currentLoop", 0)
+            task.progress.max_loops = data.get("maxLoops", task.config.max_loops)
+            task.progress.factors_discovered = data.get("factorsDiscovered", 0)
+            task.progress.factors_accepted = data.get("factorsAccepted", 0)
+            task.progress.factors_rejected = data.get("factorsRejected", 0)
+            task.progress.best_ic = data.get("bestIc", 0.0)
+            task.progress.best_ir = data.get("bestIr", 0.0)
+            task.progress.elapsed_seconds = data.get("elapsedSeconds", 0.0)
+            task.progress.estimated_remaining_seconds = data.get("estimatedRemainingSeconds", 0.0)
+            task.progress.current_hypothesis = data.get("currentHypothesis", "")
+            task.progress.current_step = data.get("currentStep", "")
         except (json.JSONDecodeError, OSError) as e:
             logger.warning("Failed to read progress for %s: %s", task_id, e)
 
@@ -195,6 +284,83 @@ class MiningTaskManager:
             task.factors = factors
         except (json.JSONDecodeError, OSError) as e:
             logger.warning("Failed to read factors for %s: %s", task_id, e)
+
+    def _persist_task_manifest(self, task: MiningTask) -> None:
+        """Write {result_dir}/task.json — used to rebuild state after server restart."""
+        manifest = {
+            "taskId": task.task_id,
+            "mode": task.config.mode.value,
+            "maxLoops": task.config.max_loops,
+            "llmModel": task.config.llm_model,
+            "universe": task.config.universe,
+            "dateRange": task.config.date_range.to_dict(),
+            "dedupThreshold": task.config.dedup_threshold,
+            "createdAt": task.created_at,
+        }
+        path = os.path.join(task.result_dir, "task.json")
+        try:
+            with open(path, "w") as f:
+                json.dump(manifest, f)
+        except OSError as e:
+            logger.warning("Failed to persist task manifest for %s: %s", task.task_id, e)
+
+    def _recover_from_disk(self) -> None:
+        """Rebuild in-memory task registry from {base_dir}/*/task.json files."""
+        try:
+            entries = sorted(os.listdir(self._base_dir))
+        except OSError:
+            return
+        for entry in entries:
+            task_dir = os.path.join(self._base_dir, entry)
+            manifest_path = os.path.join(task_dir, "task.json")
+            if not os.path.isfile(manifest_path):
+                continue
+            try:
+                with open(manifest_path) as f:
+                    m = json.load(f)
+                dr_raw = m.get("dateRange", {})
+                config = MiningTaskConfig(
+                    mode=MiningMode(m.get("mode", "factor")),
+                    max_loops=m.get("maxLoops", 10),
+                    llm_model=m.get("llmModel", ""),
+                    universe=m.get("universe", "csi300"),
+                    date_range=DateRange(
+                        train_start=dr_raw.get("trainStart", "2015-01-01"),
+                        train_end=dr_raw.get("trainEnd", "2021-12-31"),
+                        valid_start=dr_raw.get("validStart", "2022-01-01"),
+                        valid_end=dr_raw.get("validEnd", "2023-12-31"),
+                        test_start=dr_raw.get("testStart", "2024-01-01"),
+                        test_end=dr_raw.get("testEnd"),
+                    ),
+                    dedup_threshold=m.get("dedupThreshold", 0.99),
+                )
+                task = MiningTask(
+                    task_id=m["taskId"],
+                    config=config,
+                    result_dir=task_dir,
+                    progress=MiningProgress(max_loops=config.max_loops),
+                    created_at=m.get("createdAt", 0.0),
+                )
+                # Derive status from terminal status.json (RUNNING tasks from previous
+                # session are treated as FAILED — the worker is no longer alive).
+                status_path = os.path.join(task_dir, "status.json")
+                if os.path.exists(status_path):
+                    with open(status_path) as sf:
+                        s = json.load(sf)
+                    if s.get("status") == "completed":
+                        task.status = TaskStatus.COMPLETED
+                    else:
+                        task.status = TaskStatus.FAILED
+                        task.error_message = s.get("error", "")
+                    task.completed_at = s.get("timestamp")
+                else:
+                    # No terminal status — assume worker died during previous session
+                    task.status = TaskStatus.FAILED
+                    task.error_message = "Server restarted while task was running"
+                self._tasks[task.task_id] = task
+                logger.info("Recovered task %s (status=%s)", task.task_id, task.status.value)
+            except Exception as e:
+                logger.warning("Skipping unreadable task dir %s: %s", entry, e)
 
     def _check_worker_status(self, task: MiningTask) -> None:
         """Check if worker process has exited and update status."""
