@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { CreateTaskConfig, MiningMode } from '../types';
@@ -46,7 +46,7 @@ const DEFAULT_CONFIG: CreateTaskConfig = {
     testStart: '2024-01-01',
     testEnd: '2025-12-31',
   },
-  dedupThreshold: 0.99,
+  dedupThreshold: 0.99, // deduplication similarity threshold — advanced parameter, not exposed in UI
 };
 
 interface NewTaskDialogProps {
@@ -64,12 +64,12 @@ function FormField({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-[10px] text-mine-muted uppercase tracking-wider font-medium">
+    <label className="flex flex-col gap-1">
+      <span className="text-[10px] text-mine-muted uppercase tracking-wider font-medium">
         {label}
-      </label>
+      </span>
       {children}
-    </div>
+    </label>
   );
 }
 
@@ -80,7 +80,7 @@ function TextInput({
 }: {
   value: string | number;
   onChange: (v: string) => void;
-  type?: string;
+  type?: React.HTMLInputTypeAttribute;
 }) {
   return (
     <input
@@ -105,14 +105,22 @@ export function NewTaskDialog({
 }: NewTaskDialogProps & React.ComponentProps<'div'>) {
   const [config, setConfig] = useState<CreateTaskConfig>(DEFAULT_CONFIG);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) setConfig(DEFAULT_CONFIG);
+  }, [open]);
 
   if (!open) return null;
 
   const handleSubmit = async () => {
     setSubmitting(true);
+    setError(null);
     try {
       await onSubmit(config);
       onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '提交失败，请重试');
     } finally {
       setSubmitting(false);
     }
@@ -123,7 +131,7 @@ export function NewTaskDialog({
       <div
         data-slot="new-task-dialog"
         className={cn(
-          'w-[480px] bg-white rounded-xl shadow-md border border-mine-border overflow-hidden',
+          'w-120 bg-white rounded-xl shadow-md border border-mine-border overflow-hidden',
           className,
         )}
         {...props}
@@ -306,6 +314,9 @@ export function NewTaskDialog({
         </div>
 
         {/* Footer */}
+        {error && (
+          <p className="text-xs text-market-up-medium px-4 pb-2">{error}</p>
+        )}
         <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-mine-border/50">
           <button
             onClick={onClose}
