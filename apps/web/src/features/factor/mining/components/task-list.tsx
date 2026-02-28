@@ -60,7 +60,7 @@ export function TaskList({
       </div>
 
       {/* Task items */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
+      <div className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-1.5">
         {tasks.length === 0 && !loading && (
           <div className="py-8 text-center text-xs text-mine-muted">
             暂无任务，点击上方按钮创建
