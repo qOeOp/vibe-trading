@@ -35,6 +35,7 @@ from marimo._server.router import APIRouter
 # VT session management (added by vibe-editor)
 from vt_sessions.routes import router as vt_sessions_router
 from vt_mining.routes import router as vt_mining_router
+from vt_mining.library_routes import router as vt_library_router
 
 if TYPE_CHECKING:
     from starlette.routing import BaseRoute
@@ -84,6 +85,8 @@ def build_routes(base_url: str = "") -> list[BaseRoute]:
     app_router.mount("/api/sessions", app=vt_sessions_router, name="vt_sessions")
     # VT mining endpoints (added by vibe-editor)
     app_router.mount("/api/mining", app=vt_mining_router, name="vt_mining")
+    # VT library endpoints (added by vibe-editor)
+    app_router.mount("/api/library", app=vt_library_router, name="vt_library")
 
     app_router.include_router(health_router, name="health")
     app_router.include_router(ws_router, name="ws")

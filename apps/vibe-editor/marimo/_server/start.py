@@ -325,6 +325,11 @@ def start(
     vt_mining_manager = MiningTaskManager()
     app.state.vt_mining_manager = vt_mining_manager
 
+    # VT knowledge store (added by vibe-editor)
+    from vt_mining.knowledge import KnowledgeStore
+    vt_knowledge_store = KnowledgeStore()
+    app.state.vt_knowledge_store = vt_knowledge_store
+
     # Resource initialization
     # Increase the limit on open file descriptors to prevent resource
     # exhaustion when opening multiple notebooks in the same server.
