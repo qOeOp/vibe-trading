@@ -224,19 +224,29 @@ test.describe('Mining page (frontend integration)', () => {
     await completedTag.locator('..').locator('..').click();
     await page.waitForTimeout(500);
 
-    // Either factors are shown OR the correct empty state is shown
+    // Either factors are shown OR one of the status-aware empty messages is shown
     const factorCards = page.locator('[data-slot="factor-result-card"]');
-    const noFactorMsg = page.locator(
-      'text=本次运行未产生有效因子, text=挖掘失败，未产生因子',
-    );
+    const statusMsgs = [
+      '本次运行未产生有效因子',
+      '挖掘失败，未产生因子',
+      '任务已取消',
+    ];
 
     const hasFactors = (await factorCards.count()) > 0;
-    const hasEmptyMsg = await noFactorMsg
-      .first()
-      .isVisible()
-      .catch(() => false);
+    let hasEmptyMsg = false;
+    for (const msg of statusMsgs) {
+      if (
+        await page
+          .locator(`text=${msg}`)
+          .isVisible()
+          .catch(() => false)
+      ) {
+        hasEmptyMsg = true;
+        break;
+      }
+    }
 
-    // Must have one or the other — never "等待第一个因子..."
+    // Must have one or the other — never the old "等待第一个因子..." waiting state
     expect(hasFactors || hasEmptyMsg).toBe(true);
     await expect(page.locator('text=等待第一个因子...')).not.toBeVisible();
   });

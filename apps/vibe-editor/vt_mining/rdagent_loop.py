@@ -87,25 +87,35 @@ class VTFactorRDLoop:
     def running(self, prev_out: dict[str, Any]) -> Any:
         """Override: capture per-factor metadata + code after qlib evaluation.
 
-        qlib sometimes crashes on portfolio simulation (IndexError, LoadObjectError, etc.)
-        AFTER successfully computing IC and writing qlib_res.csv.  In that case
-        FactorRDLoop.running() returns None (skip_loop_error path).
+        qlib sometimes raises FactorEmptyError (a skip_loop_error) after successfully
+        computing IC and writing qlib_res.csv — e.g. IndexError in portfolio simulation.
+        LoopBase catches skip_loop_errors directly, so we must catch-and-reraise here
+        to extract factor data before the exception propagates.
 
-        We recover by:
-          - using prev_out["coding"] for factor metadata (name, code, description…)
-          - using rglob fallback in _read_combined_metrics() to find qlib_res.csv
+        Recovery:
+          - prev_out["coding"] has sub_tasks + sub_workspace_list (factor code/metadata)
+          - rglob fallback in _read_combined_metrics() finds the written qlib_res.csv
         """
         self._write_progress(currentStep="evaluating")
-        exp = super().running(prev_out)
+        try:
+            exp = super().running(prev_out)
+        except Exception as exc:
+            # FactorEmptyError / skip_loop_error — qlib crashed, but IC may be available.
+            # Capture factor metadata before re-raising so LoopBase still handles the skip.
+            logger.warning(
+                "VT: qlib raised %s — recovering factor metadata from coding stage",
+                type(exc).__name__,
+            )
+            extract_exp = prev_out.get("coding")
+            if extract_exp is not None:
+                self._extract_factors_from_exp(extract_exp)
+            self._vt_loop_idx += 1
+            self._write_progress(currentStep="feedback")
+            raise  # Must re-raise so LoopBase handles skip_loop_error correctly
 
-        # Use the running-output exp if qlib succeeded; fall back to the coding-stage
-        # experiment if qlib crashed (it still has sub_tasks + sub_workspace_list).
+        # Normal path: qlib succeeded
         extract_exp = exp if exp is not None else prev_out.get("coding")
         if extract_exp is not None:
-            if exp is None:
-                logger.warning(
-                    "VT: qlib crashed — recovering factor metadata from coding stage + qlib_res.csv fallback"
-                )
             self._extract_factors_from_exp(extract_exp)
 
         self._vt_loop_idx += 1
