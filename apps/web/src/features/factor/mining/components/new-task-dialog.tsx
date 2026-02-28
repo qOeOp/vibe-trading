@@ -102,7 +102,7 @@ export function NewTaskDialog({
   onSubmit,
   className,
   ...props
-}: NewTaskDialogProps & React.ComponentProps<'div'>) {
+}: NewTaskDialogProps & Omit<React.ComponentProps<'div'>, 'onSubmit'>) {
   const [config, setConfig] = useState<CreateTaskConfig>(DEFAULT_CONFIG);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
