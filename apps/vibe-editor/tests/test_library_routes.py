@@ -49,6 +49,11 @@ def test_push_factor(client):
     assert factor["ic"] == pytest.approx(0.024)
     assert "codeFile" in factor
     assert "id" in factor
+    # Schema completeness — fields required by the TypeScript Factor interface
+    assert factor["icMonthlyHeatmap"] == []
+    assert factor["icByIndustry"] == []
+    assert factor["rankAutoCorrelation"] == []
+    assert factor["quantileTurnover"] == {"top": [], "bottom": []}
 
 
 def test_list_factors_after_push(client):

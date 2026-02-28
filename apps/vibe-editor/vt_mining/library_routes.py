@@ -86,6 +86,10 @@ def _record_to_factor_json(record: MiningFactorRecord) -> dict:
         "quantileCumulativeReturns": [[], [], [], [], []],
         "lookback": 5,
         "statusHistory": [],
+        "icMonthlyHeatmap": [],
+        "icByIndustry": [],
+        "rankAutoCorrelation": [],
+        "quantileTurnover": {"top": [], "bottom": []},
         # Mining-specific extension fields
         "codeFile": record.code_file,
         "workspacePath": record.workspace_path or "",
