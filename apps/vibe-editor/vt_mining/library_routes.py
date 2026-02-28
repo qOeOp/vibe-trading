@@ -88,7 +88,7 @@ def _record_to_factor_json(record: MiningFactorRecord) -> dict:
         "statusHistory": [],
         # Mining-specific extension fields
         "codeFile": record.code_file,
-        "workspacePath": record.workspace_path,
+        "workspacePath": record.workspace_path or "",
         "taskId": record.task_id,
         "annualReturn": record.annual_return,
         "sharpeRatio": record.sharpe_ratio,
@@ -120,17 +120,28 @@ async def push_factor_endpoint(request: Request) -> JSONResponse:
         )
 
     code = body.get("code", "")
-    metrics = body.get("metrics", {})
     factor_index = body.get("factorIndex", 0)
+
+    if not isinstance(factor_index, int) or factor_index < 0:
+        return JSONResponse({"error": "factorIndex must be a non-negative integer"}, status_code=400)
+
+    if not code.strip():
+        return JSONResponse({"error": "code must not be empty"}, status_code=400)
+
+    metrics = body.get("metrics", {})
     factor_id = f"{task_id}_factor_{factor_index}"
 
     # Write code to file within mining result dir
     task_dir = os.path.join(BASE_MINING_DIR, task_id)
-    os.makedirs(task_dir, exist_ok=True)
-    safe_name = "".join(c if c.isalnum() or c == "_" else "_" for c in factor_name)
-    code_file = os.path.join(task_dir, f"{safe_name}.py")
-    with open(code_file, "w") as f:
-        f.write(code)
+    try:
+        os.makedirs(task_dir, exist_ok=True)
+        safe_name = "".join(c if c.isalnum() or c == "_" else "_" for c in factor_name)
+        code_file = os.path.join(task_dir, f"{safe_name}.py")
+        with open(code_file, "w") as f:
+            f.write(code)
+    except OSError as exc:
+        logger.error("Failed to write factor code file: %s", exc)
+        return JSONResponse({"error": "Failed to write factor file"}, status_code=500)
 
     record = MiningFactorRecord(
         id=factor_id,
@@ -147,6 +158,7 @@ async def push_factor_endpoint(request: Request) -> JSONResponse:
     )
     store = _get_store(request)
     store.add_factor(record)
+    logger.info("Factor pushed to library: id=%s name=%s", factor_id, factor_name)
 
     return JSONResponse(_record_to_factor_json(record), status_code=201)
 

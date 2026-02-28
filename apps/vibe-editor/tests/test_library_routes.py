@@ -84,3 +84,31 @@ def test_push_same_factor_twice_is_idempotent(client):
     assert resp2.status_code == 201
     resp_list = client.get("/api/library/factors")
     assert len(resp_list.json()["factors"]) == 1  # still 1, not 2
+
+
+def test_push_empty_code_returns_400(client):
+    body = {
+        "taskId": "task_001",
+        "factorIndex": 0,
+        "name": "TestFactor",
+        "code": "   ",  # whitespace only
+        "hypothesis": "",
+        "metrics": {"ic": 0.01, "icir": 0.5, "arr": 0.1,
+                     "sharpe": 0.8, "maxDrawdown": -0.1, "turnover": 0.2},
+    }
+    resp = client.post("/api/library/factors", json=body)
+    assert resp.status_code == 400
+
+
+def test_push_negative_factor_index_returns_400(client):
+    body = {
+        "taskId": "task_001",
+        "factorIndex": -1,
+        "name": "TestFactor",
+        "code": "return close",
+        "hypothesis": "",
+        "metrics": {"ic": 0.01, "icir": 0.5, "arr": 0.1,
+                     "sharpe": 0.8, "maxDrawdown": -0.1, "turnover": 0.2},
+    }
+    resp = client.post("/api/library/factors", json=body)
+    assert resp.status_code == 400
