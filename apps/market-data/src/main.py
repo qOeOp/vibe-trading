@@ -10,7 +10,14 @@ from fastapi import FastAPI
 
 from .cache.redis_cache import RedisCache
 from .config import settings
-from .routes import init_router, shenwan_router
+from .routes import (
+    init_router,
+    shenwan_router,
+    ohlcv_router,
+    init_ohlcv_router,
+    qlib_router,
+    init_qlib_router,
+)
 from .services.data_source_manager import DataSourceManager
 from .services.providers.akshare_provider import AKShareProvider
 
@@ -133,6 +140,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
         # Initialize routes with dependencies
         init_router(data_manager, cache)
+        init_ohlcv_router(data_manager, cache)
+        init_qlib_router(data_manager, cache)
 
         # Register with Consul
         await register_with_consul()
@@ -171,6 +180,8 @@ app = FastAPI(
 
 # Include routers
 app.include_router(shenwan_router)
+app.include_router(ohlcv_router)
+app.include_router(qlib_router)
 
 
 @app.get("/health")

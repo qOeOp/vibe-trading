@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import List
 from unittest.mock import AsyncMock
 
@@ -17,6 +18,7 @@ from src.services.data_source_manager import (
     DataSourceManager,
     DataSourceUnavailableError,
 )
+from src.models.ohlcv import DailyBar, StockInfo
 from src.services.providers.base_provider import DataProvider
 
 
@@ -42,6 +44,18 @@ class MockProvider(DataProvider):
         return []
 
     async def get_constituents(self, symbol: str) -> List[ConstituentStock]:
+        if self.should_fail:
+            raise Exception("Provider failed")
+        return []
+
+    async def get_daily_bars(
+        self, symbol: str, start_date: date, end_date: date
+    ) -> List[DailyBar]:
+        if self.should_fail:
+            raise Exception("Provider failed")
+        return []
+
+    async def get_stock_list(self) -> List[StockInfo]:
         if self.should_fail:
             raise Exception("Provider failed")
         return []
@@ -148,3 +162,43 @@ async def test_manager_requires_providers():
     # Act & Assert
     with pytest.raises(ValueError, match="At least one provider must be configured"):
         DataSourceManager(providers=[])
+
+
+@pytest.mark.asyncio
+async def test_get_daily_bars_with_fallback():
+    """Test daily bars fetch with provider fallback"""
+    bar = DailyBar(
+        symbol="600000",
+        date=date(2026, 2, 27),
+        open=10.5,
+        close=10.8,
+        high=11.0,
+        low=10.3,
+        volume=1_000_000.0,
+    )
+    provider1 = AsyncMock(spec=DataProvider)
+    provider1.get_daily_bars = AsyncMock(side_effect=Exception("Provider 1 down"))
+    provider1.__class__.__name__ = "Provider1"
+
+    provider2 = AsyncMock(spec=DataProvider)
+    provider2.get_daily_bars = AsyncMock(return_value=[bar])
+    provider2.__class__.__name__ = "Provider2"
+
+    manager = DataSourceManager(providers=[provider1, provider2])
+    result = await manager.get_daily_bars("600000", date(2026, 2, 27), date(2026, 2, 27))
+    assert len(result) == 1
+    assert result[0].symbol == "600000"
+
+
+@pytest.mark.asyncio
+async def test_get_stock_list_with_fallback():
+    """Test stock list fetch with provider fallback"""
+    stock = StockInfo(code="600000", name="浦发银行")
+    provider = AsyncMock(spec=DataProvider)
+    provider.get_stock_list = AsyncMock(return_value=[stock])
+    provider.__class__.__name__ = "MockProvider"
+
+    manager = DataSourceManager(providers=[provider])
+    result = await manager.get_stock_list()
+    assert len(result) == 1
+    assert result[0].code == "600000"
