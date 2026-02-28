@@ -25,11 +25,16 @@ import {
   aiEnabledAtom,
 } from '@/features/lab/core/config/config';
 import { connectionStatusAtom } from '@/features/lab/components/editor/chrome/wrapper/footer-items/backend-status';
+import {
+  PanelBar,
+  PanelBody,
+  PanelSection,
+  PanelText,
+  PanelEmpty,
+  usePanelV2,
+} from '../../panel-primitives';
 
 // ─── System Status Panel ──────────────────────────────────
-//
-// Right sidebar panel showing system metrics, runtime config,
-// and service statuses. Replaces the crowded dock items.
 
 /** Hook: polls /api/usage every 10s */
 function useUsageStats() {
@@ -55,27 +60,7 @@ function useUsageStats() {
   return data;
 }
 
-// ─── Sub-components ──────────────────────────────────────
-
-function StatusSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      data-slot="status-section"
-      className="px-4 py-3 border-b border-mine-border/30 last:border-b-0"
-    >
-      <div className="text-[10px] text-mine-muted uppercase tracking-wider font-medium mb-2">
-        {title}
-      </div>
-      {children}
-    </div>
-  );
-}
+// ─── Shared sub-components ──────────────────────────────
 
 function UsageBar({
   label,
@@ -95,7 +80,7 @@ function UsageBar({
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs text-mine-text">
-          <Icon className="w-3.5 h-3.5 text-mine-muted" />
+          <Icon className="w-3 h-3 text-mine-muted" />
           <span>{label}</span>
         </div>
         <span className="text-xs font-mono tabular-nums text-mine-muted">
@@ -138,19 +123,206 @@ function StatusDot({ ok }: { ok: boolean }) {
   );
 }
 
-// ─── Main Panel ──────────────────────────────────────────
+function RuntimeRow({
+  label,
+  value,
+  active,
+}: {
+  label: string;
+  value: string;
+  active: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1.5 text-xs text-mine-text">
+        {active ? (
+          <ZapIcon className="w-3 h-3 text-amber-500" />
+        ) : (
+          <ZapOffIcon className="w-3 h-3 text-mine-muted" />
+        )}
+        <span>{label}</span>
+      </div>
+      <span className="text-[10px] text-mine-muted font-mono">{value}</span>
+    </div>
+  );
+}
 
-function SystemStatusPanel() {
+// ─── V2 (primitives) ────────────────────────────────────
+
+function SystemStatusPanelV2() {
   const data = useUsageStats();
   const connectionStatus = useAtomValue(connectionStatusAtom);
   const aiEnabled = useAtomValue(aiEnabledAtom);
   const ai = useAtomValue(aiAtom);
   const [config] = useResolvedMarimoConfig();
+  const [isV2, toggleV2] = usePanelV2('system-status-panel');
+
+  const isHealthy = connectionStatus === 'healthy';
+
+  return (
+    <div data-slot="system-status-panel" className="h-full flex flex-col">
+      <PanelBar title="系统状态" v2={{ active: isV2, onToggle: toggleV2 }} />
+      <PanelBody>
+        {/* Resources */}
+        <PanelSection title="资源">
+          <div className="flex flex-col gap-3">
+            {data ? (
+              <>
+                <UsageBar
+                  label="CPU"
+                  icon={CpuIcon}
+                  percent={data.cpu.percent}
+                />
+                <UsageBar
+                  label="内存"
+                  icon={MemoryStickIcon}
+                  percent={data.memory.percent}
+                  detail={`${formatBytes(data.memory.total - data.memory.available)} / ${formatBytes(data.memory.total)}`}
+                />
+                {data.kernel?.memory && (
+                  <div className="flex items-center justify-between pl-5">
+                    <PanelText variant="sub">Kernel</PanelText>
+                    <PanelText variant="mono" className="text-mine-muted">
+                      {formatBytes(data.kernel.memory)}
+                    </PanelText>
+                  </div>
+                )}
+                {data.server?.memory && (
+                  <div className="flex items-center justify-between pl-5">
+                    <PanelText variant="sub">Server</PanelText>
+                    <PanelText variant="mono" className="text-mine-muted">
+                      {formatBytes(data.server.memory)}
+                    </PanelText>
+                  </div>
+                )}
+                {data.gpu &&
+                  data.gpu.map((gpu) => (
+                    <UsageBar
+                      key={gpu.index}
+                      label={`GPU ${gpu.index}`}
+                      icon={MicrochipIcon}
+                      percent={gpu.memory.percent}
+                      detail={`${formatBytes(gpu.memory.used)} / ${formatBytes(gpu.memory.total)} — ${gpu.name}`}
+                      colorClass="bg-emerald-500"
+                    />
+                  ))}
+              </>
+            ) : (
+              <PanelText variant="sub">等待数据...</PanelText>
+            )}
+          </div>
+        </PanelSection>
+
+        {/* Connection */}
+        <PanelSection title="连接">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs text-mine-text">
+              {isHealthy ? (
+                <WifiIcon className="w-3 h-3 text-mine-accent-green" />
+              ) : (
+                <WifiOffIcon className="w-3 h-3 text-mine-accent-red" />
+              )}
+              <span>Kernel</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <StatusDot ok={isHealthy} />
+              <PanelText variant="sub" className="capitalize">
+                {connectionStatus}
+              </PanelText>
+            </div>
+          </div>
+        </PanelSection>
+
+        {/* Runtime */}
+        <PanelSection title="运行时">
+          <div className="flex flex-col gap-2">
+            <RuntimeRow
+              label="On startup"
+              value={config.runtime.auto_instantiate ? 'autorun' : 'lazy'}
+              active={config.runtime.auto_instantiate}
+            />
+            <RuntimeRow
+              label="On cell change"
+              value={config.runtime.on_cell_change}
+              active={config.runtime.on_cell_change === 'autorun'}
+            />
+            {!isWasm() && (
+              <RuntimeRow
+                label="Module reload"
+                value={config.runtime.auto_reload}
+                active={config.runtime.auto_reload === 'autorun'}
+              />
+            )}
+          </div>
+        </PanelSection>
+
+        {/* Services */}
+        <PanelSection title="服务">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs text-mine-text">
+              <SparklesIcon className="w-3 h-3 text-mine-muted" />
+              <span>AI</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <StatusDot ok={aiEnabled} />
+              <PanelText variant="mono" className="text-mine-muted">
+                {aiEnabled ? (ai?.open_ai?.model ?? 'enabled') : 'disabled'}
+              </PanelText>
+            </div>
+          </div>
+        </PanelSection>
+      </PanelBody>
+    </div>
+  );
+}
+
+// ─── V1 (original) ──────────────────────────────────────
+
+function StatusSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      data-slot="status-section"
+      className="px-4 py-3 border-b border-mine-border/30 last:border-b-0"
+    >
+      <div className="text-[10px] text-mine-muted uppercase tracking-wider font-medium mb-2">
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function SystemStatusPanelV1() {
+  const data = useUsageStats();
+  const connectionStatus = useAtomValue(connectionStatusAtom);
+  const aiEnabled = useAtomValue(aiEnabledAtom);
+  const ai = useAtomValue(aiAtom);
+  const [config] = useResolvedMarimoConfig();
+  const [, toggleV2] = usePanelV2('system-status-panel');
 
   const isHealthy = connectionStatus === 'healthy';
 
   return (
     <div data-slot="system-status-panel" className="flex flex-col">
+      <div className="px-3 py-1.5 border-b border-mine-border/50 shrink-0 flex items-center justify-between">
+        <span className="text-[10px] font-medium text-mine-muted uppercase tracking-wider">
+          系统状态
+        </span>
+        <button
+          type="button"
+          onClick={toggleV2}
+          className="text-mine-muted/40 hover:text-mine-muted p-0.5 rounded transition-colors"
+          title="Switch to v2"
+        >
+          <span className="text-[8px] font-mono">v2</span>
+        </button>
+      </div>
       {/* Resources */}
       <StatusSection title="资源">
         <div className="flex flex-col gap-3">
@@ -263,28 +435,11 @@ function SystemStatusPanel() {
   );
 }
 
-function RuntimeRow({
-  label,
-  value,
-  active,
-}: {
-  label: string;
-  value: string;
-  active: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-1.5 text-xs text-mine-text">
-        {active ? (
-          <ZapIcon className="w-3.5 h-3.5 text-amber-500" />
-        ) : (
-          <ZapOffIcon className="w-3.5 h-3.5 text-mine-muted" />
-        )}
-        <span>{label}</span>
-      </div>
-      <span className="text-[10px] text-mine-muted font-mono">{value}</span>
-    </div>
-  );
+// ─── Switch ─────────────────────────────────────────────
+
+function SystemStatusPanel() {
+  const [isV2] = usePanelV2('system-status-panel');
+  return isV2 ? <SystemStatusPanelV2 /> : <SystemStatusPanelV1 />;
 }
 
 /** Static version for disconnected mode */

@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Copy,
   Check,
+  DatabaseIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -18,6 +19,13 @@ import {
   type DataCategory,
   type DataSource,
 } from './mock-data';
+import {
+  PanelBar,
+  PanelBody,
+  PanelEmpty,
+  PanelText,
+  usePanelV2,
+} from '../../../../panel-primitives';
 
 const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   TrendingUp,
@@ -175,7 +183,7 @@ function CategoryGroup({
             expanded && 'rotate-90',
           )}
         />
-        {Icon && <Icon className="w-3.5 h-3.5 text-mine-muted" />}
+        {Icon && <Icon className="w-3 h-3 text-mine-muted" />}
         <span className="text-[11px] font-medium text-mine-text">{label}</span>
         <span className="text-[10px] text-mine-muted ml-auto font-mono tabular-nums">
           {sources.length}
@@ -193,8 +201,84 @@ function CategoryGroup({
   );
 }
 
-function DataCatalogPanel() {
+// ─── V2 (primitives) ────────────────────────────────────
+
+function DataCatalogPanelV2() {
   const [search, setSearch] = useState('');
+  const [isV2, toggleV2] = usePanelV2('data-catalog-panel');
+
+  const filteredByCategory = useMemo(() => {
+    const lower = search.toLowerCase();
+    const filtered = search
+      ? DATA_SOURCES.filter(
+          (s) =>
+            s.name.toLowerCase().includes(lower) ||
+            s.nameZh.includes(search) ||
+            s.description.includes(search),
+        )
+      : DATA_SOURCES;
+
+    const grouped = new Map<DataCategory, DataSource[]>();
+    for (const source of filtered) {
+      const list = grouped.get(source.category) || [];
+      list.push(source);
+      grouped.set(source.category, list);
+    }
+    return grouped;
+  }, [search]);
+
+  const totalCount = DATA_SOURCES.length;
+
+  return (
+    <div
+      data-slot="data-catalog-panel"
+      className="flex flex-col h-full overflow-hidden"
+    >
+      <PanelBar
+        title="数据目录"
+        icon={<DatabaseIcon />}
+        badge={<PanelText variant="tiny">({totalCount})</PanelText>}
+        v2={{ active: isV2, onToggle: toggleV2 }}
+      />
+      {/* Search */}
+      <div className="px-3 py-2 border-b border-mine-border/20 shrink-0">
+        <input
+          type="text"
+          placeholder="搜索数据源..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full bg-mine-bg rounded-md px-3 py-1.5 text-[11px] text-mine-text placeholder:text-mine-muted/60 border border-mine-border/50 focus:outline-none focus:border-mine-accent-teal/50 transition-colors"
+        />
+      </div>
+      <PanelBody className="px-3 py-3 gap-4">
+        {filteredByCategory.size === 0 ? (
+          <PanelEmpty title="未找到数据源" />
+        ) : (
+          <>
+            {CATEGORIES.map((cat) => {
+              const sources = filteredByCategory.get(cat.id);
+              if (!sources || sources.length === 0) return null;
+              return (
+                <CategoryGroup
+                  key={cat.id}
+                  label={cat.label}
+                  iconName={cat.icon}
+                  sources={sources}
+                />
+              );
+            })}
+          </>
+        )}
+      </PanelBody>
+    </div>
+  );
+}
+
+// ─── V1 (original) ──────────────────────────────────────
+
+function DataCatalogPanelV1() {
+  const [search, setSearch] = useState('');
+  const [, toggleV2] = usePanelV2('data-catalog-panel');
 
   const filteredByCategory = useMemo(() => {
     const lower = search.toLowerCase();
@@ -222,14 +306,22 @@ function DataCatalogPanel() {
       className="flex flex-col h-full overflow-hidden"
     >
       {/* Search */}
-      <div className="px-3 py-2 border-b border-mine-border/50 shrink-0">
+      <div className="px-3 py-2 border-b border-mine-border/50 shrink-0 flex items-center gap-2">
         <input
           type="text"
           placeholder="Search data sources..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-mine-bg rounded-md px-3 py-1.5 text-[11px] text-mine-text placeholder:text-mine-muted/60 border border-mine-border/50 focus:outline-none focus:border-mine-accent-teal/50 transition-colors"
+          className="flex-1 bg-mine-bg rounded-md px-3 py-1.5 text-[11px] text-mine-text placeholder:text-mine-muted/60 border border-mine-border/50 focus:outline-none focus:border-mine-accent-teal/50 transition-colors"
         />
+        <button
+          type="button"
+          onClick={toggleV2}
+          className="text-mine-muted/40 hover:text-mine-muted p-0.5 rounded transition-colors shrink-0"
+          title="Switch to v2"
+        >
+          <span className="text-[8px] font-mono">v2</span>
+        </button>
       </div>
 
       {/* Category list */}
@@ -255,6 +347,13 @@ function DataCatalogPanel() {
       </div>
     </div>
   );
+}
+
+// ─── Switch ─────────────────────────────────────────────
+
+function DataCatalogPanel() {
+  const [isV2] = usePanelV2('data-catalog-panel');
+  return isV2 ? <DataCatalogPanelV2 /> : <DataCatalogPanelV1 />;
 }
 
 export { DataCatalogPanel };

@@ -122,9 +122,13 @@ function MineFileTree({ className }: MineFileTreeProps) {
   );
 }
 
+/** Alias used by PanelContent for the disconnected file tree */
+const StaticFileTreeContent = DisconnectedFileTree;
+
 export {
   MineFileTree,
   DisconnectedFileTree,
+  StaticFileTreeContent,
   DEFAULT_ELEMENTS,
   type MineFileTreeProps,
 };

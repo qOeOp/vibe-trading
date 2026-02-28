@@ -91,17 +91,24 @@ function PanelBar({ title, icon, badge, right, v2, className }: PanelBarProps) {
 
 type PanelBodyProps = React.ComponentProps<'div'>;
 
-function PanelBody({ className, children, ...props }: PanelBodyProps) {
-  return (
-    <div
-      data-slot="panel-body"
-      className={cn('flex-1 min-h-0 overflow-y-auto flex flex-col', className)}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
+const PanelBody = React.forwardRef<HTMLDivElement, PanelBodyProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        data-slot="panel-body"
+        className={cn(
+          'flex-1 min-h-0 overflow-y-auto flex flex-col',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
+PanelBody.displayName = 'PanelBody';
 
 // ─── PanelSection ───────────────────────────────────────
 //
