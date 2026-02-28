@@ -85,15 +85,29 @@ class VTFactorRDLoop:
         return super().coding(prev_out)
 
     def running(self, prev_out: dict[str, Any]) -> Any:
-        """Override: capture per-factor metadata + code after qlib evaluation."""
+        """Override: capture per-factor metadata + code after qlib evaluation.
+
+        qlib sometimes crashes on portfolio simulation (IndexError, LoadObjectError, etc.)
+        AFTER successfully computing IC and writing qlib_res.csv.  In that case
+        FactorRDLoop.running() returns None (skip_loop_error path).
+
+        We recover by:
+          - using prev_out["coding"] for factor metadata (name, code, description…)
+          - using rglob fallback in _read_combined_metrics() to find qlib_res.csv
+        """
         self._write_progress(currentStep="evaluating")
         exp = super().running(prev_out)
 
-        if exp is None:
-            return exp
+        # Use the running-output exp if qlib succeeded; fall back to the coding-stage
+        # experiment if qlib crashed (it still has sub_tasks + sub_workspace_list).
+        extract_exp = exp if exp is not None else prev_out.get("coding")
+        if extract_exp is not None:
+            if exp is None:
+                logger.warning(
+                    "VT: qlib crashed — recovering factor metadata from coding stage + qlib_res.csv fallback"
+                )
+            self._extract_factors_from_exp(extract_exp)
 
-        # Extract factors from experiment object
-        self._extract_factors_from_exp(exp)
         self._vt_loop_idx += 1
         self._write_progress(currentStep="feedback")
         return exp
