@@ -4,22 +4,63 @@ Must be invoked with the rdagent conda environment Python, NOT the marimo Python
   /opt/homebrew/Caskroom/miniconda/base/envs/rdagent/bin/python -m vt_mining.worker <config_json>
 
 Architecture:
-- Worker runs FactorRDLoop from rdagent (no qlib import needed here).
+- Worker runs VTFactorRDLoop (our subclass of FactorRDLoop) from rdagent.
 - rdagent internally uses QlibCondaEnv ("rdagent4qlib" conda env) to run qlib backtests.
-- Progress/results are written to filesystem so the main process can poll them.
+- Progress/results are written to filesystem via structured callbacks (not log parsing).
 - API keys and MODEL_COSTEER_ENV_TYPE are passed via environment variables.
+
+VTFactorRDLoop (vt_mining/rdagent_loop.py) overrides each step to capture:
+  - hypothesis + reason → rounds.json (written immediately after LLM responds)
+  - factor code + metadata → factors.jsonl (written immediately after qlib evaluation)
+  - loop counters → progress.json (updated at each step transition)
 """
 from __future__ import annotations
 
 import json
 import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
+
+
+def _ensure_conda_in_path() -> None:
+    """Pre-add conda paths to PATH before importing rdagent.
+
+    rdagent's CondaConf model_validator runs:
+      conda run -n {CONDA_DEFAULT_ENV} env | grep '^PATH='
+    to discover the conda env's full PATH (needed to find qrun, timeout, python).
+    This requires 'conda' to be in PATH when the model_validator fires.
+
+    The worker's PATH is inherited from the vibe-editor server process, which may
+    not include conda (e.g. when started from an IDE without shell init).
+
+    We derive the conda base from sys.executable:
+      /opt/.../miniconda/base/envs/rdagent/bin/python → /opt/.../miniconda/base
+    """
+    # sys.executable = .../miniconda/base/envs/rdagent/bin/python
+    # 4 dirname calls: bin → rdagent → envs → base
+    conda_base = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.dirname(sys.executable)))
+    )
+    conda_env = os.environ.get("CONDA_DEFAULT_ENV", "rdagent4qlib")
+
+    # Priority order: conda env bin (qrun, timeout, python) first, then conda itself
+    paths_to_prepend = [
+        os.path.join(conda_base, "envs", conda_env, "bin"),
+        os.path.join(conda_base, "condabin"),  # 'conda' command lives here
+        os.path.join(conda_base, "bin"),
+    ]
+
+    current_path = os.environ.get("PATH", "").split(":")
+    new_entries = [p for p in paths_to_prepend if os.path.isdir(p) and p not in current_path]
+
+    if new_entries:
+        os.environ["PATH"] = ":".join(new_entries) + ":" + os.environ.get("PATH", "")
+        logger.info("Prepended conda paths to PATH: %s", new_entries)
 
 
 @dataclass
@@ -57,8 +98,12 @@ def build_env_config(config: WorkerConfig) -> dict[str, str]:
         "QLIB_FACTOR_VALID_END": config.valid_end,
         "QLIB_FACTOR_TEST_START": config.test_start,
 
-        # Use conda for qlib execution (not Docker-in-Docker)
+        # Use conda for qlib execution (not Docker-in-Docker).
+        # CONDA_DEFAULT_ENV tells get_factor_env() which conda env to use for factor
+        # code execution (reading daily_pv.h5, computing factor values). That env's
+        # PATH is prepended to the subprocess PATH, so 'timeout' is findable there.
         "MODEL_COSTEER_ENV_TYPE": "conda",
+        "CONDA_DEFAULT_ENV": "rdagent4qlib",
 
         # Point rdagent workspace to our task result dir so artefacts are colocated
         "WORKSPACE_PATH": config.result_dir,
@@ -73,21 +118,6 @@ def write_progress(result_dir: str, **kwargs: Any) -> None:
     path = os.path.join(result_dir, "progress.json")
     with open(path, "w") as f:
         json.dump(kwargs, f)
-
-
-def append_factor(
-    result_dir: str,
-    name: str,
-    code: str,
-    metrics: dict,
-    accepted: bool,
-    **kwargs: Any,
-) -> None:
-    """Append a discovered factor to factors.jsonl."""
-    path = os.path.join(result_dir, "factors.jsonl")
-    entry = {"name": name, "code": code, "metrics": metrics, "accepted": accepted, **kwargs}
-    with open(path, "a") as f:
-        f.write(json.dumps(entry) + "\n")
 
 
 def write_status(
@@ -107,66 +137,34 @@ def write_status(
         json.dump(data, f)
 
 
-def extract_factors_from_rdagent_workspace(workspace_path: str, result_dir: str) -> int:
+
+
+def _patch_rdagent_embedding() -> None:
+    """Patch rdagent's litellm backend to honour embedding_openai_base_url/api_key.
+
+    The installed rdagent (any version/source) calls litellm.embedding() without
+    forwarding these two settings, so custom providers (e.g. SiliconFlow) are not
+    reachable.  We monkey-patch the method on the class after import so our fix
+    works regardless of which rdagent version is in the conda env.
     """
-    After loop completes, scan rdagent workspace for discovered factors
-    and write them to factors.jsonl.
+    try:
+        from rdagent.oai.backend.litellm import LiteLLMAPIBackend, LITELLM_SETTINGS  # noqa: PLC0415
+        from litellm import embedding as _litellm_embedding  # noqa: PLC0415
 
-    Returns number of factors written.
-    """
-    count = 0
-    ws = Path(workspace_path)
-    if not ws.exists():
-        return count
+        def _patched(self: Any, input_content_list: list[str]) -> list[list[float]]:
+            model_name = LITELLM_SETTINGS.embedding_model
+            extra: dict = {}
+            if LITELLM_SETTINGS.embedding_openai_base_url:
+                extra["api_base"] = LITELLM_SETTINGS.embedding_openai_base_url
+            if LITELLM_SETTINGS.embedding_openai_api_key:
+                extra["api_key"] = LITELLM_SETTINGS.embedding_openai_api_key
+            response = _litellm_embedding(model=model_name, input=input_content_list, **extra)
+            return [data["embedding"] for data in response.data]
 
-    # rdagent stores factor code in workspace dirs like:
-    # {workspace_path}/<session_hash>/workspace/qlib_workspace/combined_factors/
-    # and results in qlib_res.csv
-    for qlib_ws in ws.rglob("qlib_workspace"):
-        factors_dir = qlib_ws / "combined_factors"
-        results_csv = qlib_ws / "qlib_res.csv"
-        if not factors_dir.exists():
-            continue
-
-        metrics: dict[str, float] = {}
-        if results_csv.exists():
-            try:
-                import csv
-                with open(results_csv) as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        # qlib_res.csv has metric name → value
-                        for k, v in row.items():
-                            try:
-                                metrics[k] = float(v)
-                            except (ValueError, TypeError):
-                                pass
-            except Exception:
-                pass
-
-        for factor_file in sorted(factors_dir.glob("*.py")):
-            name = factor_file.stem
-            code = factor_file.read_text(encoding="utf-8", errors="replace")
-            ic = metrics.get("IC", 0.0)
-            accepted = ic > 0.01  # simple acceptance threshold
-            append_factor(
-                result_dir,
-                name=name,
-                code=code,
-                metrics={
-                    "ic": ic,
-                    "icir": metrics.get("ICIR", 0.0),
-                    "rankIc": metrics.get("RankIC", 0.0),
-                    "rankIcir": metrics.get("RankICIR", 0.0),
-                    "annualizedReturn": metrics.get("1day.excess_return_without_cost.annualized_return", 0.0),
-                    "maxDrawdown": metrics.get("1day.excess_return_without_cost.max_drawdown", 0.0),
-                    "sharpe": metrics.get("1day.excess_return_without_cost.information_ratio", 0.0),
-                },
-                accepted=accepted,
-            )
-            count += 1
-
-    return count
+        LiteLLMAPIBackend._create_embedding_inner_function = _patched  # type: ignore[method-assign]
+        logger.info("Patched rdagent embedding to use configured api_base/api_key")
+    except Exception as exc:
+        logger.warning("Could not patch rdagent embedding: %s", exc)
 
 
 def run_mining_worker(config_json: str) -> None:
@@ -177,24 +175,28 @@ def run_mining_worker(config_json: str) -> None:
     qlib backtests run in rdagent4qlib conda env (auto-created by rdagent if missing).
 
     Flow:
-    1. Load config, set env vars
-    2. Import rdagent (heavy, only in worker)
-    3. Run FactorRDLoop — rdagent orchestrates the full R&D loop:
-       - LLM generates factor hypothesis + Python code
-       - rdagent4qlib runs qlib backtest (conda subprocess)
-       - LLM analyzes results, iterates
-    4. Extract results from rdagent workspace → factors.jsonl
-    5. Write final status
+    1. Load config, set env vars before importing rdagent (pydantic-settings reads at import)
+    2. Import rdagent + VTFactorRDLoop (heavy, only in worker)
+    3. Run VTFactorRDLoop — subclasses FactorRDLoop with structured callbacks:
+       - direct_exp_gen: LLM generates hypothesis → rounds.json written immediately
+       - coding: LLM generates factor code (CoSTEER synthesis)
+       - running: rdagent4qlib runs qlib backtest → factors.jsonl appended immediately
+       - feedback: LLM evaluates, decides to accept/reject → progress.json updated
+    4. Write final status (factors accumulated by callbacks during run)
     """
     with open(config_json) as f:
         raw = json.load(f)
 
     config = WorkerConfig(**raw)
 
-    # Set environment variables BEFORE importing rdagent (pydantic-settings reads at import)
+    # 1. Set environment variables BEFORE importing rdagent (pydantic-settings reads at import)
     env_vars = build_env_config(config)
     for key, value in env_vars.items():
         os.environ[key] = value
+
+    # 2. Ensure conda + conda env bin are in PATH so CondaConf.change_bin_path()
+    #    can run 'conda run -n rdagent4qlib env' to discover qrun/timeout/python paths.
+    _ensure_conda_in_path()
 
     write_progress(
         config.result_dir,
@@ -211,6 +213,10 @@ def run_mining_worker(config_json: str) -> None:
         import asyncio  # noqa: PLC0415
         from rdagent.app.qlib_rd_loop.factor import FactorRDLoop  # noqa: PLC0415
         from rdagent.app.qlib_rd_loop.conf import FACTOR_PROP_SETTING  # noqa: PLC0415
+        from vt_mining.rdagent_loop import VTFactorRDLoop  # noqa: PLC0415
+
+        # Patch rdagent's litellm backend so embedding() receives api_base/api_key.
+        _patch_rdagent_embedding()
 
         write_progress(
             config.result_dir,
@@ -222,18 +228,23 @@ def run_mining_worker(config_json: str) -> None:
             factorsRejected=0,
         )
 
-        # Run the full R&D loop (async).
-        # rdagent will:
-        #   1. Create rdagent4qlib conda env if it doesn't exist (~first run only)
-        #   2. LLM generates factor hypothesis + Python code
-        #   3. rdagent4qlib runs qlib backtest (conda subprocess)
-        #   4. LLM analyzes IC results and iterates
-        loop = FactorRDLoop(FACTOR_PROP_SETTING)
+        # Build VTFactorRDLoop: our mixin on top of FactorRDLoop.
+        # MRO: _Loop → VTFactorRDLoop → FactorRDLoop → RDLoop → LoopBase
+        # VTFactorRDLoop overrides each step to write structured JSON directly,
+        # replacing the previous approach of parsing ANSI log files post-hoc.
+        class _Loop(VTFactorRDLoop, FactorRDLoop):
+            pass
+
+        loop = _Loop(
+            FACTOR_PROP_SETTING,
+            result_dir=config.result_dir,
+            max_loops=config.max_loops,
+        )
         asyncio.run(loop.run(loop_n=config.max_loops))
 
-        # Extract discovered factors from rdagent workspace
-        workspace_path = os.environ.get("WORKSPACE_PATH", config.result_dir)
-        n_factors = extract_factors_from_rdagent_workspace(workspace_path, config.result_dir)
+        n_accepted = loop._vt_factors_accepted
+        n_rejected = loop._vt_factors_rejected
+        n_factors = n_accepted + n_rejected
 
         write_progress(
             config.result_dir,
@@ -241,10 +252,18 @@ def run_mining_worker(config_json: str) -> None:
             maxLoops=config.max_loops,
             currentStep="completed",
             factorsDiscovered=n_factors,
-            factorsAccepted=n_factors,
-            factorsRejected=0,
+            factorsAccepted=n_accepted,
+            factorsRejected=n_rejected,
         )
-        write_status(config.result_dir, status="completed", summary={"total_loops": config.max_loops, "factors": n_factors})
+        write_status(
+            config.result_dir,
+            status="completed",
+            summary={
+                "total_loops": config.max_loops,
+                "factors_accepted": n_accepted,
+                "factors_rejected": n_rejected,
+            },
+        )
 
     except Exception as e:
         logger.exception("Mining worker failed: %s", e)
