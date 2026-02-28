@@ -250,3 +250,32 @@ class VTFactorRDLoop:
                 )
         except OSError as exc:
             logger.warning("Could not write progress.json: %s", exc)
+
+
+# Module-level placeholder — populated by _make_loop_class() at runtime.
+# Must be at module level for pickle to resolve the class by qualified name.
+VTFactorLoop = None
+
+
+def _make_loop_class(FactorRDLoop):
+    """Create VTFactorLoop at module level so pickle can serialize it.
+
+    FactorRDLoop is only importable inside the rdagent conda env, so we
+    can't define the combined class at import time. Instead, we create it
+    here and bind it to the module global so pickle finds it by name:
+      vt_mining.rdagent_loop.VTFactorLoop
+    """
+    global VTFactorLoop
+    if VTFactorLoop is not None:
+        return  # already created
+
+    class VTFactorLoop(VTFactorRDLoop, FactorRDLoop):  # noqa: F811
+        """VTFactorRDLoop + FactorRDLoop combined.
+
+        Defined at module level so pickle can serialize it for LoopBase checkpointing.
+        MRO: VTFactorLoop → VTFactorRDLoop → FactorRDLoop → RDLoop → LoopBase
+        """
+
+    # Bind to module-level name so pickle resolves "vt_mining.rdagent_loop.VTFactorLoop"
+    import vt_mining.rdagent_loop as _self
+    _self.VTFactorLoop = VTFactorLoop

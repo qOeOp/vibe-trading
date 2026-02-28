@@ -213,6 +213,16 @@ def run_mining_worker(config_json: str) -> None:
         import asyncio  # noqa: PLC0415
         from rdagent.app.qlib_rd_loop.factor import FactorRDLoop  # noqa: PLC0415
         from rdagent.app.qlib_rd_loop.conf import FACTOR_PROP_SETTING  # noqa: PLC0415
+
+        # Make vt_mining importable.
+        # Manager clears PYTHONPATH so our vendored rdagent/ doesn't shadow the
+        # conda installation. rdagent is now fully cached in sys.modules, so
+        # appending apps/vibe-editor/ is safe: conda rdagent stays first in path,
+        # but vt_mining (which only exists here) becomes findable.
+        _vibe_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if _vibe_root not in sys.path:
+            sys.path.append(_vibe_root)
+
         from vt_mining.rdagent_loop import VTFactorRDLoop  # noqa: PLC0415
 
         # Patch rdagent's litellm backend so embedding() receives api_base/api_key.
@@ -229,21 +239,25 @@ def run_mining_worker(config_json: str) -> None:
         )
 
         # Build VTFactorRDLoop: our mixin on top of FactorRDLoop.
-        # MRO: _Loop → VTFactorRDLoop → FactorRDLoop → RDLoop → LoopBase
-        # VTFactorRDLoop overrides each step to write structured JSON directly,
-        # replacing the previous approach of parsing ANSI log files post-hoc.
-        class _Loop(VTFactorRDLoop, FactorRDLoop):
-            pass
+        # MRO: VTFactorLoop → VTFactorRDLoop → FactorRDLoop → RDLoop → LoopBase
+        # VTFactorRDLoop overrides each step to write structured JSON directly.
+        # NOTE: Class must be defined at module top level for pickle compatibility
+        # (LoopBase uses pickle for checkpointing). We inject the class into the
+        # global namespace here since FactorRDLoop is only importable inside the
+        # rdagent conda env subprocess.
+        import vt_mining.rdagent_loop as _rdagent_loop_mod  # noqa: PLC0415
+        _rdagent_loop_mod._make_loop_class(FactorRDLoop)
+        VTFactorLoop = _rdagent_loop_mod.VTFactorLoop  # noqa: PLC0415
 
-        loop = _Loop(
+        loop = VTFactorLoop(
             FACTOR_PROP_SETTING,
             result_dir=config.result_dir,
             max_loops=config.max_loops,
         )
         asyncio.run(loop.run(loop_n=config.max_loops))
 
-        n_accepted = loop._vt_factors_accepted
-        n_rejected = loop._vt_factors_rejected
+        n_accepted = loop._vt_factors_accepted  # type: ignore[attr-defined]
+        n_rejected = loop._vt_factors_rejected  # type: ignore[attr-defined]
         n_factors = n_accepted + n_rejected
 
         write_progress(
