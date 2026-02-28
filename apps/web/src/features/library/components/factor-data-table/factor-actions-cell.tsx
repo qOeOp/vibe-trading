@@ -9,8 +9,10 @@ import {
   Activity,
   LineChart,
   Copy,
+  ExternalLink,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Tooltip,
   TooltipTrigger,
@@ -18,6 +20,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { VIBE_COMPUTE_URL } from "@/lib/env";
 import type { Factor, FactorLifecycleStatus } from "@/features/library/types";
 import { useLibraryStore } from "@/features/library/store/use-library-store";
 import { StatusChangeDialog } from "../status-change-dialog";
@@ -78,6 +81,58 @@ const ACTION_CONFIG: Record<FactorLifecycleStatus, ActionItem[]> = {
 
 function isDestructive(item: ActionItem): boolean {
   return item.type === "status" && item.destructive === true;
+}
+
+// ─── OpenInLabButton ─────────────────────────────────────
+
+function OpenInLabButton({ factor }: { factor: Factor }) {
+  const router = useRouter();
+  const [state, setState] = useState<"idle" | "loading" | "error">("idle");
+
+  if (factor.source !== "mining_llm" || !factor.codeFile) return null;
+
+  async function handleOpen() {
+    setState("loading");
+    try {
+      const resp = await fetch(`${VIBE_COMPUTE_URL}/api/lab/files/resolve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          factorId: factor.id,
+          codeFile: factor.codeFile,
+        }),
+      });
+      if (!resp.ok) throw new Error("resolve failed");
+      const { workspacePath } = (await resp.json()) as {
+        workspacePath: string;
+      };
+      router.push(`/lab?file=${encodeURIComponent(workspacePath)}`);
+    } catch {
+      setState("error");
+      setTimeout(() => setState("idle"), 3000);
+    }
+  }
+
+  return (
+    <button
+      data-slot="open-in-lab-button"
+      onClick={(e) => {
+        e.stopPropagation();
+        void handleOpen();
+      }}
+      disabled={state === "loading"}
+      className={cn(
+        "flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded transition-colors",
+        state === "error"
+          ? "text-market-up-medium border border-market-up-medium/30 hover:bg-market-up-medium/5"
+          : "text-mine-muted hover:text-mine-text hover:bg-mine-bg border border-transparent hover:border-mine-border",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+      )}
+    >
+      <ExternalLink className="w-3 h-3" />
+      {state === "loading" ? "打开中..." : state === "error" ? "打开失败" : "在 Lab 中编辑"}
+    </button>
+  );
 }
 
 // ─── Component ───────────────────────────────────────────
@@ -154,6 +209,7 @@ export function FactorActionsCell({ factor }: FactorActionsCellProps) {
             </Tooltip>
           );
         })}
+        <OpenInLabButton factor={factor} />
       </div>
 
       {/* Per-row StatusChangeDialog */}

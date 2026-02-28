@@ -9,6 +9,7 @@ import type {
 } from "../types";
 import { VALID_STATUS_TRANSITIONS } from "../types";
 import { getLibraryFactors } from "../data/mock-library";
+import { VIBE_COMPUTE_URL } from "@/lib/env";
 
 // ─── Filter State ────────────────────────────────────────
 
@@ -71,6 +72,10 @@ interface LibraryState extends LibraryFilters {
     newStatus: FactorLifecycleStatus,
     reason: string,
   ) => void;
+
+  // Mining integration actions
+  addFactor: (factor: Factor) => void;
+  fetchMiningFactors: () => Promise<void>;
 }
 
 const DEFAULT_FILTERS: LibraryFilters = {
@@ -205,6 +210,25 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
       });
       return { factors, selectedFactorIds: new Set<string>() };
     }),
+
+  addFactor: (factor) =>
+    set((state) => {
+      // Dedup: skip if already exists by id
+      if (state.factors.some((f) => f.id === factor.id)) return state;
+      return { factors: [factor, ...state.factors] };
+    }),
+
+  fetchMiningFactors: async () => {
+    try {
+      const resp = await fetch(`${VIBE_COMPUTE_URL}/api/library/factors`);
+      if (!resp.ok) return;
+      const data = await resp.json() as { factors: Factor[] };
+      const { addFactor } = useLibraryStore.getState();
+      data.factors.forEach((f) => addFactor(f));
+    } catch {
+      // Backend not running — silently ignore
+    }
+  },
 }));
 
 // ─── Selector: Filtered Factors ──────────────────────────
