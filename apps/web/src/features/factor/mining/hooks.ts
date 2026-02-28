@@ -80,11 +80,11 @@ export function useMiningStream(taskId: string | null) {
     es.addEventListener('iteration', (e) => {
       try {
         const data = JSON.parse((e as MessageEvent).data) as {
-          loop?: number;
-          hypothesis?: string;
-          status?: string;
+          currentLoop?: number;
+          currentHypothesis?: string;
+          currentStep?: string;
         };
-        const msg = `Loop ${data.loop}: ${data.hypothesis ?? ''} — ${data.status ?? ''}`;
+        const msg = `Loop ${data.currentLoop}: ${data.currentHypothesis ?? ''} — ${data.currentStep ?? ''}`;
         addEntry({ type: 'iteration', message: msg });
       } catch {
         // ignore parse errors
@@ -95,15 +95,13 @@ export function useMiningStream(taskId: string | null) {
       try {
         const data = JSON.parse((e as MessageEvent).data) as {
           name: string;
-          ic: number;
+          metrics?: { ic?: number };
           accepted: boolean;
-          reason?: string;
         };
         const type = data.accepted ? 'factor_accepted' : 'factor_rejected';
-        const status = data.accepted
-          ? '✓ 已接受'
-          : `✗ 已拒绝 (${data.reason ?? 'IC 未达标'})`;
-        const msg = `${data.name}  IC=${data.ic.toFixed(4)}  ${status}`;
+        const ic = data.metrics?.ic ?? 0;
+        const status = data.accepted ? '✓ 已接受' : '✗ 已拒绝';
+        const msg = `${data.name}  IC=${ic.toFixed(4)}  ${status}`;
         addEntry({ type, message: msg });
       } catch {
         // ignore parse errors
@@ -113,11 +111,12 @@ export function useMiningStream(taskId: string | null) {
     es.addEventListener('complete', (e) => {
       try {
         const data = JSON.parse((e as MessageEvent).data) as {
-          factors_accepted: number;
+          taskId: string;
+          status: string;
         };
         addEntry({
           type: 'complete',
-          message: `挖掘完成，${data.factors_accepted} 个因子已接受`,
+          message: `挖掘完成 (${data.status})`,
         });
       } catch {
         // ignore parse errors
