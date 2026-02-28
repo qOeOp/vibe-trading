@@ -10,7 +10,7 @@ export type SidebarPanelType =
   | 'variables'
   | 'packages'
   | 'ai'
-  | 'snippets'
+  | 'data-catalog'
   | 'validation'
   | string;
 export type DeveloperPanelTab = 'errors' | string;

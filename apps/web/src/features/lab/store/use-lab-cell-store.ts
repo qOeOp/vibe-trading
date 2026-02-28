@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { create } from "zustand";
-import { generateId } from "@/lib/id";
+import { create } from 'zustand';
+import { generateId } from '@/lib/id';
 import type {
   CellOutput,
   CellStatus,
@@ -13,7 +13,6 @@ import type {
   ValidationConfig,
   ValidationResult,
   ValidationStatus,
-  AIChatMessage,
   // New Marimo-compatible types
   CellData,
   CellRuntimeState,
@@ -22,23 +21,23 @@ import type {
   CellOutline,
   DeletedCellEntry,
   RuntimeState,
-} from "../types";
+} from '../types';
 import {
   DEFAULT_VALIDATION_CONFIG,
   DEFAULT_CELL_CONFIG,
   createCellData,
   createCellRuntimeState,
-} from "../types";
+} from '../types';
 
 // ─── Helper: create a blank legacy cell ─────────────────
 
 function createBlankCell(): LabCell {
   return {
     id: generateId(),
-    name: "",
-    code: "",
+    name: '',
+    code: '',
     outputs: [],
-    status: "idle",
+    status: 'idle',
     executionOrder: null,
     defines: [],
     uses: [],
@@ -118,9 +117,6 @@ interface LabCellState {
   validationStatus: ValidationStatus;
   validationResult: ValidationResult | null;
 
-  // AI messages
-  aiMessages: AIChatMessage[];
-
   // ═══════════════════════════════════════════════════════
   // 2A: Core Cell Actions (12)
   // ═══════════════════════════════════════════════════════
@@ -164,10 +160,7 @@ interface LabCellState {
   /** Set run elapsed time */
   setRunElapsedTime: (cellId: string, ms: number) => void;
   /** Complete a cell run (set idle, record elapsed time) */
-  completeCellRun: (
-    cellId: string,
-    result?: { elapsedMs: number },
-  ) => void;
+  completeCellRun: (cellId: string, result?: { elapsedMs: number }) => void;
 
   // ═══════════════════════════════════════════════════════
   // 2D: Remaining Actions (8)
@@ -231,10 +224,6 @@ interface LabCellState {
   setValidationConfig: (config: Partial<ValidationConfig>) => void;
   setValidationStatus: (status: ValidationStatus) => void;
   setValidationResult: (result: ValidationResult | null) => void;
-
-  // AI
-  addAIMessage: (message: AIChatMessage) => void;
-  clearAIMessages: () => void;
 }
 
 // ─── Initial State ──────────────────────────────────────
@@ -243,14 +232,6 @@ const initialCellId = generateId();
 const initialLegacyCell = createBlankCell();
 // Override to use same ID for both systems
 const syncedId = initialLegacyCell.id;
-
-const WELCOME_MESSAGE: AIChatMessage = {
-  id: "welcome",
-  role: "assistant",
-  content:
-    "你好! 我是 Alpha 因子研究顾问。可以帮你解读因子公式、分析 IC/IR 统计指标、诊断覆盖率问题。有什么想了解的?",
-  timestamp: Date.now(),
-};
 
 // ─── Store ──────────────────────────────────────────────
 
@@ -278,22 +259,20 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
   executionCounter: 0,
 
   sidebarPanel: null,
-  activePanel: "ai",
+  activePanel: 'ai',
 
-  pyodideStatus: "loading",
+  pyodideStatus: 'loading',
   pyodideError: null,
   consoleOutput: [],
 
   editorFontSize: 13,
   editorLineWrap: true,
 
-  factorName: "因子_v1",
+  factorName: '因子_v1',
 
   validationConfig: { ...DEFAULT_VALIDATION_CONFIG },
-  validationStatus: "idle",
+  validationStatus: 'idle',
   validationResult: null,
-
-  aiMessages: [WELCOME_MESSAGE],
 
   // ═══════════════════════════════════════════════════════
   // 2A: Core Cell Actions
@@ -321,10 +300,10 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
     // Also update legacy cells
     const newLegacyCell: LabCell = {
       id: newId,
-      name: "",
-      code: "",
+      name: '',
+      code: '',
       outputs: [],
-      status: "idle",
+      status: 'idle',
       executionOrder: null,
       defines: [],
       uses: [],
@@ -351,8 +330,8 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
     // Save to history for undo
     const cellData = state.cellData[cellId];
     const entry: DeletedCellEntry = {
-      name: cellData?.name ?? "",
-      code: cellData?.code ?? "",
+      name: cellData?.name ?? '',
+      code: cellData?.code ?? '',
       index: idx,
       config: cellData?.config ?? { ...DEFAULT_CELL_CONFIG },
     };
@@ -415,9 +394,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
         edited,
       })),
       // Legacy sync
-      cells: state.cells.map((c) =>
-        c.id === cellId ? { ...c, code } : c,
-      ),
+      cells: state.cells.map((c) => (c.id === cellId ? { ...c, code } : c)),
     });
   },
 
@@ -425,9 +402,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
     const state = get();
     set({
       cellData: updateCellData(state.cellData, cellId, () => ({ name })),
-      cells: state.cells.map((c) =>
-        c.id === cellId ? { ...c, name } : c,
-      ),
+      cells: state.cells.map((c) => (c.id === cellId ? { ...c, name } : c)),
     });
   },
 
@@ -483,7 +458,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
       cellRuntime: updateCellRuntime(state.cellRuntime, cellId, () => ({
         output: null,
         consoleOutputs: [],
-        status: "queued" as RuntimeState,
+        status: 'queued' as RuntimeState,
         staleInputs: false,
         interrupted: false,
         stopped: false,
@@ -494,7 +469,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
       // Legacy sync
       cells: state.cells.map((c) =>
         c.id === cellId
-          ? { ...c, outputs: [], status: "running" as CellStatus }
+          ? { ...c, outputs: [], status: 'running' as CellStatus }
           : c,
       ),
     });
@@ -502,25 +477,22 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
 
   handleCellMessage: (cellId, output) => {
     const state = get();
-    if (output.channel === "output") {
+    if (output.channel === 'output') {
       // Main output — replace
       set({
         cellRuntime: updateCellRuntime(state.cellRuntime, cellId, () => ({
           output,
-          status: "running" as RuntimeState,
+          status: 'running' as RuntimeState,
         })),
       });
-    } else if (
-      output.channel === "stdout" ||
-      output.channel === "stderr"
-    ) {
+    } else if (output.channel === 'stdout' || output.channel === 'stderr') {
       // Console — append
       set({
         cellRuntime: updateCellRuntime(state.cellRuntime, cellId, (rt) => ({
           consoleOutputs: [...rt.consoleOutputs, output],
         })),
       });
-    } else if (output.channel === "marimo-error") {
+    } else if (output.channel === 'marimo-error') {
       set({
         cellRuntime: updateCellRuntime(state.cellRuntime, cellId, () => ({
           output,
@@ -547,7 +519,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
       })),
       // Legacy sync: mark as stale
       cells: state.cells.map((c) =>
-        c.id === cellId && stale ? { ...c, status: "stale" as CellStatus } : c,
+        c.id === cellId && stale ? { ...c, status: 'stale' as CellStatus } : c,
       ),
     });
   },
@@ -557,10 +529,10 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
     set({
       cellRuntime: updateCellRuntime(state.cellRuntime, cellId, () => ({
         interrupted: true,
-        status: "idle" as RuntimeState,
+        status: 'idle' as RuntimeState,
       })),
       cells: state.cells.map((c) =>
-        c.id === cellId ? { ...c, status: "idle" as CellStatus } : c,
+        c.id === cellId ? { ...c, status: 'idle' as CellStatus } : c,
       ),
     });
   },
@@ -570,10 +542,10 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
     set({
       cellRuntime: updateCellRuntime(state.cellRuntime, cellId, () => ({
         stopped: true,
-        status: "idle" as RuntimeState,
+        status: 'idle' as RuntimeState,
       })),
       cells: state.cells.map((c) =>
-        c.id === cellId ? { ...c, status: "error" as CellStatus } : c,
+        c.id === cellId ? { ...c, status: 'error' as CellStatus } : c,
       ),
     });
   },
@@ -594,7 +566,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
 
     set({
       cellRuntime: updateCellRuntime(state.cellRuntime, cellId, () => ({
-        status: "idle" as RuntimeState,
+        status: 'idle' as RuntimeState,
         runElapsedTimeMs: result?.elapsedMs ?? null,
         lastRunStartTimestamp: rt.runStartTimestamp,
       })),
@@ -609,7 +581,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
         c.id === cellId
           ? {
               ...c,
-              status: (rt.errored ? "error" : "done") as CellStatus,
+              status: (rt.errored ? 'error' : 'done') as CellStatus,
             }
           : c,
       ),
@@ -653,7 +625,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
       })),
       cells: state.cells.map((c) =>
         c.id === cellId
-          ? { ...c, status: errored ? ("error" as CellStatus) : c.status }
+          ? { ...c, status: errored ? ('error' as CellStatus) : c.status }
           : c,
       ),
     });
@@ -692,7 +664,7 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
       name: entry.name,
       code: entry.code,
       outputs: [],
-      status: "idle",
+      status: 'idle',
       executionOrder: null,
       defines: [],
       uses: [],
@@ -722,17 +694,13 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
 
   setCellStatus: (cellId, status) =>
     set((state) => ({
-      cells: state.cells.map((c) =>
-        c.id === cellId ? { ...c, status } : c,
-      ),
+      cells: state.cells.map((c) => (c.id === cellId ? { ...c, status } : c)),
     })),
 
   appendCellOutput: (cellId, output) =>
     set((state) => ({
       cells: state.cells.map((c) =>
-        c.id === cellId
-          ? { ...c, outputs: [...c.outputs, output] }
-          : c,
+        c.id === cellId ? { ...c, outputs: [...c.outputs, output] } : c,
       ),
     })),
 
@@ -810,9 +778,4 @@ export const useLabCellStore = create<LabCellState>((set, get) => ({
     })),
   setValidationStatus: (status) => set({ validationStatus: status }),
   setValidationResult: (result) => set({ validationResult: result }),
-
-  // AI
-  addAIMessage: (message) =>
-    set((state) => ({ aiMessages: [...state.aiMessages, message] })),
-  clearAIMessages: () => set({ aiMessages: [WELCOME_MESSAGE] }),
 }));

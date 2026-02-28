@@ -1,24 +1,24 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { Memoize } from "typescript-memoize";
-import { reorderColumnSizes } from "../components/editor/columns/storage";
-import { SETUP_CELL_ID } from "../core/cells/ids";
-import { arrayDelete, arrayInsert, arrayInsertMany, arrayMove } from "./arrays";
-import { Logger } from "./Logger";
+import { Memoize } from 'typescript-memoize';
+import { reorderColumnSizes } from '../components/editor/columns/storage';
+import { SETUP_CELL_ID } from '../core/cells/ids';
+import { arrayDelete, arrayInsert, arrayInsertMany, arrayMove } from './arrays';
+import { Logger } from './Logger';
 
 /**
  * Branded number to help with type safety
  */
-export type CellColumnIndex = number & { __brand: "CellColumnIndex" };
+export type CellColumnIndex = number & { __brand: 'CellColumnIndex' };
 
 /**
  * Branded string to help with type safety
  */
-export type CellColumnId = string & { __brand: "CellColumnId" };
+export type CellColumnId = string & { __brand: 'CellColumnId' };
 /**
  * Weakly-branded number, since making `__brand` required causes type errors
  */
-export type CellIndex = number & { __brand?: "CellIndex" };
+export type CellIndex = number & { __brand?: 'CellIndex' };
 
 /**
  * Tree data structure for handling ids with nested children
@@ -203,7 +203,7 @@ export class CollapsibleTree<T> {
   getDescendants(id: T): T[] {
     const node = this._nodeMap.get(id);
     if (!node) {
-      Logger.warn(
+      Logger.debug(
         `Node ${id} not found in tree. Valid ids: ${this.topLevelIds}`,
       );
       return [];
@@ -219,7 +219,7 @@ export class CollapsibleTree<T> {
   isCollapsed(id: T): boolean {
     const node = this._nodeMap.get(id);
     if (!node) {
-      Logger.warn(
+      Logger.debug(
         `Node ${id} not found in tree. Valid ids: ${this.topLevelIds}`,
       );
       return false;
@@ -312,7 +312,7 @@ export class CollapsibleTree<T> {
   ): CollapsibleTree<T> {
     const nodes = [...this.nodes];
     if (collapseRanges.length === 0) {
-      throw new Error("No collapse ranges provided");
+      throw new Error('No collapse ranges provided');
     }
 
     if (collapseRanges.length !== nodes.length) {
@@ -579,10 +579,10 @@ export class CollapsibleTree<T> {
 
   toString(): string {
     let depth = 0;
-    let result = "";
+    let result = '';
     const asString = (nodes: TreeNode<T>[]) => {
       for (const node of nodes) {
-        result += `${" ".repeat(depth * 2)}${node.toString()}\n`;
+        result += `${' '.repeat(depth * 2)}${node.toString()}\n`;
         depth += 1;
         asString(node.children);
         depth -= 1;
@@ -865,7 +865,7 @@ export class MultiColumn<T> {
     const index = this.columns.findIndex((c) => c.id === id);
     if (index === -1) {
       throw new Error(
-        `Column ${id} not found. Possible values: ${this.getColumnIds().join(", ")}`,
+        `Column ${id} not found. Possible values: ${this.getColumnIds().join(', ')}`,
       );
     }
     return index;
@@ -873,16 +873,16 @@ export class MultiColumn<T> {
 
   moveColumn(
     fromCol: CellColumnId,
-    toCol: CellColumnId | "_left_" | "_right_",
+    toCol: CellColumnId | '_left_' | '_right_',
   ): MultiColumn<T> {
     if (fromCol === toCol) {
       return this;
     }
     const fromIdx = this.indexOfOrThrow(fromCol);
     const toIdx =
-      toCol === "_left_"
+      toCol === '_left_'
         ? fromIdx - 1
-        : toCol === "_right_"
+        : toCol === '_right_'
           ? fromIdx + 1
           : this.indexOfOrThrow(toCol);
 
@@ -912,7 +912,7 @@ export class MultiColumn<T> {
     });
     if (!found) {
       Logger.log(
-        `Possible values: ${this.columns.map((c) => c.inOrderIds).join(", ")}`,
+        `Possible values: ${this.columns.map((c) => c.inOrderIds).join(', ')}`,
       );
       throw new Error(`Cell ${id} not found in any column`);
     }

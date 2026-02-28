@@ -86,6 +86,8 @@ export function createStaticRequests(): EditRequests & RunRequests {
     getDependencyTree: throwNotInEditMode,
     listSecretKeys: throwNotInEditMode,
     writeSecret: throwNotInEditMode,
+    deleteSecret: throwNotInEditMode,
+    readSecretValue: throwNotInEditMode,
     invokeAiTool: throwNotInEditMode,
     getMcpStatus: throwNotInEditMode,
     refreshMcp: throwNotInEditMode,

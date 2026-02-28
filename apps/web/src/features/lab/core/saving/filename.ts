@@ -1,16 +1,16 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import useEvent from "react-use-event-hook";
-import { useImperativeModal } from "@/features/lab/components/modal/ImperativeModal";
-import { Paths } from "@/features/lab/utils/paths";
-import { updateQueryParams } from "@/features/lab/utils/urls";
-import { getAppConfig } from "../config/config";
-import { KnownQueryParams } from "../constants";
-import { connectionAtom } from "../network/connection";
-import { useRequestClient } from "../network/requests";
-import { WebSocketState } from "../websocket/types";
-import { filenameAtom } from "./file-state";
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import useEvent from 'react-use-event-hook';
+import { useImperativeModal } from '@/features/lab/components/modal/ImperativeModal';
+import { Paths } from '@/features/lab/utils/paths';
+import { updateQueryParams } from '@/features/lab/utils/urls';
+import { getAppConfig } from '../config/config';
+import { KnownQueryParams } from '../constants';
+import { connectionAtom } from '../network/connection';
+import { useRequestClient } from '../network/requests';
+import { WebSocketState } from '../websocket/types';
+import { filenameAtom } from './file-state';
 
 export function useFilename() {
   return useAtomValue(filenameAtom);
@@ -25,7 +25,7 @@ export function useUpdateFilename() {
   const handleFilenameChange = useEvent(async (name: string) => {
     const appConfig = getAppConfig();
     if (connection.state !== WebSocketState.OPEN) {
-      openAlert("Failed to save notebook: not connected to a kernel.");
+      openAlert('Failed to save notebook: not connected to a kernel.');
       return null;
     }
 
@@ -42,7 +42,7 @@ export function useUpdateFilename() {
         setFilename(name);
         // Set document title: app_title takes precedence, then filename, then default
         document.title =
-          appConfig.app_title || Paths.basename(name) || "Untitled Notebook";
+          appConfig.app_title || Paths.basename(name) || 'Vibe Lab';
         return name;
       })
       .catch((error) => {

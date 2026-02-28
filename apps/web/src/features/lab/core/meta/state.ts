@@ -5,10 +5,11 @@ import { Logger } from '@/features/lab/utils/Logger';
 
 function getVersionFromMountConfig(): string | null {
   try {
-    const mountConfig = window.__MARIMO_MOUNT_CONFIG__ as { version: string };
-    return mountConfig.version;
+    const mountConfig = window.__MARIMO_MOUNT_CONFIG__ as
+      | { version: string }
+      | undefined;
+    return mountConfig?.version ?? null;
   } catch {
-    Logger.warn('Failed to get version from mount config');
     return null;
   }
 }

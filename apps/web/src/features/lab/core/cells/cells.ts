@@ -1390,7 +1390,7 @@ function updateCellRuntimeState({
   cellReducer: ReducerWithoutAction<CellRuntimeState>;
 }) {
   if (!(cellId in state.cellRuntime)) {
-    Logger.warn(`Cell ${cellId} not found in state`);
+    Logger.debug(`Cell ${cellId} not found in state`);
     return state;
   }
 
@@ -1413,7 +1413,7 @@ function updateCellData({
   cellReducer: ReducerWithoutAction<CellData>;
 }) {
   if (!(cellId in state.cellData)) {
-    Logger.warn(`Cell ${cellId} not found in state`);
+    Logger.debug(`Cell ${cellId} not found in state`);
     return state;
   }
 

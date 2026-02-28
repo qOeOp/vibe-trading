@@ -55,6 +55,19 @@ export type MarimoConfig = schemas['MarimoConfig'];
 export type MarimoFile = schemas['MarimoFile'];
 export type ListSecretKeysRequest = schemas['ListSecretKeysRequest'];
 export type CreateSecretRequest = schemas['CreateSecretRequest'];
+export type DeleteSecretRequest = {
+  key: string;
+  provider: string;
+  name: string;
+};
+export type ReadSecretValueRequest = {
+  key: string;
+  provider: string;
+  name: string;
+};
+export type ReadSecretValueResponse = {
+  value: string | null;
+};
 export type PreviewDatasetColumnRequest =
   schemas['PreviewDatasetColumnRequest'];
 export type PreviewSQLTableRequest = schemas['PreviewSQLTableRequest'];
@@ -193,6 +206,10 @@ export interface EditRequests {
   // Secrets requests
   listSecretKeys: (request: ListSecretKeysRequest) => Promise<null>;
   writeSecret: (request: CreateSecretRequest) => Promise<null>;
+  deleteSecret: (request: DeleteSecretRequest) => Promise<null>;
+  readSecretValue: (
+    request: ReadSecretValueRequest,
+  ) => Promise<ReadSecretValueResponse>;
   // AI Tool requests
   invokeAiTool: (request: InvokeAiToolRequest) => Promise<InvokeAiToolResponse>;
   getMcpStatus: () => Promise<MCPStatusResponse>;

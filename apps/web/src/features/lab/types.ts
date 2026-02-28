@@ -1,25 +1,25 @@
 // ─── Lab Types ────────────────────────────────────────────
 
 /** IC calculation method */
-export type ICMethod = "rank" | "normal";
+export type ICMethod = 'rank' | 'normal';
 
 /** Winsorization method */
-export type WinsorizationMethod = "mad" | "3sigma" | "percentile";
+export type WinsorizationMethod = 'mad' | '3sigma' | 'percentile';
 
 /** Universe / stock pool */
-export type Universe = "全A" | "沪深300" | "中证500" | "中证1000";
+export type Universe = '全A' | '沪深300' | '中证500' | '中证1000';
 
 /** Validation run status */
-export type ValidationStatus = "idle" | "running" | "completed" | "error";
+export type ValidationStatus = 'idle' | 'running' | 'completed' | 'error';
 
 /** Overall verdict level */
-export type VerdictLevel = "valid" | "marginal" | "invalid";
+export type VerdictLevel = 'valid' | 'marginal' | 'invalid';
 
 /** Per-step conclusion */
-export type StepConclusion = "pass" | "warning" | "fail";
+export type StepConclusion = 'pass' | 'warning' | 'fail';
 
 /** Right-panel context tab */
-export type ContextPanelTab = "results" | "ai";
+export type ContextPanelTab = 'results' | 'ai';
 
 // ─── Marimo-Compatible Cell Types ───────────────────────
 // Adapted from marimo-team/marimo frontend/src/core/cells/types.ts
@@ -37,27 +37,27 @@ export type ContextPanelTab = "results" | "ai";
  * - "pdb": debugger (not used in Pyodide)
  */
 export type OutputChannel =
-  | "output"
-  | "stdout"
-  | "stderr"
-  | "marimo-error"
-  | "media"
-  | "stdin"
-  | "pdb";
+  | 'output'
+  | 'stdout'
+  | 'stderr'
+  | 'marimo-error'
+  | 'media'
+  | 'stdin'
+  | 'pdb';
 
 /**
  * Known MIME types for cell output
  * Subset of Marimo's KnownMimeType — covers our Pyodide use cases
  */
 export type KnownMimeType =
-  | "text/plain"
-  | "text/html"
-  | "text/markdown"
-  | "application/json"
-  | "image/png"
-  | "image/svg+xml"
-  | "image/jpeg"
-  | "application/vnd.marimo+error";
+  | 'text/plain'
+  | 'text/html'
+  | 'text/markdown'
+  | 'application/json'
+  | 'image/png'
+  | 'image/svg+xml'
+  | 'image/jpeg'
+  | 'application/vnd.marimo+error';
 
 /**
  * OutputMessage — matches Marimo's CellOutput schema
@@ -92,10 +92,10 @@ export interface MarimoError {
  * - "disabled-transitively": disabled because ancestor is disabled
  */
 export type RuntimeState =
-  | "queued"
-  | "running"
-  | "idle"
-  | "disabled-transitively";
+  | 'queued'
+  | 'running'
+  | 'idle'
+  | 'disabled-transitively';
 
 /**
  * CellConfig — matches Marimo's CellConfig schema
@@ -209,8 +209,8 @@ export function createCellData(
   partial: Partial<CellData> & { id: string },
 ): CellData {
   return {
-    name: "",
-    code: "",
+    name: '',
+    code: '',
     edited: false,
     lastCodeRun: null,
     lastExecutionTime: null,
@@ -226,7 +226,7 @@ export function createCellRuntimeState(
     output: null,
     outline: null,
     consoleOutputs: [],
-    status: "idle",
+    status: 'idle',
     staleInputs: false,
     interrupted: false,
     stopped: false,
@@ -243,11 +243,11 @@ export function createCellRuntimeState(
 // replaced by CellData + CellRuntimeState in Phase 2.3.
 
 /** @deprecated Use RuntimeState instead */
-export type CellStatus = "idle" | "running" | "done" | "error" | "stale";
+export type CellStatus = 'idle' | 'running' | 'done' | 'error' | 'stale';
 
 /** @deprecated Use OutputMessage instead */
 export interface CellOutput {
-  stream: "stdout" | "stderr" | "result";
+  stream: 'stdout' | 'stderr' | 'result';
   text: string;
   timestamp: number;
 }
@@ -268,12 +268,17 @@ export interface LabCell {
 }
 
 /** Right sidebar overlay panel types */
-export type SidebarPanel = "data" | "snippets" | "variables" | "console" | null;
+export type SidebarPanel =
+  | 'data'
+  | 'data-catalog'
+  | 'variables'
+  | 'console'
+  | null;
 
 // ─── Legacy Types (deprecated, kept for backward compat) ──
 
 /** @deprecated Use LabCell instead */
-export type EditorTab = "code" | "notes" | "preprocessing";
+export type EditorTab = 'code' | 'notes' | 'preprocessing';
 
 /** @deprecated No longer used in cell-based architecture */
 export interface EditorStats {
@@ -289,7 +294,7 @@ export interface LabFile {
   id: string;
   name: string;
   content: string;
-  language: "python";
+  language: 'python';
   isDirty: boolean;
 }
 
@@ -305,11 +310,11 @@ export interface ValidationConfig {
 }
 
 export const DEFAULT_VALIDATION_CONFIG: ValidationConfig = {
-  icMethod: "rank",
-  winsorization: "mad",
+  icMethod: 'rank',
+  winsorization: 'mad',
   quantileGroups: 5,
   holdingPeriods: [1, 5, 10, 21],
-  universe: "全A",
+  universe: '全A',
   filterST: true,
 };
 
@@ -472,12 +477,12 @@ export interface ValidationResult {
 
 /** Messages sent TO the Pyodide Web Worker */
 export type PyodideWorkerInMessage =
-  | { type: "INIT" }
-  | { type: "INJECT_VT_DATA" }
-  | { type: "ANALYZE"; code: string; cellId: string }
-  | { type: "EXEC_CELL"; code: string; cellId: string }
-  | { type: "EXEC"; code: string; id: string }
-  | { type: "LINT"; code: string; id: string };
+  | { type: 'INIT' }
+  | { type: 'INJECT_VT_DATA' }
+  | { type: 'ANALYZE'; code: string; cellId: string }
+  | { type: 'EXEC_CELL'; code: string; cellId: string }
+  | { type: 'EXEC'; code: string; id: string }
+  | { type: 'LINT'; code: string; id: string };
 
 /** AST analysis result for a cell */
 export interface AnalyzeResult {
@@ -487,22 +492,22 @@ export interface AnalyzeResult {
 
 /** Messages received FROM the Pyodide Web Worker */
 export type PyodideWorkerOutMessage =
-  | { type: "INIT_START" }
-  | { type: "INIT_DONE"; duration: number }
-  | { type: "INIT_ERROR"; error: string }
-  | { type: "VT_DATA_INJECTED" }
-  | { type: "VT_DATA_ERROR"; error: string }
-  | { type: "ANALYZE_DONE"; cellId: string; result: AnalyzeResult }
-  | { type: "ANALYZE_ERROR"; cellId: string; error: string }
-  | { type: "STDOUT"; text: string; cellId: string }
-  | { type: "STDERR"; text: string; cellId: string }
-  | { type: "CELL_DONE"; cellId: string; duration: number }
-  | { type: "CELL_ERROR"; cellId: string; error: string; traceback?: string }
-  | { type: "STDOUT"; text: string; id: string }
-  | { type: "STDERR"; text: string; id: string }
-  | { type: "EXEC_DONE"; id: string; duration: number }
-  | { type: "EXEC_ERROR"; id: string; error: string; traceback?: string }
-  | { type: "LINT_RESULT"; id: string; diagnostics: LintDiagnostic[] };
+  | { type: 'INIT_START' }
+  | { type: 'INIT_DONE'; duration: number }
+  | { type: 'INIT_ERROR'; error: string }
+  | { type: 'VT_DATA_INJECTED' }
+  | { type: 'VT_DATA_ERROR'; error: string }
+  | { type: 'ANALYZE_DONE'; cellId: string; result: AnalyzeResult }
+  | { type: 'ANALYZE_ERROR'; cellId: string; error: string }
+  | { type: 'STDOUT'; text: string; cellId: string }
+  | { type: 'STDERR'; text: string; cellId: string }
+  | { type: 'CELL_DONE'; cellId: string; duration: number }
+  | { type: 'CELL_ERROR'; cellId: string; error: string; traceback?: string }
+  | { type: 'STDOUT'; text: string; id: string }
+  | { type: 'STDERR'; text: string; id: string }
+  | { type: 'EXEC_DONE'; id: string; duration: number }
+  | { type: 'EXEC_ERROR'; id: string; error: string; traceback?: string }
+  | { type: 'LINT_RESULT'; id: string; diagnostics: LintDiagnostic[] };
 
 /** A lint diagnostic from Python ast.parse() */
 export interface LintDiagnostic {
@@ -510,33 +515,24 @@ export interface LintDiagnostic {
   col: number;
   endLine: number;
   endCol: number;
-  severity: "error" | "warning";
+  severity: 'error' | 'warning';
   message: string;
 }
 
 /** Pyodide runtime status (includes legacy values for backward compat) */
 export type PyodideStatus =
-  | "loading"
-  | "ready"
-  | "error"
-  | "idle"
-  | "initializing"
-  | "executing";
+  | 'loading'
+  | 'ready'
+  | 'error'
+  | 'idle'
+  | 'initializing'
+  | 'executing';
 
 /** A single line of console output from Python execution */
 export interface ConsoleOutputLine {
-  stream: "stdout" | "stderr";
+  stream: 'stdout' | 'stderr';
   text: string;
   timestamp: number;
   cellId?: string;
   cellName?: string;
-}
-
-// ─── AI Panel Message ────────────────────────────────────
-
-export interface AIChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: number;
 }

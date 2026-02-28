@@ -456,6 +456,31 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         })
         .then(handleResponseReturnNull);
     },
+    deleteSecret: async (request) => {
+      return getClient()
+        .POST('/api/secrets/delete', {
+          body: request as never,
+        })
+        .then(handleResponseReturnNull);
+    },
+    readSecretValue: async (request) => {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      const sessionHeaders = getHeaders();
+      for (const [k, v] of Object.entries(sessionHeaders)) {
+        if (v != null) headers[k] = v;
+      }
+      const response = await fetch('/api/secrets/read_value', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(request),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json();
+    },
     invokeAiTool: async (request) => {
       return getClient()
         .POST('/api/ai/invoke_tool', {

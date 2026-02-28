@@ -74,6 +74,8 @@ const ACTIONS: Record<keyof AllRequests, Action> = {
   // Sidebar operations that wait for connection
   listSecretKeys: 'throwError',
   writeSecret: 'throwError',
+  deleteSecret: 'throwError',
+  readSecretValue: 'throwError',
   clearCache: 'throwError',
   getCacheInfo: 'throwError',
 

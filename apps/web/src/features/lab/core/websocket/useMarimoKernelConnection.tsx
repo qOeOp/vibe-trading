@@ -384,7 +384,7 @@ export function useMarimoKernelConnection(opts: {
      * Handle a close event. We may want to reconnect.
      */
     onClose: (e) => {
-      Logger.warn('WebSocket closed', e.code, e.reason);
+      Logger.debug('WebSocket closed', e.code, e.reason);
       clearAllCellErrorDetails();
       switch (e.reason) {
         case 'MARIMO_ALREADY_CONNECTED':

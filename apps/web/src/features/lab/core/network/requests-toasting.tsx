@@ -74,6 +74,8 @@ export function createErrorToastingRequests(
     getDependencyTree: 'Failed to get dependency tree',
     listSecretKeys: 'Failed to fetch secrets',
     writeSecret: 'Failed to write secret',
+    deleteSecret: 'Failed to delete secret',
+    readSecretValue: 'Failed to read secret value',
     invokeAiTool: 'Failed to invoke AI tool',
     getMcpStatus: '', // No toast
     refreshMcp: 'Failed to refresh MCP',

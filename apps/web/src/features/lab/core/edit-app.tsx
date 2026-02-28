@@ -4,10 +4,11 @@ import { usePrevious } from '@dnd-kit/utilities';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
+import { UserSettingsDialog } from '../components/app-config/app-config-button';
 import { NotStartedConnectionAlert } from '../components/editor/alerts/connecting-alert';
 import { Controls } from '../components/editor/controls/Controls';
 import { AppHeader } from '../components/editor/header/app-header';
-import { FilenameForm } from '../components/editor/header/filename-form';
+
 import { MultiCellActionToolbar } from '../components/editor/navigation/multi-cell-action-toolbar';
 import { cn } from '../utils/cn';
 import { Paths } from '../utils/paths';
@@ -70,7 +71,6 @@ export const EditApp: React.FC<AppProps> = ({
   const setLastSavedNotebook = useSetAtom(lastSavedNotebookAtom);
   const { sendComponentValues, sendInterrupt } = useRequestClient();
 
-  const isEditing = viewState.mode === 'edit';
   const isPresenting = viewState.mode === 'present';
   const isRunning = useAtomValue(notebookIsRunningAtom);
   const isLabActive = useLabModeStore((s) => s.mode) === 'active';
@@ -100,9 +100,7 @@ export const EditApp: React.FC<AppProps> = ({
   useEffect(() => {
     const previousTitle = document.title;
     const base =
-      appConfig.app_title ||
-      Paths.basename(filename ?? '') ||
-      'Untitled Notebook';
+      appConfig.app_title || Paths.basename(filename ?? '') || 'Vibe Lab';
     document.title = needsSave ? `${base} *` : base;
     return () => {
       document.title = previousTitle;
@@ -162,12 +160,7 @@ export const EditApp: React.FC<AppProps> = ({
             isLabActive ? 'pt-0 pb-0 mb-0' : 'pt-4 sm:pt-12 pb-2 mb-4',
           )}
         >
-          {/* FilenameForm hidden in lab mode — filename editing moves to dock */}
-          {isEditing && !isLabActive && (
-            <div className="flex items-center justify-center container">
-              <FilenameForm filename={filename} />
-            </div>
-          )}
+          {/* Filename header removed — VT lab uses dock file tabs */}
         </AppHeader>
 
         {/* Don't render until we have a single cell */}
@@ -179,6 +172,7 @@ export const EditApp: React.FC<AppProps> = ({
         {!hasCells && <NotStartedConnectionAlert />}
       </AppContainer>
       <MultiCellActionToolbar />
+      <UserSettingsDialog />
       {!hideControls && (
         <TooltipProvider>
           <Controls

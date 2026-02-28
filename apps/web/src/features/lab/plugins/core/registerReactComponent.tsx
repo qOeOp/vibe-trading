@@ -8,7 +8,7 @@
  * component. The factory handles the logic of communicating UI element values
  * to and from the rest of marimo.
  */
-import { Provider } from "jotai";
+import { Provider } from 'jotai';
 import React, {
   createRef,
   type JSX,
@@ -19,42 +19,45 @@ import React, {
   useImperativeHandle,
   useMemo,
   useState,
-} from "react";
-import ReactDOM, { type Root } from "react-dom/client";
-import useEvent from "react-use-event-hook";
-import { type ZodSchema, z } from "zod";
-import { notebookAtom } from "@/features/lab/core/cells/cells";
-import { HTMLCellId } from "@/features/lab/core/cells/ids";
-import { isUninstantiated } from "@/features/lab/core/cells/utils";
-import { createInputEvent, MarimoValueUpdateEvent } from "@/features/lab/core/dom/events";
-import { getUIElementObjectId } from "@/features/lab/core/dom/ui-element";
-import { UIElementRegistry } from "@/features/lab/core/dom/uiregistry";
-import { FUNCTIONS_REGISTRY } from "@/features/lab/core/functions/FunctionRegistry";
-import { LocaleProvider } from "@/features/lab/core/i18n/locale-provider";
-import { store } from "@/features/lab/core/state/jotai";
-import { isStaticNotebook } from "@/features/lab/core/static/static-state";
+} from 'react';
+import ReactDOM, { type Root } from 'react-dom/client';
+import useEvent from 'react-use-event-hook';
+import { type ZodSchema, z } from 'zod';
+import { notebookAtom } from '@/features/lab/core/cells/cells';
+import { HTMLCellId } from '@/features/lab/core/cells/ids';
+import { isUninstantiated } from '@/features/lab/core/cells/utils';
+import {
+  createInputEvent,
+  MarimoValueUpdateEvent,
+} from '@/features/lab/core/dom/events';
+import { getUIElementObjectId } from '@/features/lab/core/dom/ui-element';
+import { UIElementRegistry } from '@/features/lab/core/dom/uiregistry';
+import { FUNCTIONS_REGISTRY } from '@/features/lab/core/functions/FunctionRegistry';
+import { LocaleProvider } from '@/features/lab/core/i18n/locale-provider';
+import { store } from '@/features/lab/core/state/jotai';
+import { isStaticNotebook } from '@/features/lab/core/static/static-state';
 import {
   type HTMLElementNotDerivedFromRef,
   useEventListener,
-} from "@/features/lab/hooks/useEventListener";
-import { StyleNamespace } from "@/features/lab/theme/namespace";
-import { useTheme } from "@/features/lab/theme/useTheme";
-import { CellNotInitializedError } from "@/features/lab/utils/errors";
-import { Functions } from "@/features/lab/utils/functions";
-import { shallowCompare } from "@/features/lab/utils/shallow-compare";
-import { defineCustomElement } from "@/features/lab/core/dom/defineCustomElement";
+} from '@/features/lab/hooks/useEventListener';
+import { StyleNamespace } from '@/features/lab/theme/namespace';
+import { useTheme } from '@/features/lab/theme/useTheme';
+import { CellNotInitializedError } from '@/features/lab/utils/errors';
+import { Functions } from '@/features/lab/utils/functions';
+import { shallowCompare } from '@/features/lab/utils/shallow-compare';
+import { defineCustomElement } from '@/features/lab/core/dom/defineCustomElement';
 import {
   parseAttrValue,
   parseDataset,
   parseInitialValue,
-} from "@/features/lab/core/dom/htmlUtils";
-import { invariant } from "@/features/lab/utils/invariant";
-import { Logger } from "@/features/lab/utils/Logger";
-import { Objects } from "@/features/lab/utils/objects";
-import type { IPlugin } from "../types";
-import { renderError } from "./BadPlugin";
-import { renderHTML } from "./RenderHTML";
-import type { PluginFunctions } from "./rpc";
+} from '@/features/lab/core/dom/htmlUtils';
+import { invariant } from '@/features/lab/utils/invariant';
+import { Logger } from '@/features/lab/utils/Logger';
+import { Objects } from '@/features/lab/utils/objects';
+import type { IPlugin } from '../types';
+import { renderError } from './BadPlugin';
+import { renderHTML } from './RenderHTML';
+import type { PluginFunctions } from './rpc';
 
 export interface PluginSlotHandle {
   /**
@@ -135,8 +138,8 @@ function PluginSlotInternal<T>(
     const observer = new MutationObserver((mutations) => {
       const hasAttributeMutation = mutations.some(
         (mutation) =>
-          mutation.type === "attributes" &&
-          mutation.attributeName?.startsWith("data-"),
+          mutation.type === 'attributes' &&
+          mutation.attributeName?.startsWith('data-'),
       );
       if (hasAttributeMutation) {
         setParsedResult(plugin.validator.safeParse(parseDataset(hostElement)));
@@ -188,7 +191,7 @@ function PluginSlotInternal<T>(
           `Plugin functions only supports a single argument. Called ${key}`,
         );
         const objectId = getUIElementObjectId(hostElement);
-        invariant(objectId, "Object ID should exist");
+        invariant(objectId, 'Object ID should exist');
 
         const isStatic = isStaticNotebook();
 
@@ -222,9 +225,9 @@ function PluginSlotInternal<T>(
           functionName: key,
           namespace: objectId,
         });
-        if (response.status.code !== "ok") {
+        if (response.status.code !== 'ok') {
           Logger.error(response.status);
-          throw new Error(response.status.message || "Unknown error");
+          throw new Error(response.status.message || 'Unknown error');
         }
         return prettyParse(output, response.return_value);
       };
@@ -239,7 +242,7 @@ function PluginSlotInternal<T>(
     return renderError(
       parsedResult.error,
       Objects.mapValues(hostElement.dataset, (value) =>
-        typeof value === "string" ? parseAttrValue(value) : value,
+        typeof value === 'string' ? parseAttrValue(value) : value,
       ),
       hostElement.shadowRoot,
     );
@@ -271,7 +274,7 @@ const PluginSlot: React.ForwardRefExoticComponent<
 
 const styleSheetCache = new Map<string, CSSStyleSheet>();
 
-const customElementLocator = "__custom_marimo_element__";
+const customElementLocator = '__custom_marimo_element__';
 
 /**
  * Register a React component as a custom element
@@ -297,7 +300,7 @@ const customElementLocator = "__custom_marimo_element__";
 export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
   const WebComponent = class extends HTMLElement implements IMarimoHTMLElement {
     private observer: MutationObserver;
-    private root?: Root;
+    private root?: Root | null;
     private mounted = false;
     private pluginRef = createRef<PluginSlotHandle>();
     protected __type__ = customElementLocator;
@@ -306,7 +309,7 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
       super();
       // Create a shadow root so we can store the React tree on the shadow root, while the original
       // element's children are still on the DOM
-      this.attachShadow({ mode: "open" });
+      this.attachShadow({ mode: 'open' });
       this.copyStyles();
 
       // This observer is used to detect changes to the children and re-render the component
@@ -327,7 +330,7 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
 
       if (!this.mounted) {
         // Create a React root on the shadow root
-        invariant(this.shadowRoot, "Shadow root should exist");
+        invariant(this.shadowRoot, 'Shadow root should exist');
         // If we already have a root, unmount it before creating a new one
         if (this.root) {
           // This can't happen in disconnectedCallback because we want React to
@@ -351,7 +354,15 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
 
     disconnectedCallback() {
       this.observer.disconnect();
-      this.root?.unmount();
+      // Defer unmount to avoid "synchronously unmount a root while React
+      // was already rendering" race condition. disconnectedCallback can
+      // fire mid-render (e.g. during reconciliation), so we let the
+      // current render finish before tearing down.
+      const root = this.root;
+      if (root) {
+        this.root = null;
+        queueMicrotask(() => root.unmount());
+      }
       if (this.mounted) {
         this.mounted = false;
       }
@@ -425,7 +436,7 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
     private async mountReactComponent() {
       this.mounted = true;
 
-      invariant(this.root, "Root must be defined");
+      invariant(this.root, 'Root must be defined');
       this.root.render(
         <Provider store={store}>
           <LocaleProvider>
@@ -449,11 +460,11 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
      */
     private async copyStyles() {
       const shadowRoot = this.shadowRoot;
-      invariant(shadowRoot, "Shadow root should exist");
+      invariant(shadowRoot, 'Shadow root should exist');
       // If we don't support adopted stylesheets, we need to copy the styles
       if (!this.isAdoptedStyleSheetsSupported()) {
         Logger.warn(
-          "adoptedStyleSheets not supported, copying stylesheets in a less performance way. Please consider upgrading your browser.",
+          'adoptedStyleSheets not supported, copying stylesheets in a less performance way. Please consider upgrading your browser.',
         );
         this.copyStylesFallback();
         return;
@@ -490,13 +501,13 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
             newSheet.replaceSync(
               Array.from(sheet.cssRules)
                 .map((rule) => {
-                  if (rule.cssText.includes("@import")) {
+                  if (rule.cssText.includes('@import')) {
                     // @import rules are not supported in adoptedStyleSheets
-                    return "";
+                    return '';
                   }
                   return rule.cssText;
                 })
-                .join("\n"),
+                .join('\n'),
             );
           } catch {
             // It is possible that the stylesheet is not accessible due to CORS
@@ -512,7 +523,7 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
       // Custom styles provided by the plugin
       if (plugin.cssStyles) {
         const pluginSheet = new CSSStyleSheet();
-        pluginSheet.replaceSync(plugin.cssStyles.join("\n"));
+        pluginSheet.replaceSync(plugin.cssStyles.join('\n'));
         // Add plugin styles last to take precedence
         shadowRoot.adoptedStyleSheets = [
           ...shadowRoot.adoptedStyleSheets,
@@ -523,10 +534,10 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
 
     private copyStylesFallback() {
       const shadowRoot = this.shadowRoot;
-      invariant(shadowRoot, "Shadow root should exist");
+      invariant(shadowRoot, 'Shadow root should exist');
 
       Logger.warn(
-        "adoptedStyleSheets not supported, copying stylesheets in a less performance way. Please consider upgrading your browser.",
+        'adoptedStyleSheets not supported, copying stylesheets in a less performance way. Please consider upgrading your browser.',
       );
 
       const styleSheets = Array.from(document.styleSheets).flatMap((sheet) => {
@@ -534,11 +545,11 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
           return [];
         }
 
-        const style = document.createElement("style");
+        const style = document.createElement('style');
         try {
           style.textContent = Array.from(sheet.cssRules)
             .map((rule) => rule.cssText)
-            .join("\n");
+            .join('\n');
         } catch {
           // It is possible that the stylesheet is not accessible due to CORS
           // We can ignore this error
@@ -552,16 +563,16 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
 
       // Custom styles provided by the plugin
       if (plugin.cssStyles) {
-        const style = document.createElement("style");
-        style.textContent = plugin.cssStyles.join("\n");
+        const style = document.createElement('style');
+        style.textContent = plugin.cssStyles.join('\n');
         shadowRoot.append(style);
       }
     }
 
     private isAdoptedStyleSheetsSupported() {
       return (
-        "adoptedStyleSheets" in Document.prototype &&
-        "replace" in CSSStyleSheet.prototype
+        'adoptedStyleSheets' in Document.prototype &&
+        'replace' in CSSStyleSheet.prototype
       );
     }
   };
@@ -576,7 +587,7 @@ export function registerReactComponent<T>(plugin: IPlugin<T, unknown>): void {
 // avoid pollution of various 3rd party stylesheets
 function shouldCopyStyleSheet(sheet: CSSStyleSheet): boolean {
   // Copy local stylesheets owned by marimo
-  if (sheet.title?.startsWith("marimo")) {
+  if (sheet.title?.startsWith('marimo')) {
     return true;
   }
 
@@ -585,20 +596,20 @@ function shouldCopyStyleSheet(sheet: CSSStyleSheet): boolean {
   }
 
   // Must stylesheet must end with .css
-  if (!sheet.href.endsWith(".css")) {
+  if (!sheet.href.endsWith('.css')) {
     return false;
   }
 
   // Copy stylesheets from localhost in development mode
   if (
-    sheet.href.includes("127.0.0.1") &&
-    (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development")
+    sheet.href.includes('127.0.0.1') &&
+    (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development')
   ) {
     return true;
   }
 
   // Copy stylesheets from our NPM package
-  if (sheet.href.includes("/@marimo-team/")) {
+  if (sheet.href.includes('/@marimo-team/')) {
     return true;
   }
 
@@ -616,13 +627,13 @@ export function isCustomMarimoElement(
     return false;
   }
 
-  return "__type__" in element && element.__type__ === customElementLocator;
+  return '__type__' in element && element.__type__ === customElementLocator;
 }
 
 function prettyParse<T>(schema: z.ZodType<T>, data: unknown): T {
   const result = schema.safeParse(data);
   if (!result.success) {
-    Logger.log("Failed to parse data", data, result.error);
+    Logger.log('Failed to parse data', data, result.error);
     throw new Error(z.prettifyError(result.error));
   }
   return result.data;

@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import type { Extension } from "@codemirror/state";
-import { EditorView } from "@codemirror/view";
-import { focusPackagesInput } from "@/features/lab/components/editor/chrome/panels/packages-utils";
-import { chromeAtom } from "@/features/lab/components/editor/chrome/state";
-import { Kbd } from "@/features/lab/components/ui/kbd";
-import { userConfigAtom } from "@/features/lab/core/config/config";
-import { getRequestClient } from "@/features/lab/core/network/requests";
-import { store } from "@/features/lab/core/state/jotai";
-import { toast } from "@/features/lab/components/ui/use-toast";
+import type { Extension } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
+import { focusPackagesInput } from '@/features/lab/components/editor/chrome/panels/packages-utils';
+import { useLabChromeStore } from '@/features/lab/store/use-lab-chrome-store';
+import { Kbd } from '@/features/lab/components/ui/kbd';
+import { userConfigAtom } from '@/features/lab/core/config/config';
+import { getRequestClient } from '@/features/lab/core/network/requests';
+import { store } from '@/features/lab/core/state/jotai';
+import { toast } from '@/features/lab/components/ui/use-toast';
 
 interface ReplaceCommand {
   match: string;
@@ -18,25 +18,25 @@ interface ReplaceCommand {
 
 const COMMON_MAGIC_COMMANDS = [
   // Line magics
-  "%alias",
-  "%cd",
-  "%clear",
-  "%debug",
-  "%env",
-  "%load",
-  "%load_ext",
-  "%lsmagic",
-  "%matplotlib",
-  "%pwd",
-  "%who_ls",
-  "%system",
+  '%alias',
+  '%cd',
+  '%clear',
+  '%debug',
+  '%env',
+  '%load',
+  '%load_ext',
+  '%lsmagic',
+  '%matplotlib',
+  '%pwd',
+  '%who_ls',
+  '%system',
   // Cell magics
-  "%%time",
-  "%%timeit",
-  "%%writefile",
-  "%%capture",
-  "%%html",
-  "%%latex",
+  '%%time',
+  '%%timeit',
+  '%%writefile',
+  '%%capture',
+  '%%html',
+  '%%latex',
 ];
 
 let toastResponse: ReturnType<typeof toast>;
@@ -44,7 +44,7 @@ let toastResponse: ReturnType<typeof toast>;
 export function jupyterHelpExtension(): Extension {
   // Function to update the module reload mode
   // Updates local config and saves to server
-  const handleUpdateModuleReload = async (mode: "lazy" | "autorun" | "off") => {
+  const handleUpdateModuleReload = async (mode: 'lazy' | 'autorun' | 'off') => {
     const config = store.get(userConfigAtom);
     const { saveUserConfig } = getRequestClient();
     // Send only the changed portion to avoid overwriting other config values
@@ -61,17 +61,12 @@ export function jupyterHelpExtension(): Extension {
   const commands: ReplaceCommand[] = [
     // Package installation
     {
-      match: "!pip install",
+      match: '!pip install',
       onMatch: () => {
-        store.set(chromeAtom, (prev) => ({
-          ...prev,
-          isSidebarOpen: true,
-          selectedPanel: "packages",
-        }));
-
+        useLabChromeStore.getState().openSidebarPanel('packages');
         focusPackagesInput();
       },
-      title: "Package Installation",
+      title: 'Package Installation',
       description: (
         <>
           The package manager sidebar has been opened.
@@ -81,17 +76,12 @@ export function jupyterHelpExtension(): Extension {
       ),
     },
     {
-      match: "!uv pip install",
+      match: '!uv pip install',
       onMatch: () => {
-        store.set(chromeAtom, (prev) => ({
-          ...prev,
-          isSidebarOpen: true,
-          selectedPanel: "packages",
-        }));
-
+        useLabChromeStore.getState().openSidebarPanel('packages');
         focusPackagesInput();
       },
-      title: "Package Installation",
+      title: 'Package Installation',
       description: (
         <>
           The package manager sidebar has been opened.
@@ -101,17 +91,12 @@ export function jupyterHelpExtension(): Extension {
       ),
     },
     {
-      match: "!uv add",
+      match: '!uv add',
       onMatch: () => {
-        store.set(chromeAtom, (prev) => ({
-          ...prev,
-          isSidebarOpen: true,
-          selectedPanel: "packages",
-        }));
-
+        useLabChromeStore.getState().openSidebarPanel('packages');
         focusPackagesInput();
       },
-      title: "Package Installation",
+      title: 'Package Installation',
       description: (
         <>
           The package manager sidebar has been opened.
@@ -123,11 +108,11 @@ export function jupyterHelpExtension(): Extension {
 
     // Module reload
     {
-      match: "%autoreload 2",
+      match: '%autoreload 2',
       onMatch: async () => {
-        await handleUpdateModuleReload("autorun");
+        await handleUpdateModuleReload('autorun');
       },
-      title: "Module reload",
+      title: 'Module reload',
       description: (
         <>
           Module reload mode set to <b>autorun</b> - module changes will re-run
@@ -136,11 +121,11 @@ export function jupyterHelpExtension(): Extension {
       ),
     },
     {
-      match: "%autoreload 1",
+      match: '%autoreload 1',
       onMatch: async () => {
-        await handleUpdateModuleReload("lazy");
+        await handleUpdateModuleReload('lazy');
       },
-      title: "Module reload",
+      title: 'Module reload',
       description: (
         <>
           Module reload mode set to <b>lazy</b> - module changes will mark the
@@ -149,11 +134,11 @@ export function jupyterHelpExtension(): Extension {
       ),
     },
     {
-      match: "%autoreload 0",
+      match: '%autoreload 0',
       onMatch: async () => {
-        await handleUpdateModuleReload("off");
+        await handleUpdateModuleReload('off');
       },
-      title: "Module reload",
+      title: 'Module reload',
       description: (
         <>Module reload disabled - module changes will not be detected.</>
       ),
@@ -161,11 +146,11 @@ export function jupyterHelpExtension(): Extension {
 
     // Shell commands
     {
-      match: "!ls",
+      match: '!ls',
       onMatch: () => {
         // noop
       },
-      title: "Listing files",
+      title: 'Listing files',
       description: (
         <>
           Shell commands are not directly supported.
@@ -185,7 +170,7 @@ export function jupyterHelpExtension(): Extension {
       description: (
         <>
           Magic commands are not supported in marimo. Read more about
-          replacements in the{" "}
+          replacements in the{' '}
           <a
             href="https://docs.marimo.io/guides/coming_from/jupyter/#adapting-to-the-absence-of-magic-commands"
             target="_blank"
