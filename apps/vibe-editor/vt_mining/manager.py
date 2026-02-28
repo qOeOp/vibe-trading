@@ -29,7 +29,7 @@ class MiningTaskManager:
     - {result_dir}/status.json — worker writes on completion/failure
     """
 
-    def __init__(self, base_dir: str = "/data/mining") -> None:
+    def __init__(self, base_dir: str = os.path.expanduser("~/.vt-lab/mining")) -> None:
         self._tasks: dict[str, MiningTask] = {}
         self._base_dir = base_dir
         os.makedirs(base_dir, exist_ok=True)

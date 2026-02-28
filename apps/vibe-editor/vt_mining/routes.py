@@ -139,6 +139,7 @@ async def stream_task_endpoint(request: Request) -> JSONResponse | StreamingResp
             # Refresh from filesystem
             manager.refresh_task_progress(task_id)
             manager.refresh_task_factors(task_id)
+            manager._check_worker_status(task)
 
             current = task.progress.current_loop
             if current != last_loop:
