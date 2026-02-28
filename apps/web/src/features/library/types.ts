@@ -167,6 +167,16 @@ export interface Factor {
   quantileTurnover: { top: number[]; bottom: number[] };
   /** 状态变更历史 */
   statusHistory: StatusChangeRecord[];
+
+  /** 挖掘来源扩展字段 — 仅 source === "mining_llm" 时存在 */
+  codeFile?: string;           // factor.py 绝对路径
+  workspacePath?: string;      // Lab workspace 关联路径（关联后填入）
+  taskId?: string;             // 来源挖掘任务 ID
+  annualReturn?: number;       // 年化收益（来自 RD-Agent 回测）
+  sharpeRatio?: number;        // Sharpe ratio
+  maxDrawdown?: number;        // 最大回撤
+  hypothesis?: string;         // 挖掘假设描述
+  lookback?: number;           // 因子回溯窗口（天数）
 }
 
 // ─── Status Change ────────────────────────────────────────
