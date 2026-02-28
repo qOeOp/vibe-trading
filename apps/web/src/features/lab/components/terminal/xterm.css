@@ -1,3 +1,50 @@
+/* Hidden xterm — PTY engine only, not visible to user.
+   Keep minimal styles for buffer parsing. */
 .xterm {
-  padding: 0.5rem;
+  padding: 0;
+  background-color: #ffffff;
+}
+
+div.xterm > .xterm-viewport {
+  background-color: #ffffff !important;
+}
+
+/* ─── React terminal overlay scrollbar ───────────────── */
+.terminal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminal-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.terminal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+}
+
+.terminal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.terminal-scrollbar:hover::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Output blocks inside command blocks */
+[data-slot='command-block'] .scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+[data-slot='command-block'] .scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-slot='command-block'] .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+}
+
+[data-slot='command-block'] .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.14);
 }

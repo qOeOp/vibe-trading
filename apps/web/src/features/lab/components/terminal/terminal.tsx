@@ -1,137 +1,31 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { AttachAddon } from "@xterm/addon-attach";
-import { CanvasAddon } from "@xterm/addon-canvas";
-import { FitAddon } from "@xterm/addon-fit";
-import { SearchAddon } from "@xterm/addon-search";
-import { Unicode11Addon } from "@xterm/addon-unicode11";
-import { WebLinksAddon } from "@xterm/addon-web-links";
-import { Terminal } from "@xterm/xterm";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import "@xterm/xterm/css/xterm.css";
-import "./xterm.css";
+import { FitAddon } from '@xterm/addon-fit';
+import { SearchAddon } from '@xterm/addon-search';
+import { Unicode11Addon } from '@xterm/addon-unicode11';
+import { Terminal } from '@xterm/xterm';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import '@xterm/xterm/css/xterm.css';
+import './xterm.css';
+import useEvent from 'react-use-event-hook';
+import { waitForConnectionOpen } from '@/features/lab/core/network/connection';
+import { useRuntimeManager } from '@/features/lab/core/runtime/config';
+import { useDebouncedCallback } from '@/features/lab/hooks/useDebounce';
+import { Logger } from '@/features/lab/utils/Logger';
+import { useTerminalActions, useTerminalState } from './state';
+import { createTerminalTheme, TERMINAL_BG } from './theme';
+import { ReactTerminal } from './react-terminal/react-terminal';
+import { StreamParser } from './react-terminal/stream-parser';
 import {
-  ClipboardPasteIcon,
-  CopyIcon,
-  TextSelectionIcon,
-  Trash2Icon,
-} from "lucide-react";
-import useEvent from "react-use-event-hook";
-import { waitForConnectionOpen } from "@/features/lab/core/network/connection";
-import { useRuntimeManager } from "@/features/lab/core/runtime/config";
-import { useDebouncedCallback } from "@/features/lab/hooks/useDebounce";
-import { cn } from "@/features/lab/utils/cn";
-import { copyToClipboard } from "@/features/lab/utils/copy";
-import { Logger } from "@/features/lab/utils/Logger";
-import { MinimalHotkeys } from "../shortcuts/renderShortcut";
-import { useTerminalActions, useTerminalState } from "./state";
-import { createTerminalTheme } from "./theme";
-
-interface TerminalButtonProps {
-  onClick: () => void;
-  disabled?: boolean;
-  icon: React.ComponentType<{ className?: string }>;
-  children: React.ReactNode;
-  keyboardShortcut?: string;
-}
-
-const TerminalButton: React.FC<TerminalButtonProps> = ({
-  onClick,
-  disabled = false,
-  icon: Icon,
-  children,
-  keyboardShortcut,
-}) => (
-  <button
-    className={cn(
-      "w-full text-left px-3 py-2 text-sm flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted",
-    )}
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-  >
-    <Icon className="w-4 h-4" />
-    {children}
-    {keyboardShortcut && (
-      <MinimalHotkeys className="ml-auto" shortcut={keyboardShortcut} />
-    )}
-  </button>
-);
+  useTerminalOverlayStore,
+  type GridSnapshot,
+  type TerminalCell,
+} from './react-terminal/use-terminal-overlay';
+import { ANSI_COLORS } from './react-terminal/grid-view';
 
 interface TerminalComponentProps {
   visible: boolean;
   onClose: () => void;
-}
-
-interface Position {
-  x: number;
-  y: number;
-  placement: "bottom" | "top"; // Whether to place the menu above or below the cursor
-}
-
-// Keyboard shortcut handlers
-function createKeyboardHandler(terminal: Terminal, _searchAddon: SearchAddon) {
-  return (event: KeyboardEvent) => {
-    const { ctrlKey, metaKey, key } = event;
-    const modifier = ctrlKey || metaKey;
-
-    if (modifier) {
-      switch (key) {
-        case "c":
-          if (terminal.hasSelection()) {
-            event.preventDefault();
-            void copyToClipboard(terminal.getSelection());
-          }
-          break;
-        case "v":
-          event.preventDefault();
-          void navigator.clipboard.readText().then((text) => {
-            terminal.paste(text);
-          });
-          break;
-        case "a":
-          event.preventDefault();
-          terminal.selectAll();
-          break;
-        case "l":
-          event.preventDefault();
-          terminal.clear();
-          break;
-      }
-    }
-  };
-}
-
-// Context menu actions
-function createContextMenuActions(
-  terminal: Terminal,
-  setContextMenu: (menu: Position | null) => void,
-) {
-  const closeMenu = () => setContextMenu(null);
-
-  return {
-    handleCopy: () => {
-      if (terminal.hasSelection()) {
-        navigator.clipboard.writeText(terminal.getSelection());
-      }
-      closeMenu();
-    },
-    handlePaste: () => {
-      navigator.clipboard.readText().then((text) => {
-        terminal.paste(text);
-      });
-      closeMenu();
-    },
-    handleSelectAll: () => {
-      terminal.selectAll();
-      closeMenu();
-    },
-    handleClear: () => {
-      terminal.clear();
-      closeMenu();
-    },
-    closeMenu,
-  };
 }
 
 const RESIZE_DEBOUNCE_TIME = 100;
@@ -142,155 +36,209 @@ const TerminalComponent: React.FC<TerminalComponentProps> = ({
 }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const parserRef = useRef<StreamParser | null>(null);
 
   // eslint-disable-next-line react/hook-use-state
-  const [{ terminal, fitAddon, searchAddon }] = useState(() => {
-    // Create a new terminal instance
+  const [{ terminal, fitAddon }] = useState(() => {
+    // Hidden xterm instance — PTY engine only, no visible rendering
     const term = new Terminal({
-      fontFamily:
-        "Menlo, DejaVu Sans Mono, Consolas, Lucida Console, monospace",
-      fontSize: 14,
+      fontFamily: 'JetBrains Mono, Menlo, Consolas, monospace',
+      fontSize: 13,
       scrollback: 10_000,
-      cursorBlink: true,
-      cursorStyle: "block",
+      cursorBlink: false,
       allowTransparency: false,
-      theme: createTerminalTheme("dark"),
-      rightClickSelectsWord: true,
-      wordSeparator: " \t\r\n\"'`(){}[]<>|&;",
+      theme: createTerminalTheme('light'),
       allowProposedApi: true,
     });
 
-    // Load essential addons
     const fitAddon = new FitAddon();
     const searchAddon = new SearchAddon();
-    const canvasAddon = new CanvasAddon();
     const unicode11Addon = new Unicode11Addon();
-    const webLinksAddon = new WebLinksAddon();
 
     term.loadAddon(fitAddon);
     term.loadAddon(searchAddon);
-    term.loadAddon(canvasAddon);
     term.loadAddon(unicode11Addon);
-    term.loadAddon(webLinksAddon);
+    term.unicode.activeVersion = '11';
 
-    // Set Unicode version
-    term.unicode.activeVersion = "11";
-
-    return { terminal: term, fitAddon, searchAddon };
+    return { terminal: term, fitAddon };
   });
 
   const [initialized, setInitialized] = React.useState(false);
-  const [contextMenu, setContextMenu] = useState<Position | null>(null);
   const runtimeManager = useRuntimeManager();
 
-  // Terminal command state management
+  // Terminal command state management (jotai — for programmatic commands)
   const terminalState = useTerminalState();
   const { removeCommand, setReady } = useTerminalActions();
-
-  // Keyboard shortcuts handler
-  const handleKeyDown = useEvent(createKeyboardHandler(terminal, searchAddon));
-
-  // Context menu handler
-  const handleContextMenu = useEvent((event: MouseEvent) => {
-    event.preventDefault();
-
-    const menuHeight = 200; // Approximate height of the context menu
-    const viewportHeight = window.innerHeight;
-    const cursorY = event.clientY;
-
-    // Check if there's enough space below the cursor
-    const spaceBelow = viewportHeight - cursorY;
-    const shouldPlaceAbove = spaceBelow < menuHeight;
-
-    setContextMenu({
-      x: event.clientX,
-      y: event.clientY,
-      placement: shouldPlaceAbove ? "top" : "bottom",
-    });
-  });
-
-  // Close context menu on click outside
-  const handleClickOutside = useEvent((event: MouseEvent) => {
-    const target = event.target;
-    const isInsideContextMenu =
-      target &&
-      target instanceof HTMLElement &&
-      target.closest(".xterm-context-menu");
-    if (contextMenu && !isInsideContextMenu) {
-      setContextMenu(null);
-    }
-  });
 
   const handleBackendResizeDebounced = useDebouncedCallback(
     ({ cols, rows }: { cols: number; rows: number }) => {
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        Logger.debug("Sending resize to backend terminal", { cols, rows });
-        wsRef.current.send(JSON.stringify({ type: "resize", cols, rows }));
+        Logger.debug('Sending resize to backend terminal', { cols, rows });
+        wsRef.current.send(JSON.stringify({ type: 'resize', cols, rows }));
       }
     },
     RESIZE_DEBOUNCE_TIME,
   );
 
   const handleResize = useEvent(() => {
-    if (!terminal || !fitAddon) {
-      return;
-    }
+    if (!terminal || !fitAddon) return;
     fitAddon.fit();
   });
 
-  // Context menu actions
-  const { handleCopy, handlePaste, handleSelectAll, handleClear } = useMemo(
-    () => createContextMenuActions(terminal, setContextMenu),
-    [terminal],
-  );
+  // ─── Send command from InputBar → PTY ────────────────
+  const handleSendCommand = useCallback((text: string) => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+    const overlayStore = useTerminalOverlayStore.getState();
+    overlayStore.addBlock(text);
+    // Get the just-created block's id
+    const blocks = useTerminalOverlayStore.getState().blocks;
+    const block = blocks[blocks.length - 1];
+    parserRef.current?.beginBlock(block.id);
+    wsRef.current.send(text + '\r');
+  }, []);
 
-  // Websocket Connection
-  useEffect(() => {
-    if (initialized) {
-      return;
+  // ─── Ctrl+C interrupt → PTY ──────────────────────────
+  const handleInterrupt = useCallback(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send('\x03');
     }
+  }, []);
+
+  // ─── WebSocket Connection ────────────────────────────
+  useEffect(() => {
+    if (initialized) return;
 
     const connectTerminal = async () => {
       try {
         await waitForConnectionOpen();
 
+        terminal.clear();
+        terminal.reset();
+
         const socket = new WebSocket(runtimeManager.getTerminalWsURL());
-        const attachAddon = new AttachAddon(socket);
-        terminal.loadAddon(attachAddon);
         wsRef.current = socket;
 
-        // Terminal is ready when the websocket is open
+        // StreamParser: splits PTY output into command blocks
+        const parser = new StreamParser({
+          onPromptDetected: (promptText) => {
+            const store = useTerminalOverlayStore.getState();
+            const running = store.blocks.find((b) => b.status === 'running');
+            if (running) store.finishBlock(running.id);
+            store.setPromptText(promptText);
+          },
+          onOutputChunk: (blockId, chunk) => {
+            useTerminalOverlayStore.getState().appendOutput(blockId, chunk);
+          },
+          onClearScreen: () => {
+            useTerminalOverlayStore.getState().clearBlocks();
+          },
+        });
+        parserRef.current = parser;
+
+        // ─── Grid Mode: capture xterm buffer → React DOM grid ──
+        const captureGrid = (): GridSnapshot => {
+          const buffer = terminal.buffer.active;
+          const grid: GridSnapshot = [];
+          for (let row = 0; row < terminal.rows; row++) {
+            const line = buffer.getLine(row);
+            if (!line) continue;
+            const cells: TerminalCell[] = [];
+            for (let col = 0; col < terminal.cols; col++) {
+              const cell = line.getCell(col);
+              if (!cell) {
+                cells.push({
+                  char: ' ',
+                  fg: '#4c4f69',
+                  bg: TERMINAL_BG,
+                  bold: false,
+                });
+                continue;
+              }
+              const fgIdx =
+                cell.getFgColorMode() === 1 ? cell.getFgColor() : -1;
+              const bgIdx =
+                cell.getBgColorMode() === 1 ? cell.getBgColor() : -1;
+              cells.push({
+                char: cell.getChars() || ' ',
+                fg: ANSI_COLORS[fgIdx] ?? '#4c4f69',
+                bg: ANSI_COLORS[bgIdx] ?? TERMINAL_BG,
+                bold: !!cell.isBold?.(),
+              });
+            }
+            grid.push(cells);
+          }
+          return grid;
+        };
+
+        // ─── Alternate screen buffer detection (vim/top/less) ──
+        let gridRafId: number | null = null;
+        terminal.buffer.onBufferChange((activeBuffer) => {
+          const store = useTerminalOverlayStore.getState();
+          if (activeBuffer.type === 'alternate') {
+            store.setMode('grid');
+            store.updateGrid(captureGrid());
+          } else {
+            store.setMode('block');
+          }
+        });
+
+        // Manual WebSocket handling (replaces AttachAddon)
+        socket.addEventListener('message', (event) => {
+          const data = event.data;
+          // Write to hidden xterm (preserves terminal emulation state)
+          terminal.write(
+            typeof data === 'string' ? data : new Uint8Array(data),
+          );
+
+          const store = useTerminalOverlayStore.getState();
+          if (store.mode === 'grid') {
+            // In grid mode, refresh the React DOM grid via rAF
+            if (gridRafId) cancelAnimationFrame(gridRafId);
+            gridRafId = requestAnimationFrame(() => {
+              store.updateGrid(captureGrid());
+              gridRafId = null;
+            });
+          }
+
+          // Feed stream parser for block splitting (only in block mode)
+          if (store.mode === 'block') {
+            if (typeof data === 'string') {
+              parser.feed(data);
+            } else if (data instanceof ArrayBuffer) {
+              parser.feed(new TextDecoder().decode(data));
+            }
+          }
+        });
+
+        // Forward xterm keyboard input to PTY (for programmatic commands)
+        terminal.onData((data) => {
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(data);
+          }
+        });
+
         const updateReadyState = () => {
           setReady(socket.readyState === WebSocket.OPEN);
         };
 
-        const handleError = () => {
-          updateReadyState();
-        };
-
-        const handleOpen = () => {
-          updateReadyState();
-        };
-
         const handleDisconnect = () => {
           onClose();
-          // Reset
-          attachAddon.dispose();
           wsRef.current = null;
+          parserRef.current = null;
           terminal.clear();
           setInitialized(false);
           setReady(false);
+          useTerminalOverlayStore.getState().clearBlocks();
         };
 
-        socket.addEventListener("open", handleOpen);
-        socket.addEventListener("close", handleDisconnect);
-        socket.addEventListener("error", handleError);
+        socket.addEventListener('open', updateReadyState);
+        socket.addEventListener('close', handleDisconnect);
+        socket.addEventListener('error', updateReadyState);
 
-        // Set initial ready state
         updateReadyState();
         setInitialized(true);
       } catch (error) {
-        Logger.error("Runtime health check failed for terminal", error);
+        Logger.error('Runtime health check failed for terminal', error);
         onClose();
       }
     };
@@ -303,72 +251,45 @@ const TerminalComponent: React.FC<TerminalComponentProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized]);
 
-  // Process pending commands when terminal is ready
+  // Process pending programmatic commands (from useTerminalCommands hook)
   useEffect(() => {
     if (!terminalState.isReady || terminalState.pendingCommands.length === 0) {
       return;
     }
 
-    // Process all pending commands
     for (const command of terminalState.pendingCommands) {
-      if (terminal && wsRef.current?.readyState === WebSocket.OPEN) {
-        Logger.debug("Sending programmatic command to terminal", {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        Logger.debug('Sending programmatic command to terminal', {
           command: command.text,
         });
-        terminal.input(command.text);
-        terminal.focus();
+        // Route through overlay store so it appears as a block
+        handleSendCommand(command.text);
         removeCommand(command.id);
       }
     }
   }, [
-    terminal,
     terminalState.isReady,
     terminalState.pendingCommands,
     removeCommand,
+    handleSendCommand,
   ]);
 
-  // When visible
+  // Mount hidden xterm (required for terminal emulation state)
   useEffect(() => {
-    if (visible) {
-      fitAddon.fit();
-      terminal.focus();
-    }
-
-    return;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
-
-  // On mount
-  useEffect(() => {
-    if (!terminalRef.current) {
-      return;
-    }
+    if (!terminalRef.current) return;
 
     terminal.open(terminalRef.current);
+    terminal.options.theme = createTerminalTheme('light');
 
-    // Initial fit with delay to ensure DOM is ready
     setTimeout(() => {
       fitAddon.fit();
     }, RESIZE_DEBOUNCE_TIME);
 
-    terminal.focus();
-
     const abortController = new AbortController();
-
-    // Add event listeners
-    window.addEventListener("resize", handleResize, {
-      signal: abortController.signal,
-    });
-    terminalRef.current.addEventListener("keydown", handleKeyDown, {
-      signal: abortController.signal,
-    });
-    terminalRef.current.addEventListener("contextmenu", handleContextMenu, {
+    window.addEventListener('resize', handleResize, {
       signal: abortController.signal,
     });
     terminal.onResize(handleBackendResizeDebounced);
-    document.addEventListener("click", handleClickOutside, {
-      signal: abortController.signal,
-    });
 
     return () => {
       abortController.abort();
@@ -377,53 +298,18 @@ const TerminalComponent: React.FC<TerminalComponentProps> = ({
   }, []);
 
   return (
-    <div className={"relative w-full h-[calc(100%-4px)] bg-popover"}>
-      <div className="w-full h-full" ref={terminalRef} />
-      {contextMenu && (
-        <div
-          className={
-            "xterm-context-menu fixed z-50 rounded-md shadow-lg py-1 min-w-[160px] border bg-popover"
-          }
-          style={{
-            left: contextMenu.x,
-            [contextMenu.placement === "top" ? "bottom" : "top"]:
-              contextMenu.placement === "top"
-                ? window.innerHeight - contextMenu.y
-                : contextMenu.y,
-          }}
-        >
-          <TerminalButton
-            onClick={handleCopy}
-            disabled={!terminal.hasSelection()}
-            icon={CopyIcon}
-            keyboardShortcut="mod-c"
-          >
-            Copy
-          </TerminalButton>
-          <TerminalButton
-            onClick={handlePaste}
-            icon={ClipboardPasteIcon}
-            keyboardShortcut="mod-v"
-          >
-            Paste
-          </TerminalButton>
-          <hr className={cn("my-1 border-border")} />
-          <TerminalButton
-            onClick={handleSelectAll}
-            icon={TextSelectionIcon}
-            keyboardShortcut="mod-a"
-          >
-            Select all
-          </TerminalButton>
-          <TerminalButton
-            onClick={handleClear}
-            icon={Trash2Icon}
-            keyboardShortcut="mod-l"
-          >
-            Clear terminal
-          </TerminalButton>
-        </div>
-      )}
+    <div className="relative w-full h-full bg-white">
+      {/* Hidden xterm — PTY engine only, never visible */}
+      <div className="absolute w-0 h-0 overflow-hidden" aria-hidden="true">
+        <div ref={terminalRef} />
+      </div>
+
+      {/* Visible React DOM terminal overlay */}
+      <ReactTerminal
+        onSendCommand={handleSendCommand}
+        onInterrupt={handleInterrupt}
+        visible={visible}
+      />
     </div>
   );
 };
