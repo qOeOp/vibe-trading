@@ -320,6 +320,11 @@ def start(
     async def _stop_vt_cleanup() -> None:
         vt_manager.stop_cleanup_loop()
 
+    # VT mining management (added by vibe-editor)
+    from vt_mining import MiningTaskManager
+    vt_mining_manager = MiningTaskManager()
+    app.state.vt_mining_manager = vt_mining_manager
+
     # Resource initialization
     # Increase the limit on open file descriptors to prevent resource
     # exhaustion when opening multiple notebooks in the same server.
