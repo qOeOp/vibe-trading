@@ -112,3 +112,41 @@ def test_read_factors_from_file(manager):
     assert len(task.factors) == 1
     assert task.factors[0].name == "Mom_Vol_20D"
     assert task.factors[0].accepted is True
+
+
+def test_start_task_spawns_subprocess(manager):
+    """Test that start_task creates config file and spawns subprocess."""
+    config = MiningTaskConfig(max_loops=3)
+    task = manager.create_task(config)
+
+    with patch("subprocess.Popen") as mock_popen:
+        mock_proc = MagicMock()
+        mock_proc.pid = 12345
+        mock_popen.return_value = mock_proc
+
+        manager.start_task(task.task_id)
+
+        assert task.status == TaskStatus.RUNNING
+        assert task.pid == 12345
+        assert task.started_at is not None
+
+        # Verify config file was written
+        config_path = os.path.join(task.result_dir, "config.json")
+        assert os.path.exists(config_path)
+        with open(config_path) as f:
+            config_data = json.load(f)
+        assert config_data["mode"] == "factor"
+        assert config_data["max_loops"] == 3
+
+
+def test_start_task_not_found(manager):
+    with pytest.raises(ValueError, match="not found"):
+        manager.start_task("nonexistent")
+
+
+def test_start_task_already_running(manager):
+    config = MiningTaskConfig()
+    task = manager.create_task(config)
+    task.status = TaskStatus.RUNNING
+    with pytest.raises(ValueError, match="not in PENDING"):
+        manager.start_task(task.task_id)

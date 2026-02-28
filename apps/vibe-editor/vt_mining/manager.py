@@ -5,6 +5,8 @@ import json
 import logging
 import os
 import signal
+import subprocess
+import sys
 import time
 from datetime import datetime
 from typing import Optional
@@ -84,6 +86,45 @@ class MiningTaskManager:
         task.completed_at = time.time()
         logger.info("Cancelled task %s", task_id)
         return True
+
+    def start_task(self, task_id: str) -> "MiningTask":
+        """Start a pending task by spawning a worker subprocess."""
+        task = self._tasks.get(task_id)
+        if task is None:
+            raise ValueError(f"Task {task_id} not found")
+        if task.status != TaskStatus.PENDING:
+            raise ValueError(f"Task {task_id} not in PENDING state (is {task.status.value})")
+
+        # Write config file for worker
+        config_path = os.path.join(task.result_dir, "config.json")
+        config_data = {
+            "mode": task.config.mode.value,
+            "max_loops": task.config.max_loops,
+            "llm_model": task.config.llm_model,
+            "train_start": task.config.date_range.train_start,
+            "train_end": task.config.date_range.train_end,
+            "valid_start": task.config.date_range.valid_start,
+            "valid_end": task.config.date_range.valid_end,
+            "test_start": task.config.date_range.test_start,
+            "test_end": task.config.date_range.test_end,
+            "universe": task.config.universe,
+            "dedup_threshold": task.config.dedup_threshold,
+            "result_dir": task.result_dir,
+        }
+        with open(config_path, "w") as f:
+            json.dump(config_data, f)
+
+        # Spawn worker subprocess
+        proc = subprocess.Popen(
+            [sys.executable, "-m", "vt_mining.worker", config_path],
+            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        )
+
+        task.pid = proc.pid
+        task.status = TaskStatus.RUNNING
+        task.started_at = time.time()
+        logger.info("Started worker PID %d for task %s", proc.pid, task_id)
+        return task
 
     def refresh_task_progress(self, task_id: str) -> None:
         """Read progress.json from worker and update task."""
