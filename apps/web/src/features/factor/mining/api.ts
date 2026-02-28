@@ -105,14 +105,20 @@ export const miningApi = {
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) throw new Error(`createTask failed: ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`createTask failed: ${res.status} ${body}`.trim());
+    }
     const raw = (await res.json()) as Record<string, unknown>;
     return toCamelTask(raw);
   },
 
   async listTasks(): Promise<MiningTask[]> {
     const res = await fetch(`${BASE_URL}/api/mining/tasks`);
-    if (!res.ok) throw new Error(`listTasks failed: ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`listTasks failed: ${res.status} ${body}`.trim());
+    }
     const data = (await res.json()) as { tasks?: unknown[] };
     return ((data.tasks ?? []) as Array<Record<string, unknown>>).map(
       toCamelTask,
@@ -121,7 +127,10 @@ export const miningApi = {
 
   async getTask(taskId: string): Promise<MiningTask> {
     const res = await fetch(`${BASE_URL}/api/mining/tasks/${taskId}`);
-    if (!res.ok) throw new Error(`getTask failed: ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`getTask failed: ${res.status} ${body}`.trim());
+    }
     const raw = (await res.json()) as Record<string, unknown>;
     return toCamelTask(raw);
   },
@@ -130,7 +139,10 @@ export const miningApi = {
     const res = await fetch(`${BASE_URL}/api/mining/tasks/${taskId}/cancel`, {
       method: 'POST',
     });
-    if (!res.ok) throw new Error(`cancelTask failed: ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`cancelTask failed: ${res.status} ${body}`.trim());
+    }
   },
 
   getStreamUrl(taskId: string): string {
