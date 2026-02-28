@@ -4,12 +4,13 @@ Mounted at /api/mining/ in the Starlette app.
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from typing import TYPE_CHECKING
 
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, StreamingResponse
 from starlette.routing import Route, Router
 
 if TYPE_CHECKING:
@@ -123,6 +124,46 @@ async def get_results_endpoint(request: Request) -> JSONResponse:
     })
 
 
+async def stream_task_endpoint(request: Request) -> JSONResponse | StreamingResponse:
+    """GET /api/mining/tasks/{task_id}/stream — SSE stream of task progress."""
+    task_id = request.path_params["task_id"]
+    manager = _get_manager(request)
+    task = manager.get_task(task_id)
+    if task is None:
+        return JSONResponse({"error": "Task not found"}, status_code=404)
+
+    async def event_generator():
+        last_loop = -1
+        last_factor_idx = 0
+        while True:
+            # Refresh from filesystem
+            manager.refresh_task_progress(task_id)
+            manager.refresh_task_factors(task_id)
+
+            current = task.progress.current_loop
+            if current != last_loop:
+                yield f"event: iteration\ndata: {json.dumps(task.progress.to_dict())}\n\n"
+                last_loop = current
+
+            # Emit only newly discovered factors
+            for factor in task.factors[last_factor_idx:]:
+                yield f"event: factor_found\ndata: {json.dumps(factor.to_dict())}\n\n"
+            last_factor_idx = len(task.factors)
+
+            # Terminal states
+            if task.status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED):
+                yield f"event: complete\ndata: {json.dumps({'taskId': task_id, 'status': task.status.value})}\n\n"
+                break
+
+            await asyncio.sleep(2)  # Poll every 2 seconds
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+    )
+
+
 # Router instance — compatible with marimo's APIRouter.include_router()
 router = Router(routes=[
     Route("/tasks", create_task_endpoint, methods=["POST"]),
@@ -130,4 +171,5 @@ router = Router(routes=[
     Route("/tasks/{task_id}", get_task_endpoint, methods=["GET"]),
     Route("/tasks/{task_id}/cancel", cancel_task_endpoint, methods=["POST"]),
     Route("/tasks/{task_id}/results", get_results_endpoint, methods=["GET"]),
+    Route("/tasks/{task_id}/stream", stream_task_endpoint, methods=["GET"]),
 ])
