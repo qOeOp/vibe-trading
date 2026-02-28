@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { VIBE_COMPUTE_URL } from "@/lib/env";
 import type { Factor, FactorLifecycleStatus } from "@/features/library/types";
 import { useLibraryStore } from "@/features/library/store/use-library-store";
 import { StatusChangeDialog } from "../status-change-dialog";
@@ -86,14 +87,14 @@ function isDestructive(item: ActionItem): boolean {
 
 function OpenInLabButton({ factor }: { factor: Factor }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [state, setState] = useState<"idle" | "loading" | "error">("idle");
 
   if (factor.source !== "mining_llm" || !factor.codeFile) return null;
 
   async function handleOpen() {
-    setLoading(true);
+    setState("loading");
     try {
-      const resp = await fetch("http://localhost:2728/api/lab/files/resolve", {
+      const resp = await fetch(`${VIBE_COMPUTE_URL}/api/lab/files/resolve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -107,7 +108,8 @@ function OpenInLabButton({ factor }: { factor: Factor }) {
       };
       router.push(`/lab?file=${encodeURIComponent(workspacePath)}`);
     } catch {
-      setLoading(false);
+      setState("error");
+      setTimeout(() => setState("idle"), 3000);
     }
   }
 
@@ -118,16 +120,17 @@ function OpenInLabButton({ factor }: { factor: Factor }) {
         e.stopPropagation();
         void handleOpen();
       }}
-      disabled={loading}
+      disabled={state === "loading"}
       className={cn(
-        "flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded",
-        "text-mine-muted hover:text-mine-text hover:bg-mine-bg",
-        "border border-transparent hover:border-mine-border transition-colors",
+        "flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded transition-colors",
+        state === "error"
+          ? "text-market-up-medium border border-market-up-medium/30 hover:bg-market-up-medium/5"
+          : "text-mine-muted hover:text-mine-text hover:bg-mine-bg border border-transparent hover:border-mine-border",
         "disabled:opacity-50 disabled:cursor-not-allowed",
       )}
     >
       <ExternalLink className="w-3 h-3" />
-      {loading ? "打开中..." : "在 Lab 中编辑"}
+      {state === "loading" ? "打开中..." : state === "error" ? "打开失败" : "在 Lab 中编辑"}
     </button>
   );
 }

@@ -9,6 +9,7 @@ import type {
 } from "../types";
 import { VALID_STATUS_TRANSITIONS } from "../types";
 import { getLibraryFactors } from "../data/mock-library";
+import { VIBE_COMPUTE_URL } from "@/lib/env";
 
 // ─── Filter State ────────────────────────────────────────
 
@@ -219,7 +220,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
 
   fetchMiningFactors: async () => {
     try {
-      const resp = await fetch('http://localhost:2728/api/library/factors');
+      const resp = await fetch(`${VIBE_COMPUTE_URL}/api/library/factors`);
       if (!resp.ok) return;
       const data = await resp.json() as { factors: Factor[] };
       const { addFactor } = useLibraryStore.getState();

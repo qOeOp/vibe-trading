@@ -1,9 +1,6 @@
 import type { CreateTaskConfig, MiningTask, DiscoveredFactor } from './types';
-
-const BASE_URL =
-  (typeof process !== 'undefined' &&
-    process.env.NEXT_PUBLIC_VIBE_COMPUTE_URL) ||
-  'http://localhost:2728';
+import type { Factor } from '@/features/library/types';
+import { VIBE_COMPUTE_URL as BASE_URL } from '@/lib/env';
 
 function toCamelTask(raw: Record<string, unknown>): MiningTask {
   const config = (raw.config as Record<string, unknown>) ?? {};
@@ -151,8 +148,6 @@ export const miningApi = {
 };
 
 // ── pushFactorToLibrary ────────────────────────────────────────────
-
-import type { Factor } from '@/features/library/types';
 
 export interface PushFactorRequest {
   taskId: string;
