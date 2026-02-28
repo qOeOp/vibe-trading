@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { atom, useAtomValue } from "jotai";
-import { createReducerAndAtoms } from "@/features/lab/utils/createReducer";
-import type { Identified } from "@/features/lab/utils/typed";
-import { generateUUID } from "@/features/lab/utils/uuid";
-import type { Banner } from "../kernel/messages";
+import { atom, useAtomValue } from 'jotai';
+import { createReducerAndAtoms } from '@/features/lab/utils/createReducer';
+import type { Identified } from '@/features/lab/utils/typed';
+import { generateUUID } from '@/features/lab/utils/uuid';
+import type { Banner } from '../kernel/messages';
 
 /**
  * Atom for storing kernel startup error message.
@@ -47,4 +47,16 @@ export const useBanners = () => useAtomValue(bannersAtom);
  */
 export function useBannersActions() {
   return useActions();
+}
+
+/**
+ * React hook for cell error detail actions.
+ * clearAllCellErrorDetails is called on kernel-ready to reset per-cell errors.
+ */
+export function useErrorDetailsActions() {
+  return {
+    clearAllCellErrorDetails: () => {
+      // No-op: cell error detail tracking not implemented in this build
+    },
+  };
 }

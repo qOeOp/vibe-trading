@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { AnimateHeavy } from "@/components/animation";
 import { ErrorBoundary, FeatureErrorFallback } from "@/components/error-boundary";
 
@@ -16,6 +16,9 @@ function LibraryPageContent() {
   const category = useLibraryStore((s) => s.category);
   const search = useLibraryStore((s) => s.search);
   const selectedFactorId = useLibraryStore((s) => s.selectedFactorId);
+
+  const fetchMiningFactors = useLibraryStore((s) => s.fetchMiningFactors);
+  useEffect(() => { void fetchMiningFactors(); }, [fetchMiningFactors]);
 
   const filteredFactors = useMemo(
     () => filterFactors(factors, { statuses, category, search }),
