@@ -36,13 +36,16 @@ import {
   useScrollKey,
 } from '@/features/lab/core/cells/cells';
 import { formatAll } from '@/features/lab/core/codemirror/format';
-import type { AppConfig, UserConfig } from '@/features/lab/core/config/config-schema';
+import type {
+  AppConfig,
+  UserConfig,
+} from '@/features/lab/core/config/config-schema';
 import type { AppMode } from '@/features/lab/core/mode';
 import { useHotkey } from '@/features/lab/hooks/useHotkey';
 import { type Theme, useTheme } from '@/features/lab/theme/useTheme';
 import { AddCellWithAI } from '../ai/add-cell-with-ai';
-import { FloatingOutline } from '../chrome/panels/outline/floating-outline';
-import { useChromeActions } from '../chrome/state';
+
+import { useLabChromeStore } from '@/features/lab/store/use-lab-chrome-store';
 import { Column } from '../columns/cell-column';
 import { useFocusFirstEditor } from './vertical-layout/useFocusFirstEditor';
 import { VerticalLayoutWrapper } from './vertical-layout/vertical-layout-wrapper';
@@ -79,7 +82,7 @@ const CellArrayInternal: React.FC<CellArrayProps> = ({
 }) => {
   const actions = useCellActions();
   const { theme } = useTheme();
-  const { toggleSidebarPanel } = useChromeActions();
+  const toggleSidebar = useLabChromeStore((s) => s.toggleSidebar);
 
   // Side-effects
   useFocusFirstEditor();
@@ -87,7 +90,7 @@ const CellArrayInternal: React.FC<CellArrayProps> = ({
   // HOTKEYS
   useHotkey('global.focusTop', actions.focusTopCell);
   useHotkey('global.focusBottom', actions.focusBottomCell);
-  useHotkey('global.toggleSidebar', toggleSidebarPanel);
+  useHotkey('global.toggleSidebar', toggleSidebar);
   useHotkey('global.foldCode', actions.foldAll);
   useHotkey('global.unfoldCode', actions.unfoldAll);
   useHotkey('global.formatAll', () => {
@@ -138,7 +141,6 @@ const CellArrayInternal: React.FC<CellArrayProps> = ({
           />
         ))}
       </div>
-      <FloatingOutline />
     </VerticalLayoutWrapper>
   );
 };

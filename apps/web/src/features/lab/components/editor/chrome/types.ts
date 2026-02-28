@@ -20,7 +20,8 @@ export type PanelType =
   | 'variables'
   | 'packages'
   | 'ai'
-  | 'snippets'
+  | 'data-catalog'
+  | 'datasources'
   | 'errors'
   | 'validation'
   | 'terminal';
@@ -76,7 +77,7 @@ export const PANELS: PanelDescriptor[] = [
     defaultSection: 'sidebar',
   },
   {
-    type: 'snippets',
+    type: 'data-catalog',
     Icon: SquareDashedBottomCodeIcon,
     label: 'Data Catalog',
     tooltip: 'Data Catalog',

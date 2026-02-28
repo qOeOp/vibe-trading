@@ -72,6 +72,8 @@ function formatTime(ts: number) {
   });
 }
 
+// ─── Log Row (shared) ───────────────────────────────────
+
 function LogRow({ log }: { log: LogEntry }) {
   return (
     <div
@@ -81,12 +83,18 @@ function LogRow({ log }: { log: LogEntry }) {
         log.channel === 'stdout' && 'text-mine-text',
       )}
     >
-      <span className="text-[9px] text-mine-muted shrink-0 w-12 text-right tabular-nums font-mono">
+      <PanelText
+        variant="tiny"
+        className="shrink-0 w-12 text-right tabular-nums font-mono"
+      >
         {formatTime(log.timestamp)}
-      </span>
-      <span className="text-[9px] text-mine-accent-teal shrink-0 w-14 truncate">
+      </PanelText>
+      <PanelText
+        variant="tiny"
+        className="shrink-0 w-14 truncate text-mine-accent-teal"
+      >
         {log.cellName}
-      </span>
+      </PanelText>
       <span className="whitespace-pre-wrap break-all text-[11px] font-mono">
         {log.data}
       </span>
@@ -104,7 +112,7 @@ function LogsPanelV2() {
   return (
     <div data-slot="logs-panel" className="h-full flex flex-col">
       <PanelBar
-        title="日志"
+        title="Logs"
         icon={<Terminal />}
         badge={
           <PanelText variant="tiny" className="font-mono">
@@ -115,7 +123,7 @@ function LogsPanelV2() {
           allLogs.length > 0 ? (
             <PanelActionButton
               icon={<Trash2 />}
-              label="清除日志"
+              label="Clear Logs"
               hoverColor="default"
             />
           ) : undefined
@@ -127,7 +135,7 @@ function LogsPanelV2() {
         className="font-mono text-[11px] leading-relaxed"
       >
         {allLogs.length === 0 ? (
-          <PanelEmpty title="暂无日志输出" />
+          <PanelEmpty title="No log output" />
         ) : (
           <div className="px-2 py-1">
             {allLogs.map((log, i) => (
@@ -149,10 +157,11 @@ function LogsPanelV1() {
 
   return (
     <div data-slot="logs-panel" className="h-full flex flex-col">
+      {/* Header */}
       <div className="px-3 py-1.5 border-b border-mine-border/50 shrink-0 flex items-center gap-1.5">
         <Terminal className="w-3 h-3 text-mine-muted" />
         <span className="text-[10px] font-medium text-mine-muted uppercase tracking-wider">
-          日志
+          Logs
         </span>
         <span className="text-[10px] font-mono text-mine-muted">
           ({allLogs.length})
@@ -161,7 +170,7 @@ function LogsPanelV1() {
         {allLogs.length > 0 && (
           <button
             type="button"
-            title="清除日志"
+            title="Clear Logs"
             className="text-mine-muted hover:text-mine-text transition-colors"
           >
             <Trash2 className="w-3 h-3" />
@@ -171,18 +180,20 @@ function LogsPanelV1() {
           type="button"
           onClick={toggleV2}
           className="text-mine-muted/40 hover:text-mine-muted p-0.5 rounded transition-colors ml-1"
-          title="Switch to v2"
+          title="Switch to v2 (new)"
         >
           <span className="text-[8px] font-mono">v2</span>
         </button>
       </div>
+
+      {/* Content */}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed"
       >
         {allLogs.length === 0 ? (
           <div className="px-3 py-4 text-center text-[11px] text-mine-muted font-sans">
-            暂无日志输出
+            No log output
           </div>
         ) : (
           <div className="px-2 py-1">

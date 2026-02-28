@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useLabCellStore } from '@/features/lab/store/use-lab-cell-store';
 import {
   PanelBar,
@@ -28,7 +29,7 @@ function useErrorData() {
     const idx = cellIds.indexOf(id);
     const name = data?.name || `Cell ${idx + 1}`;
 
-    let errorMsg = '未知错误';
+    let errorMsg = 'Unknown error';
     if (
       runtime?.output?.mimetype === 'application/vnd.marimo+error' &&
       Array.isArray(runtime.output.data)
@@ -52,7 +53,7 @@ function ErrorPanelV2() {
   return (
     <div data-slot="error-panel" className="h-full flex flex-col">
       <PanelBar
-        title="错误"
+        title="Errors"
         icon={<AlertCircle className="text-mine-accent-red" />}
         badge={
           items.length > 0 ? (
@@ -63,7 +64,7 @@ function ErrorPanelV2() {
       />
       <PanelBody>
         {items.length === 0 ? (
-          <PanelEmpty title="无错误" />
+          <PanelEmpty title="No errors" />
         ) : (
           <div className="divide-y divide-mine-border/20">
             {items.map((item) => (
@@ -98,14 +99,15 @@ function ErrorPanelV2() {
 
 function ErrorPanelV1() {
   const { items, setActiveCellId } = useErrorData();
-  const [, toggleV2] = usePanelV2('error-panel');
+  const [isV2, toggleV2] = usePanelV2('error-panel');
 
   return (
     <div data-slot="error-panel" className="h-full flex flex-col">
+      {/* Header */}
       <div className="px-3 py-1.5 border-b border-mine-border/50 shrink-0 flex items-center gap-1.5">
         <AlertCircle className="w-3 h-3 text-mine-accent-red" />
         <span className="text-[10px] font-medium text-mine-muted uppercase tracking-wider">
-          错误
+          Errors
         </span>
         {items.length > 0 && (
           <span className="text-[10px] font-mono text-mine-accent-red">
@@ -117,15 +119,17 @@ function ErrorPanelV1() {
           type="button"
           onClick={toggleV2}
           className="text-mine-muted/40 hover:text-mine-muted p-0.5 rounded transition-colors"
-          title="Switch to v2"
+          title="Switch to v2 (new)"
         >
           <span className="text-[8px] font-mono">v2</span>
         </button>
       </div>
+
+      {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {items.length === 0 ? (
           <div className="px-3 py-4 text-center text-[11px] text-mine-muted">
-            无错误
+            No errors
           </div>
         ) : (
           <div className="divide-y divide-mine-border/30">
@@ -144,7 +148,11 @@ function ErrorPanelV1() {
                     #{item.idx + 1}
                   </span>
                 </div>
-                <p className="text-[10px] font-mono text-mine-accent-red mt-0.5 line-clamp-2">
+                <p
+                  className={cn(
+                    'text-[10px] font-mono text-mine-accent-red mt-0.5 line-clamp-2',
+                  )}
+                >
                   {item.errorMsg}
                 </p>
               </button>

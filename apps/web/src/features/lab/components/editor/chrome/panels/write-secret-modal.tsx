@@ -1,35 +1,35 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import React from "react";
-import { Button } from "@/features/lab/components/ui/button";
+import React from 'react';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/features/lab/components/ui/dialog";
-import { FormDescription } from "@/features/lab/components/ui/field";
-import { Input } from "@/features/lab/components/ui/input";
-import { Label } from "@/features/lab/components/ui/label";
-import { ExternalLink } from "@/features/lab/components/ui/links";
+} from '@/features/lab/components/ui/dialog';
+import { FormDescription } from '@/features/lab/components/ui/field';
+import { Input } from '@/features/lab/components/ui/input';
+import { Label } from '@/features/lab/components/ui/label';
+import { ExternalLink } from '@/features/lab/components/ui/links';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/features/lab/components/ui/select";
-import { toast } from "@/features/lab/components/ui/use-toast";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import type { ListSecretKeysResponse } from "@/features/lab/core/network/types";
+} from '@/features/lab/components/ui/select';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import type { ListSecretKeysResponse } from '@/features/lab/core/network/types';
 
 // dotenv providers should be at the top
-export function sortProviders(providers: ListSecretKeysResponse["keys"]) {
+export function sortProviders(providers: ListSecretKeysResponse['keys']) {
   return providers.sort((a, b) => {
-    if (a.provider === "env") {
+    if (a.provider === 'env') {
       return 1;
     }
-    if (b.provider === "env") {
+    if (b.provider === 'env') {
       return -1;
     }
     return 0;
@@ -41,34 +41,45 @@ export function sortProviders(providers: ListSecretKeysResponse["keys"]) {
  */
 export const WriteSecretModal: React.FC<{
   providerNames: string[];
+  existingKeys?: Set<string>;
+  initialKey?: string;
+  keyReadonly?: boolean;
   onClose: () => void;
   onSuccess: (secretName: string) => void;
-}> = ({ providerNames, onClose, onSuccess }) => {
+}> = ({
+  providerNames,
+  existingKeys,
+  initialKey,
+  keyReadonly,
+  onClose,
+  onSuccess,
+}) => {
   const { writeSecret } = useRequestClient();
-  const [key, setKey] = React.useState("");
-  const [value, setValue] = React.useState("");
+  const [key, setKey] = React.useState(initialKey ?? '');
+  const [value, setValue] = React.useState('');
+  const isDuplicate = !keyReadonly && !!existingKeys?.has(key);
   const [location, setLocation] = React.useState<string | undefined>(
     providerNames[0],
   );
   // Only dotenv is supported for now
-  const provider = "dotenv";
+  const provider = 'dotenv';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!location) {
       toast({
-        title: "Error",
-        description: "No location selected for the secret.",
-        variant: "danger",
+        title: 'Error',
+        description: 'No location selected for the secret.',
+        variant: 'danger',
       });
       return;
     }
 
     if (!key || !value || !location) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields.",
-        variant: "danger",
+        title: 'Error',
+        description: 'Please fill in all fields.',
+        variant: 'danger',
       });
       return;
     }
@@ -81,15 +92,15 @@ export const WriteSecretModal: React.FC<{
         name: location,
       });
       toast({
-        title: "Secret created",
-        description: "The secret has been created successfully.",
+        title: 'Secret created',
+        description: 'The secret has been created successfully.',
       });
       onSuccess(key);
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to create secret. Please try again.",
-        variant: "danger",
+        title: 'Error',
+        description: 'Failed to create secret. Please try again.',
+        variant: 'danger',
       });
     }
   };
@@ -98,9 +109,13 @@ export const WriteSecretModal: React.FC<{
     <DialogContent>
       <form onSubmit={handleSubmit}>
         <DialogHeader>
-          <DialogTitle>Add Secret</DialogTitle>
+          <DialogTitle>
+            {keyReadonly ? 'Rotate Secret' : 'Add Secret'}
+          </DialogTitle>
           <DialogDescription>
-            Add a new secret to your environment variables.
+            {keyReadonly
+              ? `Update the value of "${initialKey}".`
+              : 'Add a new secret to your environment variables.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -115,7 +130,14 @@ export const WriteSecretModal: React.FC<{
               }}
               placeholder="MY_SECRET_KEY"
               required={true}
+              readOnly={keyReadonly}
+              className={keyReadonly ? 'opacity-60' : undefined}
             />
+            {isDuplicate && (
+              <p className="text-[11px] text-mine-accent-yellow">
+                Key already exists — value will be overwritten.
+              </p>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="value">Value</Label>
@@ -159,7 +181,7 @@ export const WriteSecretModal: React.FC<{
               </Select>
             )}
             <FormDescription>
-              You can configure the location by setting the{" "}
+              You can configure the location by setting the{' '}
               <ExternalLink href="https://links.marimo.app/dotenv">
                 dotenv configuration
               </ExternalLink>
@@ -172,7 +194,7 @@ export const WriteSecretModal: React.FC<{
             Cancel
           </Button>
           <Button type="submit" disabled={!key || !value || !location}>
-            Add Secret
+            {keyReadonly ? 'Update' : isDuplicate ? 'Overwrite' : 'Add Secret'}
           </Button>
         </DialogFooter>
       </form>
@@ -181,10 +203,10 @@ export const WriteSecretModal: React.FC<{
 };
 
 export function replaceInvalid(input: string): string {
-  return input.replaceAll(/\W/g, "_");
+  return input.replaceAll(/\W/g, '_');
 }
 
 function isHttpUrl(): boolean {
   const url = window.location.href;
-  return url.startsWith("http://");
+  return url.startsWith('http://');
 }

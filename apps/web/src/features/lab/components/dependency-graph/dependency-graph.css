@@ -1,5 +1,52 @@
 @reference "../../../../app/globals.css";
 
+/* ─── Scoped marimo color tokens for dependency graph ───
+ *
+ * These mirror the Radix gray/slate scales from marimo-vars.css
+ * but are scoped to .marimo-dep-scope so they don't leak into
+ * the rest of the VT interface.
+ */
+
+.marimo-dep-scope {
+  /* Gray scale — warm-gray mapped to Mine tokens where possible */
+  --gray-1: white;
+  --gray-2: var(--color-mine-bg); /* #f5f3ef */
+  --gray-3: oklch(0.94 0.005 85);
+  --gray-4: var(--color-mine-border); /* #e0ddd8 */
+  --gray-5: var(--color-mine-border);
+  --gray-6: oklch(0.82 0.01 85);
+  --gray-7: oklch(0.76 0.01 85);
+  --gray-8: oklch(0.7 0.01 85);
+  --gray-9: oklch(0.65 0.01 85);
+  --gray-10: var(--color-mine-muted); /* #8a8a8a */
+  --gray-11: var(--color-mine-text); /* #1a1a1a */
+  --gray-12: var(--color-mine-text);
+
+  /* Slate scale — cool-gray for selection panels */
+  --slate-1: hsl(206deg 30% 98.8%);
+  --slate-2: hsl(210deg 16.7% 97.6%);
+  --slate-3: hsl(209deg 13.3% 95.3%);
+  --slate-4: hsl(209deg 12.2% 93.2%);
+  --slate-5: hsl(208deg 11.7% 91.1%);
+  --slate-6: hsl(208deg 11.3% 88.9%);
+  --slate-7: hsl(207deg 11.1% 85.9%);
+  --slate-8: hsl(205deg 10.7% 78%);
+  --slate-9: hsl(206deg 6% 56.1%);
+  --slate-10: hsl(206deg 5.8% 52.3%);
+  --slate-11: hsl(206deg 6% 43.5%);
+  --slate-12: hsl(206deg 6% 25%);
+
+  /* Divider border for <hr> elements */
+  --border-divider: var(--color-mine-border);
+}
+
+/* border-divider utility within scope */
+.marimo-dep-scope .border-divider {
+  border-color: var(--border-divider);
+}
+
+/* ─── ReactFlow overrides ─────────────────────────────── */
+
 .react-flow__pane.react-flow__pane {
   cursor: default;
 }

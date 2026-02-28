@@ -1,15 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { marked } from "marked";
-import { useState } from "react";
-import { MarkdownRenderer } from "../markdown/markdown-renderer";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../ui/popover";
-import { Events } from "@/features/lab/utils/events";
-import type { ContentPart } from "@/features/lab/utils/url-parser";
+import { marked } from 'marked';
+import { useState } from 'react';
+import { MarkdownRenderer } from '../markdown/markdown-renderer';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Events } from '@/features/lab/utils/events';
+import type { ContentPart } from '@/features/lab/utils/url-parser';
 
 const ImageWithFallback = ({ url }: { url: string }) => {
   const [error, setError] = useState(false);
@@ -56,24 +52,24 @@ export function isMarkdown(text: string): boolean {
   const tokens = marked.lexer(text);
 
   const commonMarkdownIndicators = new Set([
-    "space",
-    "code",
-    "fences",
-    "heading",
-    "hr",
-    "link",
-    "blockquote",
-    "list",
-    "html",
-    "def",
-    "table",
-    "lheading",
-    "escape",
-    "tag",
-    "reflink",
-    "strong",
-    "codespan",
-    "url",
+    'space',
+    'code',
+    'fences',
+    'heading',
+    'hr',
+    'link',
+    'blockquote',
+    'list',
+    'html',
+    'def',
+    'table',
+    'lheading',
+    'escape',
+    'tag',
+    'reflink',
+    'strong',
+    'codespan',
+    'url',
   ]);
 
   return tokens.some((token) => commonMarkdownIndicators.has(token.type));
@@ -94,17 +90,21 @@ export const MarkdownUrlDetector = ({
 };
 
 export const UrlDetector = ({ parts }: { parts: ContentPart[] }) => {
-  const markup = parts.map((part, idx) => {
-    if (part.type === "url") {
+  // Single text-only part: return as-is (no array = no key needed)
+  if (parts.length === 1 && parts[0].type === 'text') {
+    return parts[0].value;
+  }
+
+  return parts.map((part, idx) => {
+    if (part.type === 'url') {
       return <URLAnchor key={idx} url={part.url} />;
     }
-    if (part.type === "image") {
+    if (part.type === 'image') {
       return <ImageWithFallback key={idx} url={part.url} />;
     }
-    return part.value;
+    // Wrap text in a fragment with key to satisfy React's list key requirement
+    return <span key={idx}>{part.value}</span>;
   });
-
-  return markup;
 };
 
 const URLAnchor = ({ url }: { url: string }) => {

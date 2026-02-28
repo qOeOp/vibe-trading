@@ -1,5 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-"use no memo";
+'use no memo';
 
 import {
   type Cell,
@@ -10,24 +10,24 @@ import {
   type Row,
   type Table,
   type Table as TanStackTable,
-} from "@tanstack/react-table";
-import { type JSX, useRef } from "react";
-import useEvent from "react-use-event-hook";
+} from '@tanstack/react-table';
+import { type JSX, useRef } from 'react';
+import useEvent from 'react-use-event-hook';
 import {
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
-import { cn } from "@/features/lab/utils/cn";
-import { getCellDomProps } from "./cell-utils";
-import { COLUMN_WRAPPING_STYLES } from "./column-wrapping/feature";
-import { DataTableContextMenu } from "./context-menu";
-import { CellRangeSelectionIndicator } from "./range-focus/cell-selection-indicator";
-import { useCellRangeSelection } from "./range-focus/use-cell-range-selection";
-import { useScrollIntoViewOnFocus } from "./range-focus/use-scroll-into-view";
-import { stringifyUnknownValue } from "./utils";
+} from '../ui/table';
+import { cn } from '@/features/lab/utils/cn';
+import { getCellDomProps } from './cell-utils';
+import { COLUMN_WRAPPING_STYLES } from './column-wrapping/feature';
+import { DataTableContextMenu } from './context-menu';
+import { CellRangeSelectionIndicator } from './range-focus/cell-selection-indicator';
+import { useCellRangeSelection } from './range-focus/use-cell-range-selection';
+import { useScrollIntoViewOnFocus } from './range-focus/use-scroll-into-view';
+import { stringifyUnknownValue } from './utils';
 
 export function renderTableHeader<TData>(
   table: Table<TData>,
@@ -45,7 +45,7 @@ export function renderTableHeader<TData>(
           <TableHead
             key={header.id}
             className={cn(
-              "h-auto min-h-10 whitespace-pre align-top",
+              'h-auto min-h-10 whitespace-pre align-top',
               className,
             )}
             style={style}
@@ -63,7 +63,7 @@ export function renderTableHeader<TData>(
   };
 
   return (
-    <TableHeader className={cn(isSticky && "sticky top-0 z-10")}>
+    <TableHeader className={cn(isSticky && 'sticky top-0 z-10')}>
       <TableRow>
         {renderHeaderGroup(table.getLeftHeaderGroups())}
         {renderHeaderGroup(table.getCenterHeaderGroups())}
@@ -140,11 +140,11 @@ export const DataTableBody = <TData,>({
           {...getCellDomProps(cell.id)}
           key={cell.id}
           className={cn(
-            "whitespace-pre truncate max-w-[300px] outline-hidden",
+            'whitespace-pre truncate max-w-[300px] outline-hidden',
             cell.column.getColumnWrapping &&
-              cell.column.getColumnWrapping?.() === "wrap" &&
+              cell.column.getColumnWrapping?.() === 'wrap' &&
               COLUMN_WRAPPING_STYLES,
-            "px-1.5 py-[0.18rem]",
+            'px-1.5 py-[0.18rem]',
             className,
           )}
           style={style}
@@ -154,8 +154,8 @@ export const DataTableBody = <TData,>({
           onMouseOver={(e) => handleCellMouseOver(e, cell)}
           onContextMenu={() => handleContextMenu(cell)}
         >
-          <CellRangeSelectionIndicator cellId={cell.id} />
-          <div className="relative">
+          <CellRangeSelectionIndicator key="sel" cellId={cell.id} />
+          <div key="val" className="relative">
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
           </div>
         </TableCell>
@@ -199,14 +199,14 @@ export const DataTableBody = <TData,>({
           return (
             <TableRow
               key={row.id}
-              data-state={row.getIsSelected() && "selected"}
+              data-state={row.getIsSelected() && 'selected'}
               title={rowTitle}
               // These classes ensure that empty rows (nulls) still render
               className={cn(
-                "border-t h-6",
-                rowViewerPanelOpen && "cursor-pointer",
+                'border-t h-6',
+                rowViewerPanelOpen && 'cursor-pointer',
                 isRowViewedInPanel &&
-                  "bg-(--blue-3) hover:bg-(--blue-3) data-[state=selected]:bg-(--blue-4)",
+                  'bg-(--blue-3) hover:bg-(--blue-3) data-[state=selected]:bg-(--blue-4)',
               )}
               onClick={() => handleRowClick(row)}
             >
@@ -241,23 +241,23 @@ function getPinningStyles<TData>(
 ): React.HTMLAttributes<HTMLElement> {
   const isPinned = column.getIsPinned();
   const isLastLeftPinnedColumn =
-    isPinned === "left" && column.getIsLastColumn("left");
+    isPinned === 'left' && column.getIsLastColumn('left');
   const isFirstRightPinnedColumn =
-    isPinned === "right" && column.getIsFirstColumn("right");
+    isPinned === 'right' && column.getIsFirstColumn('right');
 
   return {
-    className: cn(isPinned && "bg-inherit", "shadow-r z-10"),
+    className: cn(isPinned && 'bg-inherit', 'shadow-r z-10'),
     style: {
       boxShadow:
-        isLastLeftPinnedColumn && column.id !== "__select__"
-          ? "-4px 0 4px -4px var(--slate-8) inset"
+        isLastLeftPinnedColumn && column.id !== '__select__'
+          ? '-4px 0 4px -4px var(--slate-8) inset'
           : isFirstRightPinnedColumn
-            ? "4px 0 4px -4px var(--slate-8) inset"
+            ? '4px 0 4px -4px var(--slate-8) inset'
             : undefined,
-      left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-      right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+      left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
+      right: isPinned === 'right' ? `${column.getAfter('right')}px` : undefined,
       opacity: 1,
-      position: isPinned ? "sticky" : "relative",
+      position: isPinned ? 'sticky' : 'relative',
       zIndex: isPinned ? 1 : 0,
       width: column.getSize(),
     },

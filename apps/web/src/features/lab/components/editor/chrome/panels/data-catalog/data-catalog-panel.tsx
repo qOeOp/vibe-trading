@@ -1,18 +1,9 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
-import {
-  TrendingUp,
-  Building2,
-  FlaskConical,
-  Zap,
-  BookOpen,
-  ChevronRight,
-  Copy,
-  Check,
-  DatabaseIcon,
-} from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronDown, ChevronRight, DatabaseIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SearchInput } from '@/features/lab/components/ui/input';
 import {
   CATEGORIES,
   DATA_SOURCES,
@@ -22,178 +13,112 @@ import {
 import {
   PanelBar,
   PanelBody,
+  PanelRow,
   PanelEmpty,
+  PanelBadge,
   PanelText,
   usePanelV2,
 } from '../../../../panel-primitives';
 
-const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
-  TrendingUp,
-  Building2,
-  FlaskConical,
-  Zap,
-  BookOpen,
-};
+// ─── Shared sub-components ──────────────────────────────
 
-function CopyButton({ code }: { code: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(code).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  }, [code]);
-
-  return (
-    <button
-      type="button"
-      data-slot="copy-button"
-      onClick={handleCopy}
-      className={cn(
-        'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-colors cursor-pointer',
-        copied
-          ? 'bg-mine-accent-green/10 text-mine-accent-green'
-          : 'bg-mine-bg text-mine-muted hover:text-mine-text hover:bg-mine-border/50',
-      )}
-    >
-      {copied ? (
-        <>
-          <Check className="w-3 h-3" />
-          Copied!
-        </>
-      ) : (
-        <>
-          <Copy className="w-3 h-3" />
-          Insert Code
-        </>
-      )}
-    </button>
-  );
-}
-
-function SchemaTable({ schema }: { schema: DataSource['schema'] }) {
-  return (
-    <div
-      data-slot="schema-table"
-      className="bg-mine-bg rounded-md overflow-hidden"
-    >
-      <table className="w-full text-[10px]">
-        <thead>
-          <tr className="border-b border-mine-border/30">
-            <th className="text-left px-2 py-1 text-mine-muted font-medium uppercase tracking-wider">
-              Column
-            </th>
-            <th className="text-right px-2 py-1 text-mine-muted font-medium uppercase tracking-wider">
-              Type
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {schema.map((field) => (
-            <tr
-              key={field.column}
-              className="border-b border-mine-border/20 last:border-b-0"
-            >
-              <td className="px-2 py-1 font-mono text-mine-text">
-                {field.column}
-              </td>
-              <td className="px-2 py-1 text-right font-mono text-mine-muted">
-                {field.type}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function DataSourceCard({ source }: { source: DataSource }) {
+function DataSourceLink({ source }: { source: DataSource }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div
-      data-slot="data-source-card"
-      className="border border-mine-border/50 rounded-lg bg-white overflow-hidden"
-    >
+    <div data-slot="data-source-link">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-start gap-2 px-3 py-2 text-left hover:bg-mine-bg/50 transition-colors cursor-pointer"
+        className="w-full flex items-center gap-1.5 bg-mine-bg/70 hover:bg-mine-bg transition-colors cursor-pointer py-2 pl-4 pr-3"
       >
-        <ChevronRight
-          className={cn(
-            'w-3 h-3 mt-0.5 text-mine-muted shrink-0 transition-transform duration-200',
-            expanded && 'rotate-90',
-          )}
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] font-medium text-mine-text truncate">
-              {source.name}
-            </span>
-            <span className="text-[10px] text-mine-muted shrink-0">
-              {source.nameZh}
-            </span>
-          </div>
-          <p className="text-[10px] text-mine-muted mt-0.5 leading-relaxed">
-            {source.description}
-          </p>
+        <div className="shrink-0 flex items-center justify-center w-5">
+          <ChevronRight
+            className={cn(
+              'w-3 h-3 text-mine-muted transition-transform duration-200',
+              expanded && 'rotate-90',
+            )}
+          />
         </div>
-      </button>
-
-      {expanded && (
-        <div className="px-3 pb-3 pt-1 border-t border-mine-border/30 space-y-2">
-          <SchemaTable schema={source.schema} />
-          <div className="flex items-center justify-between">
-            <code className="text-[10px] font-mono text-mine-muted truncate flex-1 mr-2">
-              {source.sampleCode}
-            </code>
-            <CopyButton code={source.sampleCode} />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function CategoryGroup({
-  label,
-  iconName,
-  sources,
-}: {
-  label: string;
-  iconName: string;
-  sources: DataSource[];
-}) {
-  const [expanded, setExpanded] = useState(true);
-  const Icon = ICON_MAP[iconName];
-
-  return (
-    <div data-slot="category-group" className="space-y-1.5">
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-2 px-1 py-1 rounded-md hover:bg-mine-bg/50 transition-colors cursor-pointer"
-      >
-        <ChevronRight
-          className={cn(
-            'w-3 h-3 text-mine-muted transition-transform duration-200',
-            expanded && 'rotate-90',
-          )}
-        />
-        {Icon && <Icon className="w-3 h-3 text-mine-muted" />}
-        <span className="text-[11px] font-medium text-mine-text">{label}</span>
-        <span className="text-[10px] text-mine-muted ml-auto font-mono tabular-nums">
-          {sources.length}
+        <span className="font-mono text-[11px] text-mine-text/70 truncate">
+          {source.name}
+        </span>
+        <span className="text-[10px] text-mine-muted shrink-0 ml-auto">
+          {source.nameZh}
         </span>
       </button>
 
       {expanded && (
-        <div className="space-y-1.5 pl-2">
+        <div className="pl-5 pr-3 pb-2.5 pt-1">
+          <div className="bg-white rounded-lg shadow-xs px-3.5 py-3">
+            <p className="text-[11px] leading-[16px] text-mine-text/55">
+              {source.description}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function useFilteredData(search: string) {
+  return useMemo(() => {
+    const lower = search.toLowerCase();
+    const filtered = search
+      ? DATA_SOURCES.filter(
+          (s) =>
+            s.name.toLowerCase().includes(lower) ||
+            s.nameZh.includes(search) ||
+            s.description.includes(search),
+        )
+      : DATA_SOURCES;
+
+    const grouped = new Map<DataCategory, DataSource[]>();
+    for (const source of filtered) {
+      const list = grouped.get(source.category) || [];
+      list.push(source);
+      grouped.set(source.category, list);
+    }
+    return grouped;
+  }, [search]);
+}
+
+// ─── V2 Category Accordion ──────────────────────────────
+
+function CategoryAccordionV2({
+  label,
+  sources,
+}: {
+  label: string;
+  sources: DataSource[];
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div
+      data-slot="category-accordion"
+      className="border-b border-mine-border/20 last:border-b-0"
+    >
+      <PanelRow
+        onPress={() => setExpanded(!expanded)}
+        className="bg-white hover:bg-mine-bg/40 px-3 py-2.5"
+      >
+        <PanelText variant="content" className="font-semibold">
+          {label}
+        </PanelText>
+        <PanelBadge className="ml-auto mr-2">{sources.length}</PanelBadge>
+        <ChevronDown
+          className={cn(
+            'w-3 h-3 text-mine-muted shrink-0 transition-transform duration-200',
+            !expanded && '-rotate-90',
+          )}
+        />
+      </PanelRow>
+
+      {expanded && (
+        <div>
           {sources.map((source) => (
-            <DataSourceCard key={source.id} source={source} />
+            <DataSourceLink key={source.id} source={source} />
           ))}
         </div>
       )}
@@ -205,29 +130,8 @@ function CategoryGroup({
 
 function DataCatalogPanelV2() {
   const [search, setSearch] = useState('');
-  const [isV2, toggleV2] = usePanelV2('data-catalog-panel');
-
-  const filteredByCategory = useMemo(() => {
-    const lower = search.toLowerCase();
-    const filtered = search
-      ? DATA_SOURCES.filter(
-          (s) =>
-            s.name.toLowerCase().includes(lower) ||
-            s.nameZh.includes(search) ||
-            s.description.includes(search),
-        )
-      : DATA_SOURCES;
-
-    const grouped = new Map<DataCategory, DataSource[]>();
-    for (const source of filtered) {
-      const list = grouped.get(source.category) || [];
-      list.push(source);
-      grouped.set(source.category, list);
-    }
-    return grouped;
-  }, [search]);
-
-  const totalCount = DATA_SOURCES.length;
+  const filteredByCategory = useFilteredData(search);
+  const [isV2, toggleV2] = usePanelV2('data-catalog');
 
   return (
     <div
@@ -235,41 +139,84 @@ function DataCatalogPanelV2() {
       className="flex flex-col h-full overflow-hidden"
     >
       <PanelBar
-        title="数据目录"
+        title="Data Catalog"
         icon={<DatabaseIcon />}
-        badge={<PanelText variant="tiny">({totalCount})</PanelText>}
         v2={{ active: isV2, onToggle: toggleV2 }}
       />
+
       {/* Search */}
-      <div className="px-3 py-2 border-b border-mine-border/20 shrink-0">
-        <input
-          type="text"
-          placeholder="搜索数据源..."
+      <div className="flex items-center w-full border-b border-mine-border/20 shrink-0">
+        <SearchInput
+          placeholder="Search data sources..."
+          rootClassName="flex-1 border-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-mine-bg rounded-md px-3 py-1.5 text-[11px] text-mine-text placeholder:text-mine-muted/60 border border-mine-border/50 focus:outline-none focus:border-mine-accent-teal/50 transition-colors"
         />
       </div>
-      <PanelBody className="px-3 py-3 gap-4">
-        {filteredByCategory.size === 0 ? (
-          <PanelEmpty title="未找到数据源" />
-        ) : (
-          <>
-            {CATEGORIES.map((cat) => {
-              const sources = filteredByCategory.get(cat.id);
-              if (!sources || sources.length === 0) return null;
-              return (
-                <CategoryGroup
-                  key={cat.id}
-                  label={cat.label}
-                  iconName={cat.icon}
-                  sources={sources}
-                />
-              );
-            })}
-          </>
+
+      <PanelBody className="scrollbar-thin">
+        {CATEGORIES.map((cat) => {
+          const sources = filteredByCategory.get(cat.id);
+          if (!sources || sources.length === 0) return null;
+          return (
+            <CategoryAccordionV2
+              key={cat.id}
+              label={cat.label}
+              sources={sources}
+            />
+          );
+        })}
+
+        {filteredByCategory.size === 0 && (
+          <PanelEmpty title="No data sources found" />
         )}
       </PanelBody>
+    </div>
+  );
+}
+
+// ─── V1 Category Accordion ──────────────────────────────
+
+function CategoryAccordionV1({
+  label,
+  sources,
+}: {
+  label: string;
+  sources: DataSource[];
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div
+      data-slot="category-accordion"
+      className="border-b border-mine-border/30 last:border-b-0"
+    >
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center bg-white hover:bg-mine-bg/40 transition-colors cursor-pointer px-3 py-2.5"
+      >
+        <span className="text-[13px] font-semibold text-mine-text">
+          {label}
+        </span>
+        <span className="text-[10px] font-mono tabular-nums ml-auto mr-2 text-mine-muted">
+          {sources.length}
+        </span>
+        <ChevronDown
+          className={cn(
+            'w-4 h-4 text-mine-muted shrink-0 transition-transform duration-200',
+            !expanded && '-rotate-90',
+          )}
+        />
+      </button>
+
+      {expanded && (
+        <div>
+          {sources.map((source) => (
+            <DataSourceLink key={source.id} source={source} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -278,27 +225,8 @@ function DataCatalogPanelV2() {
 
 function DataCatalogPanelV1() {
   const [search, setSearch] = useState('');
-  const [, toggleV2] = usePanelV2('data-catalog-panel');
-
-  const filteredByCategory = useMemo(() => {
-    const lower = search.toLowerCase();
-    const filtered = search
-      ? DATA_SOURCES.filter(
-          (s) =>
-            s.name.toLowerCase().includes(lower) ||
-            s.nameZh.includes(search) ||
-            s.description.includes(search),
-        )
-      : DATA_SOURCES;
-
-    const grouped = new Map<DataCategory, DataSource[]>();
-    for (const source of filtered) {
-      const list = grouped.get(source.category) || [];
-      list.push(source);
-      grouped.set(source.category, list);
-    }
-    return grouped;
-  }, [search]);
+  const filteredByCategory = useFilteredData(search);
+  const [, toggleV2] = usePanelV2('data-catalog');
 
   return (
     <div
@@ -306,34 +234,43 @@ function DataCatalogPanelV1() {
       className="flex flex-col h-full overflow-hidden"
     >
       {/* Search */}
-      <div className="px-3 py-2 border-b border-mine-border/50 shrink-0 flex items-center gap-2">
-        <input
-          type="text"
+      <div className="flex items-center w-full border-b shrink-0">
+        <SearchInput
           placeholder="Search data sources..."
+          rootClassName="flex-1 border-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 bg-mine-bg rounded-md px-3 py-1.5 text-[11px] text-mine-text placeholder:text-mine-muted/60 border border-mine-border/50 focus:outline-none focus:border-mine-accent-teal/50 transition-colors"
         />
         <button
           type="button"
+          className={cn(
+            'float-right px-2 m-0 h-full text-sm text-secondary-foreground ml-2',
+            search && 'bg-accent text-accent-foreground',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+          )}
+          disabled={!search}
+        >
+          Search
+        </button>
+        <button
+          type="button"
           onClick={toggleV2}
-          className="text-mine-muted/40 hover:text-mine-muted p-0.5 rounded transition-colors shrink-0"
-          title="Switch to v2"
+          className="text-mine-muted/40 hover:text-mine-muted p-0.5 rounded transition-colors mr-1"
+          title="Switch to v2 (new)"
         >
           <span className="text-[8px] font-mono">v2</span>
         </button>
       </div>
 
       {/* Category list */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin px-3 py-3 space-y-4">
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
         {CATEGORIES.map((cat) => {
           const sources = filteredByCategory.get(cat.id);
           if (!sources || sources.length === 0) return null;
           return (
-            <CategoryGroup
+            <CategoryAccordionV1
               key={cat.id}
               label={cat.label}
-              iconName={cat.icon}
               sources={sources}
             />
           );
@@ -352,7 +289,7 @@ function DataCatalogPanelV1() {
 // ─── Switch ─────────────────────────────────────────────
 
 function DataCatalogPanel() {
-  const [isV2] = usePanelV2('data-catalog-panel');
+  const [isV2] = usePanelV2('data-catalog');
   return isV2 ? <DataCatalogPanelV2 /> : <DataCatalogPanelV1 />;
 }
 

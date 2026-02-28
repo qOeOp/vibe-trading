@@ -1,15 +1,28 @@
-/**
- * Stub: app-config/state — Settings panel navigation not used in VT.
- */
+/* Copyright 2026 Marimo. All rights reserved. */
+import { atom, useSetAtom } from 'jotai';
+import type { AiSettingsSubTab } from './ai-config';
+import {
+  activeUserConfigCategoryAtom,
+  type SettingCategoryId,
+} from './user-config-form';
 
-import { atom } from 'jotai';
+export const aiSettingsSubTabAtom = atom<AiSettingsSubTab>('ai-features');
 
-/** Sub-tab navigation for the AI settings panel */
-export const aiSettingsSubTabAtom = atom<string>('model');
+export const settingDialogAtom = atom<boolean>(false);
 
 export function useOpenSettingsToTab() {
-  const handleClick = (_tab: string, _subTab?: string) => {
-    // no-op in VT
+  const setActiveCategory = useSetAtom(activeUserConfigCategoryAtom);
+  const setSettingsDialog = useSetAtom(settingDialogAtom);
+  const setAiSubTab = useSetAtom(aiSettingsSubTabAtom);
+
+  // Note: If more settings categories need sub-tabs or deep-linking is required,
+  // consider using a different strategy like query params
+  const handleClick = (tab: SettingCategoryId, subTab?: AiSettingsSubTab) => {
+    setActiveCategory(tab);
+    if (tab === 'ai') {
+      setAiSubTab(subTab ?? 'ai-features');
+    }
+    setSettingsDialog(true);
   };
   return { handleClick };
 }

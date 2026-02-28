@@ -1,14 +1,9 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
-import type { SidebarPanel } from "@/features/lab/types";
-import {
-  Database,
-  Code2,
-  Package,
-  Terminal,
-} from "lucide-react";
+import { cn } from '@/lib/utils';
+import { useLabCellStore } from '@/features/lab/store/use-lab-cell-store';
+import type { SidebarPanel } from '@/features/lab/types';
+import { Database, Code2, Package, Terminal } from 'lucide-react';
 
 interface IconBarItem {
   panel: NonNullable<SidebarPanel>;
@@ -17,10 +12,10 @@ interface IconBarItem {
 }
 
 const ICON_BAR_ITEMS: IconBarItem[] = [
-  { panel: "data", icon: Database, label: "数据字典" },
-  { panel: "snippets", icon: Code2, label: "代码片段" },
-  { panel: "variables", icon: Package, label: "变量检查器" },
-  { panel: "console", icon: Terminal, label: "Console" },
+  { panel: 'data', icon: Database, label: '数据字典' },
+  { panel: 'data-catalog', icon: Code2, label: '数据目录' },
+  { panel: 'variables', icon: Package, label: '变量检查器' },
+  { panel: 'console', icon: Terminal, label: 'Console' },
 ];
 
 /**
@@ -36,9 +31,7 @@ export function RightIconBar() {
   return (
     <div
       data-slot="right-icon-bar"
-      className={cn(
-        "flex flex-col items-center gap-1 py-3 px-1.5",
-      )}
+      className={cn('flex flex-col items-center gap-1 py-3 px-1.5')}
     >
       {ICON_BAR_ITEMS.map(({ panel, icon: Icon, label }) => {
         const isActive = sidebarPanel === panel;
@@ -49,11 +42,11 @@ export function RightIconBar() {
             type="button"
             onClick={() => toggleSidebarPanel(panel)}
             className={cn(
-              "w-8 h-8 rounded-lg flex items-center justify-center",
-              "transition-all duration-150",
+              'w-8 h-8 rounded-lg flex items-center justify-center',
+              'transition-all duration-150',
               isActive
-                ? "bg-mine-nav-active text-white shadow-sm"
-                : "text-mine-muted hover:text-mine-text hover:bg-white/80",
+                ? 'bg-mine-nav-active text-white shadow-sm'
+                : 'text-mine-muted hover:text-mine-text hover:bg-white/80',
             )}
             title={label}
             aria-label={label}

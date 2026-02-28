@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtomValue } from "jotai";
+import { useAtomValue } from 'jotai';
 import {
   Check,
   Code2Icon,
@@ -9,51 +9,58 @@ import {
   ImageIcon,
   Loader2Icon,
   MoreHorizontalIcon,
-} from "lucide-react";
-import type React from "react";
-import { memo, useRef, useState } from "react";
-import { z } from "zod";
-import { ReadonlyCode } from "@/features/lab/components/editor/code/readonly-python-code";
-import { OutputArea } from "@/features/lab/components/editor/Output";
-import { ConsoleOutput } from "@/features/lab/components/editor/output/console/ConsoleOutput";
-import { Alert, AlertDescription, AlertTitle } from "@/features/lab/components/ui/alert";
-import { Button } from "@/features/lab/components/ui/button";
+} from 'lucide-react';
+import type React from 'react';
+import { memo, useRef, useState } from 'react';
+import { z } from 'zod';
+import { ReadonlyCode } from '@/features/lab/components/editor/code/readonly-python-code';
+import { OutputArea } from '@/features/lab/components/editor/Output';
+import { ConsoleOutput } from '@/features/lab/components/editor/output/console/ConsoleOutput';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@/features/lab/components/ui/alert';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/features/lab/components/ui/dropdown-menu";
-import { outputIsLoading, outputIsStale } from "@/features/lab/core/cells/cell";
-import type { CellId } from "@/features/lab/core/cells/ids";
-import { isOutputEmpty } from "@/features/lab/core/cells/outputs";
-import type { CellData, CellRuntimeState } from "@/features/lab/core/cells/types";
-import { MarkdownLanguageAdapter } from "@/features/lab/core/codemirror/language/languages/markdown";
-import { useResolvedMarimoConfig } from "@/features/lab/core/config/config";
-import { CSSClasses, KnownQueryParams } from "@/features/lab/core/constants";
-import type { OutputMessage } from "@/features/lab/core/kernel/messages";
-import { kernelStateAtom } from "@/features/lab/core/kernel/state";
-import { showCodeInRunModeAtom } from "@/features/lab/core/meta/state";
-import { isErrorMime } from "@/features/lab/core/mime";
-import { type AppMode, kioskModeAtom } from "@/features/lab/core/mode";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import type { CellConfig } from "@/features/lab/core/network/types";
-import { downloadAsHTML } from "@/features/lab/core/static/download-html";
-import { isStaticNotebook } from "@/features/lab/core/static/static-state";
-import { isWasm } from "@/features/lab/core/wasm/utils";
-import { cn } from "@/features/lab/utils/cn";
+} from '@/features/lab/components/ui/dropdown-menu';
+import { outputIsLoading, outputIsStale } from '@/features/lab/core/cells/cell';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { isOutputEmpty } from '@/features/lab/core/cells/outputs';
+import type {
+  CellData,
+  CellRuntimeState,
+} from '@/features/lab/core/cells/types';
+import { MarkdownLanguageAdapter } from '@/features/lab/core/codemirror/language/languages/markdown';
+import { useResolvedMarimoConfig } from '@/features/lab/core/config/config';
+import { CSSClasses, KnownQueryParams } from '@/features/lab/core/constants';
+import type { OutputMessage } from '@/features/lab/core/kernel/messages';
+import { kernelStateAtom } from '@/features/lab/core/kernel/state';
+import { showCodeInRunModeAtom } from '@/features/lab/core/meta/state';
+import { isErrorMime } from '@/features/lab/core/mime';
+import { type AppMode, kioskModeAtom } from '@/features/lab/core/mode';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import type { CellConfig } from '@/features/lab/core/network/types';
+import { downloadAsHTML } from '@/features/lab/core/static/download-html';
+import { isStaticNotebook } from '@/features/lab/core/static/static-state';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { cn } from '@/features/lab/utils/cn';
 import {
   ADD_PRINTING_CLASS,
   downloadBlob,
   downloadHTMLAsImage,
-} from "@/features/lab/utils/download";
-import { Filenames } from "@/features/lab/utils/filenames";
-import { FloatingOutline } from "@/features/lab/components/editor/chrome/panels/outline/floating-outline";
-import { cellDomProps } from "@/features/lab/components/editor/common";
-import type { ICellRendererPlugin, ICellRendererProps } from "../types";
-import { useDelayVisibility } from "./useDelayVisibility";
-import { VerticalLayoutWrapper } from "./vertical-layout-wrapper";
+} from '@/features/lab/utils/download';
+import { Filenames } from '@/features/lab/utils/filenames';
+
+import { cellDomProps } from '@/features/lab/components/editor/common';
+import type { ICellRendererPlugin, ICellRendererProps } from '../types';
+import { useDelayVisibility } from './useDelayVisibility';
+import { VerticalLayoutWrapper } from './vertical-layout-wrapper';
 
 type VerticalLayout = null;
 type VerticalLayoutProps = ICellRendererProps<VerticalLayout>;
@@ -80,7 +87,7 @@ const VerticalLayoutRenderer: React.FC<VerticalLayoutProps> = ({
     const showCodeByQueryParam = urlParams.get(KnownQueryParams.showCode);
     return showCodeByQueryParam === null
       ? isStaticNotebook() || isWasm() || kioskMode
-      : showCodeByQueryParam === "true";
+      : showCodeByQueryParam === 'true';
   });
 
   const evaluateCanShowCode = () => {
@@ -96,7 +103,7 @@ const VerticalLayoutRenderer: React.FC<VerticalLayoutProps> = ({
     // but it can be turned it off via a query parameter (include-code=false)
 
     const includeCode = urlParams.get(KnownQueryParams.includeCode);
-    return mode === "read" && includeCode !== "false" && cellsHaveCode;
+    return mode === 'read' && includeCode !== 'false' && cellsHaveCode;
   };
 
   const canShowCode = evaluateCanShowCode();
@@ -126,7 +133,7 @@ const VerticalLayoutRenderer: React.FC<VerticalLayoutProps> = ({
   };
 
   const renderCells = () => {
-    if (appConfig.width === "columns") {
+    if (appConfig.width === 'columns') {
       const sortedColumns = groupCellsByColumn(cells);
       return (
         <div className="flex flex-row gap-8 w-full">
@@ -172,17 +179,16 @@ const VerticalLayoutRenderer: React.FC<VerticalLayoutProps> = ({
   // spacing is handled elsewhere
   return (
     <VerticalLayoutWrapper invisible={invisible} appConfig={appConfig}>
-      <div className={cn("flex flex-col", showCode && canShowCode && "gap-5")}>
+      <div className={cn('flex flex-col', showCode && canShowCode && 'gap-5')}>
         {renderCells()}
       </div>
-      {mode === "read" && (
+      {mode === 'read' && (
         <ActionButtons
           canShowCode={canShowCode}
           showCode={showCode}
           onToggleShowCode={() => setShowCode((v) => !v)}
         />
       )}
-      <FloatingOutline />
     </VerticalLayoutWrapper>
   );
 };
@@ -195,7 +201,7 @@ const ActionButtons: React.FC<{
   const { readCode } = useRequestClient();
 
   const handleDownloadAsPNG = async () => {
-    const app = document.getElementById("App");
+    const app = document.getElementById('App');
     if (!app) {
       return;
     }
@@ -208,7 +214,7 @@ const ActionButtons: React.FC<{
   };
 
   const handleDownloadAsHTML = async () => {
-    const app = document.getElementById("App");
+    const app = document.getElementById('App');
     if (!app) {
       return;
     }
@@ -218,7 +224,7 @@ const ActionButtons: React.FC<{
   const handleDownloadAsPython = async () => {
     const code = await readCode();
     downloadBlob(
-      new Blob([code.contents], { type: "text/plain" }),
+      new Blob([code.contents], { type: 'text/plain' }),
       Filenames.toPY(document.title),
     );
   };
@@ -290,11 +296,11 @@ const ActionButtons: React.FC<{
     <div
       data-testid="notebook-actions-dropdown"
       className={cn(
-        "right-0 top-0 z-50 m-4 print:hidden flex gap-2",
+        'right-0 top-0 z-50 m-4 print:hidden flex gap-2',
         // If the notebook is static, we have a banner at the top, so
         // we can't use fixed positioning. Ideally this is sticky, but the
         // current dom structure makes that difficult.
-        isStaticNotebook() ? "absolute" : "fixed",
+        isStaticNotebook() ? 'absolute' : 'fixed',
       )}
     >
       <DropdownMenu modal={false}>
@@ -314,16 +320,16 @@ const ActionButtons: React.FC<{
 interface VerticalCellProps
   extends Pick<
     CellRuntimeState,
-    | "output"
-    | "consoleOutputs"
-    | "status"
-    | "stopped"
-    | "errored"
-    | "interrupted"
-    | "staleInputs"
-    | "runStartTimestamp"
+    | 'output'
+    | 'consoleOutputs'
+    | 'status'
+    | 'stopped'
+    | 'errored'
+    | 'interrupted'
+    | 'staleInputs'
+    | 'runStartTimestamp'
   > {
-  cellOutputArea: "above" | "below";
+  cellOutputArea: 'above' | 'below';
   cellId: CellId;
   config: CellConfig;
   code: string;
@@ -367,23 +373,23 @@ const VerticalCell = memo(
     const loading = outputIsLoading(status);
 
     // Kiosk and not presenting
-    const kioskFull = kiosk && mode !== "present";
+    const kioskFull = kiosk && mode !== 'present';
 
     const isPureMarkdown = new MarkdownLanguageAdapter().isSupported(code);
     const published = !showCode && !kioskFull;
     const className = cn(
-      "marimo-cell",
-      "hover-actions-parent empty:invisible",
+      'marimo-cell',
+      'hover-actions-parent empty:invisible',
       {
         published: published,
-        "has-error": errored,
+        'has-error': errored,
         stopped: stopped,
         borderless: isPureMarkdown && !published,
       },
     );
 
     // Read mode and show code
-    if ((mode === "read" && showCode) || kioskFull) {
+    if ((mode === 'read' && showCode) || kioskFull) {
       const outputArea = (
         <OutputArea
           allowExpand={true}
@@ -405,7 +411,7 @@ const VerticalCell = memo(
           className={className}
           {...cellDomProps(cellId, name)}
         >
-          {cellOutputArea === "above" && outputArea}
+          {cellOutputArea === 'above' && outputArea}
           {!hideCode && (
             <div className="tray">
               <ReadonlyCode
@@ -414,7 +420,7 @@ const VerticalCell = memo(
               />
             </div>
           )}
-          {cellOutputArea === "below" && outputArea}
+          {cellOutputArea === 'below' && outputArea}
           <ConsoleOutput
             consoleOutputs={consoleOutputs}
             stale={outputStale}
@@ -441,7 +447,7 @@ const VerticalCell = memo(
         {...cellDomProps(cellId, name)}
       >
         <OutputArea
-          allowExpand={mode === "edit"}
+          allowExpand={mode === 'edit'}
           output={output}
           className={CSSClasses.outputArea}
           cellId={cellId}
@@ -452,14 +458,14 @@ const VerticalCell = memo(
     );
   },
 );
-VerticalCell.displayName = "VerticalCell";
+VerticalCell.displayName = 'VerticalCell';
 
 export const VerticalLayoutPlugin: ICellRendererPlugin<
   VerticalLayout,
   VerticalLayout
 > = {
-  type: "vertical",
-  name: "Vertical",
+  type: 'vertical',
+  name: 'Vertical',
   validator: z.any(),
   Component: VerticalLayoutRenderer,
   deserializeLayout: (serialized) => serialized,
@@ -495,5 +501,5 @@ export function groupCellsByColumn(
 export function shouldHideCode(code: string, output: OutputMessage | null) {
   const isPureMarkdown = new MarkdownLanguageAdapter().isSupported(code);
   const hasOutput = output !== null && !isOutputEmpty(output);
-  return (isPureMarkdown && hasOutput) || code.trim() === "";
+  return (isPureMarkdown && hasOutput) || code.trim() === '';
 }

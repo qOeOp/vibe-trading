@@ -19,7 +19,8 @@ import { useHotkey } from '@/features/lab/hooks/useHotkey';
 import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 import { ShowInKioskMode } from '@/features/lab/components/editor/kiosk-mode';
 import { useRunAllCells } from '@/features/lab/components/editor/cell/useRunCells';
-import { panelLayoutAtom, useChromeActions, useChromeState } from '../state';
+import { panelLayoutAtom } from '../state';
+import { useLabChromeStore } from '@/features/lab/store/use-lab-chrome-store';
 import { FooterItem } from './footer-item';
 import { AIStatusIcon } from './footer-items/ai-status';
 import {
@@ -33,8 +34,8 @@ import { RuntimeSettings } from './footer-items/runtime-settings';
 import { useFilename } from '@/features/lab/core/saving/filename';
 
 export const Footer: React.FC = () => {
-  const { isDeveloperPanelOpen } = useChromeState();
-  const { toggleDeveloperPanel } = useChromeActions();
+  const isDeveloperPanelOpen = useLabChromeStore((s) => s.isDeveloperPanelOpen);
+  const toggleDeveloperPanel = useLabChromeStore((s) => s.toggleDeveloperPanel);
   const labMode = useLabModeStore((s) => s.mode);
   const isLabActive = labMode === 'active';
 
@@ -218,7 +219,7 @@ const DockFileTabs: React.FC = () => {
   const filename = useFilename();
   const displayName = filename
     ? filename.split('/').pop()?.replace(/\.py$/, '') || filename
-    : 'untitled';
+    : 'lab';
 
   return (
     <div
@@ -237,7 +238,7 @@ const DockFileTabs: React.FC = () => {
       <button
         type="button"
         className="flex items-center gap-1.5 h-7 px-3 rounded-full bg-mine-nav-active text-white text-xs font-medium whitespace-nowrap shrink-0"
-        title={filename || 'untitled'}
+        title={filename || 'lab'}
       >
         <span className="truncate max-w-[120px] font-mono">{displayName}</span>
       </button>

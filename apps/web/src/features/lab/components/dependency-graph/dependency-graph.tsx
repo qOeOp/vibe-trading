@@ -1,18 +1,17 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { type Atom, atom, useAtom } from "jotai";
+import { type Atom, atom, useAtom } from 'jotai';
 
-import React from "react";
-import { ReactFlowProvider } from "reactflow";
-import type { CellId } from "@/features/lab/core/cells/ids";
-import type { CellData } from "@/features/lab/core/cells/types";
-import type { Variables } from "@/features/lab/core/variables/types";
-import { DependencyGraphTree } from "./dependency-graph-tree";
-import { GraphToolbar } from "./panels";
-import type { GraphSettings, LayoutDirection } from "./types";
+import React from 'react';
+import { ReactFlowProvider } from 'reactflow';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import type { CellData } from '@/features/lab/core/cells/types';
+import type { Variables } from '@/features/lab/core/variables/types';
+import { DependencyGraphTree } from './dependency-graph-tree';
+import type { GraphSettings, LayoutDirection } from './types';
 
-import "reactflow/dist/style.css";
-import "./dependency-graph.css";
+import 'reactflow/dist/style.css';
+import './dependency-graph.css';
 
 interface Props {
   cellIds: CellId[];
@@ -21,11 +20,13 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const graphViewAtom = atom<LayoutDirection>("TB");
+const graphViewAtom = atom<LayoutDirection>('LR');
 const graphViewSettings = atom<GraphSettings>({
   hidePureMarkdown: true,
   hideReusableFunctions: false,
 });
+
+export { graphViewSettings };
 
 export const DependencyGraph: React.FC<Props> = (props) => {
   const [layoutDirection, setLayoutDirection] = useAtom(graphViewAtom);
@@ -37,14 +38,7 @@ export const DependencyGraph: React.FC<Props> = (props) => {
         {...props}
         settings={settings}
         layoutDirection={layoutDirection}
-      >
-        <GraphToolbar
-          settings={settings}
-          onSettingsChange={setSettings}
-          view={layoutDirection}
-          onChange={setLayoutDirection}
-        />
-      </DependencyGraphTree>
+      />
     </ReactFlowProvider>
   );
 };

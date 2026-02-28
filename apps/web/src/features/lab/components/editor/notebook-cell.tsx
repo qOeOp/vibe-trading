@@ -28,6 +28,10 @@ import { autocompletionKeymap } from '@/features/lab/core/codemirror/cm';
 import type { LanguageAdapterType } from '@/features/lab/core/codemirror/language/types';
 import { CSSClasses } from '@/features/lab/core/constants';
 import { canCollapseOutline } from '@/features/lab/core/dom/outline';
+import {
+  useErrorDetailsActions,
+  useIsCellErrorDetailsOpen,
+} from '@/features/lab/core/errors/state';
 import { isErrorMime } from '@/features/lab/core/mime';
 import type { AppMode } from '@/features/lab/core/mode';
 import { connectionAtom } from '@/features/lab/core/network/connection';
@@ -461,11 +465,36 @@ const EditableCellComponent = ({
   });
   const canCollapse = canCollapseOutline(cellRuntime.outline);
   const hasOutput = !isOutputEmpty(cellRuntime.output);
+  const isErrorOutput = isErrorMime(cellRuntime.output?.mimetype);
+  const isErrorDetailsOpen = useIsCellErrorDetailsOpen(cellId);
+  const { clearCellErrorDetails } = useErrorDetailsActions();
+  const hasAnyConsoleOutput = cellRuntime.consoleOutputs.length > 0;
+  const syntheticErrorConsoleOutput =
+    isErrorOutput &&
+    isErrorDetailsOpen &&
+    cellRuntime.output != null &&
+    !hasAnyConsoleOutput
+      ? [{ ...cellRuntime.output, channel: 'stderr' as const }]
+      : [];
+  const rawDisplayConsoleOutputs = isErrorOutput
+    ? isErrorDetailsOpen
+      ? [...cellRuntime.consoleOutputs, ...syntheticErrorConsoleOutput]
+      : []
+    : cellRuntime.consoleOutputs;
+  const hasTracebackOutput = rawDisplayConsoleOutputs.some(
+    (output) => output.mimetype === 'application/vnd.marimo+traceback',
+  );
+  const displayConsoleOutputs = hasTracebackOutput
+    ? rawDisplayConsoleOutputs.filter(
+        (output) => output.mimetype !== 'application/vnd.marimo+error',
+      )
+    : rawDisplayConsoleOutputs;
   const isStaleCell = outputIsStale(cellRuntime, cellData.edited);
-  const hasConsoleOutput = cellRuntime.consoleOutputs.length > 0;
+  const hasConsoleOutput = displayConsoleOutputs.length > 0;
   const cellOutput = userConfig.display.cell_output;
+  const hasVisibleOutput = hasOutput && !isErrorOutput;
 
-  const hasOutputAbove = hasOutput && cellOutput === 'above';
+  const hasOutputAbove = hasVisibleOutput && cellOutput === 'above';
 
   // If the cell is too short, we need to position some icons inline to prevent overlaps.
   // This can only happen to markdown cells when the code is hidden completely
@@ -495,6 +524,21 @@ const EditableCellComponent = ({
   });
 
   // Shine border — sweep animation on status transitions
+  useEffect(() => {
+    if (!isErrorOutput) {
+      clearCellErrorDetails(cellId);
+    }
+  }, [cellId, clearCellErrorDetails, isErrorOutput]);
+
+  useEffect(() => {
+    if (
+      cellRuntime.status === 'queued' ||
+      cellRuntime.status === 'running'
+    ) {
+      clearCellErrorDetails(cellId);
+    }
+  }, [cellId, cellRuntime.status, clearCellErrorDetails]);
+
   useEffect(() => {
     const prev = prevStatusRef.current;
     prevStatusRef.current = cellRuntime.status;
@@ -542,7 +586,7 @@ const EditableCellComponent = ({
       </div>
     );
 
-  const outputArea = hasOutput && !isEmptyMarkdownContent && (
+  const outputArea = hasVisibleOutput && !isEmptyMarkdownContent && (
     <div className="relative" onDoubleClick={showHiddenCodeIfMarkdown}>
       <div className="absolute top-5 -left-7 z-20 print:hidden">
         <CollapseToggle
@@ -579,7 +623,9 @@ const EditableCellComponent = ({
     disabled: cellData.config.disabled,
     stale: cellRuntime.status === 'disabled-transitively',
     borderless:
-      isMarkdownCodeHidden && hasOutput && !navigationProps['data-selected'],
+      isMarkdownCodeHidden &&
+      hasVisibleOutput &&
+      !navigationProps['data-selected'],
   });
 
   const handleRefactorWithAI: OnRefactorWithAI = useEvent(
@@ -682,7 +728,7 @@ const EditableCellComponent = ({
                 editorViewRef={editorView}
                 editorViewParentRef={editorViewParentRef}
                 hidden={!isCellCodeShown}
-                hasOutput={hasOutput}
+                hasOutput={hasVisibleOutput}
                 showHiddenCode={showHiddenCode}
                 languageAdapter={languageAdapter}
                 setLanguageAdapter={setLanguageAdapter}
@@ -725,26 +771,28 @@ const EditableCellComponent = ({
               hide={cellRuntime.errored && !isStaleCell}
             />
             {cellOutput === 'below' && (outputArea || emptyMarkdownPlaceholder)}
-            <ConsoleOutput
-              consoleOutputs={cellRuntime.consoleOutputs}
-              stale={consoleOutputStale}
-              // Empty name if serialization triggered
-              cellName={cellRuntime.serialization ? '_' : cellData.name}
-              onRefactorWithAI={handleRefactorWithAI}
-              onClear={() => {
-                actions.clearCellConsoleOutput({ cellId });
-              }}
-              onSubmitDebugger={(text, index) => {
-                actions.setStdinResponse({
-                  cellId,
-                  response: text,
-                  outputIndex: index,
-                });
-                sendStdin({ text });
-              }}
-              cellId={cellId}
-              debuggerActive={cellRuntime.debuggerActive}
-            />
+            {(!isErrorOutput || isErrorDetailsOpen) && (
+              <ConsoleOutput
+                consoleOutputs={displayConsoleOutputs}
+                stale={consoleOutputStale}
+                // Empty name if serialization triggered
+                cellName={cellRuntime.serialization ? '_' : cellData.name}
+                onRefactorWithAI={handleRefactorWithAI}
+                onClear={() => {
+                  actions.clearCellConsoleOutput({ cellId });
+                }}
+                onSubmitDebugger={(text, index) => {
+                  actions.setStdinResponse({
+                    cellId,
+                    response: text,
+                    outputIndex: index,
+                  });
+                  sendStdin({ text });
+                }}
+                cellId={cellId}
+                debuggerActive={cellRuntime.debuggerActive}
+              />
+            )}
             <PendingDeleteConfirmation cellId={cellId} />
           </div>
           <StagedAICellFooter cellId={cellId} />
@@ -1027,8 +1075,31 @@ const SetupCellComponent = ({
     cellActionDropdownRef,
   });
   const hasOutput = !isOutputEmpty(cellRuntime.output);
-  const hasConsoleOutput = cellRuntime.consoleOutputs.length > 0;
   const isErrorOutput = isErrorMime(cellRuntime.output?.mimetype);
+  const isErrorDetailsOpen = useIsCellErrorDetailsOpen(cellId);
+  const { clearCellErrorDetails } = useErrorDetailsActions();
+  const hasAnyConsoleOutput = cellRuntime.consoleOutputs.length > 0;
+  const syntheticErrorConsoleOutput =
+    isErrorOutput &&
+    isErrorDetailsOpen &&
+    cellRuntime.output != null &&
+    !hasAnyConsoleOutput
+      ? [{ ...cellRuntime.output, channel: 'stderr' as const }]
+      : [];
+  const rawDisplayConsoleOutputs = isErrorOutput
+    ? isErrorDetailsOpen
+      ? [...cellRuntime.consoleOutputs, ...syntheticErrorConsoleOutput]
+      : []
+    : cellRuntime.consoleOutputs;
+  const hasTracebackOutput = rawDisplayConsoleOutputs.some(
+    (output) => output.mimetype === 'application/vnd.marimo+traceback',
+  );
+  const displayConsoleOutputs = hasTracebackOutput
+    ? rawDisplayConsoleOutputs.filter(
+        (output) => output.mimetype !== 'application/vnd.marimo+error',
+      )
+    : rawDisplayConsoleOutputs;
+  const hasDisplayConsoleOutput = displayConsoleOutputs.length > 0;
 
   const className = clsx('marimo-cell', 'hover-actions-parent z-10', {
     interactive: true,
@@ -1059,6 +1130,21 @@ const SetupCellComponent = ({
     }
     return undefined;
   };
+
+  useEffect(() => {
+    if (!isErrorOutput) {
+      clearCellErrorDetails(cellId);
+    }
+  }, [cellId, clearCellErrorDetails, isErrorOutput]);
+
+  useEffect(() => {
+    if (
+      cellRuntime.status === 'queued' ||
+      cellRuntime.status === 'running'
+    ) {
+      clearCellErrorDetails(cellId);
+    }
+  }, [cellId, cellRuntime.status, clearCellErrorDetails]);
 
   return (
     <TooltipProvider>
@@ -1099,7 +1185,7 @@ const SetupCellComponent = ({
                   cellConfig={cellData.config}
                   needsRun={needsRun}
                   hasOutput={hasOutput}
-                  hasConsoleOutput={hasConsoleOutput}
+                  hasConsoleOutput={hasDisplayConsoleOutput}
                   cellActionDropdownRef={cellActionDropdownRef}
                   cellId={cellId}
                   name={cellData.name}
@@ -1178,37 +1264,28 @@ const SetupCellComponent = ({
                 />
               </Tooltip>
             </div>
-            {isErrorOutput && (
-              <OutputArea
-                allowExpand={true}
-                forceExpand={true}
-                className={CSSClasses.outputArea}
+            {(!isErrorOutput || isErrorDetailsOpen) && (
+              <ConsoleOutput
+                consoleOutputs={displayConsoleOutputs}
+                stale={consoleOutputStale}
+                // Don't show name
+                cellName={'_'}
+                onRefactorWithAI={handleRefactorWithAI}
+                onClear={() => {
+                  actions.clearCellConsoleOutput({ cellId });
+                }}
+                onSubmitDebugger={(text, index) => {
+                  actions.setStdinResponse({
+                    cellId,
+                    response: text,
+                    outputIndex: index,
+                  });
+                  requestClient.sendStdin({ text });
+                }}
                 cellId={cellId}
-                output={cellRuntime.output}
-                stale={false}
-                loading={loading}
+                debuggerActive={cellRuntime.debuggerActive}
               />
             )}
-            <ConsoleOutput
-              consoleOutputs={cellRuntime.consoleOutputs}
-              stale={consoleOutputStale}
-              // Don't show name
-              cellName={'_'}
-              onRefactorWithAI={handleRefactorWithAI}
-              onClear={() => {
-                actions.clearCellConsoleOutput({ cellId });
-              }}
-              onSubmitDebugger={(text, index) => {
-                actions.setStdinResponse({
-                  cellId,
-                  response: text,
-                  outputIndex: index,
-                });
-                requestClient.sendStdin({ text });
-              }}
-              cellId={cellId}
-              debuggerActive={cellRuntime.debuggerActive}
-            />
           </div>
           <StagedAICellFooter cellId={cellId} />
         </div>
