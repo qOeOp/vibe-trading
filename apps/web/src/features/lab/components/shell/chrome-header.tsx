@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, Settings, Power, Play } from 'lucide-react';
+import { Settings, Power, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ─── Connection Step Types ────────────────────────────────
@@ -162,7 +162,6 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
 type ChromeHeaderProps = {
   step: ConnectStep;
   isConnected?: boolean;
-  onToggleFileTree?: () => void;
   onRunAll?: () => void;
   onDisconnect?: () => void;
   onOpenSettings?: () => void;
@@ -172,7 +171,6 @@ type ChromeHeaderProps = {
 function ChromeHeader({
   step,
   isConnected = false,
-  onToggleFileTree,
   onRunAll,
   onDisconnect,
   onOpenSettings,
@@ -187,17 +185,6 @@ function ChromeHeader({
     >
       {/* Left: editor control icons */}
       <div className="flex items-center gap-3 shrink-0">
-        <button
-          type="button"
-          onClick={onToggleFileTree}
-          className="hover:opacity-70 transition-opacity"
-          title="Toggle file tree"
-        >
-          <Menu
-            className="w-[18px] h-[18px] text-mine-muted"
-            strokeWidth={1.5}
-          />
-        </button>
         <button
           type="button"
           onClick={isConnected ? onOpenSettings : undefined}

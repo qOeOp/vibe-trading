@@ -1,92 +1,105 @@
 'use client';
 
-import type { LucideIcon } from 'lucide-react';
-import {
-  // Mine custom icons
-  Variable,
-  Box,
-  Bot,
-  SquareDashedBottomCode,
-  FlaskConical,
-  // Marimo panel icons
-  Package,
-  Database,
-  AlertCircle,
-  // Footer
-  MoreHorizontal,
-} from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
+import { useAtomValue } from 'jotai';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
+import {
+  cellErrorSummariesAtom,
+  cellsRuntimeAtom,
+} from '@/features/lab/core/cells/cells';
+import { connectionAtom } from '@/features/lab/core/network/connection';
+import { store } from '@/features/lab/core/state/jotai';
+import { WebSocketState } from '@/features/lab/core/websocket/types';
+import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
+import { getPanelsBySlot, BUTTON_SHADOW, BUTTON_INSET } from './panels';
+import { PanelButton } from './panel-button';
 
-// ─── Tactile Button ───────────────────────────────────────
+// ─── Activity Bar ────────────────────────────────────────
+//
+// Right-side icon bar. Renders right-slot panels from PANELS config.
+// Error badge logic tracks unseen errors and shows count on the errors button.
 
-const BUTTON_SHADOW =
-  '0px 1px 1px 0.5px rgba(51,51,51,0.04), 0px 3px 3px -1.5px rgba(51,51,51,0.02), 0px 6px 6px -3px rgba(51,51,51,0.04), 0px 12px 12px -6px rgba(51,51,51,0.04), 0px 0px 0px 1px rgba(51,51,51,0.1)';
+function ActivityBar({ className }: { className?: string }) {
+  const rightPanel = useLabModeStore((s) => s.rightPanel);
+  const togglePanel = useLabModeStore((s) => s.togglePanel);
 
-const BUTTON_INSET = 'inset 0px -1px 1px -0.5px rgba(51,51,51,0.06)';
+  const connection = useAtomValue(connectionAtom, { store });
+  const errorSummaries = useAtomValue(cellErrorSummariesAtom, { store });
+  const cellsRuntime = useAtomValue(cellsRuntimeAtom, { store });
+  const [seenErrorKeys, setSeenErrorKeys] = useState<Set<string>>(new Set());
+  const [errorGenerationByCell, setErrorGenerationByCell] = useState<
+    Record<string, number>
+  >({});
+  const prevConnectionStateRef = useRef(connection.state);
+  const prevCellStatusRef = useRef<Record<string, string | null | undefined>>(
+    {},
+  );
 
-// ─── Panel Definitions ───────────────────────────────────
+  useEffect(() => {
+    setErrorGenerationByCell((prev) => {
+      let changed = false;
+      const next = { ...prev };
 
-type PanelDef = {
-  id: string;
-  icon: LucideIcon;
-  label: string;
-  /** Push-aside panel width in px */
-  width: number;
-  /** Group separator — renders a gap before this item */
-  group?: 'mine' | 'data' | 'dev';
-};
+      for (const [cellId, runtime] of Object.entries(cellsRuntime)) {
+        const prevStatus = prevCellStatusRef.current[cellId];
+        const currStatus = runtime.status;
 
-const PANEL_ITEMS: PanelDef[] = [
-  // ── Mine custom panels ──
-  {
-    id: 'variables-mine',
-    icon: Variable,
-    label: '变量',
-    width: 280,
-    group: 'mine',
-  },
-  { id: 'components', icon: Box, label: '组件', width: 320 },
-  { id: 'ai', icon: Bot, label: 'AI 助手', width: 360 },
-  {
-    id: 'snippets-mine',
-    icon: SquareDashedBottomCode,
-    label: '代码片段',
-    width: 300,
-  },
-  { id: 'experiments', icon: FlaskConical, label: '实验', width: 340 },
+        if (
+          (prevStatus === 'running' || prevStatus === 'queued') &&
+          currStatus === 'idle' &&
+          runtime.errored
+        ) {
+          next[cellId] = (next[cellId] ?? 0) + 1;
+          changed = true;
+        }
 
-  // ── Marimo panels (real kernel data in connected mode) ──
-  {
-    id: 'variables',
-    icon: Package,
-    label: '变量检查器',
-    width: 280,
-    group: 'data',
-  },
-  { id: 'packages', icon: Box, label: '包管理', width: 280 },
-  { id: 'snippets', icon: Database, label: '数据目录', width: 320 },
+        prevCellStatusRef.current[cellId] = currStatus;
+      }
 
-  // ── Marimo developer panels ──
-  { id: 'errors', icon: AlertCircle, label: '错误', width: 300, group: 'dev' },
-  { id: 'validation', icon: FlaskConical, label: '因子验证', width: 340 },
-];
+      return changed ? next : prev;
+    });
+  }, [cellsRuntime]);
 
-// ─── Activity Bar ─────────────────────────────────────────
+  const currentErrorKeys = useMemo(
+    () =>
+      errorSummaries.map((summary) => {
+        const generation = errorGenerationByCell[summary.cellId] ?? 0;
+        return `${summary.cellId}:${summary.errorType}:${generation}`;
+      }),
+    [errorSummaries, errorGenerationByCell],
+  );
 
-type ActivityBarProps = {
-  activePanel?: string | null;
-  onPanelToggle?: (panelId: string) => void;
-  className?: string;
-};
+  useEffect(() => {
+    const prev = prevConnectionStateRef.current;
+    const curr = connection.state;
 
-function ActivityBar({
-  activePanel,
-  onPanelToggle,
-  className,
-  ...props
-}: ActivityBarProps &
-  Omit<React.ComponentProps<'div'>, keyof ActivityBarProps>) {
+    if (curr === WebSocketState.OPEN && prev !== WebSocketState.OPEN) {
+      setSeenErrorKeys(new Set(currentErrorKeys));
+    }
+
+    prevConnectionStateRef.current = curr;
+  }, [connection.state, currentErrorKeys]);
+
+  useEffect(() => {
+    if (rightPanel !== 'errors') return;
+
+    setSeenErrorKeys((prev) => {
+      const next = new Set(prev);
+      for (const key of currentErrorKeys) {
+        next.add(key);
+      }
+      return next;
+    });
+  }, [rightPanel, currentErrorKeys]);
+
+  const unreadErrorCount = currentErrorKeys.filter(
+    (key) => !seenErrorKeys.has(key),
+  ).length;
+  const errorBadgeCount = Math.min(unreadErrorCount, 99);
+
+  const rightPanels = getPanelsBySlot('right');
   let lastGroup: string | undefined;
 
   return (
@@ -96,59 +109,39 @@ function ActivityBar({
         'shrink-0 flex flex-col items-center pt-0 pb-0 gap-2',
         className,
       )}
-      {...props}
     >
-      {PANEL_ITEMS.map((item) => {
-        const isActive = activePanel === item.id;
+      {rightPanels.map((item) => {
+        const isActive = rightPanel === item.id;
         const needsSeparator =
           item.group && item.group !== lastGroup && lastGroup != null;
         lastGroup = item.group ?? lastGroup;
+
+        const badge =
+          item.id === 'errors' && errorBadgeCount > 0 ? (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[10px] leading-4 text-center font-semibold z-[2]">
+              {errorBadgeCount}
+            </span>
+          ) : undefined;
 
         return (
           <div key={item.id} className="contents">
             {needsSeparator && (
               <div className="w-5 h-px bg-mine-border my-0.5" />
             )}
-            <button
-              title={item.label}
-              className={cn(
-                'w-[36px] h-[36px] flex items-center justify-center rounded-[9px] relative transition-all',
-                isActive
-                  ? 'bg-mine-nav-active text-white scale-105'
-                  : 'bg-white text-mine-text hover:scale-105',
-              )}
-              style={{ boxShadow: isActive ? undefined : BUTTON_SHADOW }}
-              onClick={() => onPanelToggle?.(item.id)}
-            >
-              {!isActive && (
-                <div
-                  className="absolute inset-0 rounded-[9px] pointer-events-none"
-                  style={{ boxShadow: BUTTON_INSET }}
-                />
-              )}
-              {!isActive && (
-                <GlowingEffect
-                  spread={40}
-                  glow
-                  disabled={false}
-                  proximity={48}
-                  inactiveZone={0.01}
-                  borderWidth={2}
-                />
-              )}
-              <item.icon
-                className="w-[18px] h-[18px] relative z-[1]"
-                strokeWidth={1.5}
-              />
-            </button>
+            <PanelButton
+              icon={item.icon}
+              label={item.label}
+              isActive={isActive}
+              badge={badge}
+              onClick={() => togglePanel(item.id)}
+            />
           </div>
         );
       })}
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* More options — circular, positioned to align with frame corner radius */}
+      {/* More options — circular footer button */}
       <button
         className="w-[36px] h-[36px] flex items-center justify-center rounded-full bg-white text-mine-text relative hover:scale-105 transition-transform"
         style={{ boxShadow: BUTTON_SHADOW }}
@@ -174,4 +167,4 @@ function ActivityBar({
   );
 }
 
-export { ActivityBar, PANEL_ITEMS, type PanelDef };
+export { ActivityBar };

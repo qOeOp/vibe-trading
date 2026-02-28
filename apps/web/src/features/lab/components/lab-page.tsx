@@ -19,9 +19,6 @@ import { Suspense, useCallback, useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimateHeavy } from '@/components/animation';
-import { StatisticsSection } from '@/features/library/components/factor-detail/statistics-section';
-import { QuantileCumulativeReturnsSection } from '@/features/library/components/factor-detail/charts/quantile-cumulative-returns';
-import { getLibraryFactors } from '@/features/library/data/mock-library';
 import {
   ErrorBoundary,
   FeatureErrorFallback,
@@ -48,14 +45,15 @@ import { useLabFileTabStore } from '../store/use-lab-file-tab-store';
 // Shell components
 import { ChromeHeader, type ConnectStep } from './shell/chrome-header';
 import { ActivityBar } from './shell/activity-bar';
-import { SidePanel } from './shell/side-panel';
+import { LeftBar } from './shell/left-bar';
+import { PanelSlot } from './shell/panel-slot';
 import { CTAOverlay } from './shell/cta-overlay';
+import { ContentFrame } from './shell/content-frame';
 import { MineCell } from './shell/mine-cell';
 import { MineCodeEditor } from './shell/mine-code-editor';
-import { DisconnectedFileTree } from './shell/mine-file-tree';
 import { MineTabBar } from './shell/mine-tab-bar';
 import { useRunAllCells } from './editor/cell/useRunCells';
-import { useChromeActions } from './editor/chrome/state';
+import { useLabChromeStore } from '../store/use-lab-chrome-store';
 import { ModalProvider } from './modal/ImperativeModal';
 
 // ─── Constants ────────────────────────────────────────────
@@ -69,6 +67,25 @@ const VT_SESSION_KEY = 'vt-lab-session'; // TODO: auth — include userId in key
 
 const FRAME_SHADOW =
   '0px 12px 12px -6px rgba(41,41,41,0.04), 0px 24px 24px -12px rgba(41,41,41,0.04), 0px 48px 48px -24px rgba(41,41,41,0.04), 0px 0px 0px 1px #e0e0e0';
+
+// ─── Jotai Scope ────────────────────────────────────────
+//
+// Conditionally wraps children in jotai Provider with marimo store.
+// When `active` is false, renders children without Provider so
+// disconnected-mode panels don't hit "atom not set" errors.
+
+function JotaiScope({
+  active,
+  children,
+}: {
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  if (active) {
+    return <Provider store={store}>{children}</Provider>;
+  }
+  return <>{children}</>;
+}
 
 // ─── Marimo Connection Helpers ────────────────────────────
 
@@ -104,63 +121,66 @@ function LabEditor() {
 
 // ─── Static IDE Content (disconnected state) ──────────────
 
-const PREVIEW_FACTOR = getLibraryFactors()[0];
-
-function FactorPreviewPanel() {
-  return (
-    <div data-slot="factor-preview-panel">
-      <StatisticsSection factor={PREVIEW_FACTOR} />
-      <QuantileCumulativeReturnsSection factor={PREVIEW_FACTOR} />
-    </div>
-  );
-}
-
-/** Python source for cell 1 (imports & data) */
+/** Python source for cell 1 (imports & factor definitions) */
 const CELL_1_CODE = `import marimo as mo
-import akshare as ak
+import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 
-df = ak.stock_zh_a_hist("000001")
-factor = df['close'].pct_change(20)
+np.random.seed(42)
 
-# 计算 IC 衰减`;
+# ─── Factor definitions ────────────────────────────────
+FACTORS = {
+    "Mom_20D": {"cat": "动量", "ic_mu": 0.032, "ic_std": 0.028, "turnover": 0.42, "capacity": 85},
+    "EP":      {"cat": "价值", "ic_mu": 0.045, "ic_std": 0.035, "turnover": 0.15, "capacity": 120},
+    "ROE_TTM": {"cat": "质量", "ic_mu": 0.038, "ic_std": 0.022, "turnover": 0.18, "capacity": 95},
+    "Vol_20D": {"cat": "波动率", "ic_mu": -0.025, "ic_std": 0.030, "turnover": 0.35, "capacity": 70},
+    "North_Flow": {"cat": "资金流", "ic_mu": 0.028, "ic_std": 0.032, "turnover": 0.55, "capacity": 45},
+}`;
 
-/** Python source for cell 2 (analysis) */
-const CELL_2_CODE = `ic_series = factor.corr(df['close'].shift(-1))
+/** Python source for cell 2 (helper functions) */
+const CELL_2_CODE = `def gen_ic_series(mu, std, n=240):
+    """Mean-reverting IC series via AR(1)"""
+    ic = np.zeros(n)
+    ic[0] = mu
+    for i in range(1, n):
+        ic[i] = 0.7 * ic[i - 1] + 0.3 * mu + std * np.random.randn()
+    return ic
 
-mo.ui.table(df.head())`;
+def gen_quintile_returns(ic_mu, n=240):
+    """5-quantile cumulative returns driven by factor IC"""
+    spreads = np.linspace(-1, 1, 5) * abs(ic_mu) * 8
+    daily = np.zeros((n, 5))
+    for q in range(5):
+        daily[:, q] = spreads[q] / 240 + np.random.randn(n) * 0.015
+    return np.cumsum(daily, axis=0)
 
-/** File tree — shown in disconnected left column (always static preview) */
-function StaticFileTree() {
-  const fileTreeVisible = useLabModeStore((s) => s.fileTreeVisible);
-  if (!fileTreeVisible) return null;
-  return <DisconnectedFileTree />;
-}
+def gen_ic_decay(ic_mu):
+    """IC decay from T+1 to T+20"""
+    lags = np.arange(1, 21)
+    return ic_mu * np.exp(-0.12 * lags) + np.random.randn(20) * 0.003
 
-/** Editor cells + factor sidebar — center column content when disconnected */
+POOL_NAMES = ["全A", "沪深300", "中证500", "中证1000"]
+POOL_SCALES = [1.0, 0.75, 1.15, 1.30]`;
+
+/** Editor cells — center column content when disconnected */
 function StaticEditorContent() {
   return (
-    <>
-      {/* Editor (tabs + cells) */}
-      <div className="flex-1 min-w-0 flex flex-col overflow-y-auto relative">
-        <MineTabBar />
+    <ContentFrame
+      header={<MineTabBar />}
+      className="flex-1 min-w-0"
+      bodyClassName="overflow-y-auto p-2"
+    >
+      {/* Cell 1: imports & factor definitions */}
+      <MineCell disabled className="mt-1">
+        <MineCodeEditor code={CELL_1_CODE} readOnly />
+      </MineCell>
 
-        {/* Cell 1: imports & setup */}
-        <MineCell disabled className="mt-1">
-          <MineCodeEditor code={CELL_1_CODE} readOnly />
-        </MineCell>
-
-        {/* Cell 2: main logic */}
-        <MineCell flex disabled className="mt-1">
-          <MineCodeEditor code={CELL_2_CODE} readOnly />
-        </MineCell>
-      </div>
-
-      {/* Factor analytics sidebar */}
-      <div className="w-[400px] shrink-0 overflow-y-auto relative bg-white rounded-lg shadow-sm">
-        <FactorPreviewPanel />
-      </div>
-    </>
+      {/* Cell 2: helper functions */}
+      <MineCell flex disabled className="mt-1">
+        <MineCodeEditor code={CELL_2_CODE} readOnly />
+      </MineCell>
+    </ContentFrame>
   );
 }
 
@@ -168,16 +188,16 @@ function StaticEditorContent() {
 
 function ActionBridge() {
   const runAll = useRunAllCells();
-  const { toggleSidebarPanel } = useChromeActions();
+  const toggleSidebar = useLabChromeStore((s) => s.toggleSidebar);
   const setActions = useLabModeStore((s) => s.setActions);
 
   useEffect(() => {
     setActions({
       runAll,
-      openSettings: toggleSidebarPanel,
+      openSettings: toggleSidebar,
     });
     return () => setActions({ runAll: null, openSettings: null });
-  }, [runAll, toggleSidebarPanel, setActions]);
+  }, [runAll, toggleSidebar, setActions]);
 
   return null;
 }
@@ -214,24 +234,22 @@ function LabOrchestrator() {
 
   const labMode = useLabModeStore((s) => s.mode);
   const setLabMode = useLabModeStore((s) => s.setMode);
-  const toggleFileTree = useLabModeStore((s) => s.toggleFileTree);
+  const leftPanel = useLabModeStore((s) => s.leftPanel);
+  const rightPanel = useLabModeStore((s) => s.rightPanel);
+  const togglePanel = useLabModeStore((s) => s.togglePanel);
   const bridgedActions = useLabModeStore((s) => s.actions);
   const [error, setError] = useState<string | null>(null);
   const [sessionKey, setSessionKey] = useState(0);
   const [connectStep, setConnectStep] = useState<ConnectStep>('start');
-  const [activePanel, setActivePanel] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const connectingRef = useRef(false);
 
   const isConnected = labMode === 'active';
 
-  const handlePanelToggle = useCallback((panelId: string) => {
-    setActivePanel((prev) => (prev === panelId ? null : panelId));
-  }, []);
-
-  const handlePanelClose = useCallback(() => {
-    setActivePanel(null);
-  }, []);
+  const handleCloseRight = useCallback(() => {
+    const rp = useLabModeStore.getState().rightPanel;
+    if (rp) togglePanel(rp);
+  }, [togglePanel]);
 
   // Reset connectStep when labMode goes back to idle
   useEffect(() => {
@@ -450,14 +468,30 @@ function LabOrchestrator() {
           <ChromeHeader
             step={connectStep}
             isConnected={isConnected}
-            onToggleFileTree={toggleFileTree}
             onRunAll={bridgedActions.runAll ?? undefined}
             onDisconnect={handleDisconnect}
             onOpenSettings={bridgedActions.openSettings ?? undefined}
           />
 
-          {/* IDE Body — 3-column layout */}
+          {/* IDE Body — LeftBar | PanelSlot(left) | content | PanelSlot(right) | ActivityBar */}
           <div className="flex bg-[#f7f7f7] flex-1 min-h-0 gap-2 p-2 pt-0">
+            {/* Left icon bar */}
+            <LeftBar />
+
+            {/* Left panel slot — unified across connected/disconnected.
+                Wrapped in jotai Provider when connected so panel content
+                (e.g. ConnectedFileTree) can access requestClientAtom. */}
+            <JotaiScope active={isConnected}>
+              <PanelSlot
+                side="left"
+                panelId={leftPanel}
+                isConnected={isConnected}
+                onClose={() => {
+                  if (leftPanel) togglePanel(leftPanel);
+                }}
+              />
+            </JotaiScope>
+
             <AnimatePresence mode="wait">
               {isConnected ? (
                 <motion.div
@@ -473,29 +507,28 @@ function LabOrchestrator() {
               ) : (
                 <motion.div
                   key="static"
-                  className="flex-1 min-w-0 flex gap-2"
+                  className="flex-1 min-w-0 flex"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <StaticFileTree />
                   <StaticEditorContent />
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Side panel — push-aside, between editor and activity bar */}
-            <SidePanel
-              panelId={activePanel}
-              onClose={handlePanelClose}
-              isConnected={isConnected}
-            />
+            {/* Right panel slot — unified across connected/disconnected */}
+            <JotaiScope active={isConnected}>
+              <PanelSlot
+                side="right"
+                panelId={rightPanel}
+                isConnected={isConnected}
+                onClose={handleCloseRight}
+              />
+            </JotaiScope>
 
             {/* Activity bar — always present */}
-            <ActivityBar
-              activePanel={activePanel}
-              onPanelToggle={handlePanelToggle}
-            />
+            <ActivityBar />
           </div>
         </div>
 

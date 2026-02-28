@@ -33,11 +33,15 @@ import {
   useCellRuntime,
 } from '@/features/lab/core/cells/cells';
 import { isOutputEmpty } from '@/features/lab/core/cells/outputs';
-import { isUninstantiated } from '@/features/lab/core/cells/utils';
 import { autocompletionKeymap } from '@/features/lab/core/codemirror/cm';
 import type { LanguageAdapterType } from '@/features/lab/core/codemirror/language/types';
 import { CSSClasses } from '@/features/lab/core/constants';
 import { canCollapseOutline } from '@/features/lab/core/dom/outline';
+import {
+  useErrorDetailsActions,
+  useIsCellErrorDetailsOpen,
+} from '@/features/lab/core/errors/state';
+import { isErrorMime } from '@/features/lab/core/mime';
 import { connectionAtom } from '@/features/lab/core/network/connection';
 import { useRequestClient } from '@/features/lab/core/network/requests';
 import { isAppInteractionDisabled } from '@/features/lab/core/websocket/connection-utils';
@@ -185,13 +189,49 @@ const MineEditableCell = ({
 
   const canCollapse = canCollapseOutline(cellRuntime.outline);
   const hasOutput = !isOutputEmpty(cellRuntime.output);
+  const isErrorOutput = isErrorMime(cellRuntime.output?.mimetype);
+  const isErrorDetailsOpen = useIsCellErrorDetailsOpen(cellId);
+  const { clearCellErrorDetails } = useErrorDetailsActions();
+  const hasAnyConsoleOutput = cellRuntime.consoleOutputs.length > 0;
+  const syntheticErrorConsoleOutput =
+    isErrorOutput &&
+    isErrorDetailsOpen &&
+    cellRuntime.output != null &&
+    !hasAnyConsoleOutput
+      ? [{ ...cellRuntime.output, channel: 'stderr' as const }]
+      : [];
+  const rawDisplayConsoleOutputs = isErrorOutput
+    ? isErrorDetailsOpen
+      ? [...cellRuntime.consoleOutputs, ...syntheticErrorConsoleOutput]
+      : []
+    : cellRuntime.consoleOutputs;
+  const hasTracebackOutput = rawDisplayConsoleOutputs.some(
+    (output) => output.mimetype === 'application/vnd.marimo+traceback',
+  );
+  const displayConsoleOutputs = hasTracebackOutput
+    ? rawDisplayConsoleOutputs.filter(
+        (output) => output.mimetype !== 'application/vnd.marimo+error',
+      )
+    : rawDisplayConsoleOutputs;
   const isStaleCell = outputIsStale(cellRuntime, cellData.edited);
-  const hasConsoleOutput = cellRuntime.consoleOutputs.length > 0;
+  const hasConsoleOutput = displayConsoleOutputs.length > 0;
   const cellOutput = userConfig.display.cell_output;
-  const hasOutputAbove = hasOutput && cellOutput === 'above';
+  const hasVisibleOutput = hasOutput && !isErrorOutput;
 
   const isEmptyMarkdownContent =
     isMarkdown && editorView.current?.state.doc.toString().trim() === '';
+
+  useEffect(() => {
+    if (!isErrorOutput) {
+      clearCellErrorDetails(cellId);
+    }
+  }, [cellId, clearCellErrorDetails, isErrorOutput]);
+
+  useEffect(() => {
+    if (cellRuntime.status === 'queued' || cellRuntime.status === 'running') {
+      clearCellErrorDetails(cellId);
+    }
+  }, [cellId, cellRuntime.status, clearCellErrorDetails]);
 
   // ── Shine border effect ──
   useEffect(() => {
@@ -265,7 +305,9 @@ const MineEditableCell = ({
     disabled: cellData.config.disabled,
     stale: cellRuntime.status === 'disabled-transitively',
     borderless:
-      isMarkdownCodeHidden && hasOutput && !navigationProps['data-selected'],
+      isMarkdownCodeHidden &&
+      hasVisibleOutput &&
+      !navigationProps['data-selected'],
   });
 
   // ── Output area ──
@@ -288,7 +330,7 @@ const MineEditableCell = ({
       </div>
     );
 
-  const outputArea = hasOutput && !isEmptyMarkdownContent && (
+  const outputArea = hasVisibleOutput && !isEmptyMarkdownContent && (
     <div className="relative" onDoubleClick={showHiddenCodeIfMarkdown}>
       <div className="absolute top-5 -left-7 z-20 print:hidden">
         <CollapseToggle
@@ -340,6 +382,7 @@ const MineEditableCell = ({
             needsRun={needsRun}
             hasError={cellRuntime.errored}
             cellName={cellData.name}
+            onNameChange={(name) => actions.updateCellName({ cellId, name })}
             languageIcon={
               languageAdapter === 'markdown' ? (
                 <MarkdownIcon className="w-3.5 h-3.5" />
@@ -385,23 +428,25 @@ const MineEditableCell = ({
                   cellId={cellId}
                   hide={cellRuntime.errored && !isStaleCell}
                 />
-                <ConsoleOutput
-                  consoleOutputs={cellRuntime.consoleOutputs}
-                  stale={consoleOutputStale}
-                  cellName={cellRuntime.serialization ? '_' : cellData.name}
-                  onRefactorWithAI={handleRefactorWithAI}
-                  onClear={() => actions.clearCellConsoleOutput({ cellId })}
-                  onSubmitDebugger={(text, index) => {
-                    actions.setStdinResponse({
-                      cellId,
-                      response: text,
-                      outputIndex: index,
-                    });
-                    sendStdin({ text });
-                  }}
-                  cellId={cellId}
-                  debuggerActive={cellRuntime.debuggerActive}
-                />
+                {(!isErrorOutput || isErrorDetailsOpen) && (
+                  <ConsoleOutput
+                    consoleOutputs={displayConsoleOutputs}
+                    stale={consoleOutputStale}
+                    cellName={cellRuntime.serialization ? '_' : cellData.name}
+                    onRefactorWithAI={handleRefactorWithAI}
+                    onClear={() => actions.clearCellConsoleOutput({ cellId })}
+                    onSubmitDebugger={(text, index) => {
+                      actions.setStdinResponse({
+                        cellId,
+                        response: text,
+                        outputIndex: index,
+                      });
+                      sendStdin({ text });
+                    }}
+                    cellId={cellId}
+                    debuggerActive={cellRuntime.debuggerActive}
+                  />
+                )}
               </>
             }
           >
@@ -421,7 +466,7 @@ const MineEditableCell = ({
               editorViewRef={editorView}
               editorViewParentRef={editorViewParentRef}
               hidden={!isCellCodeShown}
-              hasOutput={hasOutput}
+              hasOutput={hasVisibleOutput}
               showHiddenCode={showHiddenCode}
               languageAdapter={languageAdapter}
               setLanguageAdapter={setLanguageAdapter}

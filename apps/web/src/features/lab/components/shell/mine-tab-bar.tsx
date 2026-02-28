@@ -139,11 +139,8 @@ function MineTabBar({ className }: MineTabBarProps) {
           <FileTabItem label="factor.py" isLast />
         )
       ) : (
-        /* Disconnected: mock tabs */
-        <>
-          <FileTabItem label="factor.py" />
-          <FileTabItem label="factory.py" isLast />
-        </>
+        /* Disconnected: single welcome tab */
+        <FileTabItem label="welcome.py" isLast />
       )}
     </div>
   );

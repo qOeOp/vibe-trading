@@ -1,53 +1,34 @@
 'use client';
 
 import { lazy, Suspense } from 'react';
-import useResizeObserver from 'use-resize-observer';
 import { cn } from '@/lib/utils';
+import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
+import { PanelShell } from './panel-shell';
 import {
   Tree,
   Folder,
   File,
   type TreeViewElement,
 } from '@/components/ui/file-tree';
-import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
-
-// Lazy-load connected tree deps — they require requestClientAtom (marimo kernel)
-const ConnectedFileTreeInner = lazy(() => import('./connected-file-tree'));
+import {
+  FileCodeIcon,
+  FileJsonIcon,
+  FileTextIcon,
+  FileIcon,
+} from 'lucide-react';
 
 // ─── Mine File Tree ──────────────────────────────────────
 //
-// Connected mode: embeds marimo's full FileExplorer with
-// icons, context menus, DnD, toolbar, inline rename, etc.
-//
-// Disconnected mode: static Magic UI tree for preview.
+// Disconnected mode: Magic UI tree with static demo data.
+// Connected mode: lazy-loads ConnectedFileTreeContent which
+// binds Magic UI tree to marimo's RequestingTree + jotai atoms.
 
-const CONTAINER_CLASS =
-  'w-[280px] shrink-0 flex flex-col bg-white rounded-lg rounded-bl-[18px] overflow-hidden shadow-sm';
+// Lazy-load connected tree deps — they require requestClientAtom
+const ConnectedFileTreeContent = lazy(() => import('./connected-file-tree'));
 
-const HEADER_CLASS =
-  'flex items-center px-3 py-2 border-b border-mine-border/30';
+// ─── Static tree data (disconnected demo) ────────────────
 
-const HEADER_LABEL_CLASS =
-  'text-[11px] font-semibold text-mine-muted uppercase tracking-wider';
-
-// ─── Connected: marimo FileExplorer (lazy-loaded) ────────
-
-function ConnectedFileTree({ className }: { className?: string }) {
-  return (
-    <div data-slot="mine-file-tree" className={cn(CONTAINER_CLASS, className)}>
-      <div className={HEADER_CLASS}>
-        <span className={HEADER_LABEL_CLASS}>Files</span>
-      </div>
-      <Suspense>
-        <ConnectedFileTreeInner />
-      </Suspense>
-    </div>
-  );
-}
-
-// ─── Disconnected: static Magic UI tree ──────────────────
-
-const DEFAULT_ELEMENTS: TreeViewElement[] = [
+const DEFAULT_TREE: TreeViewElement[] = [
   { id: 'cache', name: 'cache', children: [] },
   {
     id: 'strategies',
@@ -65,45 +46,71 @@ const DEFAULT_ELEMENTS: TreeViewElement[] = [
   { id: 'backtest_result.json', name: 'backtest_result.json' },
 ];
 
-function renderElements(elements: TreeViewElement[]) {
-  return elements.map((el) => {
-    if (el.children && Array.isArray(el.children)) {
-      return (
-        <Folder
-          key={el.id}
-          element={el.name}
-          value={el.id}
-          className="text-[13px] font-mono"
-        >
-          {el.children.length > 0 && renderElements(el.children)}
-        </Folder>
-      );
-    }
-    return (
-      <File key={el.id} value={el.id}>
-        <span>{el.name}</span>
-      </File>
-    );
-  });
+// ─── File icon by extension ──────────────────────────────
+
+function getFileIcon(name: string) {
+  const ext = name.split('.').pop()?.toLowerCase();
+  const cls = 'w-4 h-4 shrink-0 text-mine-muted/70';
+  switch (ext) {
+    case 'py':
+      return <FileCodeIcon className={cls} strokeWidth={1.5} />;
+    case 'json':
+      return <FileJsonIcon className={cls} strokeWidth={1.5} />;
+    case 'toml':
+    case 'txt':
+    case 'md':
+      return <FileTextIcon className={cls} strokeWidth={1.5} />;
+    default:
+      return <FileIcon className={cls} strokeWidth={1.5} />;
+  }
 }
 
-function DisconnectedFileTree({ className }: { className?: string }) {
+// ─── Recursive renderer ──────────────────────────────────
+
+function renderNodes(nodes: TreeViewElement[]) {
+  return nodes.map((node) =>
+    node.children ? (
+      <Folder key={node.id} element={node.name} value={node.id}>
+        {node.children.length > 0 ? renderNodes(node.children) : null}
+      </Folder>
+    ) : (
+      <File key={node.id} value={node.id} fileIcon={getFileIcon(node.name)}>
+        <span className="truncate">{node.name}</span>
+      </File>
+    ),
+  );
+}
+
+// ─── Static file tree content (no PanelShell) ────────────
+
+function StaticFileTreeContent() {
   return (
-    <div data-slot="mine-file-tree" className={cn(CONTAINER_CLASS, className)}>
-      <div className={HEADER_CLASS}>
-        <span className={HEADER_LABEL_CLASS}>Files</span>
-      </div>
-      <div className="flex-1 overflow-hidden text-[13px] font-mono text-mine-text">
-        <Tree
-          initialSelectedId="vt-lab.py"
-          initialExpandedItems={['strategies']}
-          elements={DEFAULT_ELEMENTS}
-          className="py-1"
-        >
-          {renderElements(DEFAULT_ELEMENTS)}
-        </Tree>
-      </div>
-    </div>
+    <Tree
+      elements={DEFAULT_TREE}
+      initialSelectedId="vt-lab.py"
+      initialExpandedItems={['strategies']}
+      className="py-1"
+    >
+      {renderNodes(DEFAULT_TREE)}
+    </Tree>
+  );
+}
+
+// ─── Connected file tree content (no PanelShell) ─────────
+
+function ConnectedFileTreeWrapper() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex-1 flex flex-col gap-2 p-3">
+          <div className="h-2.5 w-3/4 rounded bg-mine-border/50 animate-pulse" />
+          <div className="h-2.5 w-1/2 rounded bg-mine-border/50 animate-pulse" />
+          <div className="h-2.5 w-2/3 rounded bg-mine-border/50 animate-pulse" />
+        </div>
+      }
+    >
+      <ConnectedFileTreeContent />
+    </Suspense>
   );
 }
 
@@ -115,20 +122,31 @@ type MineFileTreeProps = {
 
 function MineFileTree({ className }: MineFileTreeProps) {
   const isConnected = useLabModeStore((s) => s.mode) === 'active';
-  return isConnected ? (
-    <ConnectedFileTree className={className} />
-  ) : (
-    <DisconnectedFileTree className={className} />
+  return (
+    <div
+      data-slot="mine-file-tree"
+      className={cn('flex-1 flex flex-col min-h-0', className)}
+    >
+      {isConnected ? <ConnectedFileTreeWrapper /> : <StaticFileTreeContent />}
+    </div>
   );
 }
 
-/** Alias used by PanelContent for the disconnected file tree */
-const StaticFileTreeContent = DisconnectedFileTree;
+/** DisconnectedFileTree with PanelShell — preserved for tests */
+function DisconnectedFileTree({ className }: { className?: string }) {
+  return (
+    <PanelShell title="Files" className={className}>
+      <StaticFileTreeContent />
+    </PanelShell>
+  );
+}
 
 export {
   MineFileTree,
   DisconnectedFileTree,
   StaticFileTreeContent,
-  DEFAULT_ELEMENTS,
+  DEFAULT_TREE,
+  getFileIcon,
+  renderNodes,
   type MineFileTreeProps,
 };

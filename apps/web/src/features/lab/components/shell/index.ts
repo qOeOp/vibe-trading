@@ -3,8 +3,11 @@ export {
   ConnectionStepper,
   type ConnectStep,
 } from './chrome-header';
-export { ActivityBar, PANEL_ITEMS, type PanelDef } from './activity-bar';
-export { SidePanel } from './side-panel';
+export { ActivityBar } from './activity-bar';
+export { PANELS, type PanelDef, getPanelDef, getPanelsBySlot } from './panels';
+export { PanelSlot } from './panel-slot';
+export { ContentFrame, FrameCloseButton } from './content-frame';
+export { PanelButton } from './panel-button';
 export { CTAOverlay } from './cta-overlay';
 export { MineCell, MineCellToolbar } from './mine-cell';
 export { MineCodeEditor } from './mine-code-editor';
