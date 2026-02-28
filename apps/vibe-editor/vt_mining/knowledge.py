@@ -102,7 +102,7 @@ class KnowledgeStore:
     def list_factors(self, status: Optional[str] = None) -> list[MiningFactorRecord]:
         """Return all factors, optionally filtered by status."""
         with self._conn() as conn:
-            if status:
+            if status is not None:
                 rows = conn.execute(
                     "SELECT * FROM mining_factors WHERE status = ? ORDER BY created_at DESC",
                     (status,),
@@ -114,12 +114,17 @@ class KnowledgeStore:
         return [self._row_to_record(r) for r in rows]
 
     def update_workspace_path(self, factor_id: str, workspace_path: str) -> None:
-        """Set workspace_path after Lab file association is created."""
+        """Set workspace_path after Lab file association is created.
+
+        Raises KeyError if factor_id is not found.
+        """
         with self._conn() as conn:
-            conn.execute(
+            cursor = conn.execute(
                 "UPDATE mining_factors SET workspace_path = ? WHERE id = ?",
                 (workspace_path, factor_id),
             )
+            if cursor.rowcount == 0:
+                raise KeyError(f"Factor not found: {factor_id}")
 
     @staticmethod
     def _row_to_record(row: sqlite3.Row) -> MiningFactorRecord:

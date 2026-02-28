@@ -1,6 +1,4 @@
-import os
 import pytest
-import tempfile
 from vt_mining.knowledge import KnowledgeStore, MiningFactorRecord
 
 @pytest.fixture
@@ -69,3 +67,13 @@ def test_add_factor_upsert(store):
     store.add_factor(record)  # upsert
     result = store.get_factor("f1")
     assert result.ic_mean == pytest.approx(0.03)
+
+
+def test_get_factor_returns_none_for_missing_id(store):
+    result = store.get_factor("nonexistent_id")
+    assert result is None
+
+
+def test_update_workspace_path_raises_for_missing_id(store):
+    with pytest.raises(KeyError):
+        store.update_workspace_path("nonexistent_id", "/some/path.py")
