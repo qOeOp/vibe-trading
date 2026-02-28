@@ -1,0 +1,361 @@
+'use client';
+
+import { useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { CheckCircle2, XCircle, Code2, Rocket } from 'lucide-react';
+import type { MiningTask, LogEntry, DiscoveredFactor } from '../types';
+
+// ── ProgressSection ───────────────────────────────────────────────
+
+function ProgressSection({ task }: { task: MiningTask }) {
+  const { progress } = task;
+  const pct =
+    progress.maxLoops > 0
+      ? Math.round((progress.currentLoop / progress.maxLoops) * 100)
+      : 0;
+
+  const fmtTime = (s: number) => {
+    if (s < 60) return `${s}s`;
+    if (s < 3600) return `${Math.floor(s / 60)}m`;
+    return `${Math.floor(s / 3600)}h${Math.floor((s % 3600) / 60)}m`;
+  };
+
+  const kpis = [
+    {
+      label: '已发现',
+      value: String(progress.factorsDiscovered),
+      positive: undefined as boolean | undefined,
+    },
+    {
+      label: '已接受',
+      value: String(progress.factorsAccepted),
+      positive: true,
+    },
+    {
+      label: '已拒绝',
+      value: String(progress.factorsRejected),
+      positive: undefined as boolean | undefined,
+    },
+    {
+      label: '最佳 IC',
+      value: progress.bestIc.toFixed(4),
+      positive: progress.bestIc > 0.03,
+    },
+    {
+      label: '最佳 IR',
+      value: progress.bestIr.toFixed(3),
+      positive: progress.bestIr > 1,
+    },
+    {
+      label: '已用时间',
+      value: fmtTime(progress.elapsedSeconds),
+      positive: undefined as boolean | undefined,
+    },
+  ];
+
+  return (
+    <div
+      data-slot="progress-section"
+      className="px-4 py-3 border-b border-mine-border/50"
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] text-mine-muted uppercase tracking-wider font-medium">
+          运行进度
+        </span>
+        <span className="text-[11px] font-mono tabular-nums text-mine-muted">
+          Loop {progress.currentLoop}/{progress.maxLoops}
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1.5 bg-mine-border rounded-full overflow-hidden mb-3">
+        <div
+          className="h-full bg-mine-accent-teal rounded-full transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+
+      {/* KPI grid */}
+      <div className="grid grid-cols-3 gap-3">
+        {kpis.map(({ label, value, positive }) => (
+          <div key={label} className="text-center">
+            <div
+              className={cn(
+                'text-sm font-bold font-mono tabular-nums',
+                positive === true
+                  ? 'text-market-down-medium'
+                  : 'text-mine-text',
+              )}
+            >
+              {value}
+            </div>
+            <div className="text-[9px] text-mine-muted uppercase tracking-wider mt-0.5">
+              {label}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Current hypothesis */}
+      {progress.currentHypothesis && (
+        <div className="mt-3 px-2.5 py-2 bg-mine-bg rounded-md">
+          <div className="text-[9px] text-mine-muted uppercase tracking-wider mb-1">
+            当前假设
+          </div>
+          <div className="text-xs text-mine-text leading-relaxed line-clamp-2">
+            {progress.currentHypothesis}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── ActivityLog ────────────────────────────────────────────────────
+
+const LOG_TYPE_COLOR: Record<LogEntry['type'], string> = {
+  iteration: 'text-mine-muted',
+  factor_accepted: 'text-market-down-medium',
+  factor_rejected: 'text-market-up-medium',
+  complete: 'text-mine-accent-teal',
+  error: 'text-market-up-medium',
+};
+
+function ActivityLog({ entries }: { entries: LogEntry[] }) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [entries.length]);
+
+  return (
+    <div
+      data-slot="activity-log"
+      className="px-4 py-3 border-b border-mine-border/50"
+    >
+      <div className="text-[10px] text-mine-muted uppercase tracking-wider font-medium mb-2">
+        实时日志
+      </div>
+      <div className="h-[140px] overflow-y-auto bg-mine-bg rounded-md p-2 space-y-0.5">
+        {entries.length === 0 && (
+          <div className="text-[11px] text-mine-muted italic">
+            等待挖掘开始...
+          </div>
+        )}
+        {entries.map((entry) => (
+          <div key={entry.id} className="flex items-start gap-2">
+            <span className="text-[10px] font-mono text-mine-muted shrink-0 mt-0.5">
+              {new Date(entry.timestamp).toLocaleTimeString('zh', {
+                hour12: false,
+              })}
+            </span>
+            <span
+              className={cn(
+                'text-[11px] leading-relaxed',
+                LOG_TYPE_COLOR[entry.type],
+              )}
+            >
+              {entry.message}
+            </span>
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </div>
+    </div>
+  );
+}
+
+// ── FactorResultCard ───────────────────────────────────────────────
+
+interface FactorResultCardProps {
+  factor: DiscoveredFactor;
+  onViewCode?: (factor: DiscoveredFactor) => void;
+}
+
+function FactorResultCard({ factor, onViewCode }: FactorResultCardProps) {
+  const m = factor.metrics;
+
+  const kvItems = [
+    { label: 'IC', value: m.ic.toFixed(4), positive: m.ic > 0.03 },
+    { label: 'ICIR', value: m.icir.toFixed(3), positive: m.icir > 1 },
+    {
+      label: 'ARR',
+      value: `${(m.arr * 100).toFixed(1)}%`,
+      positive: m.arr > 0,
+    },
+    { label: 'Sharpe', value: m.sharpe.toFixed(2), positive: m.sharpe > 1 },
+    {
+      label: '最大回撤',
+      value: `${(m.maxDrawdown * 100).toFixed(1)}%`,
+      positive: undefined as boolean | undefined,
+    },
+    {
+      label: '换手率',
+      value: `${(m.turnover * 100).toFixed(1)}%`,
+      positive: undefined as boolean | undefined,
+    },
+  ];
+
+  return (
+    <div
+      data-slot="factor-result-card"
+      className="bg-mine-bg rounded-lg p-2.5 border border-mine-border/50"
+    >
+      {/* Name + status */}
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          {factor.accepted ? (
+            <CheckCircle2 className="w-3.5 h-3.5 text-market-down-medium shrink-0" />
+          ) : (
+            <XCircle className="w-3.5 h-3.5 text-market-up-medium shrink-0" />
+          )}
+          <span className="text-xs font-semibold text-mine-text font-mono">
+            {factor.name}
+          </span>
+        </div>
+        <span className="text-[10px] text-mine-muted">
+          Gen {factor.generation}
+        </span>
+      </div>
+
+      {/* Hypothesis */}
+      {factor.hypothesis && (
+        <p className="text-[10px] text-mine-muted leading-relaxed mb-2 line-clamp-2">
+          {factor.hypothesis}
+        </p>
+      )}
+
+      {/* Metrics */}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 mb-2">
+        {kvItems.map(({ label, value, positive }) => (
+          <div key={label} className="flex items-center justify-between">
+            <span className="text-[10px] text-mine-muted">{label}</span>
+            <span
+              className={cn(
+                'text-[11px] font-mono tabular-nums',
+                positive === true
+                  ? 'text-market-down-medium'
+                  : positive === false
+                    ? 'text-market-up-medium'
+                    : 'text-mine-text',
+              )}
+            >
+              {value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onViewCode?.(factor)}
+          className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium
+                     text-mine-muted hover:text-mine-text bg-white border border-mine-border
+                     hover:border-mine-nav-active/50 transition-colors"
+        >
+          <Code2 className="w-3 h-3" />
+          查看代码
+        </button>
+        {factor.accepted && (
+          <button
+            className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium
+                       text-mine-accent-teal border border-mine-accent-teal/30
+                       hover:bg-mine-accent-teal/5 transition-colors"
+          >
+            <Rocket className="w-3 h-3" />
+            推送到 Library
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── TaskDetailPanel ────────────────────────────────────────────────
+
+const MODE_LABELS: Record<string, string> = {
+  factor: '自主因子发现',
+  factor_report: '研报因子提取',
+  quant: '联合优化',
+};
+
+interface TaskDetailPanelProps {
+  task: MiningTask;
+  logEntries: LogEntry[];
+  onViewCode?: (factor: DiscoveredFactor) => void;
+  onCancel?: (taskId: string) => void;
+  className?: string;
+}
+
+export function TaskDetailPanel({
+  task,
+  logEntries,
+  onViewCode,
+  onCancel,
+  className,
+}: TaskDetailPanelProps) {
+  return (
+    <div
+      data-slot="task-detail-panel"
+      className={cn(
+        'flex flex-col bg-white border border-mine-border rounded-xl overflow-hidden',
+        className,
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-mine-border/50 shrink-0">
+        <div>
+          <span className="text-xs font-mono text-mine-muted">
+            {task.taskId.replace('mining_', '#')}
+          </span>
+          <span className="mx-2 text-mine-border">·</span>
+          <span className="text-xs font-medium text-mine-text">
+            {MODE_LABELS[task.mode] ?? task.mode}
+          </span>
+        </div>
+        {task.status === 'RUNNING' && onCancel && (
+          <button
+            onClick={() => onCancel(task.taskId)}
+            className="px-2.5 py-1 text-[10px] font-medium rounded
+                       text-market-up-medium border border-market-up-medium/30
+                       hover:bg-market-up-medium/5 transition-colors"
+          >
+            停止
+          </button>
+        )}
+      </div>
+
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Progress */}
+        <ProgressSection task={task} />
+
+        {/* Activity log */}
+        <ActivityLog entries={logEntries} />
+
+        {/* Discovered factors */}
+        <div className="px-4 py-3">
+          <div className="text-[10px] text-mine-muted uppercase tracking-wider font-medium mb-2">
+            已发现因子 ({task.factors.length})
+          </div>
+          {task.factors.length === 0 ? (
+            <div className="py-4 text-center text-xs text-mine-muted">
+              等待第一个因子...
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {task.factors.map((factor) => (
+                <FactorResultCard
+                  key={factor.name}
+                  factor={factor}
+                  onViewCode={onViewCode}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
