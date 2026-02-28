@@ -56,10 +56,24 @@ export interface DiscoveredFactor {
   code: string;
   metrics: FactorMetrics;
   generation: number;
+  /** Round-level hypothesis under which this factor was generated */
   hypothesis: string;
+  /** LLM's reasoning behind the hypothesis */
+  reason: string;
+  /** Natural-language description, e.g. "[Momentum Factor] 10-day price momentum..." */
   description: string;
+  /** LaTeX math formula */
+  formulation: string;
+  /** Variable definitions (raw string) */
+  variables: string;
   dedupScore: number;
   accepted: boolean;
+}
+
+export interface MiningRound {
+  roundIndex: number;
+  hypothesis: string;
+  reason: string;
 }
 
 export interface MiningTask {

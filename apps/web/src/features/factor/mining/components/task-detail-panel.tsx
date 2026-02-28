@@ -2,9 +2,21 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, XCircle, Code2, Rocket } from 'lucide-react';
-import type { MiningTask, LogEntry, DiscoveredFactor } from '../types';
-import { pushFactorToLibrary } from '../api';
+import {
+  CheckCircle2,
+  XCircle,
+  Code2,
+  Rocket,
+  Lightbulb,
+  FlaskConical,
+} from 'lucide-react';
+import type {
+  MiningTask,
+  LogEntry,
+  DiscoveredFactor,
+  MiningRound,
+} from '../types';
+import { miningApi, pushFactorToLibrary } from '../api';
 import { useLibraryStore } from '@/features/library/store/use-library-store';
 
 // ── ProgressSection ───────────────────────────────────────────────
@@ -167,6 +179,72 @@ function ActivityLog({ entries }: { entries: LogEntry[] }) {
   );
 }
 
+// ── ResearchRounds ─────────────────────────────────────────────────
+
+function ResearchRounds({ taskId }: { taskId: string }) {
+  const [rounds, setRounds] = useState<MiningRound[]>([]);
+  const [expanded, setExpanded] = useState<number | null>(0);
+
+  useEffect(() => {
+    miningApi
+      .getRounds(taskId)
+      .then(setRounds)
+      .catch(() => {});
+  }, [taskId]);
+
+  if (rounds.length === 0) return null;
+
+  return (
+    <div
+      data-slot="research-rounds"
+      className="px-4 py-3 border-b border-mine-border/50"
+    >
+      <div className="flex items-center gap-1.5 mb-2">
+        <Lightbulb className="w-3 h-3 text-mine-accent-yellow" />
+        <span className="text-[10px] text-mine-muted uppercase tracking-wider font-medium">
+          研究假设 ({rounds.length} 轮)
+        </span>
+      </div>
+      <div className="space-y-2">
+        {rounds.map((round) => (
+          <div
+            key={round.roundIndex}
+            className="bg-mine-bg rounded-lg border border-mine-border/50 overflow-hidden"
+          >
+            {/* Round header — click to expand */}
+            <button
+              onClick={() =>
+                setExpanded(
+                  expanded === round.roundIndex ? null : round.roundIndex,
+                )
+              }
+              className="w-full flex items-start gap-2 px-3 py-2 text-left hover:bg-mine-border/20 transition-colors"
+            >
+              <span className="shrink-0 w-4 h-4 rounded-full bg-mine-accent-yellow/20 text-mine-accent-yellow text-[9px] font-bold flex items-center justify-center mt-0.5">
+                {round.roundIndex + 1}
+              </span>
+              <p className="text-[11px] text-mine-text leading-relaxed line-clamp-2 flex-1">
+                {round.hypothesis}
+              </p>
+            </button>
+            {/* Expanded reason */}
+            {expanded === round.roundIndex && round.reason && (
+              <div className="px-3 pb-2.5 pt-0.5 border-t border-mine-border/30">
+                <div className="text-[9px] text-mine-muted uppercase tracking-wider mb-1">
+                  推理
+                </div>
+                <p className="text-[11px] text-mine-muted leading-relaxed">
+                  {round.reason}
+                </p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── FactorResultCard ───────────────────────────────────────────────
 
 interface FactorResultCardProps {
@@ -257,11 +335,43 @@ function FactorResultCard({
         </span>
       </div>
 
-      {/* Hypothesis */}
-      {factor.hypothesis && (
-        <p className="text-[10px] text-mine-muted leading-relaxed mb-2 line-clamp-2">
-          {factor.hypothesis}
-        </p>
+      {/* Description tag + natural language */}
+      {factor.description && (
+        <div className="mb-2">
+          {/* Extract "[Type]" prefix as a badge */}
+          {(() => {
+            const m = factor.description.match(/^\[([^\]]+)\](.*)/);
+            return m ? (
+              <div className="flex items-start gap-1.5">
+                <span className="shrink-0 px-1.5 py-0.5 rounded text-[9px] font-medium bg-mine-accent-teal/10 text-mine-accent-teal border border-mine-accent-teal/20">
+                  {m[1]}
+                </span>
+                <p className="text-[10px] text-mine-muted leading-relaxed">
+                  {m[2].trim()}
+                </p>
+              </div>
+            ) : (
+              <p className="text-[10px] text-mine-muted leading-relaxed">
+                {factor.description}
+              </p>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* Math formulation */}
+      {factor.formulation && (
+        <div className="mb-2 px-2 py-1.5 bg-mine-nav-active/5 rounded border border-mine-border/30">
+          <div className="flex items-center gap-1 mb-0.5">
+            <FlaskConical className="w-2.5 h-2.5 text-mine-muted" />
+            <span className="text-[9px] text-mine-muted uppercase tracking-wider">
+              公式
+            </span>
+          </div>
+          <code className="text-[10px] font-mono text-mine-text leading-relaxed break-all">
+            {factor.formulation}
+          </code>
+        </div>
       )}
 
       {/* Metrics */}
@@ -334,6 +444,69 @@ const MODE_LABELS: Record<string, string> = {
   quant: '联合优化',
 };
 
+/** Build a static summary log for completed/failed/cancelled tasks.
+ *  Replaces the live SSE stream log when the task is no longer running.
+ */
+function buildCompletedLog(task: MiningTask): LogEntry[] {
+  const make = (
+    type: LogEntry['type'],
+    message: string,
+    ts: number,
+  ): LogEntry => ({
+    id: `${type}-${ts}`,
+    timestamp: ts,
+    type,
+    message,
+  });
+
+  const entries: LogEntry[] = [];
+  const start = (task.startedAt ?? task.createdAt) * 1000;
+  const end = (task.completedAt ?? task.createdAt) * 1000;
+
+  entries.push(
+    make(
+      'iteration',
+      `开始挖掘 — 模式: ${task.mode}  最大轮次: ${task.config.maxLoops}`,
+      start,
+    ),
+  );
+
+  const p = task.progress;
+  if (p.currentLoop > 0) {
+    entries.push(
+      make(
+        'iteration',
+        `完成 ${p.currentLoop} 轮  发现 ${p.factorsDiscovered} 个因子  接受 ${p.factorsAccepted} 个`,
+        end - 1000,
+      ),
+    );
+  }
+
+  for (const f of task.factors) {
+    entries.push(
+      make(
+        f.accepted ? 'factor_accepted' : 'factor_rejected',
+        `${f.name}  IC=${f.metrics.ic.toFixed(4)}  ${f.accepted ? '✓ 已接受' : '✗ 已拒绝'}`,
+        end - 500,
+      ),
+    );
+  }
+
+  if (task.status === 'COMPLETED') {
+    entries.push(
+      make('complete', `挖掘完成 — 共接受 ${p.factorsAccepted} 个因子`, end),
+    );
+  } else if (task.status === 'FAILED') {
+    entries.push(
+      make('error', `挖掘失败: ${task.errorMessage ?? '未知错误'}`, end),
+    );
+  } else if (task.status === 'CANCELLED') {
+    entries.push(make('error', '任务已取消', end));
+  }
+
+  return entries;
+}
+
 interface TaskDetailPanelProps {
   task: MiningTask;
   logEntries: LogEntry[];
@@ -385,8 +558,15 @@ export function TaskDetailPanel({
         {/* Progress */}
         <ProgressSection task={task} />
 
-        {/* Activity log */}
-        <ActivityLog entries={logEntries} />
+        {/* Activity log — live stream when RUNNING, static summary otherwise */}
+        <ActivityLog
+          entries={
+            task.status === 'RUNNING' ? logEntries : buildCompletedLog(task)
+          }
+        />
+
+        {/* Research rounds — hypothesis + reason per loop */}
+        <ResearchRounds taskId={task.taskId} />
 
         {/* Discovered factors */}
         <div className="px-4 py-3">
@@ -395,7 +575,13 @@ export function TaskDetailPanel({
           </div>
           {task.factors.length === 0 ? (
             <div className="py-4 text-center text-xs text-mine-muted">
-              等待第一个因子...
+              {task.status === 'RUNNING'
+                ? '等待第一个因子...'
+                : task.status === 'FAILED'
+                  ? '挖掘失败，未产生因子'
+                  : task.status === 'CANCELLED'
+                    ? '任务已取消'
+                    : '本次运行未产生有效因子'}
             </div>
           ) : (
             <div className="space-y-2">

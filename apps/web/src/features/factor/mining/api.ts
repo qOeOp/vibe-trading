@@ -1,4 +1,9 @@
-import type { CreateTaskConfig, MiningTask, DiscoveredFactor } from './types';
+import type {
+  CreateTaskConfig,
+  MiningTask,
+  MiningRound,
+  DiscoveredFactor,
+} from './types';
 import type { Factor } from '@/features/library/types';
 import { VIBE_COMPUTE_URL as BASE_URL } from '@/lib/env';
 
@@ -62,7 +67,10 @@ function toCamelTask(raw: Record<string, unknown>): MiningTask {
         },
         generation: (f.generation as number) ?? 0,
         hypothesis: (f.hypothesis as string) ?? '',
+        reason: (f.reason as string) ?? '',
         description: (f.description as string) ?? '',
+        formulation: (f.formulation as string) ?? '',
+        variables: (f.variables as string) ?? '',
         dedupScore: (f.dedupScore as number) ?? 0,
         accepted: (f.accepted as boolean) ?? false,
       } satisfies DiscoveredFactor;
@@ -140,6 +148,13 @@ export const miningApi = {
       const body = await res.text().catch(() => '');
       throw new Error(`cancelTask failed: ${res.status} ${body}`.trim());
     }
+  },
+
+  async getRounds(taskId: string): Promise<MiningRound[]> {
+    const res = await fetch(`${BASE_URL}/api/mining/tasks/${taskId}/rounds`);
+    if (!res.ok) return [];
+    const data = (await res.json()) as { rounds?: MiningRound[] };
+    return data.rounds ?? [];
   },
 
   getStreamUrl(taskId: string): string {

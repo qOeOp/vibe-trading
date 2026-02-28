@@ -97,12 +97,17 @@ class MiningTaskManager:
         return task
 
     def get_task(self, task_id: str) -> Optional[MiningTask]:
-        """Get task by ID, refreshing progress if running."""
+        """Get task by ID, refreshing progress/factors from filesystem."""
         task = self._tasks.get(task_id)
-        if task and task.status == TaskStatus.RUNNING:
+        if task is None:
+            return None
+        if task.status == TaskStatus.RUNNING:
             self.refresh_task_progress(task_id)
-            self.refresh_task_factors(task_id)
             self._check_worker_status(task)
+        # Always refresh factors — worker writes factors.jsonl on completion,
+        # so completed tasks also need to load them (especially after recovery).
+        if task.status in (TaskStatus.RUNNING, TaskStatus.COMPLETED):
+            self.refresh_task_factors(task_id)
         return task
 
     def list_tasks(self, status: Optional[TaskStatus] = None) -> list[MiningTask]:
@@ -166,14 +171,12 @@ class MiningTaskManager:
         # it only uses stdlib + rdagent (from conda site-packages).
         worker_env = {**os.environ}
         worker_env.update(_load_mining_env())
-        # Ensure PYTHONPATH does NOT contain the local vibe-editor root
-        vibe_editor_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        if "PYTHONPATH" in worker_env:
-            paths = [p for p in worker_env["PYTHONPATH"].split(":") if p != vibe_editor_root]
-            if paths:
-                worker_env["PYTHONPATH"] = ":".join(paths)
-            else:
-                del worker_env["PYTHONPATH"]
+        # Completely clear PYTHONPATH for the worker subprocess.
+        # apps/vibe-editor/ contains an incomplete vendored rdagent/ that shadows
+        # the conda env's full editable install when present in PYTHONPATH.
+        # The worker only needs stdlib + rdagent from conda site-packages,
+        # so an empty PYTHONPATH is correct and more robust than path-stripping.
+        worker_env.pop("PYTHONPATH", None)
 
         # Worker script path (run as script, not module, to avoid local rdagent shadowing)
         worker_script = os.path.join(
@@ -277,7 +280,10 @@ class MiningTaskManager:
                         metrics=metrics,
                         generation=data.get("generation", 0),
                         hypothesis=data.get("hypothesis", ""),
+                        reason=data.get("reason", ""),
                         description=data.get("description", ""),
+                        formulation=data.get("formulation", ""),
+                        variables=data.get("variables", ""),
                         dedup_score=data.get("dedup_score", 0.0),
                         accepted=data.get("accepted", False),
                     ))

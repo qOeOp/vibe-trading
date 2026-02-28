@@ -39,12 +39,13 @@ const DEFAULT_CONFIG: CreateTaskConfig = {
   llmModel: 'deepseek/deepseek-chat',
   universe: 'csi300',
   dateRange: {
-    trainStart: '2015-01-01',
-    trainEnd: '2021-12-31',
-    validStart: '2022-01-01',
-    validEnd: '2023-12-31',
-    testStart: '2024-01-01',
-    testEnd: '2025-12-31',
+    // Matches ~/.qlib/qlib_data/cn_data coverage (2008-12-29 → 2020-09-25)
+    trainStart: '2008-01-01',
+    trainEnd: '2014-12-31',
+    validStart: '2015-01-01',
+    validEnd: '2016-12-31',
+    testStart: '2017-01-01',
+    testEnd: '2020-09-25',
   },
   dedupThreshold: 0.99, // deduplication similarity threshold — advanced parameter, not exposed in UI
 };

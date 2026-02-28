@@ -26,11 +26,11 @@ class TaskStatus(str, Enum):
 @dataclass
 class DateRange:
     """Train/validation/test date splits for Qlib."""
-    train_start: str = "2015-01-01"
-    train_end: str = "2021-12-31"
-    valid_start: str = "2022-01-01"
-    valid_end: str = "2023-12-31"
-    test_start: str = "2024-01-01"
+    train_start: str = "2008-01-01"
+    train_end: str = "2014-12-31"
+    valid_start: str = "2015-01-01"
+    valid_end: str = "2016-12-31"
+    test_start: str = "2017-01-01"
     test_end: Optional[str] = None
 
     def to_dict(self) -> dict:
@@ -101,8 +101,12 @@ class DiscoveredFactor:
     code: str
     metrics: FactorMetrics
     generation: int = 0
-    hypothesis: str = ""
-    description: str = ""
+    # Per-factor fields (from RD-Agent factor spec)
+    hypothesis: str = ""   # Round-level hypothesis under which this factor was generated
+    reason: str = ""       # LLM's reasoning for the hypothesis
+    description: str = ""  # Natural language description, e.g. "[Momentum Factor] ..."
+    formulation: str = ""  # LaTeX math formula
+    variables: str = ""    # Variable definitions (raw string from log)
     dedup_score: float = 0.0
     accepted: bool = False
 
@@ -113,7 +117,10 @@ class DiscoveredFactor:
             "metrics": self.metrics.to_dict(),
             "generation": self.generation,
             "hypothesis": self.hypothesis,
+            "reason": self.reason,
             "description": self.description,
+            "formulation": self.formulation,
+            "variables": self.variables,
             "dedupScore": self.dedup_score,
             "accepted": self.accepted,
         }

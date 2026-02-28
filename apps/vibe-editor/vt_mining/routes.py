@@ -124,6 +124,25 @@ async def get_results_endpoint(request: Request) -> JSONResponse:
     })
 
 
+async def get_rounds_endpoint(request: Request) -> JSONResponse:
+    """GET /api/mining/tasks/{task_id}/rounds — Get R&D round history (hypothesis, reason)."""
+    import os  # noqa: PLC0415
+    task_id = request.path_params["task_id"]
+    manager = _get_manager(request)
+    task = manager.get_task(task_id)
+    if task is None:
+        return JSONResponse({"error": "Task not found"}, status_code=404)
+    rounds_path = os.path.join(task.result_dir, "rounds.json")
+    rounds: list = []
+    if os.path.exists(rounds_path):
+        try:
+            with open(rounds_path) as f:
+                rounds = json.load(f)
+        except Exception:
+            pass
+    return JSONResponse({"taskId": task_id, "rounds": rounds})
+
+
 async def stream_task_endpoint(request: Request) -> JSONResponse | StreamingResponse:
     """GET /api/mining/tasks/{task_id}/stream — SSE stream of task progress."""
     task_id = request.path_params["task_id"]
@@ -172,5 +191,6 @@ router = Router(routes=[
     Route("/tasks/{task_id}", get_task_endpoint, methods=["GET"]),
     Route("/tasks/{task_id}/cancel", cancel_task_endpoint, methods=["POST"]),
     Route("/tasks/{task_id}/results", get_results_endpoint, methods=["GET"]),
+    Route("/tasks/{task_id}/rounds", get_rounds_endpoint, methods=["GET"]),
     Route("/tasks/{task_id}/stream", stream_task_endpoint, methods=["GET"]),
 ])
