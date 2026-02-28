@@ -15,12 +15,12 @@ class MiningMode(str, Enum):
 
 
 class TaskStatus(str, Enum):
-    """Mining task lifecycle state."""
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
+    """Mining task lifecycle state. Values match frontend TypeScript TaskStatus."""
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
 
 
 @dataclass

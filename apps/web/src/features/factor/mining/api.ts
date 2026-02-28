@@ -8,42 +8,42 @@ function toCamelTask(raw: Record<string, unknown>): MiningTask {
   const factors = ((raw.factors as unknown[]) ?? []) as Array<
     Record<string, unknown>
   >;
-  const dr = (config.date_range as Record<string, unknown>) ?? {};
+  const dr = (config.dateRange as Record<string, unknown>) ?? {};
 
   return {
-    taskId: raw.task_id as string,
+    taskId: raw.taskId as string,
     status: raw.status as MiningTask['status'],
     mode: (config.mode as MiningTask['mode']) ?? 'factor',
     config: {
       mode: (config.mode as MiningTask['mode']) ?? 'factor',
-      maxLoops: (config.max_loops as number) ?? 10,
-      llmModel: (config.llm_model as string) ?? '',
+      maxLoops: (config.maxLoops as number) ?? 10,
+      llmModel: (config.llmModel as string) ?? '',
       universe: (config.universe as string) ?? 'csi300',
       dateRange: {
-        trainStart: (dr.train_start as string) ?? '',
-        trainEnd: (dr.train_end as string) ?? '',
-        validStart: (dr.valid_start as string) ?? '',
-        validEnd: (dr.valid_end as string) ?? '',
-        testStart: (dr.test_start as string) ?? '',
-        testEnd: (dr.test_end as string) ?? '',
+        trainStart: (dr.trainStart as string) ?? '',
+        trainEnd: (dr.trainEnd as string) ?? '',
+        validStart: (dr.validStart as string) ?? '',
+        validEnd: (dr.validEnd as string) ?? '',
+        testStart: (dr.testStart as string) ?? '',
+        testEnd: (dr.testEnd as string) ?? '',
       },
-      dedupThreshold: (config.dedup_threshold as number) ?? 0.99,
-      seedFactors: (config.seed_factors as string[]) ?? [],
-      reportFiles: (config.report_files as string[]) ?? [],
+      dedupThreshold: (config.dedupThreshold as number) ?? 0.99,
+      seedFactors: (config.seedFactors as string[]) ?? [],
+      reportFiles: (config.reportFiles as string[]) ?? [],
     },
     progress: {
-      currentLoop: (progress.current_loop as number) ?? 0,
-      maxLoops: (progress.max_loops as number) ?? 10,
-      factorsDiscovered: (progress.factors_discovered as number) ?? 0,
-      factorsAccepted: (progress.factors_accepted as number) ?? 0,
-      factorsRejected: (progress.factors_rejected as number) ?? 0,
-      bestIc: (progress.best_ic as number) ?? 0,
-      bestIr: (progress.best_ir as number) ?? 0,
-      elapsedSeconds: (progress.elapsed_seconds as number) ?? 0,
+      currentLoop: (progress.currentLoop as number) ?? 0,
+      maxLoops: (progress.maxLoops as number) ?? 10,
+      factorsDiscovered: (progress.factorsDiscovered as number) ?? 0,
+      factorsAccepted: (progress.factorsAccepted as number) ?? 0,
+      factorsRejected: (progress.factorsRejected as number) ?? 0,
+      bestIc: (progress.bestIc as number) ?? 0,
+      bestIr: (progress.bestIr as number) ?? 0,
+      elapsedSeconds: (progress.elapsedSeconds as number) ?? 0,
       estimatedRemainingSeconds:
-        (progress.estimated_remaining_seconds as number) ?? 0,
-      currentHypothesis: (progress.current_hypothesis as string) ?? '',
-      currentStep: (progress.current_step as string) ?? '',
+        (progress.estimatedRemainingSeconds as number) ?? 0,
+      currentHypothesis: (progress.currentHypothesis as string) ?? '',
+      currentStep: (progress.currentStep as string) ?? '',
     },
     factors: factors.map((f) => {
       const m = (f.metrics as Record<string, unknown>) ?? {};
@@ -53,24 +53,24 @@ function toCamelTask(raw: Record<string, unknown>): MiningTask {
         metrics: {
           ic: (m.ic as number) ?? 0,
           icir: (m.icir as number) ?? 0,
-          rankIc: (m.rank_ic as number) ?? 0,
-          rankIcir: (m.rank_icir as number) ?? 0,
+          rankIc: (m.rankIc as number) ?? 0,
+          rankIcir: (m.rankIcir as number) ?? 0,
           turnover: (m.turnover as number) ?? 0,
           arr: (m.arr as number) ?? 0,
           sharpe: (m.sharpe as number) ?? 0,
-          maxDrawdown: (m.max_drawdown as number) ?? 0,
+          maxDrawdown: (m.maxDrawdown as number) ?? 0,
         },
         generation: (f.generation as number) ?? 0,
         hypothesis: (f.hypothesis as string) ?? '',
         description: (f.description as string) ?? '',
-        dedupScore: (f.dedup_score as number) ?? 0,
+        dedupScore: (f.dedupScore as number) ?? 0,
         accepted: (f.accepted as boolean) ?? false,
       } satisfies DiscoveredFactor;
     }),
-    createdAt: (raw.created_at as number) ?? 0,
-    startedAt: raw.started_at as number | undefined,
-    completedAt: raw.completed_at as number | undefined,
-    errorMessage: raw.error_message as string | undefined,
+    createdAt: (raw.createdAt as number) ?? 0,
+    startedAt: raw.startedAt as number | undefined,
+    completedAt: raw.completedAt as number | undefined,
+    errorMessage: raw.errorMessage as string | undefined,
   };
 }
 
@@ -79,20 +79,20 @@ export const miningApi = {
     const body = {
       mode: config.mode,
       config: {
-        max_loops: config.maxLoops,
-        llm_model: config.llmModel,
+        maxLoops: config.maxLoops,
+        llmModel: config.llmModel,
         universe: config.universe,
-        date_range: {
-          train_start: config.dateRange.trainStart,
-          train_end: config.dateRange.trainEnd,
-          valid_start: config.dateRange.validStart,
-          valid_end: config.dateRange.validEnd,
-          test_start: config.dateRange.testStart,
-          test_end: config.dateRange.testEnd,
+        dateRange: {
+          trainStart: config.dateRange.trainStart,
+          trainEnd: config.dateRange.trainEnd,
+          validStart: config.dateRange.validStart,
+          validEnd: config.dateRange.validEnd,
+          testStart: config.dateRange.testStart,
+          testEnd: config.dateRange.testEnd,
         },
-        dedup_threshold: config.dedupThreshold,
-        seed_factors: config.seedFactors ?? [],
-        report_files: config.reportFiles ?? [],
+        dedupThreshold: config.dedupThreshold,
+        seedFactors: config.seedFactors ?? [],
+        reportFiles: config.reportFiles ?? [],
       },
     };
 
