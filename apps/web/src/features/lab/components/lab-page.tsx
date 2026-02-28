@@ -16,6 +16,7 @@ import { Provider } from 'jotai';
 import { Provider as SlotzProvider } from '@marimo-team/react-slotz';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { Suspense, useCallback, useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimateHeavy } from '@/components/animation';
 import { StatisticsSection } from '@/features/library/components/factor-detail/statistics-section';
@@ -207,6 +208,10 @@ function LiveIDEBody({ sessionKey }: { sessionKey: number }) {
 // ─── Lab Orchestrator (unified shell) ─────────────────────
 
 function LabOrchestrator() {
+  const searchParams = useSearchParams();
+  // `file` param is an encoded absolute path to a .py notebook (e.g. from Library "在Lab中编辑")
+  const fileParam = searchParams.get('file') ?? null;
+
   const labMode = useLabModeStore((s) => s.mode);
   const setLabMode = useLabModeStore((s) => s.setMode);
   const toggleFileTree = useLabModeStore((s) => s.toggleFileTree);
@@ -341,6 +346,8 @@ function LabOrchestrator() {
   );
 
   // Manual connect: user clicks CTA → poll until backend responds
+  // If `fileParam` is present (from ?file= query), use it as the notebookPath
+  // override so the specified notebook opens instead of the default workspace one.
   const handleConnect = useCallback(() => {
     if (connectingRef.current || labMode !== 'idle') return;
     setConnectStep('connecting');
@@ -359,7 +366,9 @@ function LabOrchestrator() {
             await res.json();
           connectingRef.current = true;
           if (pollingRef.current) clearInterval(pollingRef.current);
-          doConnect(session.workspacePath, session.notebookPath);
+          // Override notebookPath with ?file= param when present
+          const notebookPath = fileParam ?? session.notebookPath;
+          doConnect(session.workspacePath, notebookPath);
         }
       } catch {
         // Service not running yet — keep polling
@@ -368,7 +377,17 @@ function LabOrchestrator() {
 
     tryConnect();
     pollingRef.current = setInterval(tryConnect, 2000);
-  }, [labMode, doConnect]);
+  }, [labMode, doConnect, fileParam]);
+
+  // Auto-connect when ?file= param is present so the specified notebook opens
+  // without requiring the user to click the CTA manually.
+  const autoConnectFiredRef = useRef(false);
+  useEffect(() => {
+    if (fileParam && labMode === 'idle' && !autoConnectFiredRef.current) {
+      autoConnectFiredRef.current = true;
+      handleConnect();
+    }
+  }, [fileParam, labMode, handleConnect]);
 
   const handleRetry = useCallback(() => {
     setError(null);
