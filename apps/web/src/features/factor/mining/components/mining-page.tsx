@@ -64,7 +64,7 @@ export function MiningPage({ className }: { className?: string }) {
       {/* Right: Detail panel or empty state */}
       <AnimateIn from="right" delay={1} className="flex-1 min-w-0 h-full">
         {error && (
-          <div className="flex flex-col items-center justify-center bg-white border border-mine-border rounded-xl h-full">
+          <div className="flex flex-col items-center justify-center bg-white shadow-sm border border-mine-border rounded-xl h-full">
             <div className="text-sm text-market-up-medium mb-1">
               无法连接到 Vibe Compute
             </div>
