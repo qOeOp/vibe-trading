@@ -1,6 +1,6 @@
 'use client';
 
-import { Settings, Power, Play } from 'lucide-react';
+import { Settings, Power, Play, Cpu, MemoryStick } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { MARIMO_KERNEL_BASE } from '@/features/lab/constants';
@@ -126,11 +126,8 @@ function ConnectionStepper({
         const kernelLabel = statusData
           ? `Python ${statusData.python_version} · LSP ${statusData.lsp_running ? '✓' : '✗'}`
           : '';
-        // Step 1: usage info on hover (CPU + Memory) — flips icon too for more space
+        // Step 1: usage info on hover (CPU + Memory bars) — flips icon too for more space
         const hasUsageFlip = i === 1 && isDone && usageData != null;
-        const usageLabel = usageData
-          ? `CPU ${usageData.cpu.percent.toFixed(0)}% · Mem ${formatBytes(usageData.kernel.memory ?? usageData.server.memory)}`
-          : '';
         const hasFlip = hasKernelFlip || hasUsageFlip;
 
         return (
@@ -165,15 +162,20 @@ function ConnectionStepper({
               />
 
               {hasUsageFlip ? (
-                /* Step 1: flip icon + label together for more space */
+                /* Step 1: flip icon + label → CPU/Memory bars */
                 <div className="relative h-5 overflow-hidden">
                   <div className="flex flex-col transition-transform duration-300 ease-in-out group-hover:-translate-y-5">
                     <span className="h-5 leading-5 flex items-center gap-3">
                       <StepDone />
                       {s.label}
                     </span>
-                    <span className="h-5 leading-5 font-mono tabular-nums">
-                      {usageLabel}
+                    <span className="h-5 leading-5 flex items-center gap-2.5">
+                      <Cpu className="w-3.5 h-3.5 text-mine-muted shrink-0" />
+                      <UsageBar percent={Math.round(usageData!.cpu.percent)} />
+                      <MemoryStick className="w-3.5 h-3.5 text-mine-muted shrink-0" />
+                      <UsageBar
+                        percent={Math.round(usageData!.memory.percent)}
+                      />
                     </span>
                   </div>
                 </div>
@@ -303,15 +305,15 @@ function useKernelUsage(isConnected: boolean): UsageData | null {
   return data;
 }
 
-function formatBytes(bytes: number | null): string {
-  if (bytes == null || bytes === 0) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
-    units.length - 1,
+function UsageBar({ percent }: { percent: number }) {
+  return (
+    <div className="h-2.5 w-14 bg-mine-border/40 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-mine-nav-active rounded-full transition-[width] duration-500"
+        style={{ width: `${percent}%` }}
+      />
+    </div>
   );
-  const value = bytes / Math.pow(1024, i);
-  return `${value < 10 ? value.toFixed(1) : Math.round(value)} ${units[i]}`;
 }
 
 // ─── Chrome Header ────────────────────────────────────────
