@@ -382,6 +382,15 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         })
         .then(handleResponse);
     },
+    exportAsScript: async (request) => {
+      return getClient()
+        .POST('/api/export/script', {
+          body: request,
+          parseAs: 'text',
+          params: getParams(),
+        })
+        .then(handleResponse);
+    },
     autoExportAsHTML: async (request) => {
       return getClient()
         .POST('/api/export/auto_export/html', {

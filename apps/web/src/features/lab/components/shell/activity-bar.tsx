@@ -6,6 +6,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/features/lab/components/ui/dropdown-menu';
+import {
   cellErrorSummariesAtom,
   cellsRuntimeAtom,
 } from '@/features/lab/core/cells/cells';
@@ -15,6 +21,7 @@ import { WebSocketState } from '@/features/lab/core/websocket/types';
 import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 import { getPanelsBySlot, BUTTON_SHADOW, BUTTON_INSET } from './panels';
 import { PanelButton } from './panel-button';
+import { useExportActions } from './use-export-actions';
 
 // ─── Activity Bar ────────────────────────────────────────
 //
@@ -141,29 +148,59 @@ function ActivityBar({ className }: { className?: string }) {
 
       <div className="flex-1" />
 
-      {/* More options — circular footer button */}
-      <button
-        className="w-[36px] h-[36px] flex items-center justify-center rounded-full bg-white text-mine-text relative hover:scale-105 transition-transform"
-        style={{ boxShadow: BUTTON_SHADOW }}
-      >
-        <div
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{ boxShadow: BUTTON_INSET }}
-        />
-        <GlowingEffect
-          spread={40}
-          glow
-          disabled={false}
-          proximity={48}
-          inactiveZone={0.01}
-          borderWidth={2}
-        />
-        <MoreHorizontal
-          className="w-[18px] h-[18px] relative z-[1]"
-          strokeWidth={1.5}
-        />
-      </button>
+      {/* More options — export dropdown */}
+      <MoreOptionsButton />
     </div>
+  );
+}
+
+// ─── More Options (Export) ───────────────────────────────
+
+function MoreOptionsButton() {
+  const exportActions = useExportActions();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          data-slot="more-options-btn"
+          className="w-[36px] h-[36px] flex items-center justify-center rounded-full bg-white text-mine-text relative hover:scale-105 transition-transform"
+          style={{ boxShadow: BUTTON_SHADOW }}
+        >
+          <div
+            className="absolute inset-0 rounded-full pointer-events-none"
+            style={{ boxShadow: BUTTON_INSET }}
+          />
+          <GlowingEffect
+            spread={40}
+            glow
+            disabled={false}
+            proximity={48}
+            inactiveZone={0.01}
+            borderWidth={2}
+          />
+          <MoreHorizontal
+            className="w-[18px] h-[18px] relative z-[1]"
+            strokeWidth={1.5}
+          />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="left" align="end" className="w-[200px]">
+        <div className="px-2 py-1.5 text-[10px] font-medium text-mine-muted uppercase tracking-wider">
+          Export notebook
+        </div>
+        {exportActions.map((action) => (
+          <DropdownMenuItem
+            key={action.label}
+            onSelect={action.handle}
+            disabled={action.disabled}
+          >
+            <action.icon className="w-4 h-4 mr-2 text-mine-muted" />
+            {action.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

@@ -192,6 +192,7 @@ export interface EditRequests {
   exportAsHTML: (request: ExportAsHTMLRequest) => Promise<string>;
   exportAsMarkdown: (request: ExportAsMarkdownRequest) => Promise<string>;
   exportAsPDF: (request: ExportAsPDFRequest) => Promise<Blob>;
+  exportAsScript: (request: ExportAsScriptRequest) => Promise<string>;
   autoExportAsHTML: (request: ExportAsHTMLRequest) => Promise<null>;
   autoExportAsMarkdown: (request: ExportAsMarkdownRequest) => Promise<null>;
   autoExportAsIPYNB: (request: ExportAsIPYNBRequest) => Promise<null>;

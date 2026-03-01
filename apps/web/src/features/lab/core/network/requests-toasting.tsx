@@ -64,6 +64,7 @@ export function createErrorToastingRequests(
     exportAsHTML: 'Failed to export HTML',
     exportAsMarkdown: 'Failed to export Markdown',
     exportAsPDF: 'Failed to export PDF',
+    exportAsScript: 'Failed to export script',
     autoExportAsHTML: '', // No toast
     autoExportAsMarkdown: '', // No toast
     autoExportAsIPYNB: '', // No toast

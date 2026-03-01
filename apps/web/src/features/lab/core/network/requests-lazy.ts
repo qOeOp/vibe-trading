@@ -50,6 +50,7 @@ const ACTIONS: Record<keyof AllRequests, Action> = {
   exportAsHTML: 'startConnection',
   exportAsMarkdown: 'startConnection',
   exportAsPDF: 'startConnection',
+  exportAsScript: 'startConnection',
   readCode: 'startConnection',
   sendCopy: 'throwError',
 
