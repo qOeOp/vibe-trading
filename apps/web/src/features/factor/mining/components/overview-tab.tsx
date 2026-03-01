@@ -119,7 +119,7 @@ function ActivityLog({
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView?.({ behavior: 'smooth' });
   }, [entries.length]);
 
   return (
