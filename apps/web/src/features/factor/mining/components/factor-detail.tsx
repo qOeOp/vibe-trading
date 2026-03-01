@@ -34,14 +34,14 @@ function stripTags(description: string): string {
 }
 
 function icColor(ic: number): StatColor | undefined {
-  if (ic > 0.03) return 'down';
-  if (ic < -0.03) return 'up';
+  if (ic > 0.03) return 'positive';
+  if (ic < -0.03) return 'negative';
   return undefined;
 }
 
 function sharpeColor(sharpe: number): StatColor | undefined {
-  if (sharpe > 1) return 'down';
-  if (sharpe < 0) return 'up';
+  if (sharpe > 1) return 'positive';
+  if (sharpe < 0) return 'negative';
   return undefined;
 }
 
@@ -80,6 +80,7 @@ function FactorDetail({
   const m = factor.metrics;
 
   async function handlePush() {
+    if (factorIndex < 0) return;
     setPushState('loading');
     try {
       await pushFactorToLibrary({
@@ -97,7 +98,7 @@ function FactorDetail({
           turnover: m.turnover,
         },
       });
-      useLibraryStore.getState().fetchMiningFactors();
+      void useLibraryStore.getState().fetchMiningFactors();
       setPushState('done');
     } catch {
       setPushState('error');
@@ -172,7 +173,7 @@ function FactorDetail({
           <PanelKV
             label="年化收益"
             value={`${(m.arr * 100).toFixed(2)}%`}
-            color={m.arr > 0 ? 'down' : m.arr < 0 ? 'up' : undefined}
+            color={m.arr > 0 ? 'positive' : m.arr < 0 ? 'negative' : undefined}
           />
           <PanelKV
             label="Sharpe"

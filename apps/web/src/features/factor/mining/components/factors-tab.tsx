@@ -134,13 +134,13 @@ function FactorsTab({
   // Auto-select first when filter changes or factors update
   React.useEffect(() => {
     setSelectedIdx(0);
-  }, [filter, task.factors.length]);
+  }, [filter, task.taskId, task.factors.length]);
 
   const selectedFactor = filtered[selectedIdx] ?? null;
 
   // Get the real index in task.factors for the API call
   const realFactorIndex = selectedFactor
-    ? task.factors.indexOf(selectedFactor)
+    ? task.factors.findIndex((f) => f.name === selectedFactor.name)
     : -1;
 
   if (task.factors.length === 0) {
@@ -174,7 +174,6 @@ function FactorsTab({
             <button
               key={key}
               type="button"
-              role="button"
               aria-label={label}
               onClick={() => setFilter(key)}
               className={cn(
