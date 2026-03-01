@@ -1,12 +1,19 @@
 from pathlib import Path
 
 import pandas as pd
-from pandarallel import pandarallel
 
 from rdagent.core.conf import RD_AGENT_SETTINGS
 from rdagent.core.utils import cache_with_pickle
 
-pandarallel.initialize(verbose=1)
+_pandarallel_initialized = False
+
+
+def _ensure_pandarallel():
+    global _pandarallel_initialized
+    if not _pandarallel_initialized:
+        from pandarallel import pandarallel
+        pandarallel.initialize(verbose=1)
+        _pandarallel_initialized = True
 
 from rdagent.app.qlib_rd_loop.conf import FactorBasePropSetting
 from rdagent.components.runner import CachedRunner
@@ -58,6 +65,7 @@ class QlibFactorRunner(CachedRunner[QlibFactorExperiment]):
         # calculate the IC between each column of SOTA_feature and new_feature
         # if the IC is larger than a threshold, remove the new_feature column
         # return the new_feature
+        _ensure_pandarallel()
 
         concat_feature = pd.concat([SOTA_feature, new_feature], axis=1)
         IC_max = (

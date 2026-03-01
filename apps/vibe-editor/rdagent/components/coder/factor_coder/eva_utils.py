@@ -331,7 +331,7 @@ class FactorEqualValueRatioEvaluator(FactorEvaluator):
             result_int = close_values.astype(int)
             pos_num = result_int.sum().sum()
             acc_rate = pos_num / close_values.size
-        except:
+        except Exception:
             close_values = gen_df
         if close_values.all().iloc[0]:
             return (

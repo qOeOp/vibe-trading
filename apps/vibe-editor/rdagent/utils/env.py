@@ -12,7 +12,6 @@ import json
 import os
 import pickle
 import re
-import select
 import shutil
 import subprocess
 import time
@@ -24,10 +23,9 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Generator, Generic, Mapping, Optional, TypeVar, cast
 
-import docker  # type: ignore[import-untyped]
-import docker.models  # type: ignore[import-untyped]
-import docker.models.containers  # type: ignore[import-untyped]
-import docker.types  # type: ignore[import-untyped]
+# Lazy-import docker — not needed for conda/local execution modes.
+# Importing at module level crashes if the docker pip package is missing.
+docker = None  # type: ignore[assignment]
 from pydantic import BaseModel, model_validator
 from pydantic_settings import SettingsConfigDict
 from rich import print
@@ -47,7 +45,24 @@ from rdagent.utils.fmt import shrink_text
 from rdagent.utils.workflow import wait_retry
 
 
-def cleanup_container(container: docker.models.containers.Container | None, context: str = "") -> None:  # type: ignore[no-any-unimported]
+def _ensure_docker():
+    """Lazy-import the docker package. Raises RuntimeError if not installed."""
+    global docker
+    if docker is None or not hasattr(docker, "from_env"):
+        try:
+            import docker as _docker  # type: ignore[import-untyped]
+            import docker.models  # type: ignore[import-untyped]
+            import docker.models.containers  # type: ignore[import-untyped]
+            import docker.types  # type: ignore[import-untyped]
+            docker = _docker
+        except ImportError:
+            raise RuntimeError(
+                "docker package not installed. Install it with: pip install docker"
+            )
+    return docker
+
+
+def cleanup_container(container: "docker.models.containers.Container | None", context: str = "") -> None:  # type: ignore[no-any-unimported]
     """
     Shared helper function to clean up a Docker container.
     Always stops the container before removing it.
@@ -94,6 +109,7 @@ def normalize_volumes(vols: dict[str, str | dict[str, str]], working_dir: str) -
 
 
 def pull_image_with_progress(image: str) -> None:
+    _ensure_docker()
     client = docker.APIClient(base_url="unix://var/run/docker.sock")
     pull_logs = client.pull(image, stream=True, decode=True)
     progress_bars = {}
@@ -557,43 +573,28 @@ class LocalEnv(Env[ASpecificLocalConf]):
                 raise RuntimeError("The subprocess did not correctly create stdout/stderr pipes")
 
             if self.conf.live_output:
-                stdout_fd = process.stdout.fileno()
-                stderr_fd = process.stderr.fileno()
+                # Cross-platform live output using threads (select.poll is Linux-only).
+                import threading
 
-                poller = select.poll()
-                poller.register(stdout_fd, select.POLLIN)
-                poller.register(stderr_fd, select.POLLIN)
+                combined_parts: list[str] = []
+                lock = threading.Lock()
 
-                combined_output = ""
-                while True:
-                    if process.poll() is not None:
-                        break
-                    events = poller.poll(100)
-                    for fd, event in events:
-                        if event & select.POLLIN:
-                            if fd == stdout_fd:
-                                while True:
-                                    output = process.stdout.readline()
-                                    if output == "":
-                                        break
-                                    Console().print(output.strip(), markup=False)
-                                    combined_output += output
-                            elif fd == stderr_fd:
-                                while True:
-                                    error = process.stderr.readline()
-                                    if error == "":
-                                        break
-                                    Console().print(error.strip(), markup=False)
-                                    combined_output += error
+                def _reader(stream):
+                    for line in iter(stream.readline, ""):
+                        Console().print(line.strip(), markup=False)
+                        with lock:
+                            combined_parts.append(line)
 
-                # Capture any final output
-                remaining_output, remaining_error = process.communicate()
-                if remaining_output:
-                    Console().print(remaining_output.strip(), markup=False)
-                    combined_output += remaining_output
-                if remaining_error:
-                    Console().print(remaining_error.strip(), markup=False)
-                    combined_output += remaining_error
+                t_out = threading.Thread(target=_reader, args=(process.stdout,), daemon=True)
+                t_err = threading.Thread(target=_reader, args=(process.stderr,), daemon=True)
+                t_out.start()
+                t_err.start()
+
+                process.wait()
+                t_out.join(timeout=5)
+                t_err.join(timeout=5)
+
+                combined_output = "".join(combined_parts)
             else:
                 # Sacrifice real-time output to avoid possible standard I/O hangs
                 out, err = process.communicate()
@@ -775,6 +776,7 @@ class DockerEnv(Env[DockerConf]):
         """
         Download image if it doesn't exist
         """
+        _ensure_docker()
         client = docker.from_env()
         if (
             self.conf.build_from_dockerfile

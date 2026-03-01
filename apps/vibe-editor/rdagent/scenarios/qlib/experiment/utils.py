@@ -7,27 +7,40 @@ import pandas as pd
 from jinja2 import Environment, StrictUndefined
 
 from rdagent.components.coder.factor_coder.config import FACTOR_COSTEER_SETTINGS
-from rdagent.utils.env import QTDockerEnv
-
-
 def generate_data_folder_from_qlib():
+    """Generate factor data from qlib.
+
+    The original implementation used QTDockerEnv to run generate.py inside
+    a Docker container.  In VT's setup, data files (daily_pv.h5) are
+    pre-prepared in the data folder, so this function runs generate.py
+    directly via subprocess instead of Docker.
+    """
+    import subprocess
+    import sys
+
     template_path = Path(__file__).parent / "factor_data_template"
-    qtde = QTDockerEnv()
-    qtde.prepare()
+    generate_script = template_path / "generate.py"
 
-    # Run the Qlib backtest
-    execute_log = qtde.check_output(
-        local_path=str(template_path),
-        entry=f"python generate.py",
-    )
+    if not generate_script.exists():
+        raise FileNotFoundError(
+            f"generate.py not found at {generate_script}. "
+            "Ensure factor_data_template/ is present in the vendored rdagent."
+        )
 
-    assert (Path(__file__).parent / "factor_data_template" / "daily_pv_all.h5").exists(), (
-        "daily_pv_all.h5 is not generated. It means rdagent/scenarios/qlib/experiment/factor_data_template/generate.py is not executed correctly. Please check the log: \n"
-        + execute_log
+    result = subprocess.run(
+        [sys.executable, str(generate_script)],
+        cwd=str(template_path),
+        capture_output=True,
+        text=True,
+        timeout=600,
     )
-    assert (Path(__file__).parent / "factor_data_template" / "daily_pv_debug.h5").exists(), (
-        "daily_pv_debug.h5 is not generated. It means rdagent/scenarios/qlib/experiment/factor_data_template/generate.py is not executed correctly. Please check the log: \n"
-        + execute_log
+    execute_log = result.stdout + result.stderr
+
+    assert (template_path / "daily_pv_all.h5").exists(), (
+        "daily_pv_all.h5 is not generated. Check the log:\n" + execute_log
+    )
+    assert (template_path / "daily_pv_debug.h5").exists(), (
+        "daily_pv_debug.h5 is not generated. Check the log:\n" + execute_log
     )
 
     Path(FACTOR_COSTEER_SETTINGS.data_folder).mkdir(parents=True, exist_ok=True)

@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 from pydantic_settings import SettingsConfigDict
 
@@ -15,13 +14,7 @@ class LogSettings(ExtendedBaseSettings):
     format_console: str | None = None
     """"If it is None, leave it as the default"""
 
-    ui_server_port: int | None = None
-
     storages: dict[str, list[int | str]] = {}
-
-    def model_post_init(self, _context: Any, /) -> None:
-        if self.ui_server_port is not None:
-            self.storages["rdagent.log.ui.storage.WebStorage"] = [self.ui_server_port, self.trace_path]
 
 
 LOG_SETTINGS = LogSettings()

@@ -48,8 +48,17 @@ parsing that was fragile, ANSI-dependent, and timing-sensitive.
 
 ### 2. macOS Compatibility
 
-Removed Linux-specific platform guards. Added conda path resolution that works
-on both Linux and macOS (see `_ensure_conda_in_path()` in `vt_mining/worker.py`).
+Removed Linux-specific platform guards (`select.poll()` → threading).
+Added conda path resolution for both Linux and macOS (see `_ensure_conda_in_path()` in `vt_mining/worker.py`).
+
+### 3. Direct Qlib Execution (replaces conda/docker subprocess)
+
+Upstream uses a three-layer subprocess chain:
+`QlibFBWorkspace` → `CondaEnv.run("qrun conf.yaml")` → conda subprocess → `read_exp_res.py`
+
+We replaced this with `QlibDirectExecutor` in `vt_mining/executor.py` which calls
+`qlib.init()` + `task_train()` directly as Python API. No subprocess, no conda, no Docker.
+`QlibFBWorkspace.execute()` now delegates to this executor.
 
 ## Syncing from Upstream
 
@@ -62,6 +71,47 @@ We do NOT automatically sync from upstream. If a useful upstream commit exists:
 Do NOT run `git pull` or merge upstream automatically.
 
 ## Changelog
+
+### 2026-03-01 — Phase 1: Dead Code Trimming
+
+Deleted 86 files across 9 directories that are unused in VT's Qlib-only pipeline:
+
+- `components/coder/data_science/` (46 files — Kaggle pipeline)
+- `components/agent/` (8 files — unused agent framework)
+- `components/benchmark/` (3 files — benchmark evaluation)
+- `components/interactor/` (1 file — interactive mode)
+- `components/coder/model_coder/benchmark/` (8 files — GT model code)
+- `log/ui/` (15 files — Streamlit UI)
+- `log/server/` (3 files — log visualization server)
+- `log/mle_summary.py` (1 file)
+- `scenarios/qlib/docker/Dockerfile` (1 file)
+
+Fixed `json_loader.py` — removed `FactorTestCaseLoaderFromJsonFile` class that depended on deleted `benchmark/` module.
+
+Result: 101 .py files remaining, zero dangling imports.
+
+### 2026-03-01 — Phase 2: Bug Fixes
+
+- **Missing module**: Copied `scenarios/shared/` from upstream (3 files: `__init__.py`, `get_runtime_info.py`, `runtime_info.py`) — fixes ImportError in 3 files
+- **Linux-only `select.poll()`**: Replaced with cross-platform `threading.Thread` readers in `utils/env.py`
+- **Docker module-level import**: Changed to lazy `_ensure_docker()` helper in `utils/env.py` — module can now be imported without docker package
+- **pandarallel import-time side effect**: Moved `pandarallel.initialize(verbose=1)` to lazy `_ensure_pandarallel()` in `factor_runner.py`
+- **Bare `except:` clauses**: Changed to `except Exception:` in `eva_utils.py` (line 334) and `knowledge_management.py` (line 392)
+- **CLI dead code**: Removed `fire`/`typer` imports and `main()` entry point from `app/qlib_rd_loop/factor.py`
+
+### 2026-03-01 — Phase 3: Execution Layer Rewrite
+
+Replaced the conda/docker subprocess chain with direct qlib Python API calls.
+
+**Old chain**: `QlibFBWorkspace.execute()` → `CondaEnv.run("qrun conf.yaml")` → subprocess → `read_exp_res.py`
+
+**New chain**: `QlibFBWorkspace.execute()` → `QlibDirectExecutor.run_backtest()` → `qlib.init()` + `task_train()` directly
+
+Changes:
+
+- **Created `vt_mining/executor.py`**: `FactorExecutor` Protocol + `QlibDirectExecutor` implementation + `BacktestConfig`/`BacktestResult` dataclasses
+- **Rewrote `scenarios/qlib/experiment/workspace.py`**: Delegates to `QlibDirectExecutor` instead of `CondaEnv`/`DockerEnv`. Return signature `(pd.Series | None, str)` preserved for compatibility.
+- **Rewrote `scenarios/qlib/experiment/utils.py`**: Replaced `QTDockerEnv` data generation with direct `subprocess.run()` for `generate.py`
 
 ### 2026-02-28 — Initial Fork
 
