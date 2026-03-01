@@ -35,6 +35,7 @@ from marimo._server.router import APIRouter
 # VT session management (added by vibe-editor)
 from vt_sessions.routes import router as vt_sessions_router
 from vt_sessions.file_routes import router as vt_lab_router
+from vt_sessions.snippet_routes import router as vt_snippets_router
 from vt_mining.routes import router as vt_mining_router
 from vt_mining.library_routes import router as vt_library_router
 
@@ -86,6 +87,8 @@ def build_routes(base_url: str = "") -> list[BaseRoute]:
     app_router.mount("/api/sessions", app=vt_sessions_router, name="vt_sessions")
     # VT lab file association endpoints (added by vibe-editor)
     app_router.mount("/api/lab", app=vt_lab_router, name="vt_lab")
+    # VT snippet parsing endpoints (added by vibe-editor)
+    app_router.mount("/api/snippets", app=vt_snippets_router, name="vt_snippets")
     # VT mining endpoints (added by vibe-editor)
     app_router.mount("/api/mining", app=vt_mining_router, name="vt_mining")
     # VT library endpoints (added by vibe-editor)
