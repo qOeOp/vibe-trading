@@ -298,7 +298,13 @@ Sm-Cap Mom v2.1  [3 selected | Compare · Export · Change Status | X]
 
 ## Component Architecture
 
-Detail Panel is a standalone `FactorDetailPanel` component. Each section is wrapped in `DetailSection` from `@/components/shared/detail-panel`.
+Detail Panel is a standalone `FactorDetailPanel` component. The panel uses the unified panel primitives from `@/components/shared/panel`:
+
+- **Outer shell**: `PanelFrame` + `PanelFrameHeader` + `PanelFrameBody` (the factor panel is rendered inline in library-page, not inside PanelSlot, so it provides its own PanelFrame)
+- **Sections**: `PanelSection` (replaces old `DetailSection`)
+- **Stats**: `PanelStatGrid` + `PanelStatItem` (replaces old `DetailStatGrid`/`DetailStatItem`)
+- **Key-Value**: `PanelKV` (replaces old `DetailKV`)
+- **Identity header**: `PanelSection noBorder` (replaces old `DetailHeader`)
 
 ### V-Score Thresholds
 

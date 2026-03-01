@@ -1,24 +1,30 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { BarVertical } from "@/lib/ngx-charts/bar-chart";
-import type { DataItem } from "@/lib/ngx-charts/types";
-import type { Factor } from "@/features/library/types";
+import { useMemo } from 'react';
+import { PanelSection } from '@/components/shared/panel';
+import { BarVertical } from '@/lib/ngx-charts/bar-chart';
+import type { DataItem } from '@/lib/ngx-charts/types';
+import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 
 /** Positive IC = blue, Negative IC = red */
-function buildIndustryColors(data: Array<{ name: string; value: number }>): Array<{ name: string; value: string }> {
+function buildIndustryColors(
+  data: Array<{ name: string; value: number }>,
+): Array<{ name: string; value: string }> {
   return data.map((d) => ({
     name: d.name,
-    value: d.value >= 0 ? "hsl(217, 91%, 65%)" : "hsl(352, 90%, 62%)",
+    value: d.value >= 0 ? 'hsl(217, 91%, 65%)' : 'hsl(352, 90%, 62%)',
   }));
 }
 
 /* ── Chart Component ──────────────────────────────────────── */
 
-function IndustryICChart({ data }: { data: Array<{ name: string; value: number }> }) {
+function IndustryICChart({
+  data,
+}: {
+  data: Array<{ name: string; value: number }>;
+}) {
   if (!data || data.length === 0) return null;
 
   const chartData: DataItem[] = useMemo(
@@ -60,7 +66,7 @@ interface ICByIndustrySectionProps {
 
 export function ICByIndustrySection({ factor }: ICByIndustrySectionProps) {
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-mine-muted">分行业 IC</span>
         <span className="text-[10px] text-mine-muted">申万L1</span>
@@ -68,6 +74,6 @@ export function ICByIndustrySection({ factor }: ICByIndustrySectionProps) {
       <div className="h-[240px]">
         <IndustryICChart data={factor.icByIndustry} />
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }

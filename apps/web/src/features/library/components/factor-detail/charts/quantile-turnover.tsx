@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { DivergingBarChart } from "@/lib/xycharts/diverging-bar-chart";
-import type { BrushBarDatum, ReferenceLine } from "@/lib/xycharts";
-import type { Factor } from "@/features/library/types";
+import { useMemo } from 'react';
+import { PanelSection } from '@/components/shared/panel';
+import { DivergingBarChart } from '@/lib/xycharts/diverging-bar-chart';
+import type { BrushBarDatum, ReferenceLine } from '@/lib/xycharts';
+import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 
 /** Q1=green (bottom), Q5=red (top) — A股 convention */
-const TURNOVER_COLORS = ["#0B8C5F", "#CF304A"];
+const TURNOVER_COLORS = ['#0B8C5F', '#CF304A'];
 
 /** 4-state classification colors for turnover brush */
-const BOTH_HIGH = "#1a1a1a"; // Black: both extremes active (high cost)
-const Q5_HIGH = "#3d3d3d"; // Dark gray: good quantile active (positive signal)
-const Q1_HIGH = "#a0a0a0"; // Light gray: bad quantile active (negative signal)
-const BOTH_LOW = "#eaeaea"; // White: both extremes inactive
+const BOTH_HIGH = '#1a1a1a'; // Black: both extremes active (high cost)
+const Q5_HIGH = '#3d3d3d'; // Dark gray: good quantile active (positive signal)
+const Q1_HIGH = '#a0a0a0'; // Light gray: bad quantile active (negative signal)
+const BOTH_LOW = '#eaeaea'; // White: both extremes inactive
 
 /* ── Custom Brush Hook ─────────────────────────────────────── */
 
@@ -77,11 +77,9 @@ export function QuantileTurnoverSection({
   );
 
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-mine-muted">
-          分位换手率
-        </span>
+        <span className="text-xs font-medium text-mine-muted">分位换手率</span>
         <div className="flex items-center gap-3">
           <span className="text-[10px] text-mine-muted mr-1">
             Q1 / Q5 · 拖选范围缩放
@@ -106,10 +104,10 @@ export function QuantileTurnoverSection({
           enableSeverity={false}
           referenceLines={referenceLines}
           showCrosshair
-          seriesLabels={["Q1", "Q5"]}
+          seriesLabels={['Q1', 'Q5']}
           margin={{ top: 6, right: 4, bottom: 4, left: 0 }}
         />
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }

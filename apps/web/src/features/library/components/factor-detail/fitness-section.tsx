@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { DetailSection } from "@/components/shared/detail-panel";
-import type { Factor } from "@/features/library/types";
+import { PanelSection } from '@/components/shared/panel';
+import type { Factor } from '@/features/library/types';
 
 function icMagnitudeColor(ic: number): string {
   const abs = Math.abs(ic);
-  if (abs >= 0.05) return "text-market-down";
-  if (abs >= 0.03) return "text-market-down-medium";
-  if (abs >= 0.02) return "text-market-flat";
-  return "text-market-up-medium";
+  if (abs >= 0.05) return 'text-market-down';
+  if (abs >= 0.03) return 'text-market-down-medium';
+  if (abs >= 0.02) return 'text-market-flat';
+  return 'text-market-up-medium';
 }
 
 function irQualityColor(ir: number): string {
   const abs = Math.abs(ir);
-  if (abs >= 1.0) return "text-market-down-medium";
-  if (abs >= 0.5) return "text-market-flat";
-  return "text-market-up-medium";
+  if (abs >= 1.0) return 'text-market-down-medium';
+  if (abs >= 0.5) return 'text-market-flat';
+  return 'text-market-up-medium';
 }
 
 interface FitnessSectionProps {
@@ -32,7 +32,7 @@ export function FitnessSection({ factor }: FitnessSectionProps) {
   );
 
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="text-xs font-medium text-mine-muted mb-3 uppercase tracking-wider">
         多池适用性
       </div>
@@ -51,10 +51,14 @@ export function FitnessSection({ factor }: FitnessSectionProps) {
             return (
               <tr
                 key={row.universe}
-                className={`border-t border-mine-border/30 ${isBest ? "bg-mine-accent-teal/5" : ""}`}
-                style={{ borderLeft: isBest ? "3px solid" : "3px solid transparent" }}
+                className={`border-t border-mine-border/30 ${isBest ? 'bg-mine-accent-teal/5' : ''}`}
+                style={{
+                  borderLeft: isBest ? '3px solid' : '3px solid transparent',
+                }}
               >
-                <td className={`py-1.5 px-2 text-mine-text font-medium ${isBest ? "border-l-mine-accent-teal" : ""}`}>
+                <td
+                  className={`py-1.5 px-2 text-mine-text font-medium ${isBest ? 'border-l-mine-accent-teal' : ''}`}
+                >
                   {row.universe}
                   {isDefault && (
                     <span className="ml-1.5 text-[8px] text-mine-muted bg-mine-bg px-1 py-0.5 rounded">
@@ -67,10 +71,15 @@ export function FitnessSection({ factor }: FitnessSectionProps) {
                     </span>
                   )}
                 </td>
-                <td className={`py-1.5 px-2 text-right font-mono tabular-nums font-medium ${icMagnitudeColor(row.ic)}`}>
-                  {row.ic >= 0 ? "+" : ""}{row.ic.toFixed(4)}
+                <td
+                  className={`py-1.5 px-2 text-right font-mono tabular-nums font-medium ${icMagnitudeColor(row.ic)}`}
+                >
+                  {row.ic >= 0 ? '+' : ''}
+                  {row.ic.toFixed(4)}
                 </td>
-                <td className={`py-1.5 px-2 text-right font-mono tabular-nums ${irQualityColor(row.ir)}`}>
+                <td
+                  className={`py-1.5 px-2 text-right font-mono tabular-nums ${irQualityColor(row.ir)}`}
+                >
                   {row.ir.toFixed(2)}
                 </td>
               </tr>
@@ -78,6 +87,6 @@ export function FitnessSection({ factor }: FitnessSectionProps) {
           })}
         </tbody>
       </table>
-    </DetailSection>
+    </PanelSection>
   );
 }

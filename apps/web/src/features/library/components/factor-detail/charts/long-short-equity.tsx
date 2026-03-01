@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { LineChart } from "@/lib/ngx-charts/line-chart";
-import type { MultiSeries } from "@/lib/ngx-charts/types";
-import type { Factor } from "@/features/library/types";
+import { useMemo } from 'react';
+import { PanelSection } from '@/components/shared/panel';
+import { LineChart } from '@/lib/ngx-charts/line-chart';
+import type { MultiSeries } from '@/lib/ngx-charts/types';
+import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 
 const EQUITY_COLORS: Array<{ name: string; value: string }> = [
-  { name: "净值", value: "#6366f1" },
+  { name: '净值', value: '#6366f1' },
 ];
 
 const SERIES_CONFIG = {
-  "净值": { strokeWidth: 2, areaFillOpacity: 0.12 },
+  净值: { strokeWidth: 2, areaFillOpacity: 0.12 },
 };
 
 /* ── Chart Component ──────────────────────────────────────── */
@@ -24,7 +24,7 @@ function EquityCurveChart({ curve }: { curve: number[] }) {
   const chartData: MultiSeries = useMemo(
     () => [
       {
-        name: "净值",
+        name: '净值',
         series: curve.map((v, i) => ({
           name: i as number,
           value: v,
@@ -34,10 +34,7 @@ function EquityCurveChart({ curve }: { curve: number[] }) {
     [curve],
   );
 
-  const referenceLines = useMemo(
-    () => [{ name: "基准", value: 1.0 }],
-    [],
-  );
+  const referenceLines = useMemo(() => [{ name: '基准', value: 1.0 }], []);
 
   return (
     <LineChart
@@ -67,7 +64,9 @@ interface LongShortEquitySectionProps {
   factor: Factor;
 }
 
-export function LongShortEquitySection({ factor }: LongShortEquitySectionProps) {
+export function LongShortEquitySection({
+  factor,
+}: LongShortEquitySectionProps) {
   const { maxDD, sharpe } = useMemo(() => {
     const curve = factor.longShortEquityCurve;
     if (!curve || curve.length < 2) return { maxDD: 0, sharpe: 0 };
@@ -94,39 +93,44 @@ export function LongShortEquitySection({ factor }: LongShortEquitySectionProps) 
   }, [factor.longShortEquityCurve]);
 
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-mine-muted">多空净值曲线</span>
+        <span className="text-xs font-medium text-mine-muted">
+          多空净值曲线
+        </span>
       </div>
       <div className="h-[170px]">
         <EquityCurveChart curve={factor.longShortEquityCurve} />
       </div>
       <div className="flex items-center gap-4 text-[11px] mt-4 ml-12">
         <span>
-          <span className="text-mine-muted">年化</span>{" "}
-          <span className={`font-semibold tabular-nums font-mono ${factor.longShortReturn >= 0 ? "text-market-down-medium" : "text-market-up-medium"}`}>
-            {factor.longShortReturn >= 0 ? "+" : ""}{factor.longShortReturn.toFixed(1)}%
+          <span className="text-mine-muted">年化</span>{' '}
+          <span
+            className={`font-semibold tabular-nums font-mono ${factor.longShortReturn >= 0 ? 'text-market-down-medium' : 'text-market-up-medium'}`}
+          >
+            {factor.longShortReturn >= 0 ? '+' : ''}
+            {factor.longShortReturn.toFixed(1)}%
           </span>
         </span>
         <span>
-          <span className="text-mine-muted">MaxDD</span>{" "}
+          <span className="text-mine-muted">MaxDD</span>{' '}
           <span className="font-semibold tabular-nums font-mono text-market-up-medium">
             -{(maxDD * 100).toFixed(1)}%
           </span>
         </span>
         <span>
-          <span className="text-mine-muted">Sharpe</span>{" "}
+          <span className="text-mine-muted">Sharpe</span>{' '}
           <span className="font-semibold tabular-nums font-mono text-mine-text">
             {sharpe.toFixed(2)}
           </span>
         </span>
         <span>
-          <span className="text-mine-muted">多头占比</span>{" "}
+          <span className="text-mine-muted">多头占比</span>{' '}
           <span className="font-semibold tabular-nums font-mono text-mine-text">
             {(factor.longSideReturnRatio * 100).toFixed(0)}%
           </span>
         </span>
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { scaleLinear } from 'd3-scale';
 import { motion } from 'framer-motion';
-import { DetailSection } from '@/components/shared/detail-panel';
+import { PanelSection } from '@/components/shared/panel';
 import { BaseChart } from '@/lib/ngx-charts/common/base-chart';
 import { computeQQPlotData } from '@/features/library/utils/compute-ic-stats';
 import type { Factor } from '@/features/library/types';
@@ -133,7 +133,7 @@ interface ICQQPlotSectionProps {
 
 export function ICQQPlotSection({ factor }: ICQQPlotSectionProps) {
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-mine-muted">IC Q-Q 图</span>
         <span className="text-[10px] text-mine-muted">正态检验</span>
@@ -141,6 +141,6 @@ export function ICQQPlotSection({ factor }: ICQQPlotSectionProps) {
       <div className="h-[150px]">
         <ICQQPlotChart data={factor.icTimeSeries} />
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }

@@ -1,15 +1,17 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { BarVertical } from "@/lib/ngx-charts/bar-chart";
-import type { DataItem } from "@/lib/ngx-charts/types";
-import type { Factor } from "@/features/library/types";
+import { useMemo } from 'react';
+import { PanelSection } from '@/components/shared/panel';
+import { BarVertical } from '@/lib/ngx-charts/bar-chart';
+import type { DataItem } from '@/lib/ngx-charts/types';
+import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 
 /** Blue for positive IC, red for negative — lightness graded by magnitude (solid colors) */
-function buildDecayColors(data: number[]): Array<{ name: string; value: string }> {
+function buildDecayColors(
+  data: number[],
+): Array<{ name: string; value: string }> {
   const maxAbs = Math.max(...data.map(Math.abs), 0.001);
   return data.map((ic, i) => {
     // t ranges 0→1 where 1 = strongest magnitude
@@ -17,14 +19,16 @@ function buildDecayColors(data: number[]): Array<{ name: string; value: string }
     // Interpolate lightness: weak values → lighter, strong values → more saturated
     // Blue: from hsl(217, 91%, 82%) to hsl(217, 91%, 60%)
     // Red:  from hsl(352, 90%, 78%) to hsl(352, 90%, 58%)
-    const lightness = ic >= 0
-      ? Math.round(82 - t * 22)   // blue: 82% → 60%
-      : Math.round(78 - t * 20);  // red:  78% → 58%
+    const lightness =
+      ic >= 0
+        ? Math.round(82 - t * 22) // blue: 82% → 60%
+        : Math.round(78 - t * 20); // red:  78% → 58%
     return {
       name: `T+${i + 1}`,
-      value: ic >= 0
-        ? `hsl(217, 91%, ${lightness}%)`
-        : `hsl(352, 90%, ${lightness}%)`,
+      value:
+        ic >= 0
+          ? `hsl(217, 91%, ${lightness}%)`
+          : `hsl(352, 90%, ${lightness}%)`,
     };
   });
 }
@@ -48,9 +52,7 @@ function ICDecayChart({ data }: { data: number[] }) {
   /** Show sparse tick labels at T+1, T+5, T+10, T+15, T+20 */
   const xAxisTicks = useMemo(() => {
     const indices = [0, 4, 9, 14, 19];
-    return indices
-      .filter((i) => i < data.length)
-      .map((i) => `T+${i + 1}`);
+    return indices.filter((i) => i < data.length).map((i) => `T+${i + 1}`);
   }, [data.length]);
 
   return (
@@ -86,7 +88,7 @@ interface ICDecayProfileSectionProps {
 
 export function ICDecayProfileSection({ factor }: ICDecayProfileSectionProps) {
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-mine-muted">IC 衰减剖面</span>
         <span className="text-[10px] text-mine-muted">Lag T+1 ~ T+20</span>
@@ -94,6 +96,6 @@ export function ICDecayProfileSection({ factor }: ICDecayProfileSectionProps) {
       <div className="h-[150px]">
         <ICDecayChart data={factor.icDecayProfile} />
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }
