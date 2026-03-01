@@ -92,6 +92,20 @@ Layout:
 └── knowledge.db       ← per-user knowledge store
 ```
 
+### 2026-03-01 — Phase 6: E2E Runtime Bug Fixes
+
+First successful end-to-end mining run: hypothesis → factor coding → qlib backtest → signal metrics.
+Fixed 6 runtime bugs discovered during E2E integration testing:
+
+- **Bug 1: `docker.DockerClient` type annotation** — `docker = None` (lazy import) but type hint evaluated at class definition time. Fixed with string annotations `"docker.DockerClient"`.
+- **Bug 2: Dead kaggle import** — `factor.py` still imported `KAGGLE_IMPLEMENT_SETTING` from deleted `app/kaggle/`. Removed import and `version == 2` Kaggle code branch.
+- **Bug 3: `LocalConf` missing `default_entry`** — `EnvConf.default_entry` is required but `LocalConf` didn't provide a default. Added `default_entry: str = "python main.py"`.
+- **Bug 4: `data_science.share` yaml reference** — `LocalEnv._run()` referenced deleted `scenarios/data_science/share.yaml` for cache path. Changed `if self.conf.extra_volumes is not None:` to `if self.conf.extra_volumes:` (empty dict is falsy).
+- **Bug 5: macOS `timeout` command** — `timeout --kill-after` not in macOS default PATH. Now resolves `gtimeout` (GNU coreutils) or `timeout` via `shutil.which()`.
+- **Bug 6: qlib PortAnaRecord calendar boundary** — `signal_strategy.py` IndexError at last calendar date. Made `QlibDirectExecutor` resilient: catches `task_train` errors, recovers signal metrics (IC/ICIR) from recorder even when portfolio backtest fails.
+
+Also set `test_end` default to `"2024-12-31"` instead of `None` (avoids qlib calendar boundary edge case).
+
 ### 2026-03-01 — Phase 4: conda → uv Environment Migration
 
 Eliminated conda dependency. Worker now runs in a uv venv with all deps (rdagent + qlib) in one environment.

@@ -38,7 +38,7 @@ class BacktestConfig:
     valid_start: str = "2015-01-01"
     valid_end: str = "2016-12-31"
     test_start: str = "2017-01-01"
-    test_end: str | None = None
+    test_end: str = "2024-12-31"
     # Model config — defaults match rdagent's LGBModel setup
     model_class: str = "LGBModel"
     model_module: str = "qlib.contrib.model.gbdt"
@@ -138,7 +138,13 @@ class QlibDirectExecutor:
                 sys.path.insert(0, ws_str)
 
             # 3. Run qlib training + backtest pipeline
+            #    task_train runs all Records sequentially. PortAnaRecord may
+            #    crash on calendar boundary (qlib bug), but SignalRecord and
+            #    SigAnaRecord have already written IC/ICIR metrics by then.
+            #    We catch the error and still extract signal metrics.
             log_capture = io.StringIO()
+            recorder = None
+            train_error = None
             try:
                 with redirect_stdout(log_capture), redirect_stderr(log_capture):
                     from qlib.model.trainer import task_train
@@ -146,6 +152,9 @@ class QlibDirectExecutor:
                         config["task"],
                         experiment_name="vt_factor_eval",
                     )
+            except Exception as e:
+                train_error = e
+                logger.warning("task_train raised (may be PortAnaRecord): %s", e)
             finally:
                 # Remove workspace from sys.path
                 if ws_str in sys.path:
@@ -153,14 +162,42 @@ class QlibDirectExecutor:
 
             raw_log = log_capture.getvalue()
 
-            # 4. Extract metrics directly from recorder (replaces read_exp_res.py)
-            metrics = pd.Series(recorder.list_metrics())
+            # 4. Extract metrics — try from recorder, fall back to mlflow
+            metrics = None
+            if recorder is not None:
+                try:
+                    metrics = pd.Series(recorder.list_metrics())
+                except Exception:
+                    pass
+
+            if metrics is None or metrics.empty:
+                # Recorder may not be returned if task_train crashed.
+                # Try to get the latest recorder from the experiment.
+                try:
+                    from qlib.workflow import R
+                    exp = R.get_exp(experiment_name="vt_factor_eval")
+                    recs = exp.list_recorders(max_results=1)
+                    if recs:
+                        rec_id, rec = next(iter(recs.items()))
+                        metrics = pd.Series(rec.list_metrics())
+                        recorder = rec
+                except Exception as e2:
+                    logger.warning("Could not recover metrics from mlflow: %s", e2)
+
+            if metrics is None or metrics.empty:
+                if train_error:
+                    raise train_error
+                return BacktestResult(
+                    success=False,
+                    error="No metrics produced",
+                    log=raw_log,
+                )
 
             # Save qlib_res.csv for compatibility with downstream code
             metrics_path = workspace_path / "qlib_res.csv"
             metrics.to_csv(metrics_path)
 
-            # 5. Extract portfolio returns
+            # 5. Extract portfolio returns (optional — may not exist)
             returns_path = workspace_path / "ret.pkl"
             try:
                 ret_df = recorder.load_object(

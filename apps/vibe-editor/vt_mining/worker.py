@@ -40,7 +40,7 @@ class WorkerConfig:
     valid_start: str
     valid_end: str
     test_start: str
-    test_end: Optional[str] = None
+    test_end: str = "2024-12-31"
     result_dir: str = ""
     universe: str = "csi300"
     dedup_threshold: float = 0.99
@@ -84,6 +84,7 @@ def build_env_config(config: WorkerConfig) -> dict[str, str]:
         "QLIB_FACTOR_VALID_START": config.valid_start,
         "QLIB_FACTOR_VALID_END": config.valid_end,
         "QLIB_FACTOR_TEST_START": config.test_start,
+        "QLIB_FACTOR_TEST_END": config.test_end,
 
         # Factor data paths — absolute, decoupled from CWD
         # FactorCoSTEERSettings reads FACTOR_CoSTEER_ prefix
@@ -93,8 +94,6 @@ def build_env_config(config: WorkerConfig) -> dict[str, str]:
         # Point rdagent workspace to our task result dir so artefacts are colocated
         "WORKSPACE_PATH": config.result_dir,
     }
-    if config.test_end:
-        env["QLIB_FACTOR_TEST_END"] = config.test_end
     return env
 
 

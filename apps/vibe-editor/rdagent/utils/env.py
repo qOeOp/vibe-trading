@@ -330,7 +330,10 @@ class Env(Generic[ASpecificEnvConf]):
         if self.conf.running_timeout_period is None:
             timeout_cmd = entry
         else:
-            timeout_cmd = f"timeout --kill-after=10 {self.conf.running_timeout_period} {entry}"
+            # Use gtimeout on macOS (GNU coreutils), fall back to timeout
+            import shutil
+            _timeout_bin = shutil.which("gtimeout") or shutil.which("timeout") or "timeout"
+            timeout_cmd = f"{_timeout_bin} --kill-after=10 {self.conf.running_timeout_period} {entry}"
         entry_add_timeout = (
             f"/bin/sh -c '"  # start of the sh command
             + f"{timeout_cmd}; entry_exit_code=$?; "
@@ -471,6 +474,7 @@ class Env(Generic[ASpecificEnvConf]):
 
 
 class LocalConf(EnvConf):
+    default_entry: str = "python main.py"
     bin_path: str = ""
     """path like <path1>:<path2>:<path3>, which will be prepend to bin path."""
 
@@ -499,12 +503,9 @@ class LocalEnv(Env[ASpecificLocalConf]):
 
         # Handle volume links
         volumes = {}
-        if self.conf.extra_volumes is not None:
+        if self.conf.extra_volumes:
             for lp, rp in self.conf.extra_volumes.items():
                 volumes[lp] = rp["bind"] if isinstance(rp, dict) else rp
-            cache_path = "/tmp/sample" if "/sample/" in "".join(self.conf.extra_volumes.keys()) else "/tmp/full"
-            Path(cache_path).mkdir(parents=True, exist_ok=True)
-            volumes[cache_path] = T("scenarios.data_science.share:scen.cache_path").r()
         for lp, rp in running_extra_volume.items():
             volumes[lp] = rp
 
@@ -839,7 +840,7 @@ class DockerEnv(Env[DockerConf]):
         except docker.errors.APIError as e:
             raise RuntimeError(f"Error while pulling the image: {e}")
 
-    def _gpu_kwargs(self, client: docker.DockerClient) -> dict:  # type: ignore[no-any-unimported]
+    def _gpu_kwargs(self, client: "docker.DockerClient") -> dict:  # type: ignore[no-any-unimported]
         """get gpu kwargs based on its availability"""
         if not self.conf.enable_gpu:
             return {}
@@ -904,7 +905,7 @@ class DockerEnv(Env[DockerConf]):
         volumes = normalize_volumes(cast(dict[str, str | dict[str, str]], volumes), self.conf.mount_path)
 
         log_output = ""
-        container: docker.models.containers.Container | None = None  # type: ignore[no-any-unimported]
+        container: "docker.models.containers.Container | None" = None  # type: ignore[no-any-unimported]
 
         try:
             container = client.containers.run(

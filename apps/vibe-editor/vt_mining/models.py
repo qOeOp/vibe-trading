@@ -31,7 +31,7 @@ class DateRange:
     valid_start: str = "2015-01-01"
     valid_end: str = "2016-12-31"
     test_start: str = "2017-01-01"
-    test_end: Optional[str] = None
+    test_end: str = "2024-12-31"
 
     def to_dict(self) -> dict:
         return {

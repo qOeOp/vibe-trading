@@ -94,7 +94,7 @@ def _check_packages() -> CheckResult:
     try:
         result = subprocess.run(
             [_VENV_PYTHON, "-c", check_script],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=60,
             env={**os.environ, "PYTHONPATH": str(_VIBE_EDITOR_ROOT)},
         )
         if result.returncode != 0:
