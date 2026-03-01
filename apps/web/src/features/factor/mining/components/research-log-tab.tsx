@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { PanelEmpty } from '@/components/shared/panel';
 import { miningApi } from '../api';
 import type { MiningTask, MiningRound } from '../types';
+import type { MiningLang } from '../types';
 
 // ── Step visual config ───────────────────────────────────────────────
 
@@ -243,6 +244,7 @@ function getEmptyDescription(status: MiningTask['status']): string {
 
 type ResearchLogTabProps = {
   task: MiningTask;
+  lang?: MiningLang;
   className?: string;
 };
 

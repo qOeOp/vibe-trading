@@ -1,3 +1,4 @@
+export type MiningLang = 'zh' | 'en';
 export type MiningMode = 'factor' | 'factor_report' | 'quant';
 export type TaskStatus =
   | 'PENDING'

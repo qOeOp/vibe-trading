@@ -1,13 +1,20 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   PanelFrame,
   PanelFrameHeader,
+  PanelFrameBody,
   PanelBadgeTag,
 } from '@/components/shared/panel';
-import type { MiningTask, LogEntry, DiscoveredFactor } from '../types';
+import type {
+  MiningTask,
+  LogEntry,
+  DiscoveredFactor,
+  MiningLang,
+} from '../types';
 import { OverviewTab } from './overview-tab';
 import { FactorsTab } from './factors-tab';
 import { ResearchLogTab } from './research-log-tab';
@@ -17,6 +24,14 @@ const MODE_LABELS: Record<string, string> = {
   factor_report: '研报因子提取',
   quant: '联合优化',
 };
+
+const LANG_STORAGE_KEY = 'vt-mining-lang';
+
+function readLangPref(): MiningLang {
+  if (typeof window === 'undefined') return 'zh';
+  const stored = localStorage.getItem(LANG_STORAGE_KEY);
+  return stored === 'en' ? 'en' : 'zh';
+}
 
 interface TaskDetailPanelProps {
   task: MiningTask;
@@ -33,6 +48,16 @@ function TaskDetailPanel({
   onCancel,
   className,
 }: TaskDetailPanelProps) {
+  const [lang, setLang] = useState<MiningLang>(readLangPref);
+
+  const toggleLang = useCallback(() => {
+    setLang((prev) => {
+      const next = prev === 'zh' ? 'en' : 'zh';
+      localStorage.setItem(LANG_STORAGE_KEY, next);
+      return next;
+    });
+  }, []);
+
   const cancelButton =
     task.status === 'RUNNING' && onCancel ? (
       <button
@@ -44,6 +69,45 @@ function TaskDetailPanel({
         停止
       </button>
     ) : undefined;
+
+  const langToggle = (
+    <button
+      onClick={toggleLang}
+      className="px-2 py-0.5 text-[10px] font-medium rounded
+                 text-mine-muted border border-mine-border
+                 hover:text-mine-text hover:border-mine-text/30 transition-colors"
+    >
+      {lang === 'zh' ? 'EN' : '中'}
+    </button>
+  );
+
+  const headerActions = (
+    <div className="flex items-center gap-1.5">
+      {langToggle}
+      {cancelButton}
+    </div>
+  );
+
+  const tabBar = (
+    <div className="px-4 pt-2 border-b border-mine-border/50">
+      <TabsList variant="line" className="w-full justify-start">
+        <TabsTrigger value="overview" className="text-xs">
+          概览
+        </TabsTrigger>
+        <TabsTrigger value="factors" className="text-xs">
+          因子
+          {task.factors.length > 0 && (
+            <span className="ml-1 text-[9px] text-mine-muted font-mono tabular-nums">
+              {task.factors.length}
+            </span>
+          )}
+        </TabsTrigger>
+        <TabsTrigger value="research-log" className="text-xs">
+          研究日志
+        </TabsTrigger>
+      </TabsList>
+    </div>
+  );
 
   return (
     <PanelFrame
@@ -57,43 +121,23 @@ function TaskDetailPanel({
             {MODE_LABELS[task.mode] ?? task.mode}
           </PanelBadgeTag>
         }
-        actions={cancelButton}
+        actions={headerActions}
       />
 
-      <Tabs
-        defaultValue="overview"
-        className="flex-1 flex flex-col overflow-hidden"
-      >
-        <div className="px-4 pt-2 border-b border-mine-border/50">
-          <TabsList variant="line" className="w-full justify-start">
-            <TabsTrigger value="overview" className="text-xs">
-              概览
-            </TabsTrigger>
-            <TabsTrigger value="factors" className="text-xs">
-              因子
-              {task.factors.length > 0 && (
-                <span className="ml-1 text-[9px] text-mine-muted font-mono tabular-nums">
-                  {task.factors.length}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="research-log" className="text-xs">
-              研究日志
-            </TabsTrigger>
-          </TabsList>
-        </div>
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0">
+        <PanelFrameBody mode="flex" toolbar={tabBar}>
+          <TabsContent value="overview" className="flex-1 overflow-y-auto">
+            <OverviewTab task={task} logEntries={logEntries} lang={lang} />
+          </TabsContent>
 
-        <TabsContent value="overview" className="flex-1 overflow-y-auto">
-          <OverviewTab task={task} logEntries={logEntries} />
-        </TabsContent>
+          <TabsContent value="factors" className="flex-1 overflow-hidden">
+            <FactorsTab task={task} onViewCode={onViewCode} lang={lang} />
+          </TabsContent>
 
-        <TabsContent value="factors" className="flex-1 overflow-hidden">
-          <FactorsTab task={task} onViewCode={onViewCode} />
-        </TabsContent>
-
-        <TabsContent value="research-log" className="flex-1 overflow-hidden">
-          <ResearchLogTab task={task} />
-        </TabsContent>
+          <TabsContent value="research-log" className="flex-1 overflow-hidden">
+            <ResearchLogTab task={task} lang={lang} />
+          </TabsContent>
+        </PanelFrameBody>
       </Tabs>
     </PanelFrame>
   );

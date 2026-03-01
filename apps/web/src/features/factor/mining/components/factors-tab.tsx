@@ -5,6 +5,7 @@ import { CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PanelEmpty } from '@/components/shared/panel';
 import type { MiningTask, DiscoveredFactor } from '../types';
+import type { MiningLang } from '../types';
 import { FactorDetail } from './factor-detail';
 
 // ── Filter types ─────────────────────────────────────────────────
@@ -113,6 +114,7 @@ function FactorCard({
 interface FactorsTabProps {
   task: MiningTask;
   onViewCode?: (factor: DiscoveredFactor) => void;
+  lang?: MiningLang;
   className?: string;
 }
 

@@ -10,6 +10,7 @@ import {
 } from '@/components/shared/panel';
 import type { StatColor } from '@/components/shared/panel';
 import type { MiningTask, LogEntry } from '../types';
+import type { MiningLang } from '../types';
 
 // ── ProgressSection ───────────────────────────────────────────────
 
@@ -225,6 +226,7 @@ function buildCompletedLog(task: MiningTask): LogEntry[] {
 interface OverviewTabProps {
   task: MiningTask;
   logEntries: LogEntry[];
+  lang?: MiningLang;
   className?: string;
 }
 
