@@ -46,7 +46,7 @@ function ContentFrame({
       data-slot="content-frame-header"
       className="flex items-center px-2.5 py-2"
     >
-      <span className="text-panel-header font-semibold text-mine-muted uppercase tracking-wider pl-2">
+      <span className="text-[10px] font-medium text-mine-muted uppercase tracking-wider pl-2">
         {title}
       </span>
       <div className="flex-1" />

@@ -58,8 +58,6 @@
   --color-mine-text: #1a1a1a;
   --color-mine-muted: #5a5a5a;
   --color-mine-border: #e0ddd8;
-  /* Lab panel header font size */
-  --text-panel-header: 11px;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

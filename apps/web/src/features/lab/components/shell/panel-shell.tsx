@@ -38,7 +38,7 @@ function PanelShell({
     >
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-mine-border/30">
-        <span className="text-panel-header font-semibold text-mine-muted uppercase tracking-wider">
+        <span className="text-[10px] font-medium text-mine-muted uppercase tracking-wider">
           {title}
         </span>
         <div className="flex items-center gap-1.5">
