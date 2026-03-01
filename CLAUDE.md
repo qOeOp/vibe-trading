@@ -19,7 +19,7 @@ apps/web/src/
 │   ├── ui/              # L1: shadcn primitives (Radix + CVA)
 │   ├── layout/          # L2: sidebar, nav, ticker
 │   ├── animation/       # L2: AnimateIn, AnimateHeavy
-│   └── shared/          # L2: detail-panel 等跨 feature 组件
+│   └── shared/          # L2: panel/ (unified panel system), 跨 feature 组件
 ├── features/            # L3: feature modules (market, factor, library, lab, journal...)
 ├── lib/                 # L0: library-grade 代码
 │   ├── ngx-charts/      # D3 chart library (13 chart types)
@@ -58,7 +58,7 @@ apps/web/src/
 - Light theme on warm beige (`mine-page-bg`). `dark` class in HTML but visual is light
 - Use semantic tokens (`mine-text`, `mine-muted`, `mine-border`) not hex values
 - Market colors: red=up (`market-up-medium`), green=down (`market-down-medium`) — A股惯例
-- Detail panels: must use `@/components/shared/detail-panel` primitives
+- Panels: ALL panels (sidebar, detail, bottom) MUST use `@/components/shared/panel` primitives. See `components/shared/panel/USAGE.md`
 - Full design spec: `.claude/rules/component-design-system.md`
 
 ### 颜色纪律（强制）

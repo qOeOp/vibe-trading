@@ -30,6 +30,7 @@ apps/web/src/
 ```
 
 **规则**：
+
 - L0 不依赖 L1/L2/L3（纯库代码，不引用 `@/components/`）
 - L1 不依赖 L2/L3（原语层只依赖 Radix + Tailwind + CVA）
 - L2 可依赖 L0 和 L1
@@ -40,18 +41,18 @@ apps/web/src/
 
 ### 2.1 强制技术约束
 
-| 约束 | 值 | 原因 |
-|------|-----|------|
-| React 版本 | 19 | 项目实际版本 |
-| Next.js 版本 | 15 | App Router, static export |
-| Tailwind 版本 | **v4** | `@theme` CSS 指令，没有 tailwind.config.js |
-| 样式方案 | Tailwind utility + CVA | 不用 CSS modules, styled-components |
-| 原语库 | Radix UI | 所有可交互组件的无障碍基座 |
-| 变体管理 | class-variance-authority (CVA) | 类型安全的变体系统 |
-| 工具函数 | `cn()` from `@/lib/utils` | clsx + tailwind-merge |
-| 动画 | Framer Motion (`motion/react`) | 统一动画方案 |
-| 状态管理 | Zustand | feature 级 store |
-| 色彩空间 | OKLCH (Tailwind v4 原生) | 感知均匀的颜色插值 |
+| 约束          | 值                             | 原因                                       |
+| ------------- | ------------------------------ | ------------------------------------------ |
+| React 版本    | 19                             | 项目实际版本                               |
+| Next.js 版本  | 15                             | App Router, static export                  |
+| Tailwind 版本 | **v4**                         | `@theme` CSS 指令，没有 tailwind.config.js |
+| 样式方案      | Tailwind utility + CVA         | 不用 CSS modules, styled-components        |
+| 原语库        | Radix UI                       | 所有可交互组件的无障碍基座                 |
+| 变体管理      | class-variance-authority (CVA) | 类型安全的变体系统                         |
+| 工具函数      | `cn()` from `@/lib/utils`      | clsx + tailwind-merge                      |
+| 动画          | Framer Motion (`motion/react`) | 统一动画方案                               |
+| 状态管理      | Zustand                        | feature 级 store                           |
+| 色彩空间      | OKLCH (Tailwind v4 原生)       | 感知均匀的颜色插值                         |
 
 ### 2.2 组件文件结构
 
@@ -93,6 +94,7 @@ export { MyComponent, myComponentVariants }
 ```
 
 **强制规则**：
+
 - 每个组件必须有 `data-slot` 属性
 - 必须接受 `className` prop 并用 `cn()` 合并
 - 必须 spread `...props` 保持可扩展性
@@ -236,82 +238,82 @@ L4（自定义）      → 导航容器: shadow-[0_8px_32px_rgba(0,0,0,0.08)]
 
 ```tsx
 // ✅ 标准卡片
-className="bg-white shadow-sm border border-mine-border rounded-xl"
+className = 'bg-white shadow-sm border border-mine-border rounded-xl';
 
 // ✅ 卡片头部（带底部分隔线）
-className="flex items-center justify-between px-4 py-3 border-b border-mine-border/50"
+className = 'flex items-center justify-between px-4 py-3 border-b border-mine-border/50';
 
 // ✅ 卡片内容区
-className="px-4 py-4"
+className = 'px-4 py-4';
 
 // ❌ 禁止在卡片上使用玻璃拟态
-className="bg-white/5 backdrop-blur-xl"  // 错误！仅限 sidebar/nav
+className = 'bg-white/5 backdrop-blur-xl'; // 错误！仅限 sidebar/nav
 ```
 
 ### 4.2 按钮
 
 ```tsx
 // 主要操作
-className="bg-mine-nav-active text-white hover:bg-mine-nav-active/90 rounded-lg px-4 py-2"
+className = 'bg-mine-nav-active text-white hover:bg-mine-nav-active/90 rounded-lg px-4 py-2';
 
 // 次要/幽灵按钮
-className="text-mine-text hover:bg-mine-bg rounded-lg px-4 py-2"
+className = 'text-mine-text hover:bg-mine-bg rounded-lg px-4 py-2';
 
 // 交互强调按钮（chat 等）
-className="bg-mine-accent-teal text-white hover:bg-mine-accent-teal/90 rounded-lg"
+className = 'bg-mine-accent-teal text-white hover:bg-mine-accent-teal/90 rounded-lg';
 
 // 周期/切换按钮组
 // Active:
-className="px-2 py-1 text-xs font-medium rounded-md bg-mine-nav-active text-white"
+className = 'px-2 py-1 text-xs font-medium rounded-md bg-mine-nav-active text-white';
 // Inactive:
-className="px-2 py-1 text-xs font-medium rounded-md text-mine-muted hover:text-mine-text"
+className = 'px-2 py-1 text-xs font-medium rounded-md text-mine-muted hover:text-mine-text';
 ```
 
 ### 4.3 导航元素（玻璃拟态仅限此处）
 
 ```tsx
 // 左侧 icon sidebar 容器
-className="bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full"
+className = 'bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full';
 
 // 顶部 nav pills 容器
-className="bg-white/60 backdrop-blur-sm rounded-full p-1"
+className = 'bg-white/60 backdrop-blur-sm rounded-full p-1';
 
 // Sidebar 按钮 — 激活态
-className="bg-mine-nav-active text-white shadow-sm rounded-full"
+className = 'bg-mine-nav-active text-white shadow-sm rounded-full';
 
 // Sidebar 按钮 — 未激活
-className="text-mine-text hover:bg-white/80 rounded-full"
+className = 'text-mine-text hover:bg-white/80 rounded-full';
 ```
 
 ### 4.4 市场数据展示
 
 ```tsx
 // 涨
-className="text-market-up-medium"
+className = 'text-market-up-medium';
 
 // 跌
-className="text-market-down-medium"
+className = 'text-market-down-medium';
 
 // 平
-className="text-market-flat"
+className = 'text-market-flat';
 
 // 市场标签（涨）
-className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-market-up-medium/5 border border-market-up-medium/20 text-market-up-medium"
+className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium bg-market-up-medium/5 border border-market-up-medium/20 text-market-up-medium';
 
 // 市场标签（跌）
-className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-market-down-medium/5 border border-market-down-medium/20 text-market-down-medium"
+className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium bg-market-down-medium/5 border border-market-down-medium/20 text-market-down-medium';
 ```
 
 ## 5. 动效规范
 
 ### 5.1 动效分级
 
-| 级别 | 场景 | 时长 | 缓动 | 实现 |
-|------|------|------|------|------|
-| **L0 即时** | hover 颜色、focus ring | 150ms | CSS `transition-colors` | Tailwind `transition-colors` |
-| **L1 快速** | 按钮状态、展开/折叠 | 200-300ms | `ease-out` | Tailwind `transition-all duration-200` |
-| **L2 标准** | 页面入场、面板切换 | 400ms | `[0.25, 0.1, 0.25, 1]` | `AnimateIn` / `AnimateHeavy` |
-| **L3 数据** | 图表路径变形、数值滚动 | 750ms | `easeInOut` | Framer Motion `motion.path` |
+| 级别        | 场景                   | 时长      | 缓动                    | 实现                                   |
+| ----------- | ---------------------- | --------- | ----------------------- | -------------------------------------- |
+| **L0 即时** | hover 颜色、focus ring | 150ms     | CSS `transition-colors` | Tailwind `transition-colors`           |
+| **L1 快速** | 按钮状态、展开/折叠    | 200-300ms | `ease-out`              | Tailwind `transition-all duration-200` |
+| **L2 标准** | 页面入场、面板切换     | 400ms     | `[0.25, 0.1, 0.25, 1]`  | `AnimateIn` / `AnimateHeavy`           |
+| **L3 数据** | 图表路径变形、数值滚动 | 750ms     | `easeInOut`             | Framer Motion `motion.path`            |
 
 ### 5.2 入场动画（已有组件）
 
@@ -326,14 +328,14 @@ className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-market-down-medium/5 
 
 ### 5.3 必须有动效的场景
 
-| 场景 | 要求 |
-|------|------|
-| **价格/数值变化** | 数字必须有过渡动画（颜色闪烁或滚动），不能静态替换 |
-| **图表数据切换** | 路径必须 morph 过渡（d-attribute morphing），不能跳切 |
-| **列表项增删** | 必须有 `AnimatePresence` 进出场动画 |
-| **页面切换** | 必须使用 `AnimateIn` 交错入场 |
-| **加载状态** | 使用 `Skeleton` 组件，`animate-pulse`，不能用 spinner 或空白 |
-| **hover 反馈** | 所有可点击元素必须有 hover 态（颜色变化 or 背景变化） |
+| 场景              | 要求                                                         |
+| ----------------- | ------------------------------------------------------------ |
+| **价格/数值变化** | 数字必须有过渡动画（颜色闪烁或滚动），不能静态替换           |
+| **图表数据切换**  | 路径必须 morph 过渡（d-attribute morphing），不能跳切        |
+| **列表项增删**    | 必须有 `AnimatePresence` 进出场动画                          |
+| **页面切换**      | 必须使用 `AnimateIn` 交错入场                                |
+| **加载状态**      | 使用 `Skeleton` 组件，`animate-pulse`，不能用 spinner 或空白 |
+| **hover 反馈**    | 所有可点击元素必须有 hover 态（颜色变化 or 背景变化）        |
 
 ### 5.4 禁止的动效
 
@@ -363,12 +365,12 @@ className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-market-down-medium/5 
 
 ```tsx
 // ✅ 必须有高度约束
-className="h-[280px]"   // 小图表卡片
-className="h-[320px]"   // 中图表卡片
-className="h-[400px]"   // 大图表卡片
+className = 'h-[280px]'; // 小图表卡片
+className = 'h-[320px]'; // 中图表卡片
+className = 'h-[400px]'; // 大图表卡片
 
 // ✅ 可滚动内容区
-className="flex-1 overflow-y-auto scrollbar-thin"
+className = 'flex-1 overflow-y-auto scrollbar-thin';
 
 // ❌ 禁止无约束高度（卡片被内容撑开）
 // 除非是页面主体区域
@@ -427,221 +429,108 @@ Tooltip 背景：rgba(30, 30, 30, 0.95)，白色文字
 
 ## 9. 常见错误清单（AI 必须避免）
 
-| # | 错误 | 正确做法 |
-|---|------|----------|
-| 1 | 在卡片上用 `bg-white/5 backdrop-blur-xl` | 只有 sidebar/nav 才用玻璃拟态 |
-| 2 | 数字不带 `tabular-nums` | 所有数值加 `font-mono tabular-nums` |
-| 3 | 缺少 `rounded-xl` 和 `border border-mine-border` | 卡片的标准三件套 |
-| 4 | 价格变化没有颜色编码 | 涨=market-up-medium, 跌=market-down-medium |
-| 5 | 可点击元素没有 hover 态 | 至少要有 `hover:bg-xxx` 或 `hover:text-xxx` |
-| 6 | 用 `text-white/70` 等暗色主题写法 | Mine 是浅色主题，用 `text-mine-text` / `text-mine-muted` |
-| 7 | 加载状态用 spinner | 用 `Skeleton` 组件 + `animate-pulse` |
-| 8 | 引入外部 UI 框架 | 只用项目内的 components/ui + lib |
-| 9 | 用 `p-[13px]` 等任意值 | 使用 Tailwind spacing scale: p-2/p-3/p-4 |
-| 10 | 忘记 `shadow-sm` | 卡片、面板必须有 shadow-sm |
-| 11 | 用 `default export` | 只有 page.tsx/layout.tsx 才用 default export |
-| 12 | 组件缺少 `data-slot` | 每个组件根元素都要有 data-slot |
-| 13 | 图表 motion.path 缺 'd' | initial/animate/exit 三个 variant 都要有 'd' |
-| 14 | 间距不一致 | 卡片间 gap-4，内部 gap-3，紧凑 gap-2 |
-| 15 | 数值变化静态替换 | 必须有过渡动画 |
-| 16 | 详情面板 Section 标题风格不统一 | 必须用 `DetailSection` 组件 |
-| 17 | 面板内自造分隔线（手动 `<div className="border-t">` ）| 用 `DetailSection` 自带的 `border-b`，最后一个自动隐藏 |
-| 18 | KPI 数值用硬编码 hex（`#2EBD85`）| 用语义色 token：`text-market-down-medium` 或 `DetailStatItem` 的 `color` prop |
-| 19 | 面板内区块 padding 不统一（有的 `px-4 py-3`，有的 `p-4 space-y-5`）| 统一用 `DetailSection`（内置 `px-4 py-3`）|
+| #   | 错误                                                                | 正确做法                                                                     |
+| --- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 1   | 在卡片上用 `bg-white/5 backdrop-blur-xl`                            | 只有 sidebar/nav 才用玻璃拟态                                                |
+| 2   | 数字不带 `tabular-nums`                                             | 所有数值加 `font-mono tabular-nums`                                          |
+| 3   | 缺少 `rounded-xl` 和 `border border-mine-border`                    | 卡片的标准三件套                                                             |
+| 4   | 价格变化没有颜色编码                                                | 涨=market-up-medium, 跌=market-down-medium                                   |
+| 5   | 可点击元素没有 hover 态                                             | 至少要有 `hover:bg-xxx` 或 `hover:text-xxx`                                  |
+| 6   | 用 `text-white/70` 等暗色主题写法                                   | Mine 是浅色主题，用 `text-mine-text` / `text-mine-muted`                     |
+| 7   | 加载状态用 spinner                                                  | 用 `Skeleton` 组件 + `animate-pulse`                                         |
+| 8   | 引入外部 UI 框架                                                    | 只用项目内的 components/ui + lib                                             |
+| 9   | 用 `p-[13px]` 等任意值                                              | 使用 Tailwind spacing scale: p-2/p-3/p-4                                     |
+| 10  | 忘记 `shadow-sm`                                                    | 卡片、面板必须有 shadow-sm                                                   |
+| 11  | 用 `default export`                                                 | 只有 page.tsx/layout.tsx 才用 default export                                 |
+| 12  | 组件缺少 `data-slot`                                                | 每个组件根元素都要有 data-slot                                               |
+| 13  | 图表 motion.path 缺 'd'                                             | initial/animate/exit 三个 variant 都要有 'd'                                 |
+| 14  | 间距不一致                                                          | 卡片间 gap-4，内部 gap-3，紧凑 gap-2                                         |
+| 15  | 数值变化静态替换                                                    | 必须有过渡动画                                                               |
+| 16  | 面板 Section 标题风格不统一                                         | 必须用 `PanelSection` 组件                                                   |
+| 17  | 面板内自造分隔线（手动 `<div className="border-t">` ）              | 用 `PanelSection` 自带的 `border-b`，最后一个自动隐藏                        |
+| 18  | KPI 数值用硬编码 hex（`#2EBD85`）                                   | 用语义色 token：`text-market-down-medium` 或 `PanelStatItem` 的 `color` prop |
+| 19  | 面板内区块 padding 不统一（有的 `px-4 py-3`，有的 `p-4 space-y-5`） | 统一用 `PanelSection`（内置 `px-4 py-3`）                                    |
 
-## 10. 详情面板规范（Detail Panel Composition）
+## 10. 统一面板系统（Unified Panel System）
 
-> 详情面板是右侧/侧栏的垂直滚动内容面板（如因子详情、市场概览）。
-> 所有新建详情面板**必须**使用 `@/components/shared/detail-panel` 中的原语组件。
+> **所有面板**（侧栏、详情、底栏）**必须**使用 `@/components/shared/panel` 中的组件。
+> 完整使用指南和强制规则见 `components/shared/panel/USAGE.md`。
+> 设计文档见 `docs/plans/2026-03-01-unified-panel-system-design.md`。
 
-### 11.1 问题诊断
+### 10.1 组件层次
 
-审计现有 9 个面板后发现的系统性不一致：
+```
+PanelFrame (gray bg, rounded-[20px], inset shadow)
+  ├── PanelFrameHeader (title + subtitle badge + actions + red close dot)
+  └── PanelFrameBody (white bg, optional toolbar + scrollable content)
+        ├── PanelSection (title + border-b + collapsible)
+        │     └── Content primitives
+        └── ...
+```
 
-| 问题 | 现状 |
-|------|------|
-| Section 分隔方式 | 3 种写法：`border-b` 内嵌 / 手动 `<div className="border-t">` / 纯 `margin` |
-| Section 标题样式 | 3 种字号+字重组合，有的用共享组件，有的内联写 |
-| 统计项布局 | 3 种模式：居中纵向 / 左右两栏 / card 容器 |
-| 颜色引用 | 混用硬编码 hex（`#2EBD85`）和 Tailwind token（`text-market-down-medium`） |
-| 内容区 padding | `px-4 py-3` / `p-4 space-y-5` / `pr-2` 三种不同方式 |
+### 10.2 组件清单
 
-**根本原因**：缺乏 Section 级别的组合原语。每个面板都在 ad-hoc 重复发明分隔线、标题行、KPI 网格。
+| 组件                              | 职责                                  |
+| --------------------------------- | ------------------------------------- |
+| `PanelFrame`                      | 灰底圆角容器                          |
+| `PanelFrameHeader`                | 标题 + 副标题胶囊 + 操作区 + 关闭按钮 |
+| `PanelFrameBody`                  | 白底滚动区（可选固定 toolbar）        |
+| `PanelSection`                    | 内容分段（标题 + 分隔线 + 可折叠）    |
+| `PanelStatGrid` / `PanelStatItem` | KPI 网格                              |
+| `PanelKV`                         | 键值对行                              |
+| `PanelRow` / `PanelActions`       | 可点击行 + hover 操作                 |
+| `PanelChartBox`                   | 图表容器                              |
+| `PanelEmpty`                      | 空状态                                |
+| `PanelBadge` / `PanelBadgeTag`    | 标签                                  |
+| `PanelActionButton`               | 小图标按钮                            |
+| `PanelSearchBar`                  | 搜索栏                                |
+| `PanelText`                       | 统一文字（4 variant + size axis）     |
 
-### 11.2 原语组件清单
+### 10.3 排版系统（4 语义角色）
 
-位于 `components/shared/detail-panel/`，L2 层级（可跨 feature 使用）。
+| 角色    | 语义                                | 默认字号 |
+| ------- | ----------------------------------- | -------- |
+| `label` | 标注性文字 — section 标题、指标标签 | 10px     |
+| `body`  | 主要内容 — 描述、文本               | 11px     |
+| `value` | 数据值 — 数字、变量、代码           | 11px     |
+| `hint`  | 次要信息 — 时间戳、说明             | 10px     |
 
-| 组件 | 职责 | 核心 className |
-|------|------|----------------|
-| `DetailPanel` | 面板外壳（白底卡片 + header + 滚动区） | `bg-white shadow-sm border border-mine-border rounded-xl` |
-| `DetailHeader` | 身份卡区块（名称、版本、状态、标签） | `px-4 py-3 border-b border-mine-border/50` |
-| `DetailSection` | 标准区块容器（标题行 + 内容 + 底部分隔线） | `px-4 py-3 border-b border-mine-border/50 last:border-b-0` |
-| `DetailStatGrid` | KPI 指标网格（2/3/4 列） | `grid gap-3 grid-cols-{n}` |
-| `DetailStatItem` | 居中的单指标（大数值 + 小标签） | `text-sm font-bold font-mono tabular-nums` |
-| `DetailKV` | 键值对行（左标签 + 右数值） | `text-[10px]` label + `text-[11px] font-mono` value |
-| `DetailKPIRow` | 水平指标行（标签 + 多个行内指标） | `flex items-center gap-3 text-[10px]` |
-| `DetailChartBox` | 面板内嵌图表容器 | `bg-mine-bg rounded-md p-1` |
+Size axis: `sm` (9px), `base` (默认), `lg` (14px + bold)
 
-### 11.3 面板结构模板
-
-**所有详情面板必须遵循此组合模式**：
+### 10.4 面板模板
 
 ```tsx
-import {
-  DetailPanel,
-  DetailHeader,
-  DetailSection,
-  DetailStatGrid,
-  DetailStatItem,
-  DetailKV,
-  DetailKPIRow,
-  DetailChartBox,
-} from "@/components/shared/detail-panel"
+import { PanelFrame, PanelFrameHeader, PanelFrameBody, PanelSection,
+         PanelStatGrid, PanelStatItem, PanelKV, PanelChartBox } from '@/components/shared/panel'
 
-export function MyDetailPanel({ data, onClose }: Props) {
-  return (
-    <DetailPanel title="面板标题" onClose={onClose} width={360}>
-      {/* 区块 1: 身份信息（可选） */}
-      <DetailHeader>
-        <h3 className="text-sm font-bold text-mine-text">{data.name}</h3>
-        {/* 标签、版本、状态等 */}
-      </DetailHeader>
-
-      {/* 区块 2: KPI 网格 */}
-      <DetailSection title="核心指标">
-        <DetailStatGrid columns={3}>
-          <DetailStatItem label="IC" value="+0.022" color="down" />
-          <DetailStatItem label="IR" value="0.78" />
-          <DetailStatItem label="t-stat" value="1.75" />
-        </DetailStatGrid>
-      </DetailSection>
-
-      {/* 区块 3: 键值对详情 */}
-      <DetailSection title="统计详情">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-          <DetailKV label="均值" value="+0.0198" color="positive" />
-          <DetailKV label="标准差" value="0.0342" />
-        </div>
-      </DetailSection>
-
-      {/* 区块 4: 图表 */}
-      <DetailSection title="IC 衰减" suffix="Lag T+1 ~ T+20">
-        <DetailChartBox>
-          <MyChart data={data.chartData} />
-        </DetailChartBox>
-      </DetailSection>
-
-      {/* 区块 5: 操作按钮（最后一个 section，分隔线自动隐藏） */}
-      <DetailSection title="操作">
-        <div className="flex items-center gap-2">
-          {/* 操作按钮 */}
-        </div>
-      </DetailSection>
-    </DetailPanel>
-  )
-}
+<PanelFrame className="h-full">
+  <PanelFrameHeader title="面板标题" onClose={...} />
+  <PanelFrameBody>
+    <PanelSection title="核心指标">
+      <PanelStatGrid columns={3}>
+        <PanelStatItem label="IC" value="+0.022" color="down" />
+      </PanelStatGrid>
+    </PanelSection>
+    <PanelSection title="统计详情">
+      <PanelKV label="均值" value="+0.0198" color="up" />
+    </PanelSection>
+    <PanelSection title="IC 衰减">
+      <PanelChartBox><MyChart /></PanelChartBox>
+    </PanelSection>
+  </PanelFrameBody>
+</PanelFrame>
 ```
 
-### 11.4 区块类型对照表
-
-| 区块类型 | 用什么组件 | 适用场景 |
-|----------|-----------|---------|
-| **身份卡** | `DetailHeader` | 名称、版本、状态 badge、标签组、表达式 |
-| **KPI 网格** | `DetailSection` + `DetailStatGrid` + `DetailStatItem` | 2×3 或 1×4 的核心指标概览 |
-| **键值对列表** | `DetailSection` + `DetailKV` | 参数配置、统计详情、属性展示 |
-| **水平指标行** | `DetailSection` + `DetailKPIRow` | 多窗口 IC、滚动统计等紧凑展示 |
-| **内嵌图表** | `DetailSection` + `DetailChartBox` | IC 衰减、时序图、雷达图 |
-| **迷你表格** | `DetailSection` + `<table>` | 多池适用性、排名列表 |
-| **标签云/标签组** | `DetailSection` + `<div className="flex flex-wrap gap-2">` | 热门概念、因子标签 |
-| **进度条/分段条** | `DetailSection` + 自定义 bar | 资金流向、市场宽度 |
-| **操作区** | `DetailSection` + 按钮组 | 状态变更、导航操作 |
-
-### 11.5 锁定的样式参数
-
-以下参数已在原语组件中固化，**AI 不得覆盖**：
+### 10.5 AI 面板生成决策树
 
 ```
-面板外壳：
-  bg-white shadow-sm border border-mine-border rounded-xl
-  宽度默认 360px（通过 width prop 可调，但仅限 220/260/280/320/360/400）
-
-面板 Header：
-  px-4 py-2.5 border-b border-mine-border/50
-  标题：text-xs font-medium text-mine-muted uppercase tracking-wide
-  关闭按钮：X icon w-3.5 h-3.5
-
-Section 容器：
-  px-4 py-3 border-b border-mine-border/50 last:border-b-0
-  标题：text-[10px] text-mine-muted uppercase tracking-wider font-medium
-  标题与内容间距：mb-2
-
-KPI StatItem（居中纵向）：
-  数值：text-sm font-bold font-mono tabular-nums
-  标签：text-[9px] text-mine-muted uppercase tracking-wider
-
-KV 行（左右两栏）：
-  标签：text-[10px] text-mine-muted
-  数值：text-[11px] font-mono tabular-nums
-
-图表容器：
-  bg-mine-bg rounded-md p-1
+1. 面板外壳用 PanelFrame 了吗？ → 必须用
+2. 每个内容区域都用 PanelSection 包裹了吗？ → 必须用，不许手动写 border-b
+3. 文字用 PanelText 或面板原语了吗？ → 不许硬编码 font specs
+4. 数值用了硬编码颜色吗？ → 用 Tailwind token 或组件 color prop
+5. 需要 KPI？ → PanelStatGrid + PanelStatItem
+6. 需要键值对？ → PanelKV
+7. 需要图表？ → PanelChartBox
 ```
 
-### 11.6 颜色语义映射
-
-**禁止在详情面板中使用硬编码 hex 颜色**。必须使用语义 token 或组件 prop。
-
-| 语义 | Tailwind Token | 旧硬编码（禁止） |
-|------|---------------|-----------------|
-| 涨/正向 | `text-market-up-medium` | `#F6465D` |
-| 跌/负向 | `text-market-down-medium` | `#2EBD85` |
-| 强涨 | `text-market-up` | `#CF304A` |
-| 强跌 | `text-market-down` | `#0B8C5F` |
-| 中性 | `text-market-flat` | `#76808E` |
-| 主文本 | `text-mine-text` | `#1a1a1a` |
-| 次要文本 | `text-mine-muted` | `#8a8a8a` |
-
-`DetailStatItem` 和 `DetailKV` 的 `color` prop 接受语义值（`"up"` / `"down"` / `"flat"` / `"muted"`），内部映射为对应 token。
-
-### 11.7 AI 详情面板生成决策树
-
-AI 在生成详情面板内容时，必须按此流程：
-
-```
-1. 面板外壳用 DetailPanel 了吗？
-   → 没有 → 必须用，不许手写白底卡片
-
-2. 每个内容区域都用 DetailSection 包裹了吗？
-   → 没有 → 必须用，不许手动写 border-b 分隔线
-
-3. 需要展示 KPI 指标（3~6 个核心数值）？
-   → 用 DetailStatGrid + DetailStatItem
-
-4. 需要展示参数/属性列表（左标签右数值）？
-   → 用 DetailKV
-
-5. 需要嵌入图表？
-   → 用 DetailChartBox 包裹
-
-6. 数值用了硬编码颜色吗？
-   → 禁止。用 Tailwind token 或组件 color prop
-
-7. Section 标题自己写样式了吗？
-   → 禁止。用 DetailSection 的 title prop
-```
-
-### 11.8 迁移指南（现有面板）
-
-现有面板保持不动（避免回归），但**新建面板和重构时必须使用原语**。
-
-市场详情面板中已有的 `SectionHeader`（`features/market/components/shared/section-header.tsx`）
-是一个 feature 级共享组件，功能上与 `DetailSection` 的标题行等价。
-在 market feature 内部可继续使用，但跨 feature 的新面板必须用 `DetailSection`。
-
-| 现有面板 | 状态 | 迁移优先级 |
-|---------|------|-----------|
-| `factor-detail-panel.tsx` | 保持不动 | 下次重构时迁移 |
-| `market-detail-panel.tsx` | 保持不动 | 下次重构时迁移 |
-| `factor-statistics-panel.tsx` | 保持不动 | 下次重构时迁移 |
-| 新建面板 | **必须用原语** | — |
+`PanelStatItem` 和 `PanelKV` 的 `color` prop 接受语义值（`"up"` / `"down"` / `"flat"` / `"muted"`）。
