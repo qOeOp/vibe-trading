@@ -40,7 +40,7 @@ function ProgressSection({ task }: { task: MiningTask }) {
     {
       label: '已接受',
       value: String(progress.factorsAccepted),
-      color: 'down',
+      color: 'positive',
     },
     {
       label: '已拒绝',
@@ -49,12 +49,12 @@ function ProgressSection({ task }: { task: MiningTask }) {
     {
       label: '最佳 IC',
       value: progress.bestIc.toFixed(4),
-      color: progress.bestIc > 0.03 ? 'down' : undefined,
+      color: progress.bestIc > 0.03 ? 'positive' : undefined,
     },
     {
       label: '最佳 IR',
       value: progress.bestIr.toFixed(3),
-      color: progress.bestIr > 1 ? 'down' : undefined,
+      color: progress.bestIr > 1 ? 'positive' : undefined,
     },
     {
       label: '已用时间',
