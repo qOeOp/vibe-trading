@@ -101,7 +101,13 @@ const STEPS = [
   { label: 'Load the editor workspace' },
 ];
 
-function ConnectionStepper({ step }: { step: ConnectStep }) {
+function ConnectionStepper({
+  step,
+  statusData,
+}: {
+  step: ConnectStep;
+  statusData: StatusData | null;
+}) {
   const stepIndex =
     step === 'start' ? 0 : step === 'connecting' ? 1 : step === 'ready' ? 2 : 3;
 
@@ -113,12 +119,19 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
       {STEPS.map((s, i) => {
         const isActive = i === stepIndex;
         const isDone = i < stepIndex;
+        // First step shows kernel info on hover when done + status available
+        const hasStatusFlip = i === 0 && isDone && statusData != null;
+        const statusLabel = statusData
+          ? `Python ${statusData.python_version} · LSP ${statusData.lsp_running ? '✓' : '✗'}`
+          : '';
+
         return (
           <div key={s.label} className="flex items-center gap-1">
             {i > 0 && <StepArrow />}
             <div
               className={cn(
-                'flex items-center gap-3 h-[36px] pl-3 pr-3.5 rounded-full text-[12.5px] font-semibold tracking-[-0.28px] leading-5 relative whitespace-nowrap',
+                'flex items-center gap-3 h-[36px] pl-3 pr-3.5 rounded-full text-[12.5px] font-semibold tracking-[-0.28px] leading-5 relative whitespace-nowrap overflow-hidden',
+                hasStatusFlip && 'group cursor-default',
                 isActive || isDone
                   ? 'bg-white text-[#525252]'
                   : 'bg-[#eeeeee] text-[#8f8f8f]',
@@ -134,7 +147,7 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
             >
               {/* Inset border */}
               <div
-                className="absolute inset-0 rounded-full pointer-events-none"
+                className="absolute inset-0 rounded-full pointer-events-none z-[1]"
                 style={{
                   boxShadow:
                     isActive || isDone
@@ -150,7 +163,19 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
               ) : (
                 <StepCircle />
               )}
-              {s.label}
+              {/* Label — vertical slide on hover for first step */}
+              {hasStatusFlip ? (
+                <div className="relative h-5 overflow-hidden">
+                  <div className="flex flex-col transition-transform duration-300 ease-in-out group-hover:-translate-y-5">
+                    <span className="h-5 leading-5">{s.label}</span>
+                    <span className="h-5 leading-5 font-mono tabular-nums">
+                      {statusLabel}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                s.label
+              )}
             </div>
           </div>
         );
@@ -159,10 +184,10 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
   );
 }
 
-// ─── Kernel Status Indicator ─────────────────────────────
+// ─── Kernel Status Hook ──────────────────────────────────
 //
-// Polls /api/status every 30s when connected. Shows a compact
-// one-line status: dot + version + Python version + LSP state.
+// Polls /api/status every 30s when connected. Returns status
+// data for display in the first stepper pill on hover.
 
 type StatusData = {
   status: string;
@@ -174,7 +199,7 @@ type StatusData = {
 
 const STATUS_POLL_MS = 30_000;
 
-function KernelStatus({ isConnected }: { isConnected: boolean }) {
+function useKernelStatus(isConnected: boolean): StatusData | null {
   const [data, setData] = useState<StatusData | null>(null);
 
   useEffect(() => {
@@ -204,28 +229,7 @@ function KernelStatus({ isConnected }: { isConnected: boolean }) {
     };
   }, [isConnected]);
 
-  if (!data) return null;
-
-  const isHealthy = data.status === 'healthy';
-
-  return (
-    <div
-      data-slot="kernel-status"
-      className="flex items-center gap-1.5 text-[11px] text-mine-muted font-mono tabular-nums whitespace-nowrap"
-    >
-      <span
-        className={cn(
-          'w-1.5 h-1.5 rounded-full shrink-0',
-          isHealthy ? 'bg-mine-accent-green' : 'bg-mine-accent-red',
-        )}
-      />
-      <span>v{data.version}</span>
-      <span className="text-mine-border">·</span>
-      <span>Python {data.python_version}</span>
-      <span className="text-mine-border">·</span>
-      <span>LSP {data.lsp_running ? '✓' : '✗'}</span>
-    </div>
-  );
+  return data;
 }
 
 // ─── Chrome Header ────────────────────────────────────────
@@ -248,6 +252,8 @@ function ChromeHeader({
   className,
   ...props
 }: ChromeHeaderProps & React.ComponentProps<'div'>) {
+  const statusData = useKernelStatus(isConnected);
+
   return (
     <div
       data-slot="chrome-header"
@@ -284,10 +290,9 @@ function ChromeHeader({
         </button>
       </div>
 
-      {/* Center: connection stepper + kernel status */}
-      <div className="flex-1 flex items-center justify-center gap-4">
-        <ConnectionStepper step={step} />
-        <KernelStatus isConnected={isConnected} />
+      {/* Center: connection stepper */}
+      <div className="flex-1 flex justify-center">
+        <ConnectionStepper step={step} statusData={statusData} />
       </div>
 
       {/* Right: run icon — width matches activity bar column (36px + gap) */}
