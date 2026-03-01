@@ -396,6 +396,62 @@
   background-color: rgba(38, 166, 154, 0.15) !important;
 }
 
+/* ── Panel Typography ────────────────────────────────────────── */
+/* Semantic text roles for the unified panel system.             */
+/* Each utility is a complete token: size + weight + color +     */
+/* tracking. Consumers write `class="panel-label"` instead of   */
+/* a 5-class Tailwind string.                                   */
+
+@utility panel-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-mine-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@utility panel-body {
+  font-size: 11px;
+  color: var(--color-mine-text);
+}
+
+@utility panel-value {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-mine-text);
+}
+
+@utility panel-hint {
+  font-size: 10px;
+  color: var(--color-mine-muted);
+}
+
+/* Compact variants (StatItem labels, badges) */
+@utility panel-label-sm {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--color-mine-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@utility panel-value-sm {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-mine-muted);
+}
+
+/* Prominent variant (KPI headline numbers) */
+@utility panel-value-lg {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-mine-text);
+}
+
 /* ── Mine Table (TanStack) ────────────────────────────────────── */
 .mine-table {
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;

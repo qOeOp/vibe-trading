@@ -33,12 +33,10 @@ function PanelEmpty({
           className: 'w-6 h-6 text-mine-muted/40',
         })}
       {title && (
-        <p className={cn(PANEL_TYPOGRAPHY.body, 'font-medium text-mine-muted')}>
-          {title}
-        </p>
+        <p className={cn(PANEL_TYPOGRAPHY.hint, 'font-medium')}>{title}</p>
       )}
       {description && (
-        <p className={cn(PANEL_TYPOGRAPHY.hint, 'text-mine-muted/60 mt-1')}>
+        <p className={cn(PANEL_TYPOGRAPHY.hint, 'mt-1 opacity-60')}>
           {description}
         </p>
       )}

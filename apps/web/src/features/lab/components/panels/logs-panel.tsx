@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useLabCellStore } from '@/features/lab/store/use-lab-cell-store';
-import { PanelEmpty, PanelText } from '@/components/shared/panel';
+import { PanelEmpty } from '@/components/shared/panel';
 
 // ─── Logs Panel ──────────────────────────────────────────
 
@@ -75,21 +75,13 @@ function LogRow({ log }: { log: LogEntry }) {
         log.channel === 'stdout' && 'text-mine-text',
       )}
     >
-      <PanelText
-        variant="hint"
-        size="sm"
-        className="shrink-0 w-12 text-right tabular-nums font-mono"
-      >
+      <span className="panel-value-sm shrink-0 w-12 text-right">
         {formatTime(log.timestamp)}
-      </PanelText>
-      <PanelText
-        variant="hint"
-        size="sm"
-        className="shrink-0 w-14 truncate text-mine-accent-teal"
-      >
+      </span>
+      <span className="panel-hint shrink-0 w-14 truncate text-[9px] text-mine-accent-teal">
         {log.cellName}
-      </PanelText>
-      <span className="whitespace-pre-wrap break-all text-[11px] font-mono">
+      </span>
+      <span className="whitespace-pre-wrap break-all panel-value">
         {log.data}
       </span>
     </div>
