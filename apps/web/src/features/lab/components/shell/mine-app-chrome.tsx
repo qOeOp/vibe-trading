@@ -2,8 +2,6 @@
 
 import { type PropsWithChildren, useEffect } from 'react';
 import { useAtomValue } from 'jotai';
-import { Provider } from 'jotai';
-import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { LabModeContext } from '../lab-mode-context';
 import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 import { useLabFileTabStore } from '@/features/lab/store/use-lab-file-tab-store';
@@ -11,7 +9,6 @@ import { MineTabBar } from './mine-tab-bar';
 import { FileEditor } from './file-editor';
 import { ContentFrame } from './content-frame';
 import { filenameAtom } from '@/features/lab/core/saving/file-state';
-import { store } from '@/features/lab/core/state/jotai';
 import { ErrorBoundary } from '../editor/boundary/ErrorBoundary';
 import { PanelSlot } from './panel-slot';
 
@@ -77,13 +74,9 @@ function MineAppChrome({ children }: PropsWithChildren) {
           {isNotebookTab ? (
             children
           ) : (
-            <Provider store={store}>
-              <TooltipProvider>
-                <ErrorBoundary>
-                  <FileEditor path={activeTab.path} />
-                </ErrorBoundary>
-              </TooltipProvider>
-            </Provider>
+            <ErrorBoundary>
+              <FileEditor key={activeTab.path} path={activeTab.path} />
+            </ErrorBoundary>
           )}
         </ContentFrame>
       </div>
