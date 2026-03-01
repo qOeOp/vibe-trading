@@ -74,6 +74,11 @@ export interface MiningRound {
   roundIndex: number;
   hypothesis: string;
   reason: string;
+  conciseReason?: string;
+  conciseObservation?: string;
+  conciseJustification?: string;
+  conciseKnowledge?: string;
+  timestamp?: number;
 }
 
 export interface MiningTask {
