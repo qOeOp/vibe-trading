@@ -20,7 +20,6 @@ const LazyChatPanel = React.lazy(() => import('@/components/chat/chat-panel'));
 const LazyAgentPanel = React.lazy(
   () => import('@/components/chat/acp/agent-panel'),
 );
-const LazySessionPanel = React.lazy(() => import('../panels/session-panel'));
 const LazyErrorsPanel = React.lazy(() => import('../panels/error-panel'));
 const LazyFileExplorerPanel = React.lazy(
   () => import('../panels/file-explorer-panel'),
@@ -51,7 +50,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
 
   const SIDEBAR_PANELS: Record<PanelType, React.ReactNode> = {
     files: <LazyFileExplorerPanel />,
-    variables: <LazySessionPanel />,
+    variables: null,
     packages: <LazyPackagesPanel />,
     ai: renderAiPanel(),
     'data-catalog': <LazyDataCatalogPanel />,
