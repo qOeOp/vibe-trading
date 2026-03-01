@@ -1,0 +1,52 @@
+# apps/vibe-editor/requirements.in
+# Unified venv for rdagent + qlib factor mining pipeline.
+# Install: uv pip install -r requirements.in
+# Lock:    uv pip compile requirements.in -o requirements.lock
+
+# ── Qlib backtest engine ──────────────────────────────────────────────────────
+pyqlib==0.9.6.99
+lightgbm>=4.0
+catboost>=1.2
+xgboost>=3.0
+
+# ── Data science ──────────────────────────────────────────────────────────────
+numpy
+pandas
+scipy
+scikit-learn
+tables>=3.9              # HDF5 read/write (pytables)
+pandarallel>=1.6         # parallel DataFrame apply
+
+# ── LLM & API ────────────────────────────────────────────────────────────────
+litellm>=1.73
+openai>=1.0
+tiktoken
+pydantic-ai-slim[openai]
+
+# ── Configuration & validation ────────────────────────────────────────────────
+pydantic>=2.0
+pydantic-settings>=2.0
+
+# ── Document reader (factor_from_report mode) ─────────────────────────────────
+pymupdf                  # fitz — PDF text extraction
+Pillow                   # image processing
+langchain-community      # document loaders
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+loguru
+fire                     # still used in some rdagent internals
+filelock
+tqdm
+rich
+fuzzywuzzy
+python-Levenshtein       # fuzzywuzzy C speedup
+dill                     # advanced pickling (LoopBase checkpoint)
+regex
+requests
+ruamel.yaml              # YAML with anchors (qlib config)
+jinja2                   # template rendering
+psutil
+pytz
+
+# ── Experiment tracking ───────────────────────────────────────────────────────
+mlflow

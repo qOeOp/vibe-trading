@@ -1,10 +1,11 @@
 import os
+import sys
 from typing import Optional
 
 from pydantic_settings import SettingsConfigDict
 
 from rdagent.components.coder.CoSTEER.config import CoSTEERSettings
-from rdagent.utils.env import CondaConf, Env, LocalEnv
+from rdagent.utils.env import Env, LocalConf, LocalEnv
 
 
 class FactorCoSTEERSettings(CoSTEERSettings):
@@ -29,15 +30,24 @@ class FactorCoSTEERSettings(CoSTEERSettings):
     """Path to the Python binary"""
 
 
+def _get_venv_bin_path() -> str:
+    """Derive the venv bin directory from sys.executable.
+
+    Works for both uv venv (.venv/bin/python) and conda env (envs/X/bin/python).
+    Returns the bin directory so LocalEnv can find python, timeout, etc.
+    """
+    return os.path.dirname(sys.executable)
+
+
 def get_factor_env(
     conf_type: Optional[str] = None,
     extra_volumes: dict = {},
     running_timeout_period: int = 600,
     enable_cache: Optional[bool] = None,
 ) -> Env:
-    conf = FactorCoSTEERSettings()
-    if hasattr(conf, "python_bin"):
-        env = LocalEnv(conf=(CondaConf(conda_env_name=os.environ.get("CONDA_DEFAULT_ENV"))))
+    # Use LocalConf with the current venv's bin path — no conda subprocess needed.
+    conf = LocalConf(bin_path=_get_venv_bin_path())
+    env = LocalEnv(conf=conf)
     env.conf.extra_volumes = extra_volumes.copy()
     env.conf.running_timeout_period = running_timeout_period
     if enable_cache is not None:

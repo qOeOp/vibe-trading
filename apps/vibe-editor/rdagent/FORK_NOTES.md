@@ -72,6 +72,16 @@ Do NOT run `git pull` or merge upstream automatically.
 
 ## Changelog
 
+### 2026-03-01 — Phase 4: conda → uv Environment Migration
+
+Eliminated conda dependency. Worker now runs in a uv venv with all deps (rdagent + qlib) in one environment.
+
+- **Created `requirements.in`**: All direct deps for the unified venv (rdagent + qlib + LLM merged)
+- **Rewrote `config.py`**: Replaced `CondaConf` (runs `conda run -n ENV env`) with plain `LocalConf(bin_path=venv/bin/)` — no conda subprocess at import time
+- **Rewrote `manager.py`**: Worker Python resolved from `.venv/bin/python`, `PYTHONPATH` set to `apps/vibe-editor/` so vendored rdagent is importable, CWD set to `result_dir` (not `~/PycharmProjects/RD-Agent/`)
+- **Rewrote `worker.py`**: Removed `_ensure_conda_in_path()`, removed `MODEL_COSTEER_ENV_TYPE`/`CONDA_DEFAULT_ENV` env vars, data folder paths set via absolute `FACTOR_CoSTEER_data_folder` env vars
+- **Data path decoupling**: Factor data resolved to `~/.vt-lab/factor_data/` (or `VT_FACTOR_DATA_DIR` env var) — no more relative `git_ignore_folder/` depending on CWD
+
 ### 2026-03-01 — Phase 1: Dead Code Trimming
 
 Deleted 86 files across 9 directories that are unused in VT's Qlib-only pipeline:

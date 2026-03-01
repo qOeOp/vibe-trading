@@ -19,42 +19,30 @@ from .models import (
 
 logger = logging.getLogger(__name__)
 
-# ── rdagent Python resolution ──────────────────────────────────────────────────
-# Worker must run in the 'rdagent' conda env (has rdagent + LLM deps).
-# Override via RDAGENT_PYTHON env var if conda is installed elsewhere.
-_DEFAULT_RDAGENT_PYTHON = (
-    "/opt/homebrew/Caskroom/miniconda/base/envs/rdagent/bin/python"
-)
-RDAGENT_PYTHON = os.environ.get("RDAGENT_PYTHON", _DEFAULT_RDAGENT_PYTHON)
+# ── Worker Python resolution ──────────────────────────────────────────────────
+# Worker runs in a uv venv with rdagent + qlib + LLM deps.
+# PYTHONPATH is set to apps/vibe-editor/ so vendored rdagent/ is importable.
+_VIBE_EDITOR_ROOT = Path(__file__).resolve().parent.parent  # apps/vibe-editor/
+_DEFAULT_VENV_PYTHON = str(_VIBE_EDITOR_ROOT / ".venv" / "bin" / "python")
+RDAGENT_PYTHON = os.environ.get("RDAGENT_PYTHON", _DEFAULT_VENV_PYTHON)
 
 
 def _load_mining_env() -> dict[str, str]:
-    """
-    Load API keys and LLM config from .env file.
-
-    Search order:
-      1. apps/vibe-editor/.env   (project-local, gitignored)
-      2. <RD-Agent project>/.env (fallback to user's existing config)
-    """
-    candidate_paths = [
-        Path(__file__).parent.parent / ".env",  # apps/vibe-editor/.env
-        Path.home() / "PycharmProjects" / "RD-Agent" / ".env",
-    ]
+    """Load API keys and LLM config from apps/vibe-editor/.env."""
+    dotenv_path = _VIBE_EDITOR_ROOT / ".env"
 
     env: dict[str, str] = {}
-    for dotenv_path in candidate_paths:
-        if dotenv_path.exists():
-            logger.info("Loading mining env from %s", dotenv_path)
-            with open(dotenv_path) as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#") or "=" not in line:
-                        continue
-                    key, _, value = line.partition("=")
-                    env[key.strip()] = value.strip()
-            break
+    if dotenv_path.exists():
+        logger.info("Loading mining env from %s", dotenv_path)
+        with open(dotenv_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                env[key.strip()] = value.strip()
     else:
-        logger.warning("No .env file found for mining config — API keys may be missing")
+        logger.warning("No .env file found at %s — API keys may be missing", dotenv_path)
 
     return env
 
@@ -165,20 +153,11 @@ class MiningTaskManager:
         # Build worker environment:
         #   - Inherit current process env (PATH, HOME, etc.)
         #   - Overlay API keys + LLM config from .env
-        # NOTE: We do NOT add vibe-editor-root to PYTHONPATH because it contains
-        # an incomplete vendored rdagent/ that would shadow the conda env's full
-        # rdagent installation.  The worker script has no package-level imports;
-        # it only uses stdlib + rdagent (from conda site-packages).
+        #   - Set PYTHONPATH so vendored rdagent/ is importable
         worker_env = {**os.environ}
         worker_env.update(_load_mining_env())
-        # Completely clear PYTHONPATH for the worker subprocess.
-        # apps/vibe-editor/ contains an incomplete vendored rdagent/ that shadows
-        # the conda env's full editable install when present in PYTHONPATH.
-        # The worker only needs stdlib + rdagent from conda site-packages,
-        # so an empty PYTHONPATH is correct and more robust than path-stripping.
-        worker_env.pop("PYTHONPATH", None)
+        worker_env["PYTHONPATH"] = str(_VIBE_EDITOR_ROOT)
 
-        # Worker script path (run as script, not module, to avoid local rdagent shadowing)
         worker_script = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "worker.py"
         )
@@ -187,22 +166,10 @@ class MiningTaskManager:
         log_path = os.path.join(task.result_dir, "worker.log")
         log_file = open(log_path, "w")  # noqa: WPS515  (closed when process exits)
 
-        # rdagent uses relative paths for its data folders:
-        #   git_ignore_folder/factor_implementation_source_data  (daily_pv.h5)
-        # We set cwd to the rdagent project root where these already exist.
-        # Override via RDAGENT_CWD env var if the project is elsewhere.
-        rdagent_cwd = worker_env.get(
-            "RDAGENT_CWD",
-            os.path.expanduser("~/PycharmProjects/RD-Agent"),
-        )
-        if not os.path.isdir(rdagent_cwd):
-            # Fall back: generate data via Docker on first run (slow, needs Docker)
-            rdagent_cwd = task.result_dir
-
-        # Spawn worker in rdagent conda env.
+        # Worker CWD is the task result dir — all relative paths resolved via env vars.
         proc = subprocess.Popen(
             [RDAGENT_PYTHON, worker_script, config_path],
-            cwd=rdagent_cwd,
+            cwd=task.result_dir,
             env=worker_env,
             stdout=log_file,
             stderr=subprocess.STDOUT,

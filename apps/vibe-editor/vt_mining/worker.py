@@ -1,13 +1,14 @@
 """vt_mining/worker.py — Subprocess worker that runs RD-Agent loops.
 
-Must be invoked with the rdagent conda environment Python, NOT the marimo Python:
-  /opt/homebrew/Caskroom/miniconda/base/envs/rdagent/bin/python -m vt_mining.worker <config_json>
+Must be invoked with the uv venv Python:
+  apps/vibe-editor/.venv/bin/python worker.py <config_json>
 
 Architecture:
-- Worker runs VTFactorRDLoop (our subclass of FactorRDLoop) from rdagent.
-- rdagent internally uses QlibCondaEnv ("rdagent4qlib" conda env) to run qlib backtests.
+- Worker runs VTFactorRDLoop (our subclass of FactorRDLoop) from vendored rdagent.
+- rdagent is importable via PYTHONPATH pointing to apps/vibe-editor/.
+- qlib is installed in the same venv — backtest runs via direct Python API (no subprocess).
 - Progress/results are written to filesystem via structured callbacks (not log parsing).
-- API keys and MODEL_COSTEER_ENV_TYPE are passed via environment variables.
+- API keys are passed via environment variables from .env.
 
 VTFactorRDLoop (vt_mining/rdagent_loop.py) overrides each step to capture:
   - hypothesis + reason → rounds.json (written immediately after LLM responds)
@@ -27,41 +28,6 @@ from typing import Any, Optional
 logger = logging.getLogger(__name__)
 
 
-def _ensure_conda_in_path() -> None:
-    """Pre-add conda paths to PATH before importing rdagent.
-
-    rdagent's CondaConf model_validator runs:
-      conda run -n {CONDA_DEFAULT_ENV} env | grep '^PATH='
-    to discover the conda env's full PATH (needed to find qrun, timeout, python).
-    This requires 'conda' to be in PATH when the model_validator fires.
-
-    The worker's PATH is inherited from the vibe-editor server process, which may
-    not include conda (e.g. when started from an IDE without shell init).
-
-    We derive the conda base from sys.executable:
-      /opt/.../miniconda/base/envs/rdagent/bin/python → /opt/.../miniconda/base
-    """
-    # sys.executable = .../miniconda/base/envs/rdagent/bin/python
-    # 4 dirname calls: bin → rdagent → envs → base
-    conda_base = os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.dirname(sys.executable)))
-    )
-    conda_env = os.environ.get("CONDA_DEFAULT_ENV", "rdagent4qlib")
-
-    # Priority order: conda env bin (qrun, timeout, python) first, then conda itself
-    paths_to_prepend = [
-        os.path.join(conda_base, "envs", conda_env, "bin"),
-        os.path.join(conda_base, "condabin"),  # 'conda' command lives here
-        os.path.join(conda_base, "bin"),
-    ]
-
-    current_path = os.environ.get("PATH", "").split(":")
-    new_entries = [p for p in paths_to_prepend if os.path.isdir(p) and p not in current_path]
-
-    if new_entries:
-        os.environ["PATH"] = ":".join(new_entries) + ":" + os.environ.get("PATH", "")
-        logger.info("Prepended conda paths to PATH: %s", new_entries)
-
 
 @dataclass
 class WorkerConfig:
@@ -80,12 +46,32 @@ class WorkerConfig:
     dedup_threshold: float = 0.99
 
 
+def _resolve_data_dir() -> str:
+    """Resolve the factor data directory to an absolute path.
+
+    Search order:
+      1. VT_FACTOR_DATA_DIR env var (explicit override)
+      2. ~/.vt-lab/factor_data/ (default shared location)
+
+    The data must contain daily_pv.h5 and README.md — either pre-generated
+    or created by generate_data_folder_from_qlib() on first use.
+    """
+    from_env = os.environ.get("VT_FACTOR_DATA_DIR")
+    if from_env:
+        return os.path.expanduser(from_env)
+    return os.path.expanduser("~/.vt-lab/factor_data")
+
+
 def build_env_config(config: WorkerConfig) -> dict[str, str]:
     """Build environment variables for RD-Agent from WorkerConfig.
 
     These are merged into os.environ BEFORE importing rdagent, because rdagent
     reads pydantic-settings at import time.
     """
+    data_dir = _resolve_data_dir()
+    data_dir_full = os.path.join(data_dir, "full")
+    data_dir_debug = os.path.join(data_dir, "debug")
+
     env: dict[str, str] = {
         # LLM — already set by manager via inherited env, but explicit here for clarity
         "CHAT_MODEL": config.llm_model,
@@ -98,12 +84,10 @@ def build_env_config(config: WorkerConfig) -> dict[str, str]:
         "QLIB_FACTOR_VALID_END": config.valid_end,
         "QLIB_FACTOR_TEST_START": config.test_start,
 
-        # Use conda for qlib execution (not Docker-in-Docker).
-        # CONDA_DEFAULT_ENV tells get_factor_env() which conda env to use for factor
-        # code execution (reading daily_pv.h5, computing factor values). That env's
-        # PATH is prepended to the subprocess PATH, so 'timeout' is findable there.
-        "MODEL_COSTEER_ENV_TYPE": "conda",
-        "CONDA_DEFAULT_ENV": "rdagent4qlib",
+        # Factor data paths — absolute, decoupled from CWD
+        # FactorCoSTEERSettings reads FACTOR_CoSTEER_ prefix
+        "FACTOR_CoSTEER_data_folder": data_dir_full,
+        "FACTOR_CoSTEER_data_folder_debug": data_dir_debug,
 
         # Point rdagent workspace to our task result dir so artefacts are colocated
         "WORKSPACE_PATH": config.result_dir,
@@ -142,10 +126,9 @@ def write_status(
 def _patch_rdagent_embedding() -> None:
     """Patch rdagent's litellm backend to honour embedding_openai_base_url/api_key.
 
-    The installed rdagent (any version/source) calls litellm.embedding() without
-    forwarding these two settings, so custom providers (e.g. SiliconFlow) are not
-    reachable.  We monkey-patch the method on the class after import so our fix
-    works regardless of which rdagent version is in the conda env.
+    The vendored rdagent calls litellm.embedding() without forwarding these two
+    settings, so custom providers (e.g. SiliconFlow) are not reachable.
+    We monkey-patch the method on the class after import.
     """
     try:
         from rdagent.oai.backend.litellm import LiteLLMAPIBackend, LITELLM_SETTINGS  # noqa: PLC0415
@@ -171,8 +154,8 @@ def run_mining_worker(config_json: str) -> None:
     """
     Entry point for the mining worker subprocess.
 
-    MUST run in rdagent conda env (has rdagent + LLM deps).
-    qlib backtests run in rdagent4qlib conda env (auto-created by rdagent if missing).
+    Runs in uv venv with rdagent + qlib + LLM deps.
+    PYTHONPATH is set by manager to apps/vibe-editor/ so vendored rdagent/ is importable.
 
     Flow:
     1. Load config, set env vars before importing rdagent (pydantic-settings reads at import)
@@ -180,7 +163,7 @@ def run_mining_worker(config_json: str) -> None:
     3. Run VTFactorRDLoop — subclasses FactorRDLoop with structured callbacks:
        - direct_exp_gen: LLM generates hypothesis → rounds.json written immediately
        - coding: LLM generates factor code (CoSTEER synthesis)
-       - running: rdagent4qlib runs qlib backtest → factors.jsonl appended immediately
+       - running: qlib backtest via direct Python API → factors.jsonl appended immediately
        - feedback: LLM evaluates, decides to accept/reject → progress.json updated
     4. Write final status (factors accumulated by callbacks during run)
     """
@@ -194,10 +177,6 @@ def run_mining_worker(config_json: str) -> None:
     for key, value in env_vars.items():
         os.environ[key] = value
 
-    # 2. Ensure conda + conda env bin are in PATH so CondaConf.change_bin_path()
-    #    can run 'conda run -n rdagent4qlib env' to discover qrun/timeout/python paths.
-    _ensure_conda_in_path()
-
     write_progress(
         config.result_dir,
         currentLoop=0,
@@ -209,19 +188,10 @@ def run_mining_worker(config_json: str) -> None:
     )
 
     try:
-        # Import rdagent — only works in the rdagent conda env
+        # Import rdagent — from vendored copy via PYTHONPATH
         import asyncio  # noqa: PLC0415
         from rdagent.app.qlib_rd_loop.factor import FactorRDLoop  # noqa: PLC0415
         from rdagent.app.qlib_rd_loop.conf import FACTOR_PROP_SETTING  # noqa: PLC0415
-
-        # Make vt_mining importable.
-        # Manager clears PYTHONPATH so our vendored rdagent/ doesn't shadow the
-        # conda installation. rdagent is now fully cached in sys.modules, so
-        # appending apps/vibe-editor/ is safe: conda rdagent stays first in path,
-        # but vt_mining (which only exists here) becomes findable.
-        _vibe_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        if _vibe_root not in sys.path:
-            sys.path.append(_vibe_root)
 
         from vt_mining.rdagent_loop import VTFactorRDLoop  # noqa: PLC0415
 
@@ -243,8 +213,7 @@ def run_mining_worker(config_json: str) -> None:
         # VTFactorRDLoop overrides each step to write structured JSON directly.
         # NOTE: Class must be defined at module top level for pickle compatibility
         # (LoopBase uses pickle for checkpointing). We inject the class into the
-        # global namespace here since FactorRDLoop is only importable inside the
-        # rdagent conda env subprocess.
+        # global namespace here since FactorRDLoop import is deferred to runtime.
         import vt_mining.rdagent_loop as _rdagent_loop_mod  # noqa: PLC0415
         _rdagent_loop_mod._make_loop_class(FactorRDLoop)
         VTFactorLoop = _rdagent_loop_mod.VTFactorLoop  # noqa: PLC0415
