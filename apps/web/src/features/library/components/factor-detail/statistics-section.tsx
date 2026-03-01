@@ -6,6 +6,11 @@ import {
   PanelStatGrid,
   PanelStatItem,
 } from '@/components/shared/panel';
+import {
+  FactorMetricGrid,
+  FactorMetricItem,
+  generateMockDistribution,
+} from '@/components/shared/factor-metrics';
 import { BarHorizontal } from '@/lib/ngx-charts/bar-chart';
 import type { DataItem } from '@/lib/ngx-charts/types';
 import type { Factor } from '@/features/library/types';
@@ -104,6 +109,19 @@ function StatisticsSection({ factor }: StatisticsSectionProps) {
   const cfg = factor.benchmarkConfig;
   const benchmarkSuffix = `${cfg.universe} · ${cfg.icMethod} · ${WINSORIZATION_LABELS[cfg.winsorization]} · ${cfg.rebalanceDays}日调仓`;
 
+  // Mock distribution data — replace with real library aggregation later
+  const distributionData = useMemo(
+    () => ({
+      ic: generateMockDistribution(0.025, 0.018),
+      icir: generateMockDistribution(0.8, 0.45),
+      arr: generateMockDistribution(0.08, 0.12),
+      sharpe: generateMockDistribution(0.6, 0.55),
+      maxDrawdown: generateMockDistribution(-0.18, 0.08),
+      turnover: generateMockDistribution(0.25, 0.15),
+    }),
+    [],
+  );
+
   return (
     <PanelSection title="核心指标" suffix={benchmarkSuffix}>
       {/* 3×3 KPI Grid */}
@@ -145,6 +163,28 @@ function StatisticsSection({ factor }: StatisticsSectionProps) {
         <PanelStatItem label="容量" value={fmtCapacity(factor.capacity)} />
         <PanelStatItem label="IC半衰期" value={`T+${factor.icHalfLife}`} />
       </PanelStatGrid>
+
+      {/* Core 6 metrics vs library distribution */}
+      <div className="mt-3 pt-3 border-t border-mine-border/40">
+        <div className="panel-hint mb-2">核心指标 vs 因子库</div>
+        <FactorMetricGrid
+          variant="distribution"
+          distributionData={distributionData}
+        >
+          <FactorMetricItem metric="ic" value={factor.ic} />
+          <FactorMetricItem metric="icir" value={factor.ir} />
+          <FactorMetricItem metric="arr" value={(factor as any).arr ?? 0} />
+          <FactorMetricItem
+            metric="sharpe"
+            value={(factor as any).sharpe ?? 0}
+          />
+          <FactorMetricItem
+            metric="maxDrawdown"
+            value={(factor as any).maxDrawdown ?? 0}
+          />
+          <FactorMetricItem metric="turnover" value={factor.turnover / 100} />
+        </FactorMetricGrid>
+      </div>
 
       {/* Quantile returns bar */}
       <div className="mt-4 pt-3 border-t border-mine-border/40">

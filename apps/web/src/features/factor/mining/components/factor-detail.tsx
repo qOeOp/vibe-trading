@@ -13,11 +13,13 @@ import {
   PanelSection,
   PanelStatGrid,
   PanelStatItem,
-  PanelKV,
   PanelBadgeTag,
   PanelChartBox,
 } from '@/components/shared/panel';
-import type { StatColor } from '@/components/shared/panel';
+import {
+  FactorMetricGrid,
+  FactorMetricItem,
+} from '@/components/shared/factor-metrics';
 import { pushFactorToLibrary } from '../api';
 import { useLibraryStore } from '@/features/library/store/use-library-store';
 import type { DiscoveredFactor } from '../types';
@@ -31,18 +33,6 @@ function extractTags(description: string): string[] {
 
 function stripTags(description: string): string {
   return description.replace(/\[([^\]]+)\]/g, '').trim();
-}
-
-function icColor(ic: number): StatColor | undefined {
-  if (ic > 0.03) return 'positive';
-  if (ic < -0.03) return 'negative';
-  return undefined;
-}
-
-function sharpeColor(sharpe: number): StatColor | undefined {
-  if (sharpe > 1) return 'positive';
-  if (sharpe < 0) return 'negative';
-  return undefined;
 }
 
 // ── Component ────────────────────────────────────────────────────
@@ -151,41 +141,25 @@ function FactorDetail({
 
       {/* Section 2: 指标 */}
       <PanelSection title="指标">
-        <PanelStatGrid columns={3}>
-          <PanelStatItem
-            label="IC"
-            value={m.ic.toFixed(4)}
-            color={icColor(m.ic)}
-          />
-          <PanelStatItem
-            label="ICIR"
-            value={m.icir.toFixed(4)}
-            color={icColor(m.icir)}
-          />
-          <PanelStatItem
-            label="Rank IC"
-            value={m.rankIc.toFixed(4)}
-            color={icColor(m.rankIc)}
-          />
-        </PanelStatGrid>
+        <FactorMetricGrid variant="threshold">
+          <FactorMetricItem metric="ic" value={m.ic} />
+          <FactorMetricItem metric="icir" value={m.icir} />
+          <FactorMetricItem metric="arr" value={m.arr} />
+          <FactorMetricItem metric="sharpe" value={m.sharpe} />
+          <FactorMetricItem metric="maxDrawdown" value={m.maxDrawdown} />
+          <FactorMetricItem metric="turnover" value={m.turnover} />
+        </FactorMetricGrid>
 
-        <div className="mt-3 space-y-0">
-          <PanelKV
-            label="年化收益"
-            value={`${(m.arr * 100).toFixed(2)}%`}
-            color={m.arr > 0 ? 'positive' : m.arr < 0 ? 'negative' : undefined}
-          />
-          <PanelKV
-            label="Sharpe"
-            value={m.sharpe.toFixed(3)}
-            color={sharpeColor(m.sharpe)}
-          />
-          <PanelKV
-            label="最大回撤"
-            value={`${(m.maxDrawdown * 100).toFixed(2)}%`}
-            color="up"
-          />
-          <PanelKV label="换手率" value={m.turnover.toFixed(3)} />
+        {/* Rank IC — supplemental, not in core 6 */}
+        <div className="mt-2 pt-2 border-t border-mine-border/30">
+          <PanelStatGrid columns={2}>
+            <PanelStatItem
+              label="Rank IC"
+              value={m.rankIc.toFixed(4)}
+              color={m.rankIc > 0.03 ? 'positive' : undefined}
+            />
+            <PanelStatItem label="Rank ICIR" value={m.rankIcir.toFixed(3)} />
+          </PanelStatGrid>
         </div>
       </PanelSection>
 
