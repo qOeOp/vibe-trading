@@ -12,6 +12,7 @@ export interface DataSource {
   nameZh: string;
   description: string;
   category: DataCategory;
+  snippetPath?: string;
 }
 
 export const CATEGORIES: { id: DataCategory; label: string }[] = [
@@ -32,6 +33,7 @@ export const DATA_SOURCES: DataSource[] = [
     description:
       '获取沪深京A股个股日/周/月频率历史K线数据，包含开盘价、收盘价、最高价、最低价、成交量、成交额、振幅、涨跌幅与换手率。支持前复权、后复权和不复权三种模式，数据来源为东方财富。',
     category: 'market',
+    snippetPath: 'market/stock_zh_a_hist.py',
   },
   {
     id: 'stock_zh_a_spot_em',
@@ -40,6 +42,7 @@ export const DATA_SOURCES: DataSource[] = [
     description:
       '获取沪深京全部A股的实时行情快照数据，包含最新价、涨跌额、涨跌幅、今开、最高、最低、成交量、成交额、振幅、换手率、市盈率、量比等字段。适用于盘中监控和选股筛选。',
     category: 'market',
+    snippetPath: 'market/stock_zh_a_spot_em.py',
   },
   {
     id: 'stock_zh_a_hist_min_em',
@@ -91,6 +94,15 @@ export const DATA_SOURCES: DataSource[] = [
   },
 
   // ── 基本面 ──────────────────────────────────────────
+  {
+    id: 'stock_financial_analysis_indicator',
+    name: 'stock_financial_analysis_indicator',
+    nameZh: '财务分析指标',
+    description:
+      '获取东方财富个股财务分析指标数据，按报告期展示每股指标、盈利能力、成长能力、营运能力、偿债能力和现金流量等六大维度的详细财务比率。是多因子模型中基本面因子构建的核心数据源。',
+    category: 'fundamental',
+    snippetPath: 'fundamental/stock_financial_analysis_indicator.py',
+  },
   {
     id: 'stock_financial_abstract_ths',
     name: 'stock_financial_abstract_ths',
