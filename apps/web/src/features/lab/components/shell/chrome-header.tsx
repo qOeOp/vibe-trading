@@ -104,9 +104,11 @@ const STEPS = [
 function ConnectionStepper({
   step,
   statusData,
+  usageData,
 }: {
   step: ConnectStep;
   statusData: StatusData | null;
+  usageData: UsageData | null;
 }) {
   const stepIndex =
     step === 'start' ? 0 : step === 'connecting' ? 1 : step === 'ready' ? 2 : 3;
@@ -119,11 +121,17 @@ function ConnectionStepper({
       {STEPS.map((s, i) => {
         const isActive = i === stepIndex;
         const isDone = i < stepIndex;
-        // First step shows kernel info on hover when done + status available
-        const hasStatusFlip = i === 0 && isDone && statusData != null;
-        const statusLabel = statusData
+        // Step 0: kernel info on hover (Python + LSP)
+        const hasKernelFlip = i === 0 && isDone && statusData != null;
+        const kernelLabel = statusData
           ? `Python ${statusData.python_version} · LSP ${statusData.lsp_running ? '✓' : '✗'}`
           : '';
+        // Step 1: usage info on hover (CPU + Memory) — flips icon too for more space
+        const hasUsageFlip = i === 1 && isDone && usageData != null;
+        const usageLabel = usageData
+          ? `CPU ${usageData.cpu.percent.toFixed(0)}% · Mem ${formatBytes(usageData.kernel.memory ?? usageData.server.memory)}`
+          : '';
+        const hasFlip = hasKernelFlip || hasUsageFlip;
 
         return (
           <div key={s.label} className="flex items-center gap-1">
@@ -131,7 +139,7 @@ function ConnectionStepper({
             <div
               className={cn(
                 'flex items-center gap-3 h-[36px] pl-3 pr-3.5 rounded-full text-[12.5px] font-semibold tracking-[-0.28px] leading-5 relative whitespace-nowrap overflow-hidden',
-                hasStatusFlip && 'group cursor-default',
+                hasFlip && 'group cursor-default',
                 isActive || isDone
                   ? 'bg-white text-[#525252]'
                   : 'bg-[#eeeeee] text-[#8f8f8f]',
@@ -155,26 +163,44 @@ function ConnectionStepper({
                       : 'inset 0px 0px 0px 1px #e0e0e0',
                 }}
               />
-              {/* Step icon */}
-              {isActive ? (
-                <StepSpinner className="w-4 h-4 shrink-0 animate-spin" />
-              ) : isDone ? (
-                <StepDone />
-              ) : (
-                <StepCircle />
-              )}
-              {/* Label — vertical slide on hover for first step */}
-              {hasStatusFlip ? (
+
+              {hasUsageFlip ? (
+                /* Step 1: flip icon + label together for more space */
                 <div className="relative h-5 overflow-hidden">
                   <div className="flex flex-col transition-transform duration-300 ease-in-out group-hover:-translate-y-5">
-                    <span className="h-5 leading-5">{s.label}</span>
+                    <span className="h-5 leading-5 flex items-center gap-3">
+                      <StepDone />
+                      {s.label}
+                    </span>
                     <span className="h-5 leading-5 font-mono tabular-nums">
-                      {statusLabel}
+                      {usageLabel}
                     </span>
                   </div>
                 </div>
               ) : (
-                s.label
+                <>
+                  {/* Step icon */}
+                  {isActive ? (
+                    <StepSpinner className="w-4 h-4 shrink-0 animate-spin" />
+                  ) : isDone ? (
+                    <StepDone />
+                  ) : (
+                    <StepCircle />
+                  )}
+                  {/* Label — vertical slide on hover for step 0 */}
+                  {hasKernelFlip ? (
+                    <div className="relative h-5 overflow-hidden">
+                      <div className="flex flex-col transition-transform duration-300 ease-in-out group-hover:-translate-y-5">
+                        <span className="h-5 leading-5">{s.label}</span>
+                        <span className="h-5 leading-5 font-mono tabular-nums">
+                          {kernelLabel}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    s.label
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -232,6 +258,62 @@ function useKernelStatus(isConnected: boolean): StatusData | null {
   return data;
 }
 
+// ─── Kernel Usage Hook ───────────────────────────────────
+//
+// Polls /api/usage every 30s when connected. Returns CPU and
+// memory data for display in the second stepper pill on hover.
+
+type UsageData = {
+  memory: { total: number; used: number; percent: number };
+  server: { memory: number };
+  kernel: { memory: number | null };
+  cpu: { percent: number };
+};
+
+function useKernelUsage(isConnected: boolean): UsageData | null {
+  const [data, setData] = useState<UsageData | null>(null);
+
+  useEffect(() => {
+    if (!isConnected) {
+      setData(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`${MARIMO_KERNEL_BASE}/api/usage`);
+        if (!res.ok) return;
+        const json: UsageData = await res.json();
+        if (!cancelled) setData(json);
+      } catch {
+        // Silently ignore — usage is best-effort
+      }
+    };
+
+    poll();
+    const id = setInterval(poll, STATUS_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [isConnected]);
+
+  return data;
+}
+
+function formatBytes(bytes: number | null): string {
+  if (bytes == null || bytes === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
+  );
+  const value = bytes / Math.pow(1024, i);
+  return `${value < 10 ? value.toFixed(1) : Math.round(value)} ${units[i]}`;
+}
+
 // ─── Chrome Header ────────────────────────────────────────
 
 type ChromeHeaderProps = {
@@ -253,6 +335,7 @@ function ChromeHeader({
   ...props
 }: ChromeHeaderProps & React.ComponentProps<'div'>) {
   const statusData = useKernelStatus(isConnected);
+  const usageData = useKernelUsage(isConnected);
 
   return (
     <div
@@ -292,7 +375,11 @@ function ChromeHeader({
 
       {/* Center: connection stepper */}
       <div className="flex-1 flex justify-center">
-        <ConnectionStepper step={step} statusData={statusData} />
+        <ConnectionStepper
+          step={step}
+          statusData={statusData}
+          usageData={usageData}
+        />
       </div>
 
       {/* Right: run icon — width matches activity bar column (36px + gap) */}
