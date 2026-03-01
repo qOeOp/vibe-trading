@@ -38,7 +38,7 @@
 | 9   | `lab-audit-09-ai-panel.md`                | PANEL-AI-001, §22                                           | P0     | **done** — T1 路由+T3 MCP 已由 #6 顺带完成; T2 输出动作(insert cell/send terminal)延后与 #12 DataHub 联动 |
 | 10  | `lab-audit-10-errors-batch-bc.md`         | ERR-205~208, §29                                            | P1     | **done** — 结构化渲染(traceback/SQL/cycle/多定义), interruption 过滤, View logs 链接, 回归测试 13 pass |
 | 11  | `lab-audit-11-run-console.md`             | PANEL-LOG-001, PANEL-RUNCONSOLE-001, PANEL-LEFT-001, §26~27 | P0     | **done** — 独立底部面板 (Terminal/Logs), VT LogsPanel 三源聚合, errors→logs 联动, 高度/面板记忆持久化  |
-| 12  | `lab-audit-12-datahub.md`                 | PANEL-DS-001, DATAHUB-ARCH-001, §23, §49                    | P0     | todo                                                                                                   |
+| 12  | `lab-audit-12-datahub.md`                 | PANEL-DS-001, DATAHUB-ARCH-001, §23, §49                    | P0     | **done** — Legacy cleanup + SnippetStudio 二级侧栏 + /api/snippets 端点 + DataCatalog 集成             |
 | 13  | `lab-audit-13-variables-consolidation.md` | PANEL-VAR-SESSION-001, §48                                  | P1     | todo                                                                                                   |
 | 14  | `lab-audit-14-files-consolidation.md`     | PANEL-FILES-001, §45                                        | P0     | **done** — Magic UI file tree + marimo treeAtom 绑定 + WebStorm 工具栏                                 |
 | 15  | `lab-audit-15-notebook-map.md`            | PANEL-OUT-001, PANEL-GRAPH-001, §42~43                      | P1     | **done** — Outline 注册为独立面板, FloatingOutline 删除, Zustand 旧版清理                              |

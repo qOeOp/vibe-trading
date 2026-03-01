@@ -16,17 +16,32 @@ import {
   PanelBadge,
   PanelText,
 } from '@/components/shared/panel';
+import { SnippetStudio } from './snippet-studio';
 
 // ─── Shared sub-components ──────────────────────────────
 
-function DataSourceLink({ source }: { source: DataSource }) {
+function DataSourceLink({
+  source,
+  onSelect,
+}: {
+  source: DataSource;
+  onSelect?: (s: DataSource) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
+
+  const handleClick = () => {
+    if (source.snippetPath && onSelect) {
+      onSelect(source);
+    } else {
+      setExpanded(!expanded);
+    }
+  };
 
   return (
     <div data-slot="data-source-link">
       <button
         type="button"
-        onClick={() => setExpanded(!expanded)}
+        onClick={handleClick}
         className="w-full flex items-center gap-1.5 bg-mine-bg/70 hover:bg-mine-bg transition-colors cursor-pointer py-2 pl-4 pr-3"
       >
         <div className="shrink-0 flex items-center justify-center w-5">
@@ -85,9 +100,11 @@ function useFilteredData(search: string) {
 function CategoryAccordion({
   label,
   sources,
+  onSelect,
 }: {
   label: string;
   sources: DataSource[];
+  onSelect?: (s: DataSource) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -115,7 +132,11 @@ function CategoryAccordion({
       {expanded && (
         <div>
           {sources.map((source) => (
-            <DataSourceLink key={source.id} source={source} />
+            <DataSourceLink
+              key={source.id}
+              source={source}
+              onSelect={onSelect}
+            />
           ))}
         </div>
       )}
@@ -127,7 +148,17 @@ function CategoryAccordion({
 
 function DataCatalogPanel() {
   const [search, setSearch] = useState('');
+  const [selectedSource, setSelectedSource] = useState<DataSource | null>(null);
   const filteredByCategory = useFilteredData(search);
+
+  if (selectedSource) {
+    return (
+      <SnippetStudio
+        source={selectedSource}
+        onClose={() => setSelectedSource(null)}
+      />
+    );
+  }
 
   return (
     <div
@@ -153,6 +184,7 @@ function DataCatalogPanel() {
               key={cat.id}
               label={cat.label}
               sources={sources}
+              onSelect={setSelectedSource}
             />
           );
         })}
