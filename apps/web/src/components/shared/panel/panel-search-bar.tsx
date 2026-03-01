@@ -6,8 +6,8 @@ import { Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type PanelSearchBarProps = {
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
 };
@@ -29,19 +29,19 @@ function PanelSearchBar({
       <Search className="w-3 h-3 text-mine-muted shrink-0" />
       <input
         type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={value ?? ''}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
         className="flex-1 text-[11px] bg-transparent outline-none text-mine-text placeholder:text-mine-muted/50"
       />
       {value && (
         <button
           type="button"
-          onClick={() => onChange('')}
+          onClick={() => onChange?.('')}
           className="p-0.5 text-mine-muted hover:text-mine-text transition-colors"
           aria-label="Clear search"
         >
-          <X className="w-3 h-3" />
+          <X className="w-2.5 h-2.5" />
         </button>
       )}
     </div>

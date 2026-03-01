@@ -5,8 +5,9 @@ import { ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
+import { PANEL_TYPOGRAPHY } from './panel-typography';
 
-type PanelSectionProps = {
+type PanelSectionProps = React.ComponentProps<'div'> & {
   title?: string;
   suffix?: React.ReactNode;
   titleRight?: React.ReactNode;
@@ -14,7 +15,6 @@ type PanelSectionProps = {
   collapsible?: boolean;
   defaultOpen?: boolean;
   noBorder?: boolean;
-  className?: string;
   children?: React.ReactNode;
 };
 
@@ -28,6 +28,7 @@ function PanelSection({
   noBorder = false,
   className,
   children,
+  ...props
 }: PanelSectionProps) {
   const [open, setOpen] = React.useState(defaultOpen);
 
@@ -41,6 +42,7 @@ function PanelSection({
         !noBorder && 'border-b border-mine-border/50 last:border-b-0',
         className,
       )}
+      {...props}
     >
       {title && (
         <div className="flex items-center justify-between mb-2">
@@ -60,10 +62,14 @@ function PanelSection({
                 </motion.div>
               </button>
             )}
-            <span className="font-medium text-mine-muted uppercase tracking-wider text-[10px]">
+            <span className={cn(PANEL_TYPOGRAPHY.label, 'text-[10px]')}>
               {title}
             </span>
-            {badge}
+            {badge && (
+              <span className="text-[9px] font-mono tabular-nums text-mine-muted">
+                {badge}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -75,19 +81,23 @@ function PanelSection({
         </div>
       )}
 
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            style={{ overflow: 'hidden' }}
-          >
-            {children}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {collapsible ? (
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+              style={{ overflow: 'hidden' }}
+            >
+              {children}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      ) : (
+        children
+      )}
     </div>
   );
 }

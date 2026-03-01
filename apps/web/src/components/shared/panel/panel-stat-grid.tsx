@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { PANEL_TYPOGRAPHY } from './panel-typography';
 
 type StatColor = 'up' | 'down' | 'flat' | 'muted' | 'positive' | 'negative';
 
@@ -26,7 +27,7 @@ function PanelStatItem({ label, value, color, className }: PanelStatItemProps) {
   return (
     <div
       data-slot="panel-stat-item"
-      className={cn('flex flex-col items-center', className)}
+      className={cn('flex flex-col items-center gap-0.5', className)}
     >
       <span
         className={cn(
@@ -36,9 +37,7 @@ function PanelStatItem({ label, value, color, className }: PanelStatItemProps) {
       >
         {value}
       </span>
-      <span className="font-medium text-mine-muted uppercase tracking-wider text-[9px]">
-        {label}
-      </span>
+      <span className={cn(PANEL_TYPOGRAPHY.label, 'text-[9px]')}>{label}</span>
     </div>
   );
 }

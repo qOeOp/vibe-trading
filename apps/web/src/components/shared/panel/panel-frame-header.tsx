@@ -4,6 +4,7 @@ import * as React from 'react';
 import { X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { PANEL_TYPOGRAPHY } from './panel-typography';
 
 const CLOSE_SHADOW =
   '0px 1px 1px 0.5px rgba(51,51,51,0.04), 0px 3px 3px -1.5px rgba(51,51,51,0.02), 0px 6px 6px -3px rgba(51,51,51,0.04), 0px 12px 12px -6px rgba(51,51,51,0.04), 0px 0px 0px 1px rgba(51,51,51,0.1)';
@@ -57,7 +58,7 @@ function PanelFrameHeader({
       data-slot="panel-frame-header"
       className={cn('flex items-center px-2.5 py-2 shrink-0', className)}
     >
-      <span className="font-medium text-mine-muted uppercase tracking-wider text-[10px] pl-2 font-semibold">
+      <span className={cn(PANEL_TYPOGRAPHY.label, 'text-[10px] pl-2')}>
         {title}
       </span>
 

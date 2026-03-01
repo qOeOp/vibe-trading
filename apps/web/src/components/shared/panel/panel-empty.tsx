@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 type PanelEmptyProps = {
   icon?: React.ReactNode;
   title?: string;
-  description?: string;
+  description?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
 };
@@ -23,11 +23,14 @@ function PanelEmpty({
     <div
       data-slot="panel-empty"
       className={cn(
-        'flex flex-col items-center justify-center py-8 px-4 text-center',
+        'flex-1 flex flex-col items-center justify-center py-8 px-4 text-center',
         className,
       )}
     >
-      {icon && <div className="w-6 h-6 text-mine-muted/40 mb-2">{icon}</div>}
+      {icon &&
+        React.cloneElement(icon as React.ReactElement<{ className?: string }>, {
+          className: 'w-6 h-6 text-mine-muted/40',
+        })}
       {title && (
         <p className="text-[11px] font-medium text-mine-muted">{title}</p>
       )}

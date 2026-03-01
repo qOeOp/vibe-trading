@@ -7,9 +7,9 @@ import { cn } from '@/lib/utils';
 type ActionButtonHoverColor = 'default' | 'teal' | 'red';
 
 const HOVER_COLOR_MAP: Record<ActionButtonHoverColor, string> = {
-  default: 'hover:text-mine-text hover:bg-mine-bg/50',
-  teal: 'hover:text-mine-accent-teal hover:bg-mine-accent-teal/10',
-  red: 'hover:text-mine-accent-red hover:bg-mine-accent-red/10',
+  default: 'hover:text-mine-text',
+  teal: 'hover:text-mine-accent-teal',
+  red: 'hover:text-market-up-medium',
 };
 
 type PanelActionButtonProps = Omit<
