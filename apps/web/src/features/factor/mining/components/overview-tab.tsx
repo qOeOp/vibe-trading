@@ -40,7 +40,7 @@ function ProgressSection({ task }: { task: MiningTask }) {
     {
       label: '已接受',
       value: String(progress.factorsAccepted),
-      color: 'down' as StatColor,
+      color: 'down',
     },
     {
       label: '已拒绝',
@@ -49,12 +49,12 @@ function ProgressSection({ task }: { task: MiningTask }) {
     {
       label: '最佳 IC',
       value: progress.bestIc.toFixed(4),
-      color: progress.bestIc > 0.03 ? ('down' as StatColor) : undefined,
+      color: progress.bestIc > 0.03 ? 'down' : undefined,
     },
     {
       label: '最佳 IR',
       value: progress.bestIr.toFixed(3),
-      color: progress.bestIr > 1 ? ('down' as StatColor) : undefined,
+      color: progress.bestIr > 1 ? 'down' : undefined,
     },
     {
       label: '已用时间',
@@ -109,17 +109,21 @@ const LOG_TYPE_COLOR: Record<LogEntry['type'], string> = {
   error: 'text-market-up-medium',
 };
 
-function ActivityLog({ entries }: { entries: LogEntry[] }) {
+function ActivityLog({
+  entries,
+  isLive = true,
+}: {
+  entries: LogEntry[];
+  isLive?: boolean;
+}) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (typeof bottomRef.current?.scrollIntoView === 'function') {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [entries.length]);
 
   return (
-    <PanelSection title="实时日志">
+    <PanelSection title={isLive ? '实时日志' : '运行日志'}>
       <div className="h-[140px] overflow-y-auto bg-mine-bg rounded-md p-2 space-y-0.5">
         {entries.length === 0 && (
           <div className="text-[11px] text-mine-muted italic">
@@ -189,14 +193,16 @@ function buildCompletedLog(task: MiningTask): LogEntry[] {
     );
   }
 
-  for (const f of task.factors) {
-    entries.push(
-      make(
+  for (let i = 0; i < task.factors.length; i++) {
+    const f = task.factors[i];
+    entries.push({
+      ...make(
         f.accepted ? 'factor_accepted' : 'factor_rejected',
         `${f.name}  IC=${f.metrics.ic.toFixed(4)}  ${f.accepted ? '\u2713 已接受' : '\u2717 已拒绝'}`,
         end - 500,
       ),
-    );
+      id: `factor_${i}_${end - 500}`,
+    });
   }
 
   if (task.status === 'COMPLETED') {
@@ -224,12 +230,19 @@ interface OverviewTabProps {
 
 function OverviewTab({ task, logEntries, className }: OverviewTabProps) {
   const resolvedEntries =
-    task.status === 'RUNNING' ? logEntries : buildCompletedLog(task);
+    task.status === 'RUNNING'
+      ? logEntries
+      : task.status === 'PENDING'
+        ? []
+        : buildCompletedLog(task);
 
   return (
     <div data-slot="overview-tab" className={cn('flex flex-col', className)}>
       <ProgressSection task={task} />
-      <ActivityLog entries={resolvedEntries} />
+      <ActivityLog
+        entries={resolvedEntries}
+        isLive={task.status === 'RUNNING'}
+      />
     </div>
   );
 }
