@@ -1,7 +1,9 @@
 'use client';
 
 import { Settings, Power, Play } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { MARIMO_KERNEL_BASE } from '@/features/lab/constants';
 
 // ─── Connection Step Types ────────────────────────────────
 
@@ -157,6 +159,75 @@ function ConnectionStepper({ step }: { step: ConnectStep }) {
   );
 }
 
+// ─── Kernel Status Indicator ─────────────────────────────
+//
+// Polls /api/status every 30s when connected. Shows a compact
+// one-line status: dot + version + Python version + LSP state.
+
+type StatusData = {
+  status: string;
+  version: string;
+  python_version: string;
+  lsp_running: boolean;
+  sessions: number;
+};
+
+const STATUS_POLL_MS = 30_000;
+
+function KernelStatus({ isConnected }: { isConnected: boolean }) {
+  const [data, setData] = useState<StatusData | null>(null);
+
+  useEffect(() => {
+    if (!isConnected) {
+      setData(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`${MARIMO_KERNEL_BASE}/api/status`);
+        if (!res.ok) return;
+        const json: StatusData = await res.json();
+        if (!cancelled) setData(json);
+      } catch {
+        // Silently ignore — status is best-effort
+      }
+    };
+
+    poll();
+    const id = setInterval(poll, STATUS_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [isConnected]);
+
+  if (!data) return null;
+
+  const isHealthy = data.status === 'healthy';
+
+  return (
+    <div
+      data-slot="kernel-status"
+      className="flex items-center gap-1.5 text-[11px] text-mine-muted font-mono tabular-nums whitespace-nowrap"
+    >
+      <span
+        className={cn(
+          'w-1.5 h-1.5 rounded-full shrink-0',
+          isHealthy ? 'bg-mine-accent-green' : 'bg-mine-accent-red',
+        )}
+      />
+      <span>v{data.version}</span>
+      <span className="text-mine-border">·</span>
+      <span>Python {data.python_version}</span>
+      <span className="text-mine-border">·</span>
+      <span>LSP {data.lsp_running ? '✓' : '✗'}</span>
+    </div>
+  );
+}
+
 // ─── Chrome Header ────────────────────────────────────────
 
 type ChromeHeaderProps = {
@@ -213,9 +284,10 @@ function ChromeHeader({
         </button>
       </div>
 
-      {/* Center: connection stepper */}
-      <div className="flex-1 flex justify-center">
+      {/* Center: connection stepper + kernel status */}
+      <div className="flex-1 flex items-center justify-center gap-4">
         <ConnectionStepper step={step} />
+        <KernelStatus isConnected={isConnected} />
       </div>
 
       {/* Right: run icon — width matches activity bar column (36px + gap) */}
