@@ -1,12 +1,10 @@
 'use client';
 
-import { useAtomValue } from 'jotai';
 import { CodeIcon, FileIcon, FileOutputIcon, FileTextIcon } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useCallback } from 'react';
 import { filenameAtom } from '@/features/lab/core/saving/file-state';
 import { store } from '@/features/lab/core/state/jotai';
-import { useRequestClient } from '@/features/lab/core/network/requests';
+import { getRequestClient } from '@/features/lab/core/network/requests';
 import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 import { downloadBlob } from '@/features/lab/utils/download';
 import { Filenames } from '@/features/lab/utils/filenames';
@@ -16,7 +14,8 @@ import { toast } from '@/features/lab/components/ui/use-toast';
 // ─── Export Actions ──────────────────────────────────────
 //
 // Provides notebook export actions for the Activity Bar dropdown.
-// Each action calls the backend export API and triggers a browser download.
+// Uses getRequestClient() (imperative) instead of useRequestClient() (hook)
+// because ActivityBar renders outside the jotai Provider scope.
 
 type ExportAction = {
   label: string;
@@ -33,12 +32,11 @@ function getNotebookBasename(): string {
 
 function useExportActions(): ExportAction[] {
   const isConnected = useLabModeStore((s) => s.mode) === 'active';
-  const { exportAsHTML, exportAsMarkdown, exportAsPDF, exportAsScript } =
-    useRequestClient();
 
-  const handleExportScript = useCallback(async () => {
+  const handleExportScript = async () => {
     try {
-      const content = await exportAsScript({ download: false });
+      const client = getRequestClient();
+      const content = await client.exportAsScript({ download: false });
       const blob = new Blob([content], { type: 'text/x-python' });
       downloadBlob(blob, Filenames.toPY(getNotebookBasename()));
     } catch {
@@ -48,11 +46,12 @@ function useExportActions(): ExportAction[] {
         variant: 'danger',
       });
     }
-  }, [exportAsScript]);
+  };
 
-  const handleExportHTML = useCallback(async () => {
+  const handleExportHTML = async () => {
     try {
-      const content = await exportAsHTML({
+      const client = getRequestClient();
+      const content = await client.exportAsHTML({
         download: false,
         includeCode: true,
         files: [],
@@ -66,11 +65,12 @@ function useExportActions(): ExportAction[] {
         variant: 'danger',
       });
     }
-  }, [exportAsHTML]);
+  };
 
-  const handleExportMarkdown = useCallback(async () => {
+  const handleExportMarkdown = async () => {
     try {
-      const content = await exportAsMarkdown({ download: false });
+      const client = getRequestClient();
+      const content = await client.exportAsMarkdown({ download: false });
       const blob = new Blob([content], { type: 'text/markdown' });
       downloadBlob(blob, Filenames.toMarkdown(getNotebookBasename()));
     } catch {
@@ -80,11 +80,12 @@ function useExportActions(): ExportAction[] {
         variant: 'danger',
       });
     }
-  }, [exportAsMarkdown]);
+  };
 
-  const handleExportPDF = useCallback(async () => {
+  const handleExportPDF = async () => {
     try {
-      const blob = await exportAsPDF({ webpdf: true });
+      const client = getRequestClient();
+      const blob = await client.exportAsPDF({ webpdf: true });
       downloadBlob(blob, Filenames.toPDF(getNotebookBasename()));
     } catch {
       toast({
@@ -93,7 +94,7 @@ function useExportActions(): ExportAction[] {
         variant: 'danger',
       });
     }
-  }, [exportAsPDF]);
+  };
 
   return [
     {
