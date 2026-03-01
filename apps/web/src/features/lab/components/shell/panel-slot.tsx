@@ -3,16 +3,20 @@
 import { lazy, Suspense, useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getPanelDef } from './panels';
-import { ContentFrame } from './content-frame';
+import {
+  PanelFrame,
+  PanelFrameHeader,
+  PanelFrameBody,
+} from '@/components/shared/panel';
 import { PanelContent, getPanelHeaderRight } from './panel-content';
 
 // ─── Panel Slot ──────────────────────────────────────────
 //
 // Unified animated shell for all three panel positions.
-// Left/right: width animation + ContentFrame (white card + header).
+// Left/right: width animation + PanelFrame (gray card + header + white body).
 // Bottom: height animation + AnimatePresence for panel switching.
-//   - Terminal: dark xterm chrome, mount-once (preserves WS).
-//   - Other bottom panels (Logs): white ContentFrame.
+//   - Terminal: mount-once (preserves WS).
+//   - Other bottom panels (Logs): PanelFrame.
 // All slots support drag-to-resize via edge handles.
 
 const LazyTerminal = lazy(() => import('../terminal/terminal'));
@@ -165,15 +169,16 @@ function SideSlot({
           exit={{ width: 0, opacity: 0 }}
           transition={{ duration: PANEL_DURATION, ease: PANEL_EASE }}
         >
-          <ContentFrame
-            title={def.label}
-            onClose={onClose}
-            headerRight={getPanelHeaderRight(panelId, isConnected)}
-            className="h-full"
-            bodyClassName="overflow-y-auto flex flex-col"
-          >
-            <PanelContent panelId={panelId} isConnected={isConnected} />
-          </ContentFrame>
+          <PanelFrame className="h-full">
+            <PanelFrameHeader
+              title={def.label}
+              onClose={onClose}
+              actions={getPanelHeaderRight(panelId, isConnected)}
+            />
+            <PanelFrameBody className="overflow-y-auto flex flex-col">
+              <PanelContent panelId={panelId} isConnected={isConnected} />
+            </PanelFrameBody>
+          </PanelFrame>
 
           {/* Resize handle on the appropriate edge */}
           <ResizeHandle
@@ -276,19 +281,17 @@ function BottomSlot({
           transition={{ duration: 0.15, ease: PANEL_EASE }}
           style={{ pointerEvents: isTerminal ? 'auto' : 'none' }}
         >
-          <ContentFrame
-            title="Terminal"
-            onClose={onClose}
-            className="h-full"
-            bodyClassName="overflow-hidden flex flex-col"
-          >
-            <Suspense>
-              <LazyTerminal
-                visible={isOpen && isTerminal}
-                onClose={onClose ?? (() => {})}
-              />
-            </Suspense>
-          </ContentFrame>
+          <PanelFrame className="h-full">
+            <PanelFrameHeader title="Terminal" onClose={onClose} />
+            <PanelFrameBody className="overflow-hidden flex flex-col">
+              <Suspense>
+                <LazyTerminal
+                  visible={isOpen && isTerminal}
+                  onClose={onClose ?? (() => {})}
+                />
+              </Suspense>
+            </PanelFrameBody>
+          </PanelFrame>
         </motion.div>
       )}
 
@@ -303,15 +306,16 @@ function BottomSlot({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
-            <ContentFrame
-              title={def.label}
-              onClose={onClose}
-              headerRight={getPanelHeaderRight(panelId!, isConnected)}
-              className="h-full"
-              bodyClassName="overflow-y-auto flex flex-col"
-            >
-              <PanelContent panelId={panelId!} isConnected={isConnected} />
-            </ContentFrame>
+            <PanelFrame className="h-full">
+              <PanelFrameHeader
+                title={def.label}
+                onClose={onClose}
+                actions={getPanelHeaderRight(panelId!, isConnected)}
+              />
+              <PanelFrameBody className="overflow-y-auto flex flex-col">
+                <PanelContent panelId={panelId!} isConnected={isConnected} />
+              </PanelFrameBody>
+            </PanelFrame>
           </motion.div>
         )}
       </AnimatePresence>
