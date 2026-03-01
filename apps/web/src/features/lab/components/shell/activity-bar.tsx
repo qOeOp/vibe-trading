@@ -1,16 +1,10 @@
 'use client';
 
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, X } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/features/lab/components/ui/dropdown-menu';
 import {
   cellErrorSummariesAtom,
   cellsRuntimeAtom,
@@ -155,22 +149,63 @@ function ActivityBar({ className }: { className?: string }) {
 }
 
 // ─── More Options (Export) ───────────────────────────────
+//
+// Click ⋯ → 4 export buttons fan out upward above it (same PanelButton style).
+// Click again (now ✕) or click an export action → collapse back.
 
 function MoreOptionsButton() {
   const exportActions = useExportActions();
+  const [open, setOpen] = useState(false);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          data-slot="more-options-btn"
-          className="w-[36px] h-[36px] flex items-center justify-center rounded-full bg-white text-mine-text relative hover:scale-105 transition-transform"
-          style={{ boxShadow: BUTTON_SHADOW }}
-        >
+    <div data-slot="export-fan" className="flex flex-col items-center gap-2">
+      {/* Export buttons — slide up when open */}
+      <div
+        className={cn(
+          'flex flex-col items-center gap-2 transition-all duration-200 overflow-hidden',
+          open
+            ? 'max-h-[200px] opacity-100'
+            : 'max-h-0 opacity-0 pointer-events-none',
+        )}
+      >
+        {exportActions.map((action) => (
+          <PanelButton
+            key={action.label}
+            icon={action.icon}
+            label={action.label}
+            isActive={false}
+            round
+            disabled={action.disabled}
+            onClick={() => {
+              action.handle();
+              setOpen(false);
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Toggle button — ⋯ / ✕ */}
+      <button
+        data-slot="more-options-btn"
+        title={open ? 'Close export' : 'Export notebook'}
+        className={cn(
+          'w-[36px] h-[36px] flex items-center justify-center rounded-full relative transition-all',
+          open
+            ? 'bg-mine-nav-active text-white scale-105'
+            : 'bg-white text-mine-text hover:scale-105',
+        )}
+        style={{
+          boxShadow: open ? undefined : BUTTON_SHADOW,
+        }}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {!open && (
           <div
             className="absolute inset-0 rounded-full pointer-events-none"
             style={{ boxShadow: BUTTON_INSET }}
           />
+        )}
+        {!open && (
           <GlowingEffect
             spread={40}
             glow
@@ -179,28 +214,17 @@ function MoreOptionsButton() {
             inactiveZone={0.01}
             borderWidth={2}
           />
+        )}
+        {open ? (
+          <X className="w-[18px] h-[18px] relative z-[1]" strokeWidth={1.5} />
+        ) : (
           <MoreHorizontal
             className="w-[18px] h-[18px] relative z-[1]"
             strokeWidth={1.5}
           />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent side="left" align="end" className="w-[200px]">
-        <div className="px-2 py-1.5 text-[10px] font-medium text-mine-muted uppercase tracking-wider">
-          Export notebook
-        </div>
-        {exportActions.map((action) => (
-          <DropdownMenuItem
-            key={action.label}
-            onSelect={action.handle}
-            disabled={action.disabled}
-          >
-            <action.icon className="w-4 h-4 mr-2 text-mine-muted" />
-            {action.label}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        )}
+      </button>
+    </div>
   );
 }
 
