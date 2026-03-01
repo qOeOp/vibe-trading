@@ -161,14 +161,28 @@ function ConnectionStepper({
                 }}
               />
 
-              {hasUsageFlip ? (
-                /* Step 1: flip icon + label → CPU/Memory bars */
+              {/* Step icon */}
+              {isActive ? (
+                <StepSpinner className="w-4 h-4 shrink-0 animate-spin" />
+              ) : isDone ? (
+                <StepDone />
+              ) : (
+                <StepCircle />
+              )}
+              {/* Label — vertical slide on hover for steps with data */}
+              {hasKernelFlip ? (
                 <div className="relative h-5 overflow-hidden">
                   <div className="flex flex-col transition-transform duration-300 ease-in-out group-hover:-translate-y-5">
-                    <span className="h-5 leading-5 flex items-center gap-3">
-                      <StepDone />
-                      {s.label}
+                    <span className="h-5 leading-5">{s.label}</span>
+                    <span className="h-5 leading-5 font-mono tabular-nums">
+                      {kernelLabel}
                     </span>
+                  </div>
+                </div>
+              ) : hasUsageFlip ? (
+                <div className="relative h-5 overflow-hidden">
+                  <div className="flex flex-col transition-transform duration-300 ease-in-out group-hover:-translate-y-5">
+                    <span className="h-5 leading-5">{s.label}</span>
                     <span className="h-5 leading-5 flex items-center gap-2.5">
                       <Cpu className="w-3.5 h-3.5 text-mine-muted shrink-0" />
                       <UsageBar percent={Math.round(usageData!.cpu.percent)} />
@@ -180,29 +194,7 @@ function ConnectionStepper({
                   </div>
                 </div>
               ) : (
-                <>
-                  {/* Step icon */}
-                  {isActive ? (
-                    <StepSpinner className="w-4 h-4 shrink-0 animate-spin" />
-                  ) : isDone ? (
-                    <StepDone />
-                  ) : (
-                    <StepCircle />
-                  )}
-                  {/* Label — vertical slide on hover for step 0 */}
-                  {hasKernelFlip ? (
-                    <div className="relative h-5 overflow-hidden">
-                      <div className="flex flex-col transition-transform duration-300 ease-in-out group-hover:-translate-y-5">
-                        <span className="h-5 leading-5">{s.label}</span>
-                        <span className="h-5 leading-5 font-mono tabular-nums">
-                          {kernelLabel}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    s.label
-                  )}
-                </>
+                s.label
               )}
             </div>
           </div>
