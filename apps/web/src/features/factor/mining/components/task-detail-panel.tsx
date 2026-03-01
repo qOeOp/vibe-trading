@@ -10,6 +10,18 @@ import {
   Lightbulb,
   FlaskConical,
 } from 'lucide-react';
+import {
+  PanelFrame,
+  PanelFrameHeader,
+  PanelFrameBody,
+  PanelSection,
+  PanelStatGrid,
+  PanelStatItem,
+  PanelKV,
+  PanelBadgeTag,
+  PanelChartBox,
+} from '@/components/shared/panel';
+import type { StatColor } from '@/components/shared/panel';
 import type {
   MiningTask,
   LogEntry,
@@ -34,53 +46,44 @@ function ProgressSection({ task }: { task: MiningTask }) {
     return `${Math.floor(s / 3600)}h${Math.floor((s % 3600) / 60)}m`;
   };
 
-  const kpis = [
+  const loopText = (
+    <span className="text-[11px] font-mono tabular-nums text-mine-muted">
+      Loop {progress.currentLoop}/{progress.maxLoops}
+    </span>
+  );
+
+  const kpis: { label: string; value: string; color?: StatColor }[] = [
     {
       label: '已发现',
       value: String(progress.factorsDiscovered),
-      positive: undefined as boolean | undefined,
     },
     {
       label: '已接受',
       value: String(progress.factorsAccepted),
-      positive: true,
+      color: 'down' as StatColor,
     },
     {
       label: '已拒绝',
       value: String(progress.factorsRejected),
-      positive: undefined as boolean | undefined,
     },
     {
       label: '最佳 IC',
       value: progress.bestIc.toFixed(4),
-      positive: progress.bestIc > 0.03,
+      color: progress.bestIc > 0.03 ? ('down' as StatColor) : undefined,
     },
     {
       label: '最佳 IR',
       value: progress.bestIr.toFixed(3),
-      positive: progress.bestIr > 1,
+      color: progress.bestIr > 1 ? ('down' as StatColor) : undefined,
     },
     {
       label: '已用时间',
       value: fmtTime(progress.elapsedSeconds),
-      positive: undefined as boolean | undefined,
     },
   ];
 
   return (
-    <div
-      data-slot="progress-section"
-      className="px-4 py-3 border-b border-mine-border/50"
-    >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] text-mine-muted uppercase tracking-wider font-medium">
-          运行进度
-        </span>
-        <span className="text-[11px] font-mono tabular-nums text-mine-muted">
-          Loop {progress.currentLoop}/{progress.maxLoops}
-        </span>
-      </div>
-
+    <PanelSection title="运行进度" suffix={loopText}>
       {/* Progress bar */}
       <div className="h-1.5 bg-mine-border rounded-full overflow-hidden mb-3">
         <div
@@ -90,38 +93,29 @@ function ProgressSection({ task }: { task: MiningTask }) {
       </div>
 
       {/* KPI grid */}
-      <div className="grid grid-cols-3 gap-3">
-        {kpis.map(({ label, value, positive }) => (
-          <div key={label} className="text-center">
-            <div
-              className={cn(
-                'text-sm font-bold font-mono tabular-nums',
-                positive === true
-                  ? 'text-market-down-medium'
-                  : 'text-mine-text',
-              )}
-            >
-              {value}
-            </div>
-            <div className="text-[9px] text-mine-muted uppercase tracking-wider mt-0.5">
-              {label}
-            </div>
-          </div>
+      <PanelStatGrid columns={3}>
+        {kpis.map(({ label, value, color }) => (
+          <PanelStatItem
+            key={label}
+            label={label}
+            value={value}
+            color={color}
+          />
         ))}
-      </div>
+      </PanelStatGrid>
 
       {/* Current hypothesis */}
       {progress.currentHypothesis && (
-        <div className="mt-3 px-2.5 py-2 bg-mine-bg rounded-md">
+        <PanelChartBox className="mt-3 px-2.5 py-2">
           <div className="text-[9px] text-mine-muted uppercase tracking-wider mb-1">
             当前假设
           </div>
           <div className="text-xs text-mine-text leading-relaxed line-clamp-2">
             {progress.currentHypothesis}
           </div>
-        </div>
+        </PanelChartBox>
       )}
-    </div>
+    </PanelSection>
   );
 }
 
@@ -143,13 +137,7 @@ function ActivityLog({ entries }: { entries: LogEntry[] }) {
   }, [entries.length]);
 
   return (
-    <div
-      data-slot="activity-log"
-      className="px-4 py-3 border-b border-mine-border/50"
-    >
-      <div className="text-[10px] text-mine-muted uppercase tracking-wider font-medium mb-2">
-        实时日志
-      </div>
+    <PanelSection title="实时日志">
       <div className="h-[140px] overflow-y-auto bg-mine-bg rounded-md p-2 space-y-0.5">
         {entries.length === 0 && (
           <div className="text-[11px] text-mine-muted italic">
@@ -175,7 +163,7 @@ function ActivityLog({ entries }: { entries: LogEntry[] }) {
         ))}
         <div ref={bottomRef} />
       </div>
-    </div>
+    </PanelSection>
   );
 }
 
@@ -195,23 +183,14 @@ function ResearchRounds({ taskId }: { taskId: string }) {
   if (rounds.length === 0) return null;
 
   return (
-    <div
-      data-slot="research-rounds"
-      className="px-4 py-3 border-b border-mine-border/50"
-    >
-      <div className="flex items-center gap-1.5 mb-2">
-        <Lightbulb className="w-3 h-3 text-mine-accent-yellow" />
-        <span className="text-[10px] text-mine-muted uppercase tracking-wider font-medium">
-          研究假设 ({rounds.length} 轮)
-        </span>
-      </div>
+    <PanelSection title="研究假设" collapsible badge={`${rounds.length} 轮`}>
       <div className="space-y-2">
         {rounds.map((round) => (
           <div
             key={round.roundIndex}
             className="bg-mine-bg rounded-lg border border-mine-border/50 overflow-hidden"
           >
-            {/* Round header — click to expand */}
+            {/* Round header -- click to expand */}
             <button
               onClick={() =>
                 setExpanded(
@@ -241,7 +220,7 @@ function ResearchRounds({ taskId }: { taskId: string }) {
           </div>
         ))}
       </div>
-    </div>
+    </PanelSection>
   );
 }
 
@@ -262,24 +241,34 @@ function FactorResultCard({
 }: FactorResultCardProps) {
   const m = factor.metrics;
 
-  const kvItems = [
-    { label: 'IC', value: m.ic.toFixed(4), positive: m.ic > 0.03 },
-    { label: 'ICIR', value: m.icir.toFixed(3), positive: m.icir > 1 },
+  const kvItems: { label: string; value: string; color?: StatColor }[] = [
+    {
+      label: 'IC',
+      value: m.ic.toFixed(4),
+      color: m.ic > 0.03 ? 'down' : undefined,
+    },
+    {
+      label: 'ICIR',
+      value: m.icir.toFixed(3),
+      color: m.icir > 1 ? 'down' : undefined,
+    },
     {
       label: 'ARR',
       value: `${(m.arr * 100).toFixed(1)}%`,
-      positive: m.arr > 0,
+      color: m.arr > 0 ? 'down' : 'up',
     },
-    { label: 'Sharpe', value: m.sharpe.toFixed(2), positive: m.sharpe > 1 },
+    {
+      label: 'Sharpe',
+      value: m.sharpe.toFixed(2),
+      color: m.sharpe > 1 ? 'down' : undefined,
+    },
     {
       label: '最大回撤',
       value: `${(m.maxDrawdown * 100).toFixed(1)}%`,
-      positive: undefined as boolean | undefined,
     },
     {
       label: '换手率',
       value: `${(m.turnover * 100).toFixed(1)}%`,
-      positive: undefined as boolean | undefined,
     },
   ];
 
@@ -338,16 +327,13 @@ function FactorResultCard({
       {/* Description tag + natural language */}
       {factor.description && (
         <div className="mb-2">
-          {/* Extract "[Type]" prefix as a badge */}
           {(() => {
-            const m = factor.description.match(/^\[([^\]]+)\](.*)/);
-            return m ? (
+            const match = factor.description.match(/^\[([^\]]+)\](.*)/);
+            return match ? (
               <div className="flex items-start gap-1.5">
-                <span className="shrink-0 px-1.5 py-0.5 rounded text-[9px] font-medium bg-mine-accent-teal/10 text-mine-accent-teal border border-mine-accent-teal/20">
-                  {m[1]}
-                </span>
+                <PanelBadgeTag color="teal">{match[1]}</PanelBadgeTag>
                 <p className="text-[10px] text-mine-muted leading-relaxed">
-                  {m[2].trim()}
+                  {match[2].trim()}
                 </p>
               </div>
             ) : (
@@ -376,22 +362,8 @@ function FactorResultCard({
 
       {/* Metrics */}
       <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 mb-2">
-        {kvItems.map(({ label, value, positive }) => (
-          <div key={label} className="flex items-center justify-between">
-            <span className="text-[10px] text-mine-muted">{label}</span>
-            <span
-              className={cn(
-                'text-[11px] font-mono tabular-nums',
-                positive === true
-                  ? 'text-market-down-medium'
-                  : positive === false
-                    ? 'text-market-up-medium'
-                    : 'text-mine-text',
-              )}
-            >
-              {value}
-            </span>
-          </div>
+        {kvItems.map(({ label, value, color }) => (
+          <PanelKV key={label} label={label} value={value} color={color} />
         ))}
       </div>
 
@@ -486,7 +458,7 @@ function buildCompletedLog(task: MiningTask): LogEntry[] {
     entries.push(
       make(
         f.accepted ? 'factor_accepted' : 'factor_rejected',
-        `${f.name}  IC=${f.metrics.ic.toFixed(4)}  ${f.accepted ? '✓ 已接受' : '✗ 已拒绝'}`,
+        `${f.name}  IC=${f.metrics.ic.toFixed(4)}  ${f.accepted ? '\u2713 已接受' : '\u2717 已拒绝'}`,
         end - 500,
       ),
     );
@@ -522,57 +494,50 @@ export function TaskDetailPanel({
   onCancel,
   className,
 }: TaskDetailPanelProps) {
-  return (
-    <div
-      data-slot="task-detail-panel"
-      className={cn(
-        'flex flex-col bg-white border border-mine-border rounded-xl overflow-hidden',
-        className,
-      )}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-mine-border/50 shrink-0">
-        <div>
-          <span className="text-xs font-mono text-mine-muted">
-            {task.taskId.replace('mining_', '#')}
-          </span>
-          <span className="mx-2 text-mine-border">·</span>
-          <span className="text-xs font-medium text-mine-text">
-            {MODE_LABELS[task.mode] ?? task.mode}
-          </span>
-        </div>
-        {task.status === 'RUNNING' && onCancel && (
-          <button
-            onClick={() => onCancel(task.taskId)}
-            className="px-2.5 py-1 text-[10px] font-medium rounded
-                       text-market-up-medium border border-market-up-medium/30
-                       hover:bg-market-up-medium/5 transition-colors"
-          >
-            停止
-          </button>
-        )}
-      </div>
+  const cancelButton =
+    task.status === 'RUNNING' && onCancel ? (
+      <button
+        onClick={() => onCancel(task.taskId)}
+        className="px-2.5 py-1 text-[10px] font-medium rounded
+                   text-market-up-medium border border-market-up-medium/30
+                   hover:bg-market-up-medium/5 transition-colors"
+      >
+        停止
+      </button>
+    ) : undefined;
 
-      {/* Scrollable body */}
-      <div className="flex-1 overflow-y-auto">
+  return (
+    <PanelFrame data-slot="task-detail-panel" className={className}>
+      <PanelFrameHeader
+        title={task.taskId.replace('mining_', '#')}
+        subtitle={
+          <PanelBadgeTag color="teal">
+            {MODE_LABELS[task.mode] ?? task.mode}
+          </PanelBadgeTag>
+        }
+        actions={cancelButton}
+      />
+
+      <PanelFrameBody>
         {/* Progress */}
         <ProgressSection task={task} />
 
-        {/* Activity log — live stream when RUNNING, static summary otherwise */}
+        {/* Activity log -- live stream when RUNNING, static summary otherwise */}
         <ActivityLog
           entries={
             task.status === 'RUNNING' ? logEntries : buildCompletedLog(task)
           }
         />
 
-        {/* Research rounds — hypothesis + reason per loop */}
+        {/* Research rounds -- hypothesis + reason per loop */}
         <ResearchRounds taskId={task.taskId} />
 
         {/* Discovered factors */}
-        <div className="px-4 py-3">
-          <div className="text-[10px] text-mine-muted uppercase tracking-wider font-medium mb-2">
-            已发现因子 ({task.factors.length})
-          </div>
+        <PanelSection
+          title="已发现因子"
+          badge={String(task.factors.length)}
+          noBorder
+        >
           {task.factors.length === 0 ? (
             <div className="py-4 text-center text-xs text-mine-muted">
               {task.status === 'RUNNING'
@@ -596,8 +561,8 @@ export function TaskDetailPanel({
               ))}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+        </PanelSection>
+      </PanelFrameBody>
+    </PanelFrame>
   );
 }
