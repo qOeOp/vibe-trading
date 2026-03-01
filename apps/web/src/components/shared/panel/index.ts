@@ -1,9 +1,5 @@
 // Typography
-export {
-  PANEL_TYPOGRAPHY,
-  PANEL_SIZE,
-  PANEL_ROLE_DEFAULT_SIZE,
-} from './panel-typography';
+export { PANEL_TYPOGRAPHY } from './panel-typography';
 
 // Text
 export { PanelText, panelTextVariants } from './panel-text';

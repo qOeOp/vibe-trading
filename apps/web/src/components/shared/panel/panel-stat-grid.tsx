@@ -31,13 +31,13 @@ function PanelStatItem({ label, value, color, className }: PanelStatItemProps) {
     >
       <span
         className={cn(
-          'text-sm font-bold font-mono tabular-nums',
-          color ? STAT_COLOR_MAP[color] : 'text-mine-text',
+          PANEL_TYPOGRAPHY.lg.value,
+          color && STAT_COLOR_MAP[color],
         )}
       >
         {value}
       </span>
-      <span className={cn(PANEL_TYPOGRAPHY.label, 'text-[9px]')}>{label}</span>
+      <span className={PANEL_TYPOGRAPHY.sm.label}>{label}</span>
     </div>
   );
 }

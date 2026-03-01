@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { PANEL_TYPOGRAPHY } from './panel-typography';
 
 type PanelEmptyProps = {
   icon?: React.ReactNode;
@@ -32,10 +33,14 @@ function PanelEmpty({
           className: 'w-6 h-6 text-mine-muted/40',
         })}
       {title && (
-        <p className="text-[11px] font-medium text-mine-muted">{title}</p>
+        <p className={cn(PANEL_TYPOGRAPHY.body, 'font-medium text-mine-muted')}>
+          {title}
+        </p>
       )}
       {description && (
-        <p className="text-[10px] text-mine-muted/60 mt-1">{description}</p>
+        <p className={cn(PANEL_TYPOGRAPHY.hint, 'text-mine-muted/60 mt-1')}>
+          {description}
+        </p>
       )}
       {action && <div className="mt-3">{action}</div>}
     </div>

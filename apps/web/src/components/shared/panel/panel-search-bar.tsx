@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Search, X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { PANEL_TYPOGRAPHY } from './panel-typography';
 
 type PanelSearchBarProps = {
   value?: string;
@@ -32,7 +33,10 @@ function PanelSearchBar({
         value={value ?? ''}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 text-[11px] bg-transparent outline-none text-mine-text placeholder:text-mine-muted/50"
+        className={cn(
+          PANEL_TYPOGRAPHY.body,
+          'flex-1 bg-transparent outline-none placeholder:text-mine-muted/50',
+        )}
       />
       {value && (
         <button

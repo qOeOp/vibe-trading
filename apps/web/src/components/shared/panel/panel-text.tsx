@@ -9,22 +9,18 @@ import { cn } from '@/lib/utils';
 const panelTextVariants = cva('', {
   variants: {
     variant: {
-      label: 'font-medium text-mine-muted uppercase tracking-wider',
-      body: 'text-mine-text',
-      value: 'font-mono tabular-nums text-mine-text',
-      hint: 'text-mine-muted',
+      label: 'text-[10px] font-medium text-mine-muted uppercase tracking-wider',
+      body: 'text-[11px] text-mine-text',
+      value: 'text-[11px] font-mono tabular-nums text-mine-text',
+      hint: 'text-[10px] text-mine-muted',
     },
     size: {
       sm: 'text-[9px]',
-      base: 'text-[11px]',
+      base: '',
       lg: 'text-sm font-bold',
     },
   },
   defaultVariants: { variant: 'body', size: 'base' },
-  compoundVariants: [
-    { variant: 'label', size: 'base', className: 'text-[10px]' },
-    { variant: 'hint', size: 'base', className: 'text-[10px]' },
-  ],
 });
 
 type PanelTextProps = React.ComponentProps<'span'> &

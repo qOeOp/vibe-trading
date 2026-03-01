@@ -62,20 +62,14 @@ function PanelSection({
                 </motion.div>
               </button>
             )}
-            <span className={cn(PANEL_TYPOGRAPHY.label, 'text-[10px]')}>
-              {title}
-            </span>
+            <span className={PANEL_TYPOGRAPHY.label}>{title}</span>
             {badge && (
-              <span className="text-[9px] font-mono tabular-nums text-mine-muted">
-                {badge}
-              </span>
+              <span className={PANEL_TYPOGRAPHY.sm.value}>{badge}</span>
             )}
           </div>
 
           <div className="flex items-center gap-2">
-            {suffix && (
-              <span className="text-[10px] text-mine-muted">{suffix}</span>
-            )}
+            {suffix && <span className={PANEL_TYPOGRAPHY.hint}>{suffix}</span>}
             {titleRight}
           </div>
         </div>

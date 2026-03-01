@@ -58,9 +58,7 @@ function PanelFrameHeader({
       data-slot="panel-frame-header"
       className={cn('flex items-center px-2.5 py-2 shrink-0', className)}
     >
-      <span className={cn(PANEL_TYPOGRAPHY.label, 'text-[10px] pl-2')}>
-        {title}
-      </span>
+      <span className={cn(PANEL_TYPOGRAPHY.label, 'pl-2')}>{title}</span>
 
       {subtitle && <div className="ml-2">{subtitle}</div>}
 

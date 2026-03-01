@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { PANEL_TYPOGRAPHY } from './panel-typography';
 
 type BadgeColor = 'muted' | 'red' | 'teal' | 'yellow';
 
@@ -29,7 +30,7 @@ function PanelBadge({ color = 'muted', className, ...props }: PanelBadgeProps) {
     <span
       data-slot="panel-badge"
       className={cn(
-        'text-[9px] font-mono tabular-nums',
+        PANEL_TYPOGRAPHY.sm.value,
         BADGE_COLOR_MAP[color],
         className,
       )}
@@ -51,7 +52,8 @@ function PanelBadgeTag({
     <span
       data-slot="panel-badge-tag"
       className={cn(
-        'px-1.5 py-0.5 text-[9px] font-medium rounded',
+        'px-1.5 py-0.5 rounded',
+        PANEL_TYPOGRAPHY.sm.label,
         BADGE_TAG_COLOR_MAP[color],
         className,
       )}

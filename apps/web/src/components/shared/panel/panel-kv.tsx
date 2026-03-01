@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { PANEL_TYPOGRAPHY } from './panel-typography';
 import { STAT_COLOR_MAP } from './panel-stat-grid';
 import type { StatColor } from './panel-stat-grid';
 
@@ -19,12 +20,9 @@ function PanelKV({ label, value, color, className }: PanelKVProps) {
       data-slot="panel-kv"
       className={cn('flex items-center justify-between py-1', className)}
     >
-      <span className="text-[10px] text-mine-muted">{label}</span>
+      <span className={PANEL_TYPOGRAPHY.hint}>{label}</span>
       <span
-        className={cn(
-          'text-[11px] font-mono tabular-nums',
-          color ? STAT_COLOR_MAP[color] : 'text-mine-text',
-        )}
+        className={cn(PANEL_TYPOGRAPHY.value, color && STAT_COLOR_MAP[color])}
       >
         {value}
       </span>
