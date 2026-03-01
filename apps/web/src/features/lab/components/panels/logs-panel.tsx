@@ -1,17 +1,9 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import { Terminal, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLabCellStore } from '@/features/lab/store/use-lab-cell-store';
-import {
-  PanelBar,
-  PanelBody,
-  PanelEmpty,
-  PanelActionButton,
-  PanelText,
-  usePanelV2,
-} from '../panel-primitives';
+import { PanelEmpty } from '@/components/shared/panel';
 
 // ─── Logs Panel ──────────────────────────────────────────
 
@@ -72,7 +64,7 @@ function formatTime(ts: number) {
   });
 }
 
-// ─── Log Row (shared) ───────────────────────────────────
+// ─── Log Row ────────────────────────────────────────────
 
 function LogRow({ log }: { log: LogEntry }) {
   return (
@@ -83,133 +75,41 @@ function LogRow({ log }: { log: LogEntry }) {
         log.channel === 'stdout' && 'text-mine-text',
       )}
     >
-      <PanelText
-        variant="tiny"
-        className="shrink-0 w-12 text-right tabular-nums font-mono"
-      >
+      <span className="panel-value-sm shrink-0 w-12 text-right">
         {formatTime(log.timestamp)}
-      </PanelText>
-      <PanelText
-        variant="tiny"
-        className="shrink-0 w-14 truncate text-mine-accent-teal"
-      >
+      </span>
+      <span className="panel-hint shrink-0 w-14 truncate text-[9px] text-mine-accent-teal">
         {log.cellName}
-      </PanelText>
-      <span className="whitespace-pre-wrap break-all text-[11px] font-mono">
+      </span>
+      <span className="whitespace-pre-wrap break-all panel-value">
         {log.data}
       </span>
     </div>
   );
 }
 
-// ─── V2 (primitives) ────────────────────────────────────
+// ─── Logs Panel Content ─────────────────────────────────
 
-function LogsPanelV2() {
+function LogsPanel() {
   const allLogs = useLogData();
   const scrollRef = useAutoScroll(allLogs.length);
-  const [isV2, toggleV2] = usePanelV2('logs-panel');
+
+  if (allLogs.length === 0) {
+    return <PanelEmpty title="No log output" />;
+  }
 
   return (
-    <div data-slot="logs-panel" className="h-full flex flex-col">
-      <PanelBar
-        title="Logs"
-        icon={<Terminal />}
-        badge={
-          <PanelText variant="tiny" className="font-mono">
-            ({allLogs.length})
-          </PanelText>
-        }
-        right={
-          allLogs.length > 0 ? (
-            <PanelActionButton
-              icon={<Trash2 />}
-              label="Clear Logs"
-              hoverColor="default"
-            />
-          ) : undefined
-        }
-        v2={{ active: isV2, onToggle: toggleV2 }}
-      />
-      <PanelBody
-        ref={scrollRef}
-        className="font-mono text-[11px] leading-relaxed"
-      >
-        {allLogs.length === 0 ? (
-          <PanelEmpty title="No log output" />
-        ) : (
-          <div className="px-2 py-1">
-            {allLogs.map((log, i) => (
-              <LogRow key={`${log.cellId}-${log.timestamp}-${i}`} log={log} />
-            ))}
-          </div>
-        )}
-      </PanelBody>
-    </div>
-  );
-}
-
-// ─── V1 (original) ──────────────────────────────────────
-
-function LogsPanelV1() {
-  const allLogs = useLogData();
-  const scrollRef = useAutoScroll(allLogs.length);
-  const [, toggleV2] = usePanelV2('logs-panel');
-
-  return (
-    <div data-slot="logs-panel" className="h-full flex flex-col">
-      {/* Header */}
-      <div className="px-3 py-1.5 border-b border-mine-border/50 shrink-0 flex items-center gap-1.5">
-        <Terminal className="w-3 h-3 text-mine-muted" />
-        <span className="text-[10px] font-medium text-mine-muted uppercase tracking-wider">
-          Logs
-        </span>
-        <span className="text-[10px] font-mono text-mine-muted">
-          ({allLogs.length})
-        </span>
-        <div className="flex-1" />
-        {allLogs.length > 0 && (
-          <button
-            type="button"
-            title="Clear Logs"
-            className="text-mine-muted hover:text-mine-text transition-colors"
-          >
-            <Trash2 className="w-3 h-3" />
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={toggleV2}
-          className="text-mine-muted/40 hover:text-mine-muted p-0.5 rounded transition-colors ml-1"
-          title="Switch to v2 (new)"
-        >
-          <span className="text-[8px] font-mono">v2</span>
-        </button>
-      </div>
-
-      {/* Content */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed"
-      >
-        {allLogs.length === 0 ? (
-          <div className="px-3 py-4 text-center text-[11px] text-mine-muted font-sans">
-            No log output
-          </div>
-        ) : (
-          <div className="px-2 py-1">
-            {allLogs.map((log, i) => (
-              <LogRow key={`${log.cellId}-${log.timestamp}-${i}`} log={log} />
-            ))}
-          </div>
-        )}
+    <div
+      ref={scrollRef}
+      className="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed"
+    >
+      <div className="px-2 py-1">
+        {allLogs.map((log, i) => (
+          <LogRow key={`${log.cellId}-${log.timestamp}-${i}`} log={log} />
+        ))}
       </div>
     </div>
   );
 }
 
-// ─── Switch ─────────────────────────────────────────────
-
-export function LogsPanel() {
-  const [isV2] = usePanelV2('logs-panel');
-  return isV2 ? <LogsPanelV2 /> : <LogsPanelV1 />;
-}
+export { LogsPanel };

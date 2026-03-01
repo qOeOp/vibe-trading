@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { DetailSection } from "@/components/shared/detail-panel";
-import { DivergingBarChart } from "@/lib/xycharts/diverging-bar-chart";
-import type { Factor } from "@/features/library/types";
+import { PanelSection } from '@/components/shared/panel';
+import { DivergingBarChart } from '@/lib/xycharts/diverging-bar-chart';
+import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 
 /** A股红涨绿跌: Q1 (worst, green/跌) → Q5 (best, red/涨) */
 const QUANTILE_COLORS = [
-  "#0B8C5F", // Q1 — worst (green/跌)
-  "#58CEAA", // Q2
-  "#76808E", // Q3 — neutral
-  "#E8626F", // Q4
-  "#CF304A", // Q5 — best (red/涨)
+  '#0B8C5F', // Q1 — worst (green/跌)
+  '#58CEAA', // Q2
+  '#76808E', // Q3 — neutral
+  '#E8626F', // Q4
+  '#CF304A', // Q5 — best (red/涨)
 ];
 
-const LEGEND_ITEMS = ["Q1", "Q2", "Q3", "Q4", "Q5"] as const;
+const LEGEND_ITEMS = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'] as const;
 
 /* ── Section Export ────────────────────────────────────────── */
 
@@ -27,7 +27,7 @@ export function QuantileCumulativeReturnsSection({
   factor,
 }: QuantileCumulativeReturnsSectionProps) {
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-mine-muted">
           分组累计收益
@@ -62,6 +62,6 @@ export function QuantileCumulativeReturnsSection({
           margin={{ top: 6, right: 4, bottom: 4, left: 0 }}
         />
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }

@@ -19,7 +19,7 @@ apps/web/src/
 │   ├── ui/              # L1: shadcn primitives (Radix + CVA)
 │   ├── layout/          # L2: sidebar, nav, ticker
 │   ├── animation/       # L2: AnimateIn, AnimateHeavy
-│   └── shared/          # L2: detail-panel 等跨 feature 组件
+│   └── shared/          # L2: panel/ (unified panel system), 跨 feature 组件
 ├── features/            # L3: feature modules (market, factor, library, lab, journal...)
 ├── lib/                 # L0: library-grade 代码
 │   ├── ngx-charts/      # D3 chart library (13 chart types)
@@ -52,23 +52,29 @@ apps/web/src/
 - Glassmorphism (`backdrop-blur`) ONLY for: left sidebar, top nav pills, ticker
 - Numbers: `font-mono tabular-nums` + market color coding (红涨绿跌)
 - All clickable elements must have hover state
+- Panels: ALL panels MUST use `@/components/shared/panel` primitives. See `components/shared/panel/USAGE.md`
 
 ### Theme (Mine)
 
 - Light theme on warm beige (`mine-page-bg`). `dark` class in HTML but visual is light
 - Use semantic tokens (`mine-text`, `mine-muted`, `mine-border`) not hex values
 - Market colors: red=up (`market-up-medium`), green=down (`market-down-medium`) — A股惯例
-- Detail panels: must use `@/components/shared/detail-panel` primitives
-- Full design spec: `.claude/rules/component-design-system.md`
 
 ### 颜色纪律（强制）
 
 **禁止裸 hex**（`#2EBD85`、`text-[#CF304A]`、`bg-[#f5f3ef]`）。所有颜色必须用语义色 token 或 Tailwind 色板：
 
-1. 先查 `globals.css` 的 `@theme` 块是否有对应 token → 有则用（`text-mine-muted`、`bg-market-up-medium`）
-2. 没有 → 在 `globals.css` `@theme` 中新增语义 token，再引用
-3. Tailwind 内置色板（`bg-zinc-900`、`text-white/80`、`border-white/10`）可直接用
+1. 先查 `globals.css` 的 `@theme` 块是否有对应 token → 有则用
+2. 没有 → 在 `@theme` 中新增语义 token，再引用
+3. Tailwind 内置色板（`bg-zinc-900`、`text-white/80`）可直接用
 4. 唯一例外：ANSI 色表、D3 绑定等需要 JS 原始值的标准映射
+
+### 样式纪律（强制）
+
+**禁止在多个文件中重复相同的 Tailwind 字符串组合。** 相同样式出现 2 次以上 → 必须先抽象为 `@utility` 或组件，再消费。
+
+- 新建组件系统时：先在 `globals.css` 用 `@utility` 定义语义 class（如 `panel-label`、`panel-value`），组件用单个 class name 消费
+- 已有的语义 class 见 `.claude/rules/component-design-system.md` §1.2
 
 ### ngx-charts
 
@@ -87,6 +93,10 @@ apps/web/src/
 
 - MineCard MUST have height constraints (`max-h-[420px]`); cards scroll, not stretch
 - Spec: `.claude/rules/blueprint-layout-design.md`
+
+### Full Design Spec
+
+`.claude/rules/component-design-system.md` — §1-4 是规则（禁令），§5-6 是参考（色板/样式速查）
 
 ## Dev Commands
 

@@ -39,8 +39,10 @@ const LazyLogsPanel = lazy(() => import('./vt-logs-panel'));
 const LazyDependencyGraphPanel = lazy(
   () => import('../editor/chrome/panels/dependency-graph-panel'),
 );
-const LazySecretsPanel = lazy(
-  () => import('../editor/chrome/panels/secrets-panel'),
+const LazySecretsPanel = lazy(() =>
+  import('../editor/chrome/panels/secrets-panel').then((m) => ({
+    default: m.SecretsPanel,
+  })),
 );
 const LazyOutlinePanel = lazy(
   () => import('../editor/chrome/panels/outline-panel'),

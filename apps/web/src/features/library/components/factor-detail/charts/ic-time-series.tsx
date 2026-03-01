@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { LineChart } from "@/lib/ngx-charts/line-chart";
-import type { MultiSeries } from "@/lib/ngx-charts/types";
-import { computeRollingMA } from "@/features/library/utils/compute-ic-stats";
-import type { Factor } from "@/features/library/types";
+import { useMemo } from 'react';
+import { PanelSection } from '@/components/shared/panel';
+import { LineChart } from '@/lib/ngx-charts/line-chart';
+import type { MultiSeries } from '@/lib/ngx-charts/types';
+import { computeRollingMA } from '@/features/library/utils/compute-ic-stats';
+import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────────── */
 
@@ -13,9 +13,9 @@ const IC_PROBATION_THRESHOLD = 0.01;
 
 /** Three-window rolling MA colors: shorter→longer = blue→indigo→purple */
 const ROLLING_COLORS: Array<{ name: string; value: string }> = [
-  { name: "20D MA", value: "#3b82f6" },
-  { name: "60D MA", value: "#6366f1" },
-  { name: "120D MA", value: "#8b5cf6" },
+  { name: '20D MA', value: '#3b82f6' },
+  { name: '60D MA', value: '#6366f1' },
+  { name: '120D MA', value: '#8b5cf6' },
 ];
 
 /** Per-series rendering config
@@ -24,9 +24,9 @@ const ROLLING_COLORS: Array<{ name: string; value: string }> = [
  *  - 120D: thickest, area fill for long-term trend
  */
 const SERIES_CONFIG = {
-  "20D MA": { strokeWidth: 0.8, areaFillOpacity: 0 },
-  "60D MA": { strokeWidth: 1.0, areaFillOpacity: 0 },
-  "120D MA": { strokeWidth: 1.2, areaFillOpacity: 0.08 },
+  '20D MA': { strokeWidth: 0.8, areaFillOpacity: 0 },
+  '60D MA': { strokeWidth: 1.0, areaFillOpacity: 0 },
+  '120D MA': { strokeWidth: 1.2, areaFillOpacity: 0.08 },
 };
 
 /* ── Chart Component ──────────────────────────────────────────── */
@@ -51,14 +51,14 @@ function ICRollingMAChart({ data }: { data: number[] }) {
 
     // 120D first (area underneath), then 60D, then 20D on top
     return [
-      { name: "120D MA", series: buildSeries(ma120) },
-      { name: "60D MA", series: buildSeries(ma60) },
-      { name: "20D MA", series: buildSeries(ma20) },
+      { name: '120D MA', series: buildSeries(ma120) },
+      { name: '60D MA', series: buildSeries(ma60) },
+      { name: '20D MA', series: buildSeries(ma20) },
     ];
   }, [data]);
 
   const referenceLines = useMemo(
-    () => [{ name: "阈值", value: IC_PROBATION_THRESHOLD }],
+    () => [{ name: '阈值', value: IC_PROBATION_THRESHOLD }],
     [],
   );
 
@@ -92,7 +92,7 @@ interface ICTimeSeriesSectionProps {
 
 export function ICTimeSeriesSection({ factor }: ICTimeSeriesSectionProps) {
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-mine-muted">IC 滚动均线</span>
         <span className="flex items-center gap-3">
@@ -117,6 +117,6 @@ export function ICTimeSeriesSection({ factor }: ICTimeSeriesSectionProps) {
       <div className="h-[150px]">
         <ICRollingMAChart data={factor.icTimeSeries} />
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }

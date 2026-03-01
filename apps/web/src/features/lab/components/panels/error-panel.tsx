@@ -1,17 +1,12 @@
 'use client';
 
-import { AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useLabCellStore } from '@/features/lab/store/use-lab-cell-store';
 import {
-  PanelBar,
-  PanelBody,
   PanelRow,
   PanelEmpty,
   PanelBadge,
   PanelText,
-  usePanelV2,
-} from '../panel-primitives';
+} from '@/components/shared/panel';
 
 // ─── Error Panel ─────────────────────────────────────────
 
@@ -44,129 +39,40 @@ function useErrorData() {
   return { items, setActiveCellId };
 }
 
-// ─── V2 (primitives) ────────────────────────────────────
+// ─── Error Panel Content ────────────────────────────────
 
-function ErrorPanelV2() {
+function ErrorPanel() {
   const { items, setActiveCellId } = useErrorData();
-  const [isV2, toggleV2] = usePanelV2('error-panel');
+
+  if (items.length === 0) {
+    return <PanelEmpty title="No errors" />;
+  }
 
   return (
-    <div data-slot="error-panel" className="h-full flex flex-col">
-      <PanelBar
-        title="Errors"
-        icon={<AlertCircle className="text-mine-accent-red" />}
-        badge={
-          items.length > 0 ? (
-            <PanelBadge color="red">({items.length})</PanelBadge>
-          ) : undefined
-        }
-        v2={{ active: isV2, onToggle: toggleV2 }}
-      />
-      <PanelBody>
-        {items.length === 0 ? (
-          <PanelEmpty title="No errors" />
-        ) : (
-          <div className="divide-y divide-mine-border/20">
-            {items.map((item) => (
-              <PanelRow
-                key={item.id}
-                onPress={() => setActiveCellId(item.id)}
-                hoverBg="red"
-                className="flex-col items-start gap-0.5 py-2"
-              >
-                <div className="flex items-center gap-1.5">
-                  <PanelText variant="content" className="font-medium">
-                    {item.name}
-                  </PanelText>
-                  <PanelBadge>#{item.idx + 1}</PanelBadge>
-                </div>
-                <PanelText
-                  variant="sub"
-                  className="font-mono text-mine-accent-red line-clamp-2"
-                >
-                  {item.errorMsg}
-                </PanelText>
-              </PanelRow>
-            ))}
-          </div>
-        )}
-      </PanelBody>
-    </div>
-  );
-}
-
-// ─── V1 (original) ──────────────────────────────────────
-
-function ErrorPanelV1() {
-  const { items, setActiveCellId } = useErrorData();
-  const [isV2, toggleV2] = usePanelV2('error-panel');
-
-  return (
-    <div data-slot="error-panel" className="h-full flex flex-col">
-      {/* Header */}
-      <div className="px-3 py-1.5 border-b border-mine-border/50 shrink-0 flex items-center gap-1.5">
-        <AlertCircle className="w-3 h-3 text-mine-accent-red" />
-        <span className="text-[10px] font-medium text-mine-muted uppercase tracking-wider">
-          Errors
-        </span>
-        {items.length > 0 && (
-          <span className="text-[10px] font-mono text-mine-accent-red">
-            ({items.length})
-          </span>
-        )}
-        <div className="flex-1" />
-        <button
-          type="button"
-          onClick={toggleV2}
-          className="text-mine-muted/40 hover:text-mine-muted p-0.5 rounded transition-colors"
-          title="Switch to v2 (new)"
+    <div className="divide-y divide-mine-border/20">
+      {items.map((item) => (
+        <PanelRow
+          key={item.id}
+          onPress={() => setActiveCellId(item.id)}
+          hoverBg="red"
+          className="flex-col items-start gap-0.5 py-2"
         >
-          <span className="text-[8px] font-mono">v2</span>
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        {items.length === 0 ? (
-          <div className="px-3 py-4 text-center text-[11px] text-mine-muted">
-            No errors
+          <div className="flex items-center gap-1.5">
+            <PanelText variant="body" className="font-medium">
+              {item.name}
+            </PanelText>
+            <PanelBadge>#{item.idx + 1}</PanelBadge>
           </div>
-        ) : (
-          <div className="divide-y divide-mine-border/30">
-            {items.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setActiveCellId(item.id)}
-                className="w-full text-left px-3 py-2 hover:bg-mine-accent-red/5 transition-colors"
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-medium text-mine-text">
-                    {item.name}
-                  </span>
-                  <span className="text-[9px] font-mono text-mine-muted">
-                    #{item.idx + 1}
-                  </span>
-                </div>
-                <p
-                  className={cn(
-                    'text-[10px] font-mono text-mine-accent-red mt-0.5 line-clamp-2',
-                  )}
-                >
-                  {item.errorMsg}
-                </p>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+          <PanelText
+            variant="hint"
+            className="font-mono text-mine-accent-red line-clamp-2"
+          >
+            {item.errorMsg}
+          </PanelText>
+        </PanelRow>
+      ))}
     </div>
   );
 }
 
-// ─── Switch ─────────────────────────────────────────────
-
-export function ErrorPanel() {
-  const [isV2] = usePanelV2('error-panel');
-  return isV2 ? <ErrorPanelV2 /> : <ErrorPanelV1 />;
-}
+export { ErrorPanel };

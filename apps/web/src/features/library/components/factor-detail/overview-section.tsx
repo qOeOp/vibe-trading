@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { RadarChart } from "@/lib/ngx-charts/radar-chart";
+import { useMemo } from 'react';
+import { PanelSection } from '@/components/shared/panel';
+import { RadarChart } from '@/lib/ngx-charts/radar-chart';
 import {
   computeRadarScores,
   radarScoresToValues,
   RADAR_LABELS,
-} from "@/features/library/utils/compute-radar-scores";
-import type { Factor } from "@/features/library/types";
+} from '@/features/library/utils/compute-radar-scores';
+import type { Factor } from '@/features/library/types';
 
 // ─── V-Score Indicator ──────────────────────────────────
 
@@ -16,22 +16,22 @@ function VScoreIndicator({ vScore }: { vScore: number }) {
   const config = useMemo(() => {
     if (vScore < -1) {
       return {
-        label: "低估",
-        colorClass: "text-blue-500",
-        bgClass: "bg-blue-500/8",
+        label: '低估',
+        colorClass: 'text-blue-500',
+        bgClass: 'bg-blue-500/8',
       };
     }
     if (vScore > 1) {
       return {
-        label: "拥挤风险",
-        colorClass: "text-mine-accent-yellow",
-        bgClass: "bg-mine-accent-yellow/8",
+        label: '拥挤风险',
+        colorClass: 'text-mine-accent-yellow',
+        bgClass: 'bg-mine-accent-yellow/8',
       };
     }
     return {
-      label: "正常",
-      colorClass: "text-mine-muted",
-      bgClass: "bg-mine-muted/6",
+      label: '正常',
+      colorClass: 'text-mine-muted',
+      bgClass: 'bg-mine-muted/6',
     };
   }, [vScore]);
 
@@ -44,7 +44,7 @@ function VScoreIndicator({ vScore }: { vScore: number }) {
       <span
         className={`text-[11px] font-bold font-mono tabular-nums ${config.colorClass}`}
       >
-        {vScore >= 0 ? "+" : ""}
+        {vScore >= 0 ? '+' : ''}
         {vScore.toFixed(2)}
       </span>
       <span
@@ -67,7 +67,7 @@ export function OverviewSection({ factor }: OverviewSectionProps) {
   const values = useMemo(() => radarScoresToValues(scores), [scores]);
 
   return (
-    <DetailSection title="综合概览">
+    <PanelSection title="综合概览">
       {/* V-Score at top */}
       <VScoreIndicator vScore={factor.vScore} />
 
@@ -82,6 +82,6 @@ export function OverviewSection({ factor }: OverviewSectionProps) {
           strokeColor="#26a69a"
         />
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }

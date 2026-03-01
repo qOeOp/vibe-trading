@@ -3,6 +3,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { AnimateIn } from '@/components/animation';
 import { cn } from '@/lib/utils';
+import {
+  PanelFrame,
+  PanelFrameBody,
+  PanelEmpty,
+} from '@/components/shared/panel';
 import { useMiningTasks, useMiningStream } from '../hooks';
 import { miningApi } from '../api';
 import type { CreateTaskConfig, DiscoveredFactor } from '../types';
@@ -64,27 +69,33 @@ export function MiningPage({ className }: { className?: string }) {
       {/* Right: Detail panel or empty state */}
       <AnimateIn from="right" delay={1} className="flex-1 min-w-0 h-full">
         {error && (
-          <div className="flex flex-col items-center justify-center bg-white shadow-sm border border-mine-border rounded-xl h-full">
-            <div className="text-sm text-market-up-medium mb-1">
-              无法连接到 Vibe Compute
-            </div>
-            <div className="text-xs text-mine-muted">{error.message}</div>
-          </div>
+          <PanelFrame className="h-full">
+            <PanelFrameBody>
+              <PanelEmpty
+                title="无法连接到 Vibe Compute"
+                description={error.message}
+              />
+            </PanelFrameBody>
+          </PanelFrame>
         )}
 
         {!error && !selectedTask && !loading && (
-          <div className="h-full flex flex-col items-center justify-center bg-white border border-mine-border rounded-xl shadow-sm">
-            <div className="text-sm text-mine-muted mb-4">
-              选择一个任务，或创建新任务
-            </div>
-            <button
-              onClick={() => setShowNewTask(true)}
-              className="px-4 py-2 text-xs font-medium rounded-lg bg-mine-nav-active text-white
-                         hover:bg-mine-nav-active/90 transition-colors"
-            >
-              新建挖掘任务
-            </button>
-          </div>
+          <PanelFrame className="h-full">
+            <PanelFrameBody>
+              <PanelEmpty
+                title="选择一个任务，或创建新任务"
+                action={
+                  <button
+                    onClick={() => setShowNewTask(true)}
+                    className="px-4 py-2 text-xs font-medium rounded-lg bg-mine-nav-active text-white
+                               hover:bg-mine-nav-active/90 transition-colors"
+                  >
+                    新建挖掘任务
+                  </button>
+                }
+              />
+            </PanelFrameBody>
+          </PanelFrame>
         )}
 
         {!error && selectedTask && (

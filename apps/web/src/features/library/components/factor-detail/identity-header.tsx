@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Copy, ChevronRight } from "lucide-react";
-import { DetailHeader } from "@/components/shared/detail-panel";
-import { LifecycleTimeline } from "../lifecycle-timeline";
-import type { Factor } from "@/features/library/types";
+import { useState } from 'react';
+import { Copy, ChevronRight } from 'lucide-react';
+import { PanelSection } from '@/components/shared/panel';
+import { LifecycleTimeline } from '../lifecycle-timeline';
+import type { Factor } from '@/features/library/types';
 
 interface IdentityHeaderProps {
   factor: Factor;
@@ -14,7 +14,7 @@ export function IdentityHeader({ factor }: IdentityHeaderProps) {
   const [exprOpen, setExprOpen] = useState(false);
 
   return (
-    <DetailHeader>
+    <PanelSection noBorder>
       {/* Collapsible Expression — the only info not visible in the table row */}
       <button
         type="button"
@@ -23,7 +23,7 @@ export function IdentityHeader({ factor }: IdentityHeaderProps) {
       >
         <ChevronRight
           className="w-3 h-3 text-mine-muted transition-transform shrink-0"
-          style={{ transform: exprOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+          style={{ transform: exprOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
         />
         <span className="text-[10px] text-mine-muted">表达式</span>
       </button>
@@ -48,6 +48,6 @@ export function IdentityHeader({ factor }: IdentityHeaderProps) {
 
       {/* Lifecycle Timeline */}
       <LifecycleTimeline status={factor.status} />
-    </DetailHeader>
+    </PanelSection>
   );
 }

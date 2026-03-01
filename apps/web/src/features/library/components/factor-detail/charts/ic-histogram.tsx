@@ -1,15 +1,17 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { BarVertical } from "@/lib/ngx-charts/bar-chart";
-import type { DataItem } from "@/lib/ngx-charts/types";
-import type { Factor } from "@/features/library/types";
+import { useMemo } from 'react';
+import { PanelSection } from '@/components/shared/panel';
+import { BarVertical } from '@/lib/ngx-charts/bar-chart';
+import type { DataItem } from '@/lib/ngx-charts/types';
+import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 
 /** Teal with lightness graded by distance from center — emphasises distribution tails (solid colors) */
-function buildBinColors(binCount: number): Array<{ name: string; value: string }> {
+function buildBinColors(
+  binCount: number,
+): Array<{ name: string; value: string }> {
   const colors: Array<{ name: string; value: string }> = [];
   for (let i = 0; i < binCount; i++) {
     const distFromCenter = Math.abs(i - binCount / 2) / (binCount / 2);
@@ -26,11 +28,7 @@ function buildBinColors(binCount: number): Array<{ name: string; value: string }
 
 /* ── Chart Component ──────────────────────────────────────── */
 
-function ICHistogramChart({
-  bins,
-}: {
-  bins: number[];
-}) {
+function ICHistogramChart({ bins }: { bins: number[] }) {
   if (!bins || bins.length === 0) return null;
 
   const chartData: DataItem[] = useMemo(
@@ -42,7 +40,10 @@ function ICHistogramChart({
     [bins],
   );
 
-  const customColors = useMemo(() => buildBinColors(bins.length), [bins.length]);
+  const customColors = useMemo(
+    () => buildBinColors(bins.length),
+    [bins.length],
+  );
 
   /** Sparse X ticks — show every 5th bin */
   const xAxisTicks = useMemo(() => {
@@ -86,14 +87,16 @@ interface ICHistogramSectionProps {
 
 export function ICHistogramSection({ factor }: ICHistogramSectionProps) {
   return (
-    <DetailSection>
+    <PanelSection>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-mine-muted">IC 分布直方图</span>
+        <span className="text-xs font-medium text-mine-muted">
+          IC 分布直方图
+        </span>
         <span className="text-[10px] text-mine-muted">20-bin</span>
       </div>
       <div className="h-[150px]">
         <ICHistogramChart bins={factor.icHistogramBins} />
       </div>
-    </DetailSection>
+    </PanelSection>
   );
 }

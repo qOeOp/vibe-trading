@@ -1,12 +1,16 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { ArrowRight } from "lucide-react";
-import { DetailSection } from "@/components/shared/detail-panel";
-import { useLibraryStore } from "@/features/library/store/use-library-store";
-import { StatusChangeDialog } from "../status-change-dialog";
-import type { Factor, FactorLifecycleStatus } from "@/features/library/types";
-import { VALID_STATUS_TRANSITIONS, STATUS_COLORS, STATUS_LABELS } from "@/features/library/types";
+import { useState, useCallback } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { PanelSection } from '@/components/shared/panel';
+import { useLibraryStore } from '@/features/library/store/use-library-store';
+import { StatusChangeDialog } from '../status-change-dialog';
+import type { Factor, FactorLifecycleStatus } from '@/features/library/types';
+import {
+  VALID_STATUS_TRANSITIONS,
+  STATUS_COLORS,
+  STATUS_LABELS,
+} from '@/features/library/types';
 
 interface StatusActionsSectionProps {
   factor: Factor;
@@ -31,7 +35,7 @@ export function StatusActionsSection({ factor }: StatusActionsSectionProps) {
   if (validTransitions.length === 0) return null;
 
   return (
-    <DetailSection title="状态变更">
+    <PanelSection title="状态变更">
       {justChanged && (
         <span className="text-[10px] font-medium text-mine-accent-green animate-pulse mb-2 block">
           已变更
@@ -63,6 +67,6 @@ export function StatusActionsSection({ factor }: StatusActionsSectionProps) {
         onOpenChange={setDialogOpen}
         onConfirm={handleConfirm}
       />
-    </DetailSection>
+    </PanelSection>
   );
 }
