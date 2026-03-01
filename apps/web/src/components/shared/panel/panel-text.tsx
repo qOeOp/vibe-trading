@@ -1,0 +1,44 @@
+'use client';
+
+import * as React from 'react';
+import { cva } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
+
+import { cn } from '@/lib/utils';
+
+const panelTextVariants = cva('', {
+  variants: {
+    variant: {
+      label: 'font-medium text-mine-muted uppercase tracking-wider',
+      body: 'text-mine-text',
+      value: 'font-mono tabular-nums text-mine-text',
+      hint: 'text-mine-muted',
+    },
+    size: {
+      sm: 'text-[9px]',
+      base: 'text-[11px]',
+      lg: 'text-sm font-bold',
+    },
+  },
+  defaultVariants: { variant: 'body', size: 'base' },
+  compoundVariants: [
+    { variant: 'label', size: 'base', className: 'text-[10px]' },
+    { variant: 'hint', size: 'base', className: 'text-[10px]' },
+  ],
+});
+
+type PanelTextProps = React.ComponentProps<'span'> &
+  VariantProps<typeof panelTextVariants>;
+
+function PanelText({ className, variant, size, ...props }: PanelTextProps) {
+  return (
+    <span
+      data-slot="panel-text"
+      className={cn(panelTextVariants({ variant, size }), className)}
+      {...props}
+    />
+  );
+}
+
+export { PanelText, panelTextVariants };
+export type { PanelTextProps };
