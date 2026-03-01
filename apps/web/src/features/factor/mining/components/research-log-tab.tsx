@@ -156,7 +156,7 @@ function RoundCard({ round, expanded, onToggle }: RoundCardProps) {
         <div className="px-4 pb-3 border-t border-mine-border/50 pt-3">
           {steps.map((step, i) => (
             <TimelineStep
-              key={step.type}
+              key={`${step.type}-${i}`}
               type={step.type}
               content={step.content}
               isLast={i === steps.length - 1}
@@ -256,18 +256,24 @@ function ResearchLogTab({ task, className }: ResearchLogTabProps) {
 
     async function fetchRounds() {
       setLoading(true);
-      const data = await miningApi.getRounds(task.taskId);
-      if (cancelled) return;
-      setRounds(data);
-      // Auto-expand the latest round (highest roundIndex)
-      if (data.length > 0) {
-        const maxIdx = Math.max(...data.map((r) => r.roundIndex));
-        setExpandedIndex(maxIdx);
+      try {
+        const data = await miningApi.getRounds(task.taskId);
+        if (cancelled) return;
+        setRounds(data);
+        // Auto-expand the latest round (highest roundIndex)
+        if (data.length > 0) {
+          const maxIdx = Math.max(...data.map((r) => r.roundIndex));
+          setExpandedIndex(maxIdx);
+        }
+      } catch {
+        if (cancelled) return;
+        setRounds([]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      setLoading(false);
     }
 
-    fetchRounds();
+    void fetchRounds();
     return () => {
       cancelled = true;
     };
