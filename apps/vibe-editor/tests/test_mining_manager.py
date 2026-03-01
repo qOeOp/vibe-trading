@@ -16,7 +16,7 @@ def tmp_dir():
 
 @pytest.fixture
 def manager(tmp_dir):
-    return MiningTaskManager(base_dir=tmp_dir)
+    return MiningTaskManager(workspace_path=tmp_dir)
 
 
 def test_create_task(manager):

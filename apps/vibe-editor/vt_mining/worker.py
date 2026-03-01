@@ -46,15 +46,16 @@ class WorkerConfig:
     dedup_threshold: float = 0.99
 
 
-def _resolve_data_dir() -> str:
-    """Resolve the factor data directory to an absolute path.
+def _resolve_qlib_data_dir() -> str:
+    """Resolve the shared Qlib market data directory.
+
+    This is READ-ONLY infrastructure data (daily_pv.h5, ~2.4GB) shared across
+    all users. It contains historical price/volume data for backtesting.
+    NOT per-user — it's the same market data for everyone.
 
     Search order:
       1. VT_FACTOR_DATA_DIR env var (explicit override)
-      2. ~/.vt-lab/factor_data/ (default shared location)
-
-    The data must contain daily_pv.h5 and README.md — either pre-generated
-    or created by generate_data_folder_from_qlib() on first use.
+      2. ~/.vt-lab/factor_data/ (default server-level location)
     """
     from_env = os.environ.get("VT_FACTOR_DATA_DIR")
     if from_env:
@@ -68,7 +69,7 @@ def build_env_config(config: WorkerConfig) -> dict[str, str]:
     These are merged into os.environ BEFORE importing rdagent, because rdagent
     reads pydantic-settings at import time.
     """
-    data_dir = _resolve_data_dir()
+    data_dir = _resolve_qlib_data_dir()
     data_dir_full = os.path.join(data_dir, "full")
     data_dir_debug = os.path.join(data_dir, "debug")
 

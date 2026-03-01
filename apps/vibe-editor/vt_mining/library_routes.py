@@ -16,7 +16,6 @@ from starlette.routing import Route, Router
 if TYPE_CHECKING:
     from .knowledge import KnowledgeStore
 
-from .config import MINING_BASE_DIR
 from .knowledge import MiningFactorRecord
 
 logger = logging.getLogger(__name__)
@@ -134,8 +133,10 @@ async def push_factor_endpoint(request: Request) -> JSONResponse:
     metrics = body.get("metrics", {})
     factor_id = f"{task_id}_factor_{factor_index}"
 
-    # Write code to file within mining result dir
-    task_dir = os.path.join(MINING_BASE_DIR, task_id)
+    # Write code to file within mining result dir (workspace-relative)
+    from .manager import MiningTaskManager  # noqa: PLC0415
+    mining_manager: MiningTaskManager = request.app.state.vt_mining_manager
+    task_dir = os.path.join(mining_manager._base_dir, task_id)
     try:
         os.makedirs(task_dir, exist_ok=True)
         safe_name = "".join(c if c.isalnum() or c == "_" else "_" for c in factor_name)

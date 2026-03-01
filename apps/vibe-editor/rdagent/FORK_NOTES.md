@@ -72,6 +72,26 @@ Do NOT run `git pull` or merge upstream automatically.
 
 ## Changelog
 
+### 2026-03-01 — Phase 5: Workspace-Isolated Storage
+
+Mining task artifacts (progress, factors, rounds) now live inside the user's session workspace, colocated with their editor notebooks. This replaces the global `~/.vt-lab/mining/` directory.
+
+- **Rewrote `vt_mining/config.py`**: Removed global `MINING_BASE_DIR`/`KNOWLEDGE_DB_PATH`. Added `get_mining_dir(workspace)` and `get_knowledge_db_path(workspace)` — paths derived from workspace at runtime
+- **Updated `vt_mining/manager.py`**: `MiningTaskManager.__init__` now requires `workspace_path`. Mining dir = `{workspace}/mining/`
+- **Updated `start.py`**: Wired workspace from VTSessionManager into MiningTaskManager and KnowledgeStore
+- **Updated `vt_mining/library_routes.py`**: Gets mining dir from manager instead of global constant
+- **Clarified data semantics**: Qlib market data (`daily_pv.h5`) is shared infrastructure (`~/.vt-lab/factor_data/`), NOT per-user. Mining results are per-user, in workspace.
+
+Layout:
+
+```
+{workspace}/
+├── factor.py          ← user's notebooks (editor)
+├── mining/            ← mining task artifacts
+│   └── mining_20260301_*/
+└── knowledge.db       ← per-user knowledge store
+```
+
 ### 2026-03-01 — Phase 4: conda → uv Environment Migration
 
 Eliminated conda dependency. Worker now runs in a uv venv with all deps (rdagent + qlib) in one environment.

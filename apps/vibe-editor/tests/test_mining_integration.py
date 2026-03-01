@@ -16,7 +16,7 @@ def integration_app():
     tmp_dir = tempfile.mkdtemp()
     app = Starlette()
     app.mount("/api/mining", app=mining_router, name="mining")
-    manager = MiningTaskManager(base_dir=tmp_dir)
+    manager = MiningTaskManager(workspace_path=tmp_dir)
     app.state.vt_mining_manager = manager
     return TestClient(app), manager, tmp_dir
 

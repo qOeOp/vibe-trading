@@ -11,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from .config import MINING_BASE_DIR
+from .config import get_mining_dir
 from .models import (
     MiningTask, MiningTaskConfig, MiningProgress, DateRange,
     DiscoveredFactor, FactorMetrics, MiningMode, TaskStatus,
@@ -58,10 +58,17 @@ class MiningTaskManager:
     - {result_dir}/status.json  — worker writes on completion/failure
     """
 
-    def __init__(self, base_dir: str = MINING_BASE_DIR) -> None:
+    def __init__(self, workspace_path: str) -> None:
+        """Initialize mining task manager.
+
+        Args:
+            workspace_path: User's workspace directory (e.g. ~/.vt-lab/).
+                Mining artifacts are stored at {workspace}/mining/{task_id}/.
+        """
         self._tasks: dict[str, MiningTask] = {}
-        self._base_dir = base_dir
-        os.makedirs(base_dir, exist_ok=True)
+        self._workspace_path = workspace_path
+        self._base_dir = get_mining_dir(workspace_path)
+        os.makedirs(self._base_dir, exist_ok=True)
         self._recover_from_disk()
 
     def create_task(self, config: MiningTaskConfig) -> MiningTask:

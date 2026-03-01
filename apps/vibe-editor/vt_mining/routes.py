@@ -184,8 +184,23 @@ async def stream_task_endpoint(request: Request) -> JSONResponse | StreamingResp
     )
 
 
+async def preflight_endpoint(request: Request) -> JSONResponse:
+    """GET /api/mining/preflight — Check if mining environment is ready."""
+    report = getattr(request.app.state, "vt_mining_preflight", None)
+    if report is None:
+        return JSONResponse({"ready": False, "checks": []})
+    return JSONResponse({
+        "ready": report.all_passed,
+        "checks": [
+            {"name": c.name, "passed": c.passed, "message": c.message}
+            for c in report.checks
+        ],
+    })
+
+
 # Router instance — compatible with marimo's APIRouter.include_router()
 router = Router(routes=[
+    Route("/preflight", preflight_endpoint, methods=["GET"]),
     Route("/tasks", create_task_endpoint, methods=["POST"]),
     Route("/tasks", list_tasks_endpoint, methods=["GET"]),
     Route("/tasks/{task_id}", get_task_endpoint, methods=["GET"]),

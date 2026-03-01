@@ -4,7 +4,7 @@
 # Lock:    uv pip compile requirements.in -o requirements.lock
 
 # ── Qlib backtest engine ──────────────────────────────────────────────────────
-pyqlib==0.9.6.99
+pyqlib>=0.9
 lightgbm>=4.0
 catboost>=1.2
 xgboost>=3.0

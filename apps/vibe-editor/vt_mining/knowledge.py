@@ -7,9 +7,6 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
-from .config import KNOWLEDGE_DB_PATH
-
-
 @dataclass
 class MiningFactorRecord:
     """A factor discovered by mining, stored in knowledge.db."""
@@ -34,9 +31,13 @@ class MiningFactorRecord:
 class KnowledgeStore:
     """SQLite-backed persistence for mining factors."""
 
-    def __init__(self, db_path: str = KNOWLEDGE_DB_PATH) -> None:
+    def __init__(self, db_path: str = "") -> None:
+        if not db_path:
+            raise ValueError("KnowledgeStore requires a db_path (derived from workspace)")
         self.db_path = db_path
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        parent = os.path.dirname(self.db_path)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
         self._init_schema()
 
     def _conn(self) -> sqlite3.Connection:

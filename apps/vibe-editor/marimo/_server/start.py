@@ -321,14 +321,22 @@ def start(
         vt_manager.stop_cleanup_loop()
 
     # VT mining management (added by vibe-editor)
+    # Mining artifacts live inside the user workspace, colocated with notebooks.
+    from vt_sessions.workspace import DEFAULT_WORKSPACE_BASE
     from vt_mining import MiningTaskManager
-    vt_mining_manager = MiningTaskManager()
+    _workspace = vt_manager._workspace_base or DEFAULT_WORKSPACE_BASE
+    vt_mining_manager = MiningTaskManager(workspace_path=_workspace)
     app.state.vt_mining_manager = vt_mining_manager
 
     # VT knowledge store (added by vibe-editor)
     from vt_mining.knowledge import KnowledgeStore
-    vt_knowledge_store = KnowledgeStore()
+    from vt_mining.config import get_knowledge_db_path
+    vt_knowledge_store = KnowledgeStore(db_path=get_knowledge_db_path(_workspace))
     app.state.vt_knowledge_store = vt_knowledge_store
+
+    # VT mining preflight — validate environment at startup
+    from vt_mining.preflight import run_preflight
+    app.state.vt_mining_preflight = run_preflight()
 
     # Resource initialization
     # Increase the limit on open file descriptors to prevent resource
