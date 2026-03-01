@@ -126,8 +126,8 @@ function ConnectionStepper({
         const kernelLabel = statusData
           ? `Python ${statusData.python_version} · LSP ${statusData.lsp_running ? '✓' : '✗'}`
           : '';
-        // Step 1: usage info on hover (CPU + Memory bars) — flips icon too for more space
-        const hasUsageFlip = i === 1 && isDone && usageData != null;
+        // Step 2: usage info on hover (CPU + Memory bars)
+        const hasUsageFlip = i === 2 && isDone && usageData != null;
         const hasFlip = hasKernelFlip || hasUsageFlip;
 
         return (
