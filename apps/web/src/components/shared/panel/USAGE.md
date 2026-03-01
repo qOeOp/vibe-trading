@@ -4,8 +4,8 @@
 
 1. **ALL panels** (sidebar, detail, bottom) MUST use PanelFrame + PanelFrameHeader + PanelFrameBody
 2. **ALL content sections** MUST be wrapped in PanelSection — never hand-write `border-b` dividers
-3. **ALL text** inside panels MUST use PanelText or a panel primitive — never hardcode font sizes
-4. **ALL numeric values** MUST use `<PanelText variant="value">` or PanelStatItem/PanelKV
+3. **ALL text** inside panels MUST use `panel-*` CSS classes or panel primitive components — never hardcode font specs
+4. **ALL numeric values** MUST use `panel-value` class or PanelStatItem/PanelKV
 5. **ALL section titles** come from PanelSection's `title` prop — never write label typography manually
 
 ## Decision Tree
@@ -20,17 +20,19 @@ Need to display data in a panel? Follow this:
 6. Inline count/status? → `PanelBadge` or `PanelBadgeTag`
 7. Free-form text? → `PanelText` with appropriate variant
 
-## Typography — Use the 4 Semantic Roles
+## Typography — CSS Utility Classes
 
-| Role    | When                         | Example                                      |
-| ------- | ---------------------------- | -------------------------------------------- |
-| `label` | Annotating what something IS | Section titles, stat labels, KV labels       |
-| `body`  | Primary readable content     | Descriptions, explanations                   |
-| `value` | Data that changes            | Numbers, variable names, code                |
-| `hint`  | Secondary context            | Timestamps, parameter descriptions, suffixes |
+Each role is a single CSS class defined via `@utility` in `globals.css`. Use them directly in `className`:
 
-Never hardcode: `text-[10px] font-medium text-mine-muted uppercase tracking-wider`
-Instead use: `<PanelText variant="label">` or reference `PANEL_TYPOGRAPHY.label`
+| Class            | Role                          | When to use                     |
+| ---------------- | ----------------------------- | ------------------------------- |
+| `panel-label`    | Section titles, frame headers | Annotating what something IS    |
+| `panel-body`     | Primary readable content      | Descriptions, explanations      |
+| `panel-value`    | Data that changes             | Numbers, variable names         |
+| `panel-hint`     | Secondary context             | KV labels, timestamps, suffixes |
+| `panel-label-sm` | Compact labels                | StatItem labels, badge text     |
+| `panel-value-sm` | Compact values                | Badge numbers, inline counts    |
+| `panel-value-lg` | KPI headline                  | Large prominent numbers         |
 
 ## Anti-Patterns (BANNED)
 
@@ -44,13 +46,13 @@ Instead use: `<PanelText variant="label">` or reference `PANEL_TYPOGRAPHY.label`
 // ❌ Hardcoded font spec
 <span className="text-[10px] text-mine-muted uppercase tracking-wider font-medium">
 
-// ✅ Use PanelText or let PanelSection handle it
-<PanelText variant="label">
+// ✅ Use CSS utility class
+<span className="panel-label">
 
 // ❌ Hand-written stat display
 <div className="text-sm font-bold font-mono tabular-nums">+0.022</div>
 
-// ✅ Use PanelStatItem or PanelText variant="value"
+// ✅ Use PanelStatItem
 <PanelStatItem label="IC" value="+0.022" color="down" />
 
 // ❌ Hand-written KV pair
@@ -61,4 +63,10 @@ Instead use: `<PanelText variant="label">` or reference `PANEL_TYPOGRAPHY.label`
 
 // ✅ Use PanelKV
 <PanelKV label="Label" value="Value" />
+
+// ❌ JS constant for typography
+cn(PANEL_TYPOGRAPHY.label, 'extra-class')
+
+// ✅ CSS class directly
+cn('panel-label', 'extra-class')
 ```
