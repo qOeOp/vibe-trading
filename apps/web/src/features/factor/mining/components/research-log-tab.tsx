@@ -314,7 +314,7 @@ function ResearchLogTab({ task, className }: ResearchLogTabProps) {
     <div
       data-slot="research-log-tab"
       className={cn(
-        'flex-1 flex flex-col gap-3 p-4 overflow-y-auto',
+        'flex-1 min-h-0 flex flex-col gap-3 p-4 overflow-y-auto',
         className,
       )}
     >

@@ -278,6 +278,7 @@ function ConnectedFileTreeContent() {
           ref={treeRef}
           initialExpandedItems={expandedItems}
           onExpand={handleExpand}
+          onDoubleClickItem={handleSelect}
           indicator={true}
           className="py-0.5"
         >

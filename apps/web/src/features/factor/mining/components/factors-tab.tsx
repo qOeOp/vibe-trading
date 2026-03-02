@@ -165,11 +165,11 @@ function FactorsTab({
   return (
     <div
       data-slot="factors-tab"
-      className={cn('flex-1 flex overflow-hidden', className)}
+      className={cn('flex-1 min-h-0 flex overflow-hidden', className)}
       {...props}
     >
       {/* Left: Factor list */}
-      <div className="w-[240px] shrink-0 flex flex-col border-r border-mine-border/50">
+      <div className="w-[240px] shrink-0 min-h-0 flex flex-col border-r border-mine-border/50">
         {/* Filter tabs */}
         <div className="flex items-center gap-1 px-3 py-2 border-b border-mine-border/50">
           {FILTER_TABS.map(({ key, label }) => (
@@ -210,7 +210,7 @@ function FactorsTab({
       </div>
 
       {/* Right: Factor detail */}
-      <div className="flex-1 min-w-0 overflow-y-auto">
+      <div className="flex-1 min-w-0 min-h-0 overflow-y-auto">
         {selectedFactor ? (
           <FactorDetail
             factor={selectedFactor}

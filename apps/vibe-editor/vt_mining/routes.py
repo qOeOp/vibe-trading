@@ -153,6 +153,7 @@ async def stream_task_endpoint(request: Request) -> JSONResponse | StreamingResp
 
     async def event_generator():
         last_loop = -1
+        last_step = ""
         last_factor_idx = 0
         while True:
             # Refresh from filesystem
@@ -161,9 +162,11 @@ async def stream_task_endpoint(request: Request) -> JSONResponse | StreamingResp
             manager._check_worker_status(task)
 
             current = task.progress.current_loop
-            if current != last_loop:
+            step = task.progress.current_step
+            if current != last_loop or step != last_step:
                 yield f"event: iteration\ndata: {json.dumps(task.progress.to_dict())}\n\n"
                 last_loop = current
+                last_step = step
 
             # Emit only newly discovered factors
             for factor in task.factors[last_factor_idx:]:

@@ -1498,12 +1498,13 @@ export const cellErrorsAtom = atom((get) => {
       const cell = cellRuntime[cellId];
       const { name } = cellData[cellId];
       if (isErrorMime(cell.output?.mimetype)) {
-        // Filter out ancestor-stopped errors
-        // These are errors that are caused by a cell that was stopped,
-        // but nothing the user can take action on.
+        // Filter out non-actionable errors:
+        // - ancestor-*: caused by a stopped upstream cell
+        // - interruption: user manually interrupted execution
         invariant(Array.isArray(cell.output.data), 'Expected array data');
         const nonAncestorErrors = cell.output.data.filter(
-          (error) => !error.type.includes('ancestor'),
+          (error) =>
+            !error.type.includes('ancestor') && error.type !== 'interruption',
         );
 
         if (nonAncestorErrors.length > 0) {

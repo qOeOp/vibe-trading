@@ -124,8 +124,11 @@ function ActivityLog({
   }, [entries.length]);
 
   return (
-    <PanelSection title={isLive ? '实时日志' : '运行日志'}>
-      <div className="h-[140px] overflow-y-auto bg-mine-bg rounded-md p-2 space-y-0.5">
+    <PanelSection
+      title={isLive ? '实时日志' : '运行日志'}
+      className="flex-1 min-h-0 flex flex-col"
+    >
+      <div className="flex-1 min-h-0 overflow-y-auto bg-mine-bg rounded-md p-2 space-y-0.5">
         {entries.length === 0 && (
           <div className="text-[11px] text-mine-muted italic">
             等待挖掘开始...
@@ -239,8 +242,13 @@ function OverviewTab({ task, logEntries, className }: OverviewTabProps) {
         : buildCompletedLog(task);
 
   return (
-    <div data-slot="overview-tab" className={cn('flex flex-col', className)}>
-      <ProgressSection task={task} />
+    <div
+      data-slot="overview-tab"
+      className={cn('flex-1 min-h-0 flex flex-col', className)}
+    >
+      <div className="shrink-0">
+        <ProgressSection task={task} />
+      </div>
       <ActivityLog
         entries={resolvedEntries}
         isLive={task.status === 'RUNNING'}

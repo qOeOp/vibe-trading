@@ -28,6 +28,7 @@ type TreeContextProps = {
   indicator: boolean;
   handleExpand: (id: string) => void;
   selectItem: (id: string) => void;
+  openItem: (id: string) => void;
   setExpandedItems?: React.Dispatch<React.SetStateAction<string[] | undefined>>;
   openIcon?: React.ReactNode;
   closeIcon?: React.ReactNode;
@@ -54,6 +55,7 @@ type TreeViewProps = {
   openIcon?: React.ReactNode;
   closeIcon?: React.ReactNode;
   onExpand?: (id: string) => void;
+  onDoubleClickItem?: (id: string) => void;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
@@ -68,6 +70,7 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
       openIcon,
       closeIcon,
       onExpand,
+      onDoubleClickItem,
       dir,
       ...props
     },
@@ -83,6 +86,14 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
     const selectItem = useCallback((id: string) => {
       setSelectedId(id);
     }, []);
+
+    const openItem = useCallback(
+      (id: string) => {
+        setSelectedId(id);
+        onDoubleClickItem?.(id);
+      },
+      [onDoubleClickItem],
+    );
 
     const handleExpand = useCallback(
       (id: string) => {
@@ -149,6 +160,7 @@ const Tree = forwardRef<HTMLDivElement, TreeViewProps>(
           expandedItems,
           handleExpand,
           selectItem,
+          openItem,
           setExpandedItems,
           indicator,
           openIcon,
@@ -321,7 +333,7 @@ const File = forwardRef<
     },
     ref,
   ) => {
-    const { direction, selectedId, selectItem } = useTree();
+    const { direction, selectedId, selectItem, openItem } = useTree();
     const isSelected = isSelect ?? selectedId === value;
     return (
       <button
@@ -339,6 +351,7 @@ const File = forwardRef<
           className,
         )}
         onClick={() => selectItem(value)}
+        onDoubleClick={() => openItem(value)}
         {...props}
       >
         {fileIcon ?? (

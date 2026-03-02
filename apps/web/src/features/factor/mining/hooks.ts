@@ -50,6 +50,17 @@ export function useMiningTasks() {
   return { tasks, loading, error, refresh: fetchTasks, cancelTask };
 }
 
+// Step name → Chinese label for log display
+const STEP_LABELS: Record<string, string> = {
+  initializing: '初始化中',
+  proposing: '生成假设中',
+  coding: '代码生成中',
+  evaluating: 'Qlib 回测评估中',
+  running: '执行中',
+  feedback: '反馈分析中',
+  completed: '已完成',
+};
+
 /** Subscribe to SSE stream for a running task, accumulate log entries. */
 export function useMiningStream(taskId: string | null) {
   const [log, setLog] = useState<LogEntry[]>([]);
@@ -81,10 +92,38 @@ export function useMiningStream(taskId: string | null) {
       try {
         const data = JSON.parse((e as MessageEvent).data) as {
           currentLoop?: number;
+          maxLoops?: number;
           currentHypothesis?: string;
           currentStep?: string;
+          factorsDiscovered?: number;
+          factorsAccepted?: number;
+          bestIc?: number;
         };
-        const msg = `Loop ${data.currentLoop}: ${data.currentHypothesis ?? ''} — ${data.currentStep ?? ''}`;
+        const step = data.currentStep ?? '';
+        const stepLabel = STEP_LABELS[step] ?? step;
+        const loop = data.currentLoop ?? 0;
+        const maxLoops = data.maxLoops ?? 0;
+
+        // Generate a descriptive message based on step type
+        let msg: string;
+        if (step === 'proposing' || step === 'initializing') {
+          msg = `[${loop}/${maxLoops}] ${stepLabel}`;
+          if (data.currentHypothesis) {
+            msg += ` — ${data.currentHypothesis}`;
+          }
+        } else if (step === 'coding') {
+          msg = `[${loop}/${maxLoops}] ${stepLabel}`;
+        } else if (step === 'evaluating' || step === 'running') {
+          msg = `[${loop}/${maxLoops}] ${stepLabel}`;
+        } else if (step === 'feedback') {
+          const discovered = data.factorsDiscovered ?? 0;
+          const accepted = data.factorsAccepted ?? 0;
+          const bestIc = data.bestIc ?? 0;
+          msg = `[${loop}/${maxLoops}] ${stepLabel} — 已发现 ${discovered} 个因子，已接受 ${accepted} 个，最佳 IC ${bestIc.toFixed(4)}`;
+        } else {
+          msg = `[${loop}/${maxLoops}] ${stepLabel}`;
+        }
+
         addEntry({ type: 'iteration', message: msg });
       } catch {
         // ignore parse errors

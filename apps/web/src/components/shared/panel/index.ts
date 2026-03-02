@@ -16,7 +16,10 @@ export type {
 } from './panel-frame-header';
 
 export { PanelFrameBody } from './panel-frame-body';
-export type { PanelFrameBodyProps } from './panel-frame-body';
+export type {
+  PanelFrameBodyProps,
+  PanelFrameBodyMode,
+} from './panel-frame-body';
 
 // Content: Section
 export { PanelSection } from './panel-section';

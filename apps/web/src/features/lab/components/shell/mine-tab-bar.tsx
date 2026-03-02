@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { XIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   useLabFileTabStore,
@@ -55,31 +57,57 @@ function FileTabItem({
   isDirty,
   isActive,
   isLast,
+  closable,
   onClick,
+  onClose,
 }: {
   label: string;
   isDirty?: boolean;
   isActive?: boolean;
   isLast?: boolean;
+  closable?: boolean;
   onClick?: () => void;
+  onClose?: () => void;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div
       data-slot="tab-section-file"
       className={cn(
-        'flex items-center pr-px',
+        'group/tab flex items-center pr-px',
         !isLast && 'border-r border-[#e0e0e0]',
         onClick && 'cursor-pointer',
         isActive && 'bg-white/40 rounded-lg',
       )}
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div className="flex items-center gap-1 pl-4 pr-5">
+      <div className="flex items-center gap-1 pl-4 pr-2">
         <PythonIcon className="w-4 h-4" />
         <span className="font-mono font-medium text-sm text-[#707070] leading-5 tracking-[-0.084px] whitespace-nowrap">
           {label}
         </span>
         <ModifiedDot visible={isDirty} />
+        {closable ? (
+          <button
+            type="button"
+            data-slot="tab-close-btn"
+            className={cn(
+              'shrink-0 ml-1 p-0.5 rounded hover:bg-mine-border/40 transition-opacity',
+              hovered ? 'opacity-100' : 'opacity-0',
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose?.();
+            }}
+          >
+            <XIcon className="w-3 h-3 text-mine-muted" strokeWidth={2} />
+          </button>
+        ) : (
+          <div className="w-4 shrink-0" />
+        )}
       </div>
     </div>
   );
@@ -97,6 +125,7 @@ function ConnectedFileTab({
   isLast: boolean;
 }) {
   const setActive = useLabFileTabStore((s) => s.setActive);
+  const closeTab = useLabFileTabStore((s) => s.closeTab);
 
   return (
     <FileTabItem
@@ -104,7 +133,9 @@ function ConnectedFileTab({
       isDirty={tab.isDirty}
       isActive={isActive}
       isLast={isLast}
+      closable={!tab.pinned}
       onClick={() => setActive(tab.id)}
+      onClose={() => closeTab(tab.id)}
     />
   );
 }

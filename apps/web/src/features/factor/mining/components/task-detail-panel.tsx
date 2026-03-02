@@ -126,15 +126,24 @@ function TaskDetailPanel({
 
       <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0">
         <PanelFrameBody mode="flex" toolbar={tabBar}>
-          <TabsContent value="overview" className="flex-1 overflow-y-auto">
+          <TabsContent
+            value="overview"
+            className="flex-1 min-h-0 flex flex-col overflow-hidden"
+          >
             <OverviewTab task={task} logEntries={logEntries} lang={lang} />
           </TabsContent>
 
-          <TabsContent value="factors" className="flex-1 overflow-hidden">
+          <TabsContent
+            value="factors"
+            className="flex-1 min-h-0 flex flex-col overflow-hidden"
+          >
             <FactorsTab task={task} onViewCode={onViewCode} lang={lang} />
           </TabsContent>
 
-          <TabsContent value="research-log" className="flex-1 overflow-hidden">
+          <TabsContent
+            value="research-log"
+            className="flex-1 min-h-0 flex flex-col overflow-y-auto"
+          >
             <ResearchLogTab task={task} lang={lang} />
           </TabsContent>
         </PanelFrameBody>

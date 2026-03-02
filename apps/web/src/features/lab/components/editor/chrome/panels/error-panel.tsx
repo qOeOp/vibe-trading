@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { PartyPopperIcon } from 'lucide-react';
+import { FileTextIcon, PartyPopperIcon } from 'lucide-react';
 import React from 'react';
 import { scrollAndHighlightCell } from '@/features/lab/components/editor/links/cell-link';
 import {
@@ -19,17 +19,21 @@ const ErrorsPanel: React.FC = () => {
 
   const onClickSummary = React.useCallback(
     (cellId: CellId) => {
-      // 1. Jump to cell in editor
       showCellIfHidden({ cellId });
       openCellErrorDetails(cellId);
       requestAnimationFrame(() => {
         scrollAndHighlightCell(cellId, 'destructive');
       });
-
-      // 2. Open logs panel filtered to this cell (mutex closes file tree)
-      useLabModeStore.getState().openLogsForCell(cellId);
     },
     [openCellErrorDetails, showCellIfHidden],
+  );
+
+  const onViewLogs = React.useCallback(
+    (e: React.MouseEvent, cellId: CellId) => {
+      e.stopPropagation();
+      useLabModeStore.getState().openLogsForCell(cellId);
+    },
+    [],
   );
 
   if (summaries.length === 0) {
@@ -56,11 +60,21 @@ const ErrorsPanel: React.FC = () => {
           <div className="text-sm font-medium leading-5 mt-1">
             {summary.headline}
           </div>
-          <div className="text-xs text-muted-foreground mt-1">
-            {summary.lineHint != null
-              ? `Line ${summary.lineHint}`
-              : 'No line info'}
-            {summary.count > 1 ? ` · ${summary.count} errors` : ''}
+          <div className="flex items-center justify-between mt-1">
+            <div className="text-xs text-muted-foreground">
+              {summary.lineHint != null
+                ? `Line ${summary.lineHint}`
+                : 'No line info'}
+              {summary.count > 1 ? ` · ${summary.count} errors` : ''}
+            </div>
+            <span
+              role="link"
+              className="inline-flex items-center gap-1 text-[10px] text-mine-accent-teal hover:underline"
+              onClick={(e) => onViewLogs(e, summary.cellId)}
+            >
+              <FileTextIcon className="size-3" />
+              View logs
+            </span>
           </div>
         </button>
       ))}
