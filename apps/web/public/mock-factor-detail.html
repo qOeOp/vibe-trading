@@ -1,0 +1,6264 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>因子详情侧边栏 — v3 Final Mock</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap');
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --page-bg: #eae7e0;
+        --mine-bg: #f5f3ef;
+        --mine-card: #fff;
+        --mine-text: #1a1a1a;
+        --mine-muted: #5a5a5a;
+        --mine-border: #e0ddd8;
+        --mine-accent-teal: #26a69a;
+        --market-up: #f6465d;
+        --market-up-light: rgba(246, 70, 93, 0.08);
+        --market-down: #2ebd85;
+        --market-down-light: rgba(46, 189, 133, 0.08);
+        --market-flat: #76808e;
+        --amber: #f59e0b;
+        --amber-light: rgba(245, 158, 11, 0.08);
+        --indigo: #6366f1;
+        --blue: #3b82f6;
+        --purple: #8b5cf6;
+      }
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          sans-serif;
+        background: var(--page-bg);
+        color: var(--mine-text);
+        display: flex;
+        min-height: 100vh;
+        padding: 16px;
+        gap: 16px;
+      }
+      .page-bg {
+        flex: 65 1 0%;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--mine-muted);
+        font-size: 13px;
+        background: var(--mine-card);
+        border: 1px solid var(--mine-border);
+        border-radius: 12px;
+      }
+      .sidebar {
+        flex: 35 1 0%;
+        max-width: 420px;
+        min-width: 320px;
+        height: calc(100vh - 32px);
+        background: var(--mine-card);
+        border: 1px solid var(--mine-border);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .panel-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--mine-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .panel-header h2 {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--mine-muted);
+      }
+      .panel-close {
+        width: 20px;
+        height: 20px;
+        border: none;
+        background: none;
+        color: var(--mine-muted);
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+        transition: background 0.15s;
+      }
+      .panel-close:hover {
+        background: var(--mine-bg);
+      }
+      .panel-body {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+      .panel-body::-webkit-scrollbar {
+        width: 4px;
+      }
+      .panel-body::-webkit-scrollbar-thumb {
+        background: var(--mine-border);
+        border-radius: 2px;
+      }
+
+      /* Section */
+      .section {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--mine-border);
+      }
+      .section:last-child {
+        border-bottom: none;
+      }
+      .section-title {
+        font-size: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--mine-muted);
+        margin-bottom: 10px;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      /* Identity */
+      .factor-name {
+        font-size: 14px;
+        font-weight: 700;
+        font-family: 'Geist Mono', monospace;
+      }
+      .factor-desc {
+        font-size: 11px;
+        color: var(--mine-muted);
+        line-height: 1.5;
+      }
+      .badge {
+        font-size: 9px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .badge-muted {
+        background: var(--mine-bg);
+        color: var(--mine-muted);
+      }
+
+      /* Proposal notification */
+      .proposal-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        background: rgba(38, 166, 154, 0.06);
+        border: 1px solid rgba(38, 166, 154, 0.2);
+        margin-top: 8px;
+      }
+      .proposal-icon {
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .proposal-text {
+        font-size: 10px;
+        color: var(--mine-text);
+        line-height: 1.4;
+        flex: 1;
+      }
+      .proposal-actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      .proposal-btn {
+        padding: 3px 8px;
+        font-size: 9px;
+        font-weight: 600;
+        border-radius: 4px;
+        border: 1px solid;
+        cursor: pointer;
+        background: none;
+        transition: opacity 0.15s;
+      }
+      .proposal-btn:hover {
+        opacity: 0.7;
+      }
+      .proposal-btn.approve {
+        color: var(--mine-accent-teal);
+        border-color: var(--mine-accent-teal);
+      }
+      .proposal-btn.reject {
+        color: var(--market-up);
+        border-color: var(--market-up);
+      }
+
+      /* Collapsible */
+      .collapse-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        color: var(--mine-muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        transition: color 0.15s;
+      }
+      .collapse-btn:hover {
+        color: var(--mine-text);
+      }
+      .collapse-arrow {
+        display: inline-block;
+        transition: transform 0.2s;
+        font-size: 8px;
+      }
+      .collapse-arrow.open {
+        transform: rotate(90deg);
+      }
+      .collapse-content {
+        background: var(--mine-bg);
+        border-radius: 6px;
+        padding: 8px 10px;
+        margin-top: 6px;
+      }
+      .expr-code {
+        font-size: 11px;
+        font-family: 'Geist Mono', monospace;
+        color: var(--mine-text);
+        word-break: break-all;
+        line-height: 1.5;
+      }
+
+      /* Lifecycle */
+      .lifecycle {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        margin-top: 10px;
+        position: relative;
+      }
+      .lc-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        position: relative;
+      }
+      .lc-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: 2px solid var(--mine-border);
+        background: var(--mine-card);
+        z-index: 1;
+      }
+      .lc-dot.active {
+        border-color: var(--mine-accent-teal);
+        background: var(--mine-accent-teal);
+      }
+      .lc-dot.past {
+        border-color: var(--mine-accent-teal);
+        background: var(--mine-accent-teal);
+      }
+      .lc-label {
+        font-size: 8px;
+        color: var(--mine-muted);
+        margin-top: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .lc-label.active {
+        color: var(--mine-accent-teal);
+        font-weight: 600;
+      }
+      .lc-line-abs {
+        position: absolute;
+        height: 2px;
+        background: var(--mine-border);
+      }
+      .lc-line-abs.done {
+        background: var(--mine-accent-teal);
+      }
+
+      /* Global selector */
+      .global-selector {
+        padding: 10px 16px 6px;
+        border-bottom: 1px solid var(--mine-border);
+        background: var(--mine-card);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .pool-tabs {
+        display: flex;
+        gap: 2px;
+        background: var(--mine-bg);
+        border-radius: 6px;
+        padding: 2px;
+        margin-bottom: 6px;
+      }
+      .pool-tab {
+        flex: 1;
+        padding: 5px 0;
+        font-size: 10px;
+        font-weight: 500;
+        text-align: center;
+        border: none;
+        background: none;
+        color: var(--mine-muted);
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.15s;
+        position: relative;
+      }
+      .pool-tab:hover {
+        color: var(--mine-text);
+      }
+      .pool-tab.active {
+        background: var(--mine-card);
+        color: var(--mine-text);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+        font-weight: 600;
+      }
+      .pool-tab .best-dot {
+        position: absolute;
+        top: 3px;
+        right: 8px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--mine-accent-teal);
+      }
+      .pool-tab.disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .horizon-tabs {
+        display: flex;
+        gap: 2px;
+        background: var(--mine-bg);
+        border-radius: 6px;
+        padding: 2px;
+        margin-bottom: 6px;
+      }
+      .horizon-tab {
+        flex: 1;
+        padding: 4px 0;
+        font-size: 10px;
+        font-weight: 500;
+        text-align: center;
+        border: none;
+        background: none;
+        color: var(--mine-muted);
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.15s;
+      }
+      .horizon-tab:hover {
+        color: var(--mine-text);
+      }
+      .horizon-tab.active {
+        background: var(--mine-card);
+        color: var(--mine-text);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+        font-weight: 600;
+      }
+      .calc-config {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 9px;
+        color: var(--mine-muted);
+        cursor: pointer;
+        padding: 2px 0;
+        transition: color 0.15s;
+      }
+      .calc-config:hover {
+        color: var(--mine-text);
+      }
+      .calc-config .gear {
+        font-size: 11px;
+      }
+      .config-popover {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--mine-card);
+        border: 1px solid var(--mine-border);
+        border-radius: 8px;
+        padding: 12px;
+        z-index: 20;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-top: 4px;
+      }
+      .config-popover.open {
+        display: block;
+      }
+      .config-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 0;
+      }
+      .config-label {
+        font-size: 10px;
+        color: var(--mine-muted);
+      }
+      .config-select {
+        font-size: 10px;
+        padding: 2px 6px;
+        border: 1px solid var(--mine-border);
+        border-radius: 4px;
+        background: var(--mine-bg);
+        color: var(--mine-text);
+        font-family: inherit;
+        cursor: pointer;
+      }
+
+      /* V-Score + Radar */
+      .vscore-center {
+        font-size: 10px;
+        font-weight: 500;
+        text-align: center;
+      }
+      .vscore-center .val {
+        font-size: 16px;
+        font-weight: 700;
+        font-family: 'Geist Mono', monospace;
+        display: block;
+        margin-top: 2px;
+      }
+      .vscore-center .tag {
+        font-size: 9px;
+        font-weight: 600;
+        padding: 1px 5px;
+        border-radius: 3px;
+        display: inline-block;
+        margin-top: 2px;
+      }
+
+      /* Cross-combo matrix */
+      .combo-matrix {
+        display: grid;
+        grid-template-columns: auto repeat(3, 1fr);
+        gap: 1px;
+        background: var(--mine-border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .combo-cell {
+        background: var(--mine-card);
+        padding: 6px 4px;
+        text-align: center;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .combo-cell:hover {
+        background: var(--mine-bg);
+      }
+      .combo-cell.selected {
+        background: rgba(38, 166, 154, 0.06);
+        outline: 2px solid var(--mine-accent-teal);
+        outline-offset: -2px;
+      }
+      .combo-cell.header {
+        font-size: 9px;
+        font-weight: 500;
+        color: var(--mine-muted);
+        cursor: default;
+        background: var(--mine-bg);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .combo-cell.header:hover {
+        background: var(--mine-bg);
+      }
+      .combo-cell.row-header {
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--mine-muted);
+        text-align: right;
+        padding-right: 8px;
+        cursor: default;
+        background: var(--mine-bg);
+      }
+      .combo-cell.row-header:hover {
+        background: var(--mine-bg);
+      }
+      .combo-ic {
+        font-size: 11px;
+        font-weight: 600;
+        font-family: 'Geist Mono', monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      .combo-tier {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin-right: 2px;
+        vertical-align: middle;
+      }
+      .combo-tier.good {
+        background: var(--market-up);
+      }
+      .combo-tier.ok {
+        background: var(--amber);
+      }
+      .combo-tier.poor {
+        background: var(--mine-border);
+      }
+      .combo-best {
+        font-size: 7px;
+        font-weight: 700;
+        color: var(--mine-accent-teal);
+        margin-left: 2px;
+        vertical-align: super;
+      }
+
+      /* Hero IC/IR */
+      .hero-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .hero-card {
+        background: var(--mine-bg);
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+      .hero-top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .hero-top-left {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .hero-top-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .hero-label {
+        font-size: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--mine-muted);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+      .hero-value {
+        font-size: 22px;
+        font-weight: 700;
+        font-family: 'Geist Mono', monospace;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.2;
+      }
+      .hero-value.good {
+        color: var(--market-up);
+      }
+      .hero-value.ok {
+        color: var(--amber);
+      }
+      .hero-sub {
+        display: flex;
+        gap: 16px;
+        margin-top: 4px;
+      }
+      .hero-sub-item {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+      }
+      .hero-sub-label {
+        font-size: 9px;
+        color: var(--mine-muted);
+      }
+      .hero-sub-val {
+        font-size: 11px;
+        font-weight: 600;
+        font-family: 'Geist Mono', monospace;
+      }
+      .hero-sub-val.pass {
+        color: var(--market-up);
+      }
+      .threshold-bar {
+        height: 4px;
+        background: var(--mine-border);
+        border-radius: 2px;
+        position: relative;
+        margin-bottom: 6px;
+      }
+      .threshold-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.3s;
+      }
+      .threshold-fill.good {
+        background: var(--market-up);
+      }
+      .threshold-fill.ok {
+        background: var(--amber);
+      }
+      .threshold-tick {
+        position: absolute;
+        top: -2px;
+        width: 1px;
+        height: 8px;
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .threshold-tick-label {
+        position: absolute;
+        top: 9px;
+        font-size: 8px;
+        color: var(--mine-muted);
+        transform: translateX(-50%);
+        font-family: 'Geist Mono', monospace;
+      }
+      .tier-badge {
+        font-size: 9px;
+        font-weight: 600;
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .tier-badge.good {
+        background: var(--market-up-light);
+        color: var(--market-up);
+      }
+      .tier-badge.ok {
+        background: var(--amber-light);
+        color: var(--amber);
+      }
+      .percentile {
+        font-size: 9px;
+        color: var(--mine-muted);
+        font-family: 'Geist Mono', monospace;
+      }
+
+      /* Risk/Return */
+      .metrics-hero {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .metrics-sub {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+      .metric-card {
+        background: var(--mine-bg);
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      .metric-card.sub {
+        padding: 6px 8px;
+      }
+      .metric-label {
+        font-size: 9px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--mine-muted);
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+      .metric-value {
+        font-size: 15px;
+        font-weight: 700;
+        font-family: 'Geist Mono', monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      .metric-value.good {
+        color: var(--market-up);
+      }
+      .metric-value.ok {
+        color: var(--amber);
+      }
+      .metric-value.neutral {
+        color: var(--mine-text);
+      }
+      .metric-bar {
+        height: 3px;
+        background: var(--mine-border);
+        border-radius: 1.5px;
+        margin-top: 4px;
+      }
+      .metric-bar-fill {
+        height: 100%;
+        border-radius: 1.5px;
+      }
+
+      /* Chart box */
+      .chart-box {
+        background: var(--mine-bg);
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+      }
+      .chart-box svg {
+        display: block;
+        width: 100%;
+      }
+      .chart-legend {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .chart-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 8px;
+        color: var(--mine-muted);
+      }
+      .chart-legend-item .swatch {
+        width: 10px;
+        height: 3px;
+        border-radius: 1px;
+      }
+
+      /* Heatmap */
+      .heatmap-row {
+        display: flex;
+        height: 28px;
+        gap: 1px;
+        align-items: stretch;
+      }
+      .heatmap-cell {
+        flex: 1;
+        border-radius: 1px;
+        min-width: 0;
+      }
+      .heatmap-year-labels {
+        display: flex;
+        margin-bottom: 2px;
+      }
+      .heatmap-year-labels span {
+        flex: 12;
+        text-align: center;
+        font-size: 10px;
+        color: var(--mine-muted);
+        font-weight: 500;
+      }
+
+      /* Industry bars */
+      .ind-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 20px;
+      }
+      .ind-name {
+        width: 52px;
+        font-size: 9px;
+        color: var(--mine-muted);
+        text-align: right;
+        flex-shrink: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ind-bar-track {
+        flex: 1;
+        height: 10px;
+        background: var(--mine-bg);
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+      }
+      .ind-bar-fill {
+        height: 100%;
+        border-radius: 2px;
+      }
+      .ind-bar-fill.pos {
+        background: var(--market-up);
+        opacity: 0.7;
+      }
+      .ind-bar-fill.neg {
+        background: var(--market-down);
+        opacity: 0.7;
+      }
+      .ind-val {
+        width: 40px;
+        font-size: 9px;
+        font-weight: 600;
+        font-family: 'Geist Mono', monospace;
+        text-align: right;
+      }
+      .expand-separator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 4px 0;
+        font-size: 9px;
+        color: var(--mine-muted);
+        cursor: pointer;
+      }
+      .expand-separator:hover {
+        color: var(--mine-text);
+      }
+      .expand-separator hr {
+        flex: 1;
+        border: none;
+        border-top: 1px dashed var(--mine-border);
+      }
+
+      /* KV grid */
+      .kv-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px 16px;
+      }
+      .kv-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 0;
+        border-bottom: 1px solid rgba(224, 221, 216, 0.3);
+      }
+      .kv-label {
+        font-size: 10px;
+        color: var(--mine-muted);
+      }
+      .kv-value {
+        font-size: 10px;
+        font-weight: 600;
+        font-family: 'Geist Mono', monospace;
+      }
+
+      /* Robustness */
+      .robustness-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 0;
+      }
+      .robustness-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .robustness-left .name {
+        font-size: 11px;
+        color: var(--mine-text);
+      }
+      .robustness-left .hint {
+        font-size: 9px;
+        color: var(--mine-muted);
+      }
+      .robustness-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .robustness-val {
+        font-size: 11px;
+        font-weight: 700;
+        font-family: 'Geist Mono', monospace;
+      }
+
+      /* Info tooltip */
+      .info-trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        font-size: 8px;
+        font-weight: 600;
+        color: var(--mine-muted);
+        background: transparent;
+        border: 1px solid var(--mine-border);
+        cursor: help;
+        position: relative;
+        vertical-align: middle;
+        margin-left: 2px;
+        transition: all 0.15s;
+        flex-shrink: 0;
+      }
+      .info-trigger:hover {
+        color: var(--mine-text);
+        border-color: var(--mine-muted);
+        background: var(--mine-bg);
+      }
+      .info-tooltip {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 220px;
+        padding: 8px 10px;
+        background: rgba(30, 30, 30, 0.95);
+        color: rgba(255, 255, 255, 0.9);
+        border-radius: 6px;
+        font-size: 10px;
+        line-height: 1.5;
+        font-weight: 400;
+        letter-spacing: normal;
+        text-transform: none;
+        z-index: 100;
+        pointer-events: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .info-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: rgba(30, 30, 30, 0.95);
+      }
+      .info-trigger:hover .info-tooltip {
+        display: block;
+      }
+      .info-tooltip strong {
+        color: #fff;
+        font-weight: 600;
+      }
+      .info-tooltip .info-threshold {
+        margin-top: 4px;
+        padding-top: 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-family: 'Geist Mono', monospace;
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* Quantile colors */
+      .q1c {
+        color: #0b8c5f;
+      }
+      .q1b {
+        background: #0b8c5f;
+      }
+      .q2c {
+        color: #58ceaa;
+      }
+      .q2b {
+        background: #58ceaa;
+      }
+      .q3c {
+        color: #76808e;
+      }
+      .q3b {
+        background: #76808e;
+      }
+      .q4c {
+        color: #e8626f;
+      }
+      .q4b {
+        background: #e8626f;
+      }
+      .q5c {
+        color: #cf304a;
+      }
+      .q5b {
+        background: #cf304a;
+      }
+
+      /* Animations */
+      .pool-content {
+        transition: opacity 0.15s;
+      }
+      .pool-content.switching {
+        opacity: 0.3;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="page-bg"
+      style="
+        flex-direction: column;
+        gap: 24px;
+        padding: 32px;
+        align-items: stretch;
+        justify-content: start;
+        overflow-y: auto;
+      "
+    >
+      <!-- ════ Component Preview Lab ════ -->
+      <div
+        style="
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--mine-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        "
+      >
+        Component Preview Lab
+      </div>
+
+      <!-- ── Radix Tabs 风格 vs 自建风格 对比 ── -->
+      <div
+        style="
+          background: var(--mine-card);
+          border: 1px solid var(--mine-border);
+          border-radius: 12px;
+          padding: 20px;
+        "
+      >
+        <div
+          style="
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mine-muted);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+          "
+        >
+          Global Selector — Radix Tabs 风格
+        </div>
+
+        <!-- Pool tabs: Radix style (bg-muted → rounded-lg → p-[3px] → h-9) -->
+        <div
+          style="font-size: 9px; color: var(--mine-muted); margin-bottom: 4px"
+        >
+          Pool (Radix Tabs default variant)
+        </div>
+        <div
+          style="
+            display: flex;
+            gap: 2px;
+            background: #edebe7;
+            border-radius: 8px;
+            padding: 3px;
+            margin-bottom: 12px;
+            height: 36px;
+            align-items: center;
+          "
+        >
+          <button
+            style="
+              flex: 1;
+              padding: 0 8px;
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+              border: none;
+              background: none;
+              color: rgba(26, 26, 26, 0.6);
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              transition: all 0.15s;
+            "
+          >
+            全A
+          </button>
+          <button
+            style="
+              flex: 1;
+              padding: 0 8px;
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+              border: none;
+              background: none;
+              color: rgba(26, 26, 26, 0.6);
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              transition: all 0.15s;
+            "
+          >
+            沪深300
+          </button>
+          <button
+            style="
+              flex: 1;
+              padding: 0 8px;
+              font-size: 11px;
+              font-weight: 600;
+              text-align: center;
+              border: 1px solid transparent;
+              background: #fff;
+              color: #1a1a1a;
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+              position: relative;
+            "
+          >
+            中证500
+            <span
+              style="
+                position: absolute;
+                top: 4px;
+                right: 6px;
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background: var(--mine-accent-teal);
+              "
+            ></span>
+          </button>
+          <button
+            style="
+              flex: 1;
+              padding: 0 8px;
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+              border: none;
+              background: none;
+              color: rgba(26, 26, 26, 0.6);
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              transition: all 0.15s;
+            "
+          >
+            中证1000
+          </button>
+        </div>
+
+        <!-- Horizon tabs: Radix style -->
+        <div
+          style="font-size: 9px; color: var(--mine-muted); margin-bottom: 4px"
+        >
+          Horizon (Radix Tabs default variant)
+        </div>
+        <div
+          style="
+            display: flex;
+            gap: 2px;
+            background: #edebe7;
+            border-radius: 8px;
+            padding: 3px;
+            margin-bottom: 12px;
+            height: 32px;
+            align-items: center;
+          "
+        >
+          <button
+            style="
+              flex: 1;
+              padding: 0;
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+              border: none;
+              background: none;
+              color: rgba(26, 26, 26, 0.6);
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              transition: all 0.15s;
+            "
+          >
+            5D
+          </button>
+          <button
+            style="
+              flex: 1;
+              padding: 0;
+              font-size: 11px;
+              font-weight: 600;
+              text-align: center;
+              border: 1px solid transparent;
+              background: #fff;
+              color: #1a1a1a;
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            "
+          >
+            20D
+          </button>
+          <button
+            style="
+              flex: 1;
+              padding: 0;
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+              border: none;
+              background: none;
+              color: rgba(26, 26, 26, 0.6);
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              transition: all 0.15s;
+            "
+          >
+            60D
+          </button>
+        </div>
+
+        <!-- Disabled tab demo -->
+        <div
+          style="font-size: 9px; color: var(--mine-muted); margin-bottom: 4px"
+        >
+          Pool with disabled tabs
+        </div>
+        <div
+          style="
+            display: flex;
+            gap: 2px;
+            background: #edebe7;
+            border-radius: 8px;
+            padding: 3px;
+            margin-bottom: 12px;
+            height: 36px;
+            align-items: center;
+          "
+        >
+          <button
+            style="
+              flex: 1;
+              padding: 0 8px;
+              font-size: 11px;
+              font-weight: 600;
+              text-align: center;
+              border: 1px solid transparent;
+              background: #fff;
+              color: #1a1a1a;
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            "
+          >
+            全A
+          </button>
+          <button
+            style="
+              flex: 1;
+              padding: 0 8px;
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+              border: none;
+              background: none;
+              color: rgba(26, 26, 26, 0.6);
+              cursor: pointer;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              transition: all 0.15s;
+            "
+          >
+            沪深300
+          </button>
+          <button
+            style="
+              flex: 1;
+              padding: 0 8px;
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+              border: none;
+              background: none;
+              color: rgba(26, 26, 26, 0.35);
+              cursor: not-allowed;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              opacity: 0.5;
+              pointer-events: none;
+            "
+          >
+            中证500
+          </button>
+          <button
+            style="
+              flex: 1;
+              padding: 0 8px;
+              font-size: 11px;
+              font-weight: 500;
+              text-align: center;
+              border: none;
+              background: none;
+              color: rgba(26, 26, 26, 0.35);
+              cursor: not-allowed;
+              border-radius: 6px;
+              height: calc(100% - 1px);
+              font-family: inherit;
+              opacity: 0.5;
+              pointer-events: none;
+            "
+          >
+            中证1000
+          </button>
+        </div>
+
+        <!-- Calc config row -->
+        <div
+          style="font-size: 9px; color: var(--mine-muted); margin-bottom: 4px"
+        >
+          Calc Config (inline summary + popover)
+        </div>
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: var(--mine-muted);
+            cursor: pointer;
+            padding: 2px 0;
+          "
+        >
+          <span style="font-size: 12px">⚙</span>
+          <span>RankIC · MAD去极值 · 行业中性</span>
+          <span style="font-size: 8px">▾</span>
+        </div>
+      </div>
+
+      <!-- ── Identity Header 新设计预览 ── -->
+      <div
+        style="
+          background: var(--mine-card);
+          border: 1px solid var(--mine-border);
+          border-radius: 12px;
+          padding: 20px;
+        "
+      >
+        <div
+          style="
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mine-muted);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+          "
+        >
+          Identity Header — 新设计
+        </div>
+
+        <!-- Source Block: 表达式因子 -->
+        <div
+          style="font-size: 9px; color: var(--mine-muted); margin-bottom: 4px"
+        >
+          表达式因子 — Source Block
+        </div>
+        <div
+          style="
+            background: var(--mine-bg);
+            border-radius: 6px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+          "
+        >
+          <code
+            style="
+              font-size: 11px;
+              font-family: 'Geist Mono', monospace;
+              color: var(--mine-text);
+              flex: 1;
+              min-width: 0;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            "
+            >ts_rank(log_ret(close, 20) / realized_vol(close, 20), 20)</code
+          >
+          <button
+            style="
+              border: none;
+              background: none;
+              color: var(--mine-muted);
+              cursor: pointer;
+              padding: 2px;
+              border-radius: 3px;
+              transition: color 0.15s;
+              flex-shrink: 0;
+            "
+            title="复制"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path
+                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Source Block: 代码因子 -->
+        <div
+          style="font-size: 9px; color: var(--mine-muted); margin-bottom: 4px"
+        >
+          代码因子 — Source Block
+        </div>
+        <div
+          style="
+            background: var(--mine-bg);
+            border-radius: 6px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+          "
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--mine-muted)"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="flex-shrink: 0"
+          >
+            <path
+              d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
+            />
+            <polyline points="14 2 14 8 20 8" />
+            <path d="m10 13-2 2 2 2" />
+            <path d="m14 17 2-2-2-2" />
+          </svg>
+          <span
+            style="
+              font-size: 11px;
+              font-family: 'Geist Mono', monospace;
+              color: var(--mine-text);
+              flex: 1;
+              min-width: 0;
+            "
+            >factor.py</span
+          >
+          <span style="font-size: 9px; color: var(--mine-muted)">· 23行</span>
+          <button
+            style="
+              border: none;
+              background: none;
+              color: var(--mine-muted);
+              cursor: pointer;
+              padding: 2px;
+              border-radius: 3px;
+              transition: color 0.15s;
+              flex-shrink: 0;
+            "
+            title="在 Lab 中打开"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+              />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- 金融假设 -->
+        <div
+          style="font-size: 9px; color: var(--mine-muted); margin-bottom: 4px"
+        >
+          金融假设
+        </div>
+        <div
+          style="
+            font-size: 11px;
+            color: var(--mine-muted);
+            line-height: 1.6;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          "
+        >
+          经波动率调整的20日动量因子。假设在A股市场中，过去20个交易日涨幅较大且波动率较低的股票，具有更强的趋势延续性。这是经典横截面动量因子的风险调整版本，通过除以已实现波动率来消除高波动带来的虚假动量信号。
+        </div>
+        <span
+          style="
+            font-size: 10px;
+            color: var(--mine-accent-teal);
+            cursor: pointer;
+          "
+          >展开</span
+        >
+
+        <!-- Lifecycle (simplified placeholder) -->
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-top: 12px;
+            position: relative;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              flex: 1;
+            "
+          >
+            <div
+              style="
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--mine-accent-teal);
+                border: 2px solid var(--mine-accent-teal);
+              "
+            ></div>
+            <span
+              style="
+                font-size: 8px;
+                color: var(--mine-accent-teal);
+                margin-top: 3px;
+                font-weight: 600;
+              "
+              >INC</span
+            >
+          </div>
+          <div
+            style="
+              flex: 1;
+              height: 2px;
+              background: var(--mine-accent-teal);
+              margin: 0 -4px;
+            "
+          ></div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              flex: 1;
+            "
+          >
+            <div
+              style="
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--mine-accent-teal);
+                border: 2px solid var(--mine-accent-teal);
+                box-shadow:
+                  0 0 0 2px white,
+                  0 0 0 3.5px rgba(38, 166, 154, 0.25);
+              "
+            ></div>
+            <span
+              style="
+                font-size: 8px;
+                color: var(--mine-accent-teal);
+                margin-top: 3px;
+                font-weight: 600;
+              "
+              >PAPER</span
+            >
+          </div>
+          <div
+            style="
+              flex: 1;
+              height: 2px;
+              background: var(--mine-border);
+              margin: 0 -4px;
+            "
+          ></div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              flex: 1;
+            "
+          >
+            <div
+              style="
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: white;
+                border: 2px solid var(--mine-border);
+              "
+            ></div>
+            <span style="font-size: 8px; color: #8a8a8a; margin-top: 3px"
+              >LIVE</span
+            >
+          </div>
+          <div
+            style="
+              flex: 1;
+              height: 2px;
+              background: var(--mine-border);
+              margin: 0 -4px;
+            "
+          ></div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              flex: 1;
+            "
+          >
+            <div
+              style="
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: white;
+                border: 2px solid var(--mine-border);
+              "
+            ></div>
+            <span style="font-size: 8px; color: #8a8a8a; margin-top: 3px"
+              >PROB</span
+            >
+          </div>
+          <div
+            style="
+              flex: 1;
+              height: 2px;
+              background: var(--mine-border);
+              margin: 0 -4px;
+            "
+          ></div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              flex: 1;
+            "
+          >
+            <div
+              style="
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: white;
+                border: 2px solid var(--mine-border);
+              "
+            ></div>
+            <span style="font-size: 8px; color: #8a8a8a; margin-top: 3px"
+              >RET</span
+            >
+          </div>
+        </div>
+
+        <!-- Proposal Bar -->
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: rgba(38, 166, 154, 0.06);
+            border: 1px solid rgba(38, 166, 154, 0.2);
+            margin-top: 10px;
+          "
+        >
+          <span style="font-size: 12px; flex-shrink: 0">⬆</span>
+          <span
+            style="
+              font-size: 10px;
+              color: var(--mine-text);
+              line-height: 1.4;
+              flex: 1;
+            "
+            >系统建议升级至 <strong>LIVE</strong>：IC 连续 60 期 > 0.03，ICIR
+            稳定 > 0.3</span
+          >
+          <div style="display: flex; gap: 4px; flex-shrink: 0">
+            <button
+              style="
+                padding: 3px 8px;
+                font-size: 9px;
+                font-weight: 600;
+                border-radius: 4px;
+                border: 1px solid var(--mine-accent-teal);
+                color: var(--mine-accent-teal);
+                background: none;
+                cursor: pointer;
+              "
+            >
+              ✓
+            </button>
+            <button
+              style="
+                padding: 3px 8px;
+                font-size: 9px;
+                font-weight: 600;
+                border-radius: 4px;
+                border: 1px solid var(--market-up);
+                color: var(--market-up);
+                background: none;
+                cursor: pointer;
+              "
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── IC Sensitivity Grid 预览 (井字格) ── -->
+      <div
+        style="
+          background: var(--mine-card);
+          border: 1px solid var(--mine-border);
+          border-radius: 12px;
+          padding: 20px;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+          "
+        >
+          <span
+            style="
+              font-size: 11px;
+              font-weight: 600;
+              color: var(--mine-muted);
+              text-transform: uppercase;
+              letter-spacing: 0.06em;
+            "
+            >IC Sensitivity Grid</span
+          >
+          <div
+            style="
+              display: flex;
+              gap: 10px;
+              font-size: 9px;
+              color: var(--mine-muted);
+            "
+          >
+            <span
+              ><span
+                style="
+                  display: inline-block;
+                  width: 5px;
+                  height: 5px;
+                  border-radius: 50%;
+                  background: var(--market-up);
+                  vertical-align: middle;
+                  margin-right: 3px;
+                "
+              ></span
+              >&ge;0.03</span
+            >
+            <span
+              ><span
+                style="
+                  display: inline-block;
+                  width: 5px;
+                  height: 5px;
+                  border-radius: 50%;
+                  background: var(--amber);
+                  vertical-align: middle;
+                  margin-right: 3px;
+                "
+              ></span
+              >0.02–</span
+            >
+            <span
+              ><span
+                style="
+                  display: inline-block;
+                  width: 5px;
+                  height: 5px;
+                  border-radius: 50%;
+                  background: var(--mine-border);
+                  vertical-align: middle;
+                  margin-right: 3px;
+                "
+              ></span
+              >&lt;0.02</span
+            >
+            <span style="color: var(--mine-accent-teal); font-weight: 600"
+              >★</span
+            >
+          </div>
+        </div>
+
+        <!-- Open crosshair grid: only inner dividing lines -->
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 56px repeat(3, 1fr);
+            grid-template-rows: auto repeat(4, 1fr);
+          "
+        >
+          <!-- Header row: empty corner + 3 horizon labels -->
+          <div style="padding: 0 0 6px 0"></div>
+          <div
+            style="
+              padding: 0 0 6px 0;
+              text-align: center;
+              font-size: 9px;
+              font-weight: 500;
+              color: var(--mine-muted);
+              text-transform: uppercase;
+              letter-spacing: 0.04em;
+            "
+          >
+            5D
+          </div>
+          <div
+            style="
+              padding: 0 0 6px 0;
+              text-align: center;
+              font-size: 9px;
+              font-weight: 500;
+              color: var(--mine-muted);
+              text-transform: uppercase;
+              letter-spacing: 0.04em;
+            "
+          >
+            20D
+          </div>
+          <div
+            style="
+              padding: 0 0 6px 0;
+              text-align: center;
+              font-size: 9px;
+              font-weight: 500;
+              color: var(--mine-muted);
+              text-transform: uppercase;
+              letter-spacing: 0.04em;
+            "
+          >
+            60D
+          </div>
+
+          <!-- 全A row -->
+          <div
+            style="
+              padding: 10px 8px 10px 0;
+              font-size: 10px;
+              font-weight: 500;
+              color: var(--mine-muted);
+              text-align: right;
+              border-right: 1px solid var(--mine-border);
+            "
+          >
+            全A
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--market-up);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.042</span
+            >
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              background: rgba(38, 166, 154, 0.05);
+              cursor: pointer;
+            "
+          >
+            <span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+                color: var(--mine-accent-teal);
+              "
+              >0.035</span
+            >
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--amber);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.029</span
+            >
+          </div>
+
+          <!-- 沪深300 row -->
+          <div
+            style="
+              padding: 10px 8px 10px 0;
+              font-size: 10px;
+              font-weight: 500;
+              color: var(--mine-muted);
+              text-align: right;
+              border-right: 1px solid var(--mine-border);
+            "
+          >
+            沪深300
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--amber);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.028</span
+            >
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--market-up);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.041</span
+            >
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--market-up);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.031</span
+            >
+          </div>
+
+          <!-- 中证500 row -->
+          <div
+            style="
+              padding: 10px 8px 10px 0;
+              font-size: 10px;
+              font-weight: 500;
+              color: var(--mine-muted);
+              text-align: right;
+              border-right: 1px solid var(--mine-border);
+            "
+          >
+            中证500
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--market-up);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.051</span
+            ><span
+              style="
+                font-size: 7px;
+                font-weight: 700;
+                color: var(--mine-accent-teal);
+                margin-left: 2px;
+                vertical-align: super;
+              "
+              >★</span
+            >
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--market-up);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.044</span
+            >
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              border-bottom: 1px solid var(--mine-border);
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--market-up);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.033</span
+            >
+          </div>
+
+          <!-- 中证1000 row (last row — no bottom border) -->
+          <div
+            style="
+              padding: 10px 8px 10px 0;
+              font-size: 10px;
+              font-weight: 500;
+              color: var(--mine-muted);
+              text-align: right;
+              border-right: 1px solid var(--mine-border);
+            "
+          >
+            中证1000
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--amber);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.030</span
+            >
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--amber);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+              "
+              >0.022</span
+            >
+          </div>
+          <div
+            style="
+              padding: 10px 4px;
+              text-align: center;
+              cursor: pointer;
+              transition: background 0.15s;
+            "
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--mine-border);
+                vertical-align: middle;
+                margin-right: 3px;
+              "
+            ></span
+            ><span
+              style="
+                font-size: 11px;
+                font-weight: 600;
+                font-family: 'Geist Mono', monospace;
+                font-variant-numeric: tabular-nums;
+                color: var(--mine-muted);
+              "
+              >0.018</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Predictive Power — 方案 A: 并排 2 列 ── -->
+      <div
+        style="
+          background: var(--mine-card);
+          border: 1px solid var(--mine-border);
+          border-radius: 12px;
+          padding: 20px;
+        "
+      >
+        <div
+          style="
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mine-muted);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+          "
+        >
+          Predictive Power — 方案 A 并排
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+          <!-- IC Card -->
+          <div
+            style="
+              border: 1px solid var(--mine-border);
+              border-radius: 10px;
+              padding: 12px;
+            "
+          >
+            <div
+              style="
+                font-size: 9px;
+                font-weight: 500;
+                color: var(--mine-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+              "
+            >
+              IC
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+                margin-top: 4px;
+              "
+            >
+              <span
+                style="
+                  font-size: 20px;
+                  font-weight: 700;
+                  font-family: 'Geist Mono', monospace;
+                  font-variant-numeric: tabular-nums;
+                  color: var(--mine-text);
+                "
+                >+0.042</span
+              >
+              <span
+                style="
+                  font-size: 9px;
+                  font-weight: 600;
+                  color: var(--market-up-medium);
+                  background: rgba(207, 48, 74, 0.06);
+                  padding: 1px 5px;
+                  border-radius: 4px;
+                "
+                >优秀</span
+              >
+            </div>
+            <!-- Threshold bar -->
+            <div
+              style="
+                position: relative;
+                height: 4px;
+                background: var(--mine-bg);
+                border-radius: 2px;
+                margin-top: 8px;
+                overflow: hidden;
+              "
+            >
+              <div
+                style="
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  height: 100%;
+                  width: 72%;
+                  background: var(--market-up-medium);
+                  border-radius: 2px;
+                  opacity: 0.6;
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  left: 37.5%;
+                  top: -2px;
+                  width: 1px;
+                  height: 8px;
+                  background: var(--mine-muted);
+                  opacity: 0.3;
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  left: 62.5%;
+                  top: -2px;
+                  width: 1px;
+                  height: 8px;
+                  background: var(--mine-muted);
+                  opacity: 0.3;
+                "
+              ></div>
+            </div>
+            <!-- Sub-metrics -->
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-top: 10px;
+                padding-top: 8px;
+                border-top: 1px solid var(--mine-border);
+                border-color: rgba(0, 0, 0, 0.04);
+              "
+            >
+              <div>
+                <div
+                  style="
+                    font-size: 8px;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                  "
+                >
+                  t-stat
+                </div>
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    font-family: 'Geist Mono', monospace;
+                    font-variant-numeric: tabular-nums;
+                    color: var(--market-up-medium);
+                  "
+                >
+                  3.21
+                </div>
+              </div>
+              <div style="text-align: right">
+                <div
+                  style="
+                    font-size: 8px;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                  "
+                >
+                  95% CI
+                </div>
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    font-family: 'Geist Mono', monospace;
+                    font-variant-numeric: tabular-nums;
+                    color: var(--mine-text);
+                  "
+                >
+                  [.031, .053]
+                </div>
+              </div>
+            </div>
+            <!-- Mini chart placeholder -->
+            <div
+              style="
+                margin-top: 8px;
+                height: 28px;
+                background: var(--mine-bg);
+                border-radius: 4px;
+                display: flex;
+                align-items: flex-end;
+                padding: 0 2px 2px;
+                gap: 1px;
+              "
+            >
+              <div
+                style="
+                  flex: 1;
+                  height: 60%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 45%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 70%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 30%;
+                  background: rgba(11, 140, 95, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 55%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 80%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 40%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 65%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 25%;
+                  background: rgba(11, 140, 95, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 50%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 75%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 35%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+            </div>
+          </div>
+
+          <!-- ICIR Card -->
+          <div
+            style="
+              border: 1px solid var(--mine-border);
+              border-radius: 10px;
+              padding: 12px;
+            "
+          >
+            <div
+              style="
+                font-size: 9px;
+                font-weight: 500;
+                color: var(--mine-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+              "
+            >
+              ICIR
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+                margin-top: 4px;
+              "
+            >
+              <span
+                style="
+                  font-size: 20px;
+                  font-weight: 700;
+                  font-family: 'Geist Mono', monospace;
+                  font-variant-numeric: tabular-nums;
+                  color: var(--mine-text);
+                "
+                >1.82</span
+              >
+              <span
+                style="
+                  font-size: 9px;
+                  font-weight: 600;
+                  color: var(--market-up-medium);
+                  background: rgba(207, 48, 74, 0.06);
+                  padding: 1px 5px;
+                  border-radius: 4px;
+                "
+                >优秀</span
+              >
+            </div>
+            <!-- Threshold bar -->
+            <div
+              style="
+                position: relative;
+                height: 4px;
+                background: var(--mine-bg);
+                border-radius: 2px;
+                margin-top: 8px;
+                overflow: hidden;
+              "
+            >
+              <div
+                style="
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  height: 100%;
+                  width: 70%;
+                  background: var(--market-up-medium);
+                  border-radius: 2px;
+                  opacity: 0.6;
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  left: 50%;
+                  top: -2px;
+                  width: 1px;
+                  height: 8px;
+                  background: var(--mine-muted);
+                  opacity: 0.3;
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  left: 62.5%;
+                  top: -2px;
+                  width: 1px;
+                  height: 8px;
+                  background: var(--mine-muted);
+                  opacity: 0.3;
+                "
+              ></div>
+            </div>
+            <!-- Sub-metrics -->
+            <div
+              style="
+                margin-top: 10px;
+                padding-top: 8px;
+                border-top: 1px solid var(--mine-border);
+                border-color: rgba(0, 0, 0, 0.04);
+              "
+            >
+              <div>
+                <div
+                  style="
+                    font-size: 8px;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                  "
+                >
+                  胜率 Hit Rate
+                </div>
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    font-family: 'Geist Mono', monospace;
+                    font-variant-numeric: tabular-nums;
+                    color: var(--mine-text);
+                  "
+                >
+                  62%
+                </div>
+              </div>
+            </div>
+            <!-- Mini chart placeholder -->
+            <div
+              style="
+                margin-top: 8px;
+                height: 28px;
+                background: var(--mine-bg);
+                border-radius: 4px;
+                display: flex;
+                align-items: flex-end;
+                padding: 0 2px 2px;
+                gap: 1px;
+              "
+            >
+              <div
+                style="
+                  flex: 1;
+                  height: 50%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 65%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 40%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 55%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 70%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 35%;
+                  background: rgba(11, 140, 95, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 60%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 80%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 45%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 60%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 30%;
+                  background: rgba(11, 140, 95, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+              <div
+                style="
+                  flex: 1;
+                  height: 55%;
+                  background: rgba(207, 48, 74, 0.3);
+                  border-radius: 1px;
+                "
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Predictive Power — 方案 B: 上下堆叠 ── -->
+      <div
+        style="
+          background: var(--mine-card);
+          border: 1px solid var(--mine-border);
+          border-radius: 12px;
+          padding: 20px;
+          margin-top: 16px;
+        "
+      >
+        <div
+          style="
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mine-muted);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+          "
+        >
+          Predictive Power — 方案 B 堆叠
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <!-- IC Card (full width) -->
+          <div
+            style="
+              border: 1px solid var(--mine-border);
+              border-radius: 10px;
+              padding: 14px 16px;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+            >
+              <div>
+                <div
+                  style="
+                    font-size: 9px;
+                    font-weight: 500;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                  "
+                >
+                  IC
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: baseline;
+                    gap: 6px;
+                    margin-top: 2px;
+                  "
+                >
+                  <span
+                    style="
+                      font-size: 22px;
+                      font-weight: 700;
+                      font-family: 'Geist Mono', monospace;
+                      font-variant-numeric: tabular-nums;
+                      color: var(--mine-text);
+                    "
+                    >+0.042</span
+                  >
+                  <span
+                    style="
+                      font-size: 9px;
+                      font-weight: 600;
+                      color: var(--market-up-medium);
+                      background: rgba(207, 48, 74, 0.06);
+                      padding: 1px 5px;
+                      border-radius: 4px;
+                    "
+                    >优秀</span
+                  >
+                </div>
+              </div>
+              <!-- Mini chart on the right -->
+              <div
+                style="
+                  height: 32px;
+                  width: 100px;
+                  background: var(--mine-bg);
+                  border-radius: 4px;
+                  display: flex;
+                  align-items: flex-end;
+                  padding: 0 2px 2px;
+                  gap: 1px;
+                "
+              >
+                <div
+                  style="
+                    flex: 1;
+                    height: 60%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 45%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 70%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 30%;
+                    background: rgba(11, 140, 95, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 55%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 80%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 40%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 65%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 25%;
+                    background: rgba(11, 140, 95, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 50%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 75%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 35%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+              </div>
+            </div>
+            <!-- Threshold bar -->
+            <div
+              style="
+                position: relative;
+                height: 4px;
+                background: var(--mine-bg);
+                border-radius: 2px;
+                margin-top: 8px;
+                overflow: hidden;
+              "
+            >
+              <div
+                style="
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  height: 100%;
+                  width: 72%;
+                  background: var(--market-up-medium);
+                  border-radius: 2px;
+                  opacity: 0.6;
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  left: 37.5%;
+                  top: -2px;
+                  width: 1px;
+                  height: 8px;
+                  background: var(--mine-muted);
+                  opacity: 0.3;
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  left: 62.5%;
+                  top: -2px;
+                  width: 1px;
+                  height: 8px;
+                  background: var(--mine-muted);
+                  opacity: 0.3;
+                "
+              ></div>
+            </div>
+            <!-- Sub-metrics row -->
+            <div
+              style="
+                display: flex;
+                gap: 16px;
+                margin-top: 10px;
+                padding-top: 8px;
+                border-top: 1px solid rgba(0, 0, 0, 0.04);
+              "
+            >
+              <div>
+                <div
+                  style="
+                    font-size: 8px;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                  "
+                >
+                  t-stat
+                </div>
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    font-family: 'Geist Mono', monospace;
+                    font-variant-numeric: tabular-nums;
+                    color: var(--market-up-medium);
+                  "
+                >
+                  3.21
+                </div>
+              </div>
+              <div>
+                <div
+                  style="
+                    font-size: 8px;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                  "
+                >
+                  95% CI
+                </div>
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    font-family: 'Geist Mono', monospace;
+                    font-variant-numeric: tabular-nums;
+                    color: var(--mine-text);
+                  "
+                >
+                  [.031, .053]
+                </div>
+              </div>
+              <div>
+                <div
+                  style="
+                    font-size: 8px;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                  "
+                >
+                  P75
+                </div>
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    font-family: 'Geist Mono', monospace;
+                    font-variant-numeric: tabular-nums;
+                    color: var(--mine-muted);
+                  "
+                >
+                  Top 25%
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ICIR Card (full width) -->
+          <div
+            style="
+              border: 1px solid var(--mine-border);
+              border-radius: 10px;
+              padding: 14px 16px;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+            >
+              <div>
+                <div
+                  style="
+                    font-size: 9px;
+                    font-weight: 500;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                  "
+                >
+                  ICIR
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: baseline;
+                    gap: 6px;
+                    margin-top: 2px;
+                  "
+                >
+                  <span
+                    style="
+                      font-size: 22px;
+                      font-weight: 700;
+                      font-family: 'Geist Mono', monospace;
+                      font-variant-numeric: tabular-nums;
+                      color: var(--mine-text);
+                    "
+                    >1.82</span
+                  >
+                  <span
+                    style="
+                      font-size: 9px;
+                      font-weight: 600;
+                      color: var(--market-up-medium);
+                      background: rgba(207, 48, 74, 0.06);
+                      padding: 1px 5px;
+                      border-radius: 4px;
+                    "
+                    >优秀</span
+                  >
+                </div>
+              </div>
+              <!-- Mini chart on the right -->
+              <div
+                style="
+                  height: 32px;
+                  width: 100px;
+                  background: var(--mine-bg);
+                  border-radius: 4px;
+                  display: flex;
+                  align-items: flex-end;
+                  padding: 0 2px 2px;
+                  gap: 1px;
+                "
+              >
+                <div
+                  style="
+                    flex: 1;
+                    height: 50%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 65%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 40%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 55%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 70%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 35%;
+                    background: rgba(11, 140, 95, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 60%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 80%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 45%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 60%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 30%;
+                    background: rgba(11, 140, 95, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+                <div
+                  style="
+                    flex: 1;
+                    height: 55%;
+                    background: rgba(207, 48, 74, 0.3);
+                    border-radius: 1px;
+                  "
+                ></div>
+              </div>
+            </div>
+            <!-- Threshold bar -->
+            <div
+              style="
+                position: relative;
+                height: 4px;
+                background: var(--mine-bg);
+                border-radius: 2px;
+                margin-top: 8px;
+                overflow: hidden;
+              "
+            >
+              <div
+                style="
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  height: 100%;
+                  width: 70%;
+                  background: var(--market-up-medium);
+                  border-radius: 2px;
+                  opacity: 0.6;
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  left: 50%;
+                  top: -2px;
+                  width: 1px;
+                  height: 8px;
+                  background: var(--mine-muted);
+                  opacity: 0.3;
+                "
+              ></div>
+              <div
+                style="
+                  position: absolute;
+                  left: 62.5%;
+                  top: -2px;
+                  width: 1px;
+                  height: 8px;
+                  background: var(--mine-muted);
+                  opacity: 0.3;
+                "
+              ></div>
+            </div>
+            <!-- Sub-metrics row -->
+            <div
+              style="
+                display: flex;
+                gap: 16px;
+                margin-top: 10px;
+                padding-top: 8px;
+                border-top: 1px solid rgba(0, 0, 0, 0.04);
+              "
+            >
+              <div>
+                <div
+                  style="
+                    font-size: 8px;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                  "
+                >
+                  胜率
+                </div>
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    font-family: 'Geist Mono', monospace;
+                    font-variant-numeric: tabular-nums;
+                    color: var(--mine-text);
+                  "
+                >
+                  62%
+                </div>
+              </div>
+              <div>
+                <div
+                  style="
+                    font-size: 8px;
+                    color: var(--mine-muted);
+                    text-transform: uppercase;
+                  "
+                >
+                  P75
+                </div>
+                <div
+                  style="
+                    font-size: 11px;
+                    font-weight: 600;
+                    font-family: 'Geist Mono', monospace;
+                    font-variant-numeric: tabular-nums;
+                    color: var(--mine-muted);
+                  "
+                >
+                  Top 30%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel-header">
+        <h2>Factor Detail</h2>
+        <button class="panel-close">×</button>
+      </div>
+      <div class="panel-body">
+        <!-- ═══ 1. Identity Header ═══ -->
+        <div class="section">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 6px;
+            "
+          >
+            <span class="factor-name">momentum_20d_vol_adj</span>
+          </div>
+          <div style="display: flex; gap: 4px; margin-bottom: 8px">
+            <span class="badge badge-muted">动量</span>
+            <span class="badge badge-muted">波动率调整</span>
+          </div>
+
+          <button class="collapse-btn" onclick="toggleCollapse('expr')">
+            <span class="collapse-arrow" id="expr-arrow">▶</span>
+            <span>Expression</span>
+          </button>
+          <div id="expr-content" class="collapse-content" style="display: none">
+            <code class="expr-code"
+              >ts_rank(log_ret(close, 20) / realized_vol(close, 20), 20)</code
+            >
+          </div>
+
+          <!-- Pending lifecycle proposal -->
+          <div class="proposal-box">
+            <span class="proposal-icon">⬆</span>
+            <span class="proposal-text"
+              >系统建议升级至 <strong>VALIDATED</strong>：IC 连续 60 期 >
+              0.03，ICIR 稳定 > 0.3</span
+            >
+            <div class="proposal-actions">
+              <button class="proposal-btn approve">✓</button>
+              <button class="proposal-btn reject">✕</button>
+            </div>
+          </div>
+
+          <div class="lifecycle">
+            <div class="lc-step">
+              <div class="lc-dot past"></div>
+              <span class="lc-label">DRAFT</span>
+            </div>
+            <div
+              class="lc-line-abs done"
+              style="top: 3px; left: 12.5%; width: 25%"
+            ></div>
+            <div class="lc-step">
+              <div class="lc-dot active"></div>
+              <span class="lc-label active">TESTING</span>
+            </div>
+            <div
+              class="lc-line-abs"
+              style="top: 3px; left: 37.5%; width: 25%"
+            ></div>
+            <div class="lc-step">
+              <div class="lc-dot"></div>
+              <span class="lc-label">VALIDATED</span>
+            </div>
+            <div
+              class="lc-line-abs"
+              style="top: 3px; left: 62.5%; width: 25%"
+            ></div>
+            <div class="lc-step">
+              <div class="lc-dot"></div>
+              <span class="lc-label">LIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 2. Global Selector (sticky) ═══ -->
+        <div class="global-selector" style="position: relative">
+          <div class="pool-tabs">
+            <button class="pool-tab active" onclick="switchPool(this,'all')">
+              全A
+            </button>
+            <button class="pool-tab" onclick="switchPool(this,'hs300')">
+              沪深300
+            </button>
+            <button class="pool-tab" onclick="switchPool(this,'zz500')">
+              中证500<span class="best-dot" title="最佳池"></span>
+            </button>
+            <button class="pool-tab" onclick="switchPool(this,'zz1000')">
+              中证1000
+            </button>
+          </div>
+          <div class="horizon-tabs">
+            <button class="horizon-tab" onclick="switchHorizon(this,'5d')">
+              5D
+            </button>
+            <button
+              class="horizon-tab active"
+              onclick="switchHorizon(this,'20d')"
+            >
+              20D
+            </button>
+            <button class="horizon-tab" onclick="switchHorizon(this,'60d')">
+              60D
+            </button>
+          </div>
+          <div class="calc-config" onclick="toggleConfig()">
+            <span class="gear">⚙</span>
+            <span id="config-label">RankIC · MAD去极值 · 行业中性</span>
+            <span style="font-size: 8px">▾</span>
+          </div>
+          <div class="config-popover" id="config-popover">
+            <div class="config-row">
+              <span class="config-label">IC 方法</span
+              ><select class="config-select">
+                <option>RankIC</option>
+                <option>NormalIC</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <span class="config-label">去极值</span
+              ><select class="config-select">
+                <option>MAD</option>
+                <option>3σ</option>
+                <option>Winsorize</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <span class="config-label">行业中性化</span
+              ><select class="config-select">
+                <option>是</option>
+                <option>否</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <span class="config-label">市值中性化</span
+              ><select class="config-select">
+                <option>否</option>
+                <option>是</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 3. V-Score + Radar (full width, V-Score in center) ═══ -->
+        <div class="section">
+          <div class="section-title">Overview</div>
+          <div class="chart-box" style="padding: 8px">
+            <svg viewBox="0 0 340 240" style="width: 100%">
+              <!-- Radar grid -->
+              <g transform="translate(170,120)">
+                <polygon
+                  points="0,-90 78,-45 78,45 0,90 -78,45 -78,-45"
+                  fill="none"
+                  stroke="var(--mine-border)"
+                  stroke-width="0.5"
+                />
+                <polygon
+                  points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30"
+                  fill="none"
+                  stroke="var(--mine-border)"
+                  stroke-width="0.5"
+                />
+                <polygon
+                  points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15"
+                  fill="none"
+                  stroke="var(--mine-border)"
+                  stroke-width="0.5"
+                />
+                <!-- Data polygon -->
+                <polygon
+                  points="0,-72 62,-28 55,36 0,54 -47,32 -70,-18"
+                  fill="rgba(38,166,154,0.18)"
+                  stroke="var(--mine-accent-teal)"
+                  stroke-width="1.5"
+                />
+                <circle
+                  cx="0"
+                  cy="-72"
+                  r="2.5"
+                  fill="var(--mine-accent-teal)"
+                />
+                <circle
+                  cx="62"
+                  cy="-28"
+                  r="2.5"
+                  fill="var(--mine-accent-teal)"
+                />
+                <circle
+                  cx="55"
+                  cy="36"
+                  r="2.5"
+                  fill="var(--mine-accent-teal)"
+                />
+                <circle cx="0" cy="54" r="2.5" fill="var(--mine-accent-teal)" />
+                <circle
+                  cx="-47"
+                  cy="32"
+                  r="2.5"
+                  fill="var(--mine-accent-teal)"
+                />
+                <circle
+                  cx="-70"
+                  cy="-18"
+                  r="2.5"
+                  fill="var(--mine-accent-teal)"
+                />
+              </g>
+              <!-- V-Score in center -->
+              <text
+                x="170"
+                y="108"
+                text-anchor="middle"
+                font-size="9"
+                fill="var(--mine-muted)"
+                font-weight="500"
+              >
+                V-SCORE
+              </text>
+              <text
+                x="170"
+                y="128"
+                text-anchor="middle"
+                font-size="18"
+                fill="var(--mine-muted)"
+                font-weight="700"
+                font-family="Geist Mono"
+                style="font-variant-numeric: tabular-nums"
+              >
+                -0.32
+              </text>
+              <rect
+                x="152"
+                y="132"
+                width="36"
+                height="14"
+                rx="3"
+                fill="rgba(90,90,90,0.06)"
+              />
+              <text
+                x="170"
+                y="143"
+                text-anchor="middle"
+                font-size="9"
+                fill="var(--mine-muted)"
+                font-weight="600"
+              >
+                正常
+              </text>
+              <!-- Axis labels -->
+              <text
+                x="170"
+                y="16"
+                text-anchor="middle"
+                font-size="9"
+                fill="var(--mine-muted)"
+              >
+                预测力
+              </text>
+              <text
+                x="268"
+                y="82"
+                text-anchor="start"
+                font-size="9"
+                fill="var(--mine-muted)"
+              >
+                稳定性
+              </text>
+              <text
+                x="268"
+                y="168"
+                text-anchor="start"
+                font-size="9"
+                fill="var(--mine-muted)"
+              >
+                收益
+              </text>
+              <text
+                x="170"
+                y="230"
+                text-anchor="middle"
+                font-size="9"
+                fill="var(--mine-muted)"
+              >
+                风控
+              </text>
+              <text
+                x="72"
+                y="168"
+                text-anchor="end"
+                font-size="9"
+                fill="var(--mine-muted)"
+              >
+                容量
+              </text>
+              <text
+                x="72"
+                y="82"
+                text-anchor="end"
+                font-size="9"
+                fill="var(--mine-muted)"
+              >
+                鲁棒性
+              </text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- ═══ 4. Cross-Combo Matrix ═══ -->
+        <div class="section">
+          <div class="section-title">
+            Cross-Combo Overview
+            <span class="info-trigger"
+              >i<span class="info-tooltip"
+                ><strong>Cross-Combo Overview</strong><br />快速对比因子在不同
+                股票池 × 持仓周期 下的 IC 表现。点击格子切换全局上下文。
+                <div class="info-threshold">
+                  色点: 红=合格 · 黄=一般 · 灰=较差
+                </div></span
+              ></span
+            >
+          </div>
+          <div class="combo-matrix">
+            <div class="combo-cell header"></div>
+            <div class="combo-cell header">5D</div>
+            <div class="combo-cell header">20D</div>
+            <div class="combo-cell header">60D</div>
+            <!-- 全A -->
+            <div class="combo-cell row-header">全A</div>
+            <div class="combo-cell" onclick="selectCombo(this,'all','5d')">
+              <span class="combo-tier good"></span
+              ><span class="combo-ic">0.042</span>
+            </div>
+            <div
+              class="combo-cell selected"
+              onclick="selectCombo(this,'all','20d')"
+            >
+              <span class="combo-tier good"></span
+              ><span class="combo-ic">0.035</span>
+            </div>
+            <div class="combo-cell" onclick="selectCombo(this,'all','60d')">
+              <span class="combo-tier ok"></span
+              ><span class="combo-ic">0.029</span>
+            </div>
+            <!-- 沪深300 -->
+            <div class="combo-cell row-header">沪深300</div>
+            <div class="combo-cell" onclick="selectCombo(this,'hs300','5d')">
+              <span class="combo-tier ok"></span
+              ><span class="combo-ic">0.028</span>
+            </div>
+            <div class="combo-cell" onclick="selectCombo(this,'hs300','20d')">
+              <span class="combo-tier good"></span
+              ><span class="combo-ic">0.041</span>
+            </div>
+            <div class="combo-cell" onclick="selectCombo(this,'hs300','60d')">
+              <span class="combo-tier good"></span
+              ><span class="combo-ic">0.031</span>
+            </div>
+            <!-- 中证500 -->
+            <div class="combo-cell row-header">中证500</div>
+            <div class="combo-cell" onclick="selectCombo(this,'zz500','5d')">
+              <span class="combo-tier good"></span
+              ><span class="combo-ic">0.051</span
+              ><span class="combo-best">★</span>
+            </div>
+            <div class="combo-cell" onclick="selectCombo(this,'zz500','20d')">
+              <span class="combo-tier good"></span
+              ><span class="combo-ic">0.044</span>
+            </div>
+            <div class="combo-cell" onclick="selectCombo(this,'zz500','60d')">
+              <span class="combo-tier good"></span
+              ><span class="combo-ic">0.033</span>
+            </div>
+            <!-- 中证1000 -->
+            <div class="combo-cell row-header">中证1000</div>
+            <div class="combo-cell" onclick="selectCombo(this,'zz1000','5d')">
+              <span class="combo-tier ok"></span
+              ><span class="combo-ic">0.030</span>
+            </div>
+            <div class="combo-cell" onclick="selectCombo(this,'zz1000','20d')">
+              <span class="combo-tier ok"></span
+              ><span class="combo-ic">0.022</span>
+            </div>
+            <div class="combo-cell" onclick="selectCombo(this,'zz1000','60d')">
+              <span class="combo-tier poor"></span
+              ><span class="combo-ic">0.018</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 5. Predictive Power (IC + ICIR) ═══ -->
+        <div class="section">
+          <div class="section-title">Predictive Power</div>
+          <div class="hero-row">
+            <!-- IC card: sub-metrics = t-stat + Bootstrap CI -->
+            <div class="hero-card">
+              <div class="hero-top">
+                <div class="hero-top-left">
+                  <div class="hero-label">
+                    IC
+                    <span class="info-trigger"
+                      >i<span class="info-tooltip"
+                        ><strong>Information Coefficient</strong
+                        ><br />因子值与未来收益的截面相关系数。衡量因子的预测能力。
+                        <div class="info-threshold">
+                          合格 ≥ 0.03 · 优秀 ≥ 0.05
+                        </div></span
+                      ></span
+                    >
+                  </div>
+                  <div class="hero-value good">+0.0352</div>
+                </div>
+                <div class="hero-top-right">
+                  <span class="tier-badge good">合格</span>
+                  <span class="percentile">P72</span>
+                </div>
+              </div>
+              <div class="threshold-bar">
+                <div class="threshold-fill good" style="width: 67%"></div>
+                <div class="threshold-tick" style="left: 55%">
+                  <span class="threshold-tick-label">0.03</span>
+                </div>
+                <div class="threshold-tick" style="left: 75%">
+                  <span class="threshold-tick-label">0.05</span>
+                </div>
+              </div>
+              <div class="hero-sub">
+                <div class="hero-sub-item">
+                  <span class="hero-sub-label">t-stat</span>
+                  <span class="hero-sub-val pass">3.21</span>
+                  <span class="info-trigger" style="margin-left: 1px"
+                    >i<span class="info-tooltip"
+                      ><strong>t-statistic</strong><br />检验 IC
+                      均值是否显著异于 0。t = IC均值 / (IC标准差 / √N) = ICIR ×
+                      √N。
+                      <div class="info-threshold">
+                        显著 ≥ 2.0 · 强显著 ≥ 3.0
+                      </div></span
+                    ></span
+                  >
+                </div>
+                <div class="hero-sub-item">
+                  <span class="hero-sub-label">95% CI</span>
+                  <span
+                    class="hero-sub-val"
+                    style="font-size: 10px; color: var(--mine-text)"
+                    >[0.018, 0.052]</span
+                  >
+                  <span class="info-trigger" style="margin-left: 1px"
+                    >i<span class="info-tooltip"
+                      ><strong>Bootstrap Confidence Interval</strong><br />通过
+                      1000 次自助采样计算的 IC 均值 95% 置信区间。区间不含 0 =
+                      IC 显著。</span
+                    ></span
+                  >
+                </div>
+              </div>
+            </div>
+            <!-- ICIR card: sub-metrics = 胜率 -->
+            <div class="hero-card">
+              <div class="hero-top">
+                <div class="hero-top-left">
+                  <div class="hero-label">
+                    ICIR
+                    <span class="info-trigger"
+                      >i<span class="info-tooltip"
+                        ><strong>IC Information Ratio</strong><br />IC 均值 / IC
+                        标准差。衡量预测力的稳定性。ICIR 高 = 预测力稳定可靠。
+                        <div class="info-threshold">
+                          合格 ≥ 0.3 · 优秀 ≥ 0.5
+                        </div></span
+                      ></span
+                    >
+                  </div>
+                  <div class="hero-value good">0.382</div>
+                </div>
+                <div class="hero-top-right">
+                  <span class="tier-badge good">合格</span>
+                  <span class="percentile">P68</span>
+                </div>
+              </div>
+              <div class="threshold-bar">
+                <div class="threshold-fill good" style="width: 64%"></div>
+                <div class="threshold-tick" style="left: 50%">
+                  <span class="threshold-tick-label">0.3</span>
+                </div>
+                <div class="threshold-tick" style="left: 72%">
+                  <span class="threshold-tick-label">0.5</span>
+                </div>
+              </div>
+              <div class="hero-sub">
+                <div class="hero-sub-item">
+                  <span class="hero-sub-label">胜率</span>
+                  <span class="hero-sub-val pass">65%</span>
+                  <span class="info-trigger" style="margin-left: 1px"
+                    >i<span class="info-tooltip"
+                      ><strong>Hit Rate</strong><br />IC > 0
+                      的调仓期占比。反映因子预测方向的频率。
+                      <div class="info-threshold">
+                        可靠 ≥ 55% · 优秀 ≥ 65%
+                      </div></span
+                    ></span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 6. Risk & Return ═══ -->
+        <div class="section">
+          <div class="section-title">Risk & Return</div>
+          <!-- Hero row: Sharpe + MaxDD -->
+          <div class="metrics-hero">
+            <div class="metric-card">
+              <div class="metric-label">
+                Sharpe
+                <span class="info-trigger"
+                  >i<span class="info-tooltip"
+                    ><strong>Sharpe Ratio</strong
+                    ><br />多空组合的年化收益/年化波动。衡量每单位风险的超额收益。
+                    <div class="info-threshold">
+                      合格 ≥ 1.0 · 优秀 ≥ 2.0
+                    </div></span
+                  ></span
+                >
+              </div>
+              <div class="metric-value good" style="font-size: 16px">1.42</div>
+              <div class="metric-bar">
+                <div
+                  class="metric-bar-fill"
+                  style="width: 71%; background: var(--market-up)"
+                ></div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">
+                MaxDD
+                <span class="info-trigger"
+                  >i<span class="info-tooltip"
+                    ><strong>Maximum Drawdown</strong
+                    ><br />多空组合净值从峰值到谷底的最大回撤幅度。越小越好。
+                    <div class="info-threshold">
+                      优秀 ≤ 15% · 合格 ≤ 25%
+                    </div></span
+                  ></span
+                >
+              </div>
+              <div class="metric-value ok" style="font-size: 16px">-18.3%</div>
+              <div class="metric-bar">
+                <div
+                  class="metric-bar-fill"
+                  style="width: 60%; background: var(--amber)"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <!-- Sub row: ARR + Calmar + 换手率 + 容量 -->
+          <div class="metrics-sub">
+            <div class="metric-card sub">
+              <div class="metric-label" style="font-size: 8px">ARR</div>
+              <div class="metric-value good" style="font-size: 12px">
+                +23.6%
+              </div>
+            </div>
+            <div class="metric-card sub">
+              <div class="metric-label" style="font-size: 8px">Calmar</div>
+              <div class="metric-value good" style="font-size: 12px">1.29</div>
+            </div>
+            <div class="metric-card sub">
+              <div class="metric-label" style="font-size: 8px">换手率</div>
+              <div class="metric-value neutral" style="font-size: 12px">
+                38%
+              </div>
+            </div>
+            <div class="metric-card sub">
+              <div class="metric-label" style="font-size: 8px">容量</div>
+              <div class="metric-value neutral" style="font-size: 12px">
+                ~8亿
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 7. Quantile Cumulative Returns + QuantileGauge ═══ -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title" style="margin-bottom: 0">
+              Quantile Cumulative Returns
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend-item"
+                ><span class="swatch" style="background: #0b8c5f"></span
+                >Q1(多)</span
+              >
+              <span class="chart-legend-item"
+                ><span class="swatch" style="background: #58ceaa"></span
+                >Q2</span
+              >
+              <span class="chart-legend-item"
+                ><span class="swatch" style="background: #76808e"></span
+                >Q3</span
+              >
+              <span class="chart-legend-item"
+                ><span class="swatch" style="background: #e8626f"></span
+                >Q4</span
+              >
+              <span class="chart-legend-item"
+                ><span class="swatch" style="background: #cf304a"></span
+                >Q5(空)</span
+              >
+            </div>
+          </div>
+          <div class="chart-box">
+            <svg viewBox="0 0 360 180">
+              <defs>
+                <linearGradient id="q1grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0b8c5f" stop-opacity="0.15" />
+                  <stop offset="100%" stop-color="#0b8c5f" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <line
+                x1="30"
+                y1="10"
+                x2="30"
+                y2="165"
+                stroke="var(--mine-border)"
+                stroke-width="0.5"
+              />
+              <line
+                x1="30"
+                y1="165"
+                x2="350"
+                y2="165"
+                stroke="var(--mine-border)"
+                stroke-width="0.5"
+              />
+              <line
+                x1="30"
+                y1="90"
+                x2="350"
+                y2="90"
+                stroke="var(--mine-border)"
+                stroke-width="0.3"
+                stroke-dasharray="3,3"
+              />
+              <text
+                x="8"
+                y="93"
+                font-size="8"
+                fill="var(--mine-muted)"
+                font-family="Geist Mono"
+              >
+                0%
+              </text>
+              <text
+                x="4"
+                y="15"
+                font-size="8"
+                fill="var(--mine-muted)"
+                font-family="Geist Mono"
+              >
+                60%
+              </text>
+              <text
+                x="0"
+                y="168"
+                font-size="8"
+                fill="var(--mine-muted)"
+                font-family="Geist Mono"
+              >
+                -30%
+              </text>
+              <path
+                d="M30,90 L80,82 L130,70 L180,55 L230,40 L280,28 L330,18 L350,15"
+                fill="none"
+                stroke="#0b8c5f"
+                stroke-width="1.5"
+              />
+              <path
+                d="M30,90 L80,82 L130,70 L180,55 L230,40 L280,28 L330,18 L350,15 L350,165 L30,165Z"
+                fill="url(#q1grad)"
+              />
+              <path
+                d="M30,90 L80,86 L130,80 L180,72 L230,65 L280,58 L330,52 L350,48"
+                fill="none"
+                stroke="#58ceaa"
+                stroke-width="1"
+              />
+              <path
+                d="M30,90 L80,89 L130,88 L180,86 L230,88 L280,87 L330,86 L350,85"
+                fill="none"
+                stroke="#76808e"
+                stroke-width="1"
+              />
+              <path
+                d="M30,90 L80,94 L130,100 L180,108 L230,118 L280,125 L330,132 L350,135"
+                fill="none"
+                stroke="#e8626f"
+                stroke-width="1"
+              />
+              <path
+                d="M30,90 L80,98 L130,110 L180,125 L230,138 L280,148 L330,155 L350,160"
+                fill="none"
+                stroke="#cf304a"
+                stroke-width="1.5"
+              />
+            </svg>
+          </div>
+          <!-- QuantileGauge: uniform 6px dots, gradient track -->
+          <svg
+            viewBox="0 0 340 28"
+            style="
+              width: 100%;
+              height: 28px;
+              margin-top: 4px;
+              overflow: visible;
+            "
+          >
+            <defs>
+              <linearGradient id="trackGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#cf304a" stop-opacity="0.15" />
+                <stop offset="38%" stop-color="#76808e" stop-opacity="0.06" />
+                <stop offset="100%" stop-color="#0b8c5f" stop-opacity="0.15" />
+              </linearGradient>
+            </defs>
+            <rect
+              x="24"
+              y="8"
+              width="268"
+              height="3"
+              rx="1.5"
+              fill="url(#trackGrad)"
+            />
+            <!-- Q5=-4.8% → x=24 -->
+            <circle cx="24" cy="9.5" r="3" fill="#cf304a" opacity="0.9" />
+            <text
+              x="24"
+              y="22"
+              text-anchor="middle"
+              style="
+                font-size: 7px;
+                fill: #cf304a;
+                font-family: 'Geist Mono', monospace;
+              "
+            >
+              −4.8
+            </text>
+            <!-- Q4=+2.1% → x=104 -->
+            <circle cx="104" cy="9.5" r="3" fill="#e8626f" opacity="0.85" />
+            <text
+              x="104"
+              y="22"
+              text-anchor="middle"
+              style="
+                font-size: 7px;
+                fill: var(--mine-muted);
+                font-family: 'Geist Mono', monospace;
+              "
+            >
+              +2.1
+            </text>
+            <!-- Q3=+5.3% → x=142 -->
+            <circle cx="142" cy="9.5" r="3" fill="#76808e" opacity="0.7" />
+            <text
+              x="142"
+              y="22"
+              text-anchor="middle"
+              style="
+                font-size: 7px;
+                fill: var(--mine-muted);
+                font-family: 'Geist Mono', monospace;
+              "
+            >
+              +5.3
+            </text>
+            <!-- Q2=+11.5% → x=214 -->
+            <circle cx="214" cy="9.5" r="3" fill="#58ceaa" opacity="0.85" />
+            <text
+              x="214"
+              y="22"
+              text-anchor="middle"
+              style="
+                font-size: 7px;
+                fill: var(--mine-muted);
+                font-family: 'Geist Mono', monospace;
+              "
+            >
+              +11.5
+            </text>
+            <!-- Q1=+18.2% → x=292 -->
+            <circle cx="292" cy="9.5" r="3" fill="#0b8c5f" opacity="0.9" />
+            <text
+              x="292"
+              y="22"
+              text-anchor="middle"
+              style="
+                font-size: 7px;
+                fill: #0b8c5f;
+                font-family: 'Geist Mono', monospace;
+              "
+            >
+              +18.2
+            </text>
+            <!-- Spread -->
+            <text
+              x="336"
+              y="10"
+              text-anchor="end"
+              style="
+                font-size: 7px;
+                fill: var(--mine-muted);
+                font-family: 'Geist Mono', monospace;
+              "
+            >
+              Δ
+            </text>
+            <text
+              x="336"
+              y="21"
+              text-anchor="end"
+              style="
+                font-size: 8px;
+                font-weight: 600;
+                fill: var(--market-up);
+                font-family: 'Geist Mono', monospace;
+              "
+            >
+              23.0%
+            </text>
+          </svg>
+        </div>
+
+        <!-- ═══ 8. IC Bar + MA Overlay ═══ -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title" style="margin-bottom: 0">
+              IC Time Series
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend-item"
+                ><span
+                  class="swatch"
+                  style="background: var(--mine-accent-teal)"
+                ></span
+                >MA20</span
+              >
+              <span class="chart-legend-item"
+                ><span class="swatch" style="background: var(--blue)"></span
+                >MA60</span
+              >
+              <span class="chart-legend-item"
+                ><span class="swatch" style="background: var(--purple)"></span
+                >MA120</span
+              >
+            </div>
+          </div>
+          <div class="chart-box">
+            <svg viewBox="0 0 360 120">
+              <!-- Zero line -->
+              <line
+                x1="30"
+                y1="60"
+                x2="350"
+                y2="60"
+                stroke="var(--mine-border)"
+                stroke-width="0.5"
+                stroke-dasharray="3,3"
+              />
+              <text
+                x="8"
+                y="63"
+                font-size="8"
+                fill="var(--mine-muted)"
+                font-family="Geist Mono"
+              >
+                0
+              </text>
+              <!-- IC bars (single-period IC values) -->
+              <g>
+                <!-- Positive bars (above zero line = IC > 0) -->
+                <rect
+                  x="32"
+                  y="42"
+                  width="4"
+                  height="18"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="38"
+                  y="48"
+                  width="4"
+                  height="12"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="44"
+                  y="38"
+                  width="4"
+                  height="22"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="50"
+                  y="50"
+                  width="4"
+                  height="10"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="56"
+                  y="44"
+                  width="4"
+                  height="16"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <!-- Negative bar -->
+                <rect
+                  x="62"
+                  y="60"
+                  width="4"
+                  height="10"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="68"
+                  y="40"
+                  width="4"
+                  height="20"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="74"
+                  y="46"
+                  width="4"
+                  height="14"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="80"
+                  y="60"
+                  width="4"
+                  height="8"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="86"
+                  y="42"
+                  width="4"
+                  height="18"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="92"
+                  y="36"
+                  width="4"
+                  height="24"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="98"
+                  y="48"
+                  width="4"
+                  height="12"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="104"
+                  y="44"
+                  width="4"
+                  height="16"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="110"
+                  y="60"
+                  width="4"
+                  height="6"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="116"
+                  y="38"
+                  width="4"
+                  height="22"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="122"
+                  y="46"
+                  width="4"
+                  height="14"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="128"
+                  y="42"
+                  width="4"
+                  height="18"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="134"
+                  y="50"
+                  width="4"
+                  height="10"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="140"
+                  y="60"
+                  width="4"
+                  height="12"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="146"
+                  y="60"
+                  width="4"
+                  height="5"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="152"
+                  y="40"
+                  width="4"
+                  height="20"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="158"
+                  y="44"
+                  width="4"
+                  height="16"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="164"
+                  y="48"
+                  width="4"
+                  height="12"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="170"
+                  y="36"
+                  width="4"
+                  height="24"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="176"
+                  y="42"
+                  width="4"
+                  height="18"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="182"
+                  y="60"
+                  width="4"
+                  height="7"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="188"
+                  y="46"
+                  width="4"
+                  height="14"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="194"
+                  y="38"
+                  width="4"
+                  height="22"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="200"
+                  y="44"
+                  width="4"
+                  height="16"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="206"
+                  y="50"
+                  width="4"
+                  height="10"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="212"
+                  y="42"
+                  width="4"
+                  height="18"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="218"
+                  y="60"
+                  width="4"
+                  height="9"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="224"
+                  y="40"
+                  width="4"
+                  height="20"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="230"
+                  y="46"
+                  width="4"
+                  height="14"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="236"
+                  y="38"
+                  width="4"
+                  height="22"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="242"
+                  y="48"
+                  width="4"
+                  height="12"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="248"
+                  y="44"
+                  width="4"
+                  height="16"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="254"
+                  y="42"
+                  width="4"
+                  height="18"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="260"
+                  y="60"
+                  width="4"
+                  height="4"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="266"
+                  y="36"
+                  width="4"
+                  height="24"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="272"
+                  y="46"
+                  width="4"
+                  height="14"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="278"
+                  y="40"
+                  width="4"
+                  height="20"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="284"
+                  y="48"
+                  width="4"
+                  height="12"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="290"
+                  y="44"
+                  width="4"
+                  height="16"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="296"
+                  y="42"
+                  width="4"
+                  height="18"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="302"
+                  y="38"
+                  width="4"
+                  height="22"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="308"
+                  y="50"
+                  width="4"
+                  height="10"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="314"
+                  y="60"
+                  width="4"
+                  height="6"
+                  fill="var(--market-down)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="320"
+                  y="44"
+                  width="4"
+                  height="16"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="326"
+                  y="40"
+                  width="4"
+                  height="20"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="332"
+                  y="46"
+                  width="4"
+                  height="14"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="338"
+                  y="42"
+                  width="4"
+                  height="18"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+                <rect
+                  x="344"
+                  y="48"
+                  width="4"
+                  height="12"
+                  fill="var(--market-up)"
+                  opacity="0.35"
+                  rx="0.5"
+                />
+              </g>
+              <!-- MA lines overlaid -->
+              <path
+                d="M30,50 L60,42 L90,55 L120,38 L150,48 L180,35 L210,52 L240,40 L270,45 L300,38 L330,42 L350,36"
+                fill="none"
+                stroke="var(--mine-accent-teal)"
+                stroke-width="1.2"
+              />
+              <path
+                d="M30,48 L60,45 L90,47 L120,43 L150,44 L180,42 L210,45 L240,41 L270,43 L300,40 L330,42 L350,39"
+                fill="none"
+                stroke="var(--blue)"
+                stroke-width="1"
+              />
+              <path
+                d="M30,46 L60,45 L90,44 L120,44 L150,43 L180,43 L210,43 L240,42 L270,42 L300,41 L330,41 L350,40"
+                fill="none"
+                stroke="var(--purple)"
+                stroke-width="1"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <!-- ═══ 8. IC Bar + MA Overlay ═══ -->
+        <div class="section">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 8px;
+            "
+          >
+            <span class="section-title" style="margin-bottom: 0"
+              >IC ROLLING AVERAGE</span
+            >
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 8px;
+                color: var(--mine-muted);
+              "
+            >
+              <span style="display: flex; align-items: center; gap: 2px"
+                ><span
+                  style="
+                    display: inline-block;
+                    width: 10px;
+                    height: 1.5px;
+                    background: #26a69a;
+                  "
+                ></span
+                >20D</span
+              >
+              <span style="display: flex; align-items: center; gap: 2px"
+                ><span
+                  style="
+                    display: inline-block;
+                    width: 10px;
+                    height: 1px;
+                    background: rgba(99, 102, 241, 0.35);
+                  "
+                ></span
+                >60D</span
+              >
+              <span style="display: flex; align-items: center; gap: 2px"
+                ><span
+                  style="
+                    display: inline-block;
+                    width: 10px;
+                    height: 5px;
+                    background: rgba(139, 92, 246, 0.1);
+                    border-radius: 1px;
+                  "
+                ></span
+                >120D</span
+              >
+            </span>
+          </div>
+          <div style="height: 150px; position: relative">
+            <svg
+              id="ic-bar-ma-chart"
+              width="100%"
+              height="100%"
+              style="display: block"
+            ></svg>
+          </div>
+        </div>
+        <script>
+          (function () {
+            // Generate 240-day mock IC time series
+            const seed = 42;
+            let rng = seed;
+            function rand() {
+              rng = (rng * 16807 + 0) % 2147483647;
+              return rng / 2147483647;
+            }
+            function randNorm() {
+              const u1 = rand(),
+                u2 = rand();
+              return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            }
+
+            const N = 240;
+            const ic = [];
+            let v = 0.03;
+            for (let i = 0; i < N; i++) {
+              v = v * 0.95 + 0.035 * 0.05 + randNorm() * 0.025;
+              ic.push(v);
+            }
+
+            // Rolling MA
+            function rollingMA(arr, w) {
+              const out = [];
+              for (let i = 0; i < arr.length; i++) {
+                if (i < w - 1) {
+                  out.push(null);
+                  continue;
+                }
+                let s = 0;
+                for (let j = i - w + 1; j <= i; j++) s += arr[j];
+                out.push(s / w);
+              }
+              return out;
+            }
+            const ma20 = rollingMA(ic, 20);
+            const ma60 = rollingMA(ic, 60);
+            const ma120 = rollingMA(ic, 120);
+
+            // Draw
+            const svg = document.getElementById('ic-bar-ma-chart');
+            const rect = svg.getBoundingClientRect();
+            const W = rect.width || 340;
+            const H = 150;
+            const margin = { top: 8, right: 4, bottom: 4, left: 32 };
+            const cw = W - margin.left - margin.right;
+            const ch = H - margin.top - margin.bottom;
+
+            const allVals = ic
+              .concat(ma20.filter((v) => v !== null))
+              .concat(ma60.filter((v) => v !== null))
+              .concat(ma120.filter((v) => v !== null));
+            const yMin = Math.min(...allVals) - 0.005;
+            const yMax = Math.max(...allVals) + 0.005;
+
+            function xPos(i) {
+              return margin.left + (i / (N - 1)) * cw;
+            }
+            function yPos(v) {
+              return margin.top + (1 - (v - yMin) / (yMax - yMin)) * ch;
+            }
+
+            const barW = Math.max(1, cw / N - 0.3);
+            let html = '';
+
+            // Zero line
+            const zeroY = yPos(0);
+            html +=
+              '<line x1="' +
+              margin.left +
+              '" x2="' +
+              (W - margin.right) +
+              '" y1="' +
+              zeroY +
+              '" y2="' +
+              zeroY +
+              '" stroke="var(--mine-border)" stroke-width="0.7" stroke-dasharray="4,3" />';
+
+            // Threshold line at 0.01
+            const threshY = yPos(0.01);
+            html +=
+              '<line x1="' +
+              margin.left +
+              '" x2="' +
+              (W - margin.right) +
+              '" y1="' +
+              threshY +
+              '" y2="' +
+              threshY +
+              '" stroke="rgba(207,48,74,0.2)" stroke-width="0.5" stroke-dasharray="3,3" />';
+
+            // Y axis labels
+            const yTicks = [-0.02, 0, 0.02, 0.04, 0.06];
+            yTicks.forEach((t) => {
+              const y = yPos(t);
+              if (y > margin.top && y < H - margin.bottom) {
+                html +=
+                  '<text x="' +
+                  (margin.left - 3) +
+                  '" y="' +
+                  y +
+                  '" text-anchor="end" font-size="8" fill="var(--mine-muted)" dominant-baseline="middle" font-family="Geist Mono, monospace">' +
+                  (t >= 0 ? '+' : '') +
+                  t.toFixed(2) +
+                  '</text>';
+              }
+            });
+
+            // IC bars
+            for (let i = 0; i < N; i++) {
+              const x = xPos(i) - barW / 2;
+              const isPos = ic[i] >= 0;
+              const y0 = zeroY;
+              const y1 = yPos(ic[i]);
+              const barTop = Math.min(y0, y1);
+              const barH = Math.abs(y1 - y0);
+              const color = isPos
+                ? 'rgba(207,48,74,0.22)'
+                : 'rgba(11,140,95,0.22)';
+              html +=
+                '<rect x="' +
+                x +
+                '" y="' +
+                barTop +
+                '" width="' +
+                barW +
+                '" height="' +
+                Math.max(0.5, barH) +
+                '" fill="' +
+                color +
+                '" />';
+            }
+
+            // MA lines
+            function drawMA(data, color, width) {
+              let d = '';
+              let started = false;
+              for (let i = 0; i < data.length; i++) {
+                if (data[i] === null) continue;
+                const x = xPos(i),
+                  y = yPos(data[i]);
+                d +=
+                  (started ? 'L' : 'M') +
+                  x.toFixed(1) +
+                  ',' +
+                  y.toFixed(1) +
+                  ' ';
+                started = true;
+              }
+              html +=
+                '<path d="' +
+                d +
+                '" fill="none" stroke="' +
+                color +
+                '" stroke-width="' +
+                width +
+                '" />';
+            }
+
+            // 120D: area fill only (trend band), no line
+            function drawAreaFill(data, color, opacity) {
+              let d = '';
+              let started = false;
+              let firstX = 0;
+              let lastX = 0;
+              for (let i = 0; i < data.length; i++) {
+                if (data[i] === null) continue;
+                const x = xPos(i),
+                  y = yPos(data[i]);
+                if (!started) {
+                  firstX = x;
+                  d += 'M' + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+                  started = true;
+                } else {
+                  d += 'L' + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+                }
+                lastX = x;
+              }
+              // Close to zero line
+              d += 'L' + lastX.toFixed(1) + ',' + zeroY.toFixed(1) + ' ';
+              d += 'L' + firstX.toFixed(1) + ',' + zeroY.toFixed(1) + ' Z';
+              html +=
+                '<path d="' +
+                d +
+                '" fill="' +
+                color +
+                '" fill-opacity="' +
+                opacity +
+                '" stroke="none" />';
+            }
+
+            drawAreaFill(ma120, '#8b5cf6', 0.07);
+
+            // 60D: faded background line
+            drawMA(ma60, 'rgba(99,102,241,0.3)', 0.8);
+
+            // 20D: primary highlight line
+            drawMA(ma20, '#26a69a', 1.5);
+
+            svg.innerHTML = html;
+          })();
+        </script>
+
+        <!-- ═══ 9. IC Monthly Heatmap ═══ -->
+        <div class="section">
+          <div class="section-title">IC Monthly Heatmap</div>
+          <div class="heatmap-year-labels">
+            <span>2023</span><span>2024</span><span>2025</span>
+          </div>
+          <div class="heatmap-row">
+            <!-- 2023 -->
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.35)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.5)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(46, 189, 133, 0.2)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.25)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.6)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(46, 189, 133, 0.15)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.4)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.3)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.45)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(46, 189, 133, 0.1)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.55)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.35)"
+            ></div>
+            <!-- 2024 -->
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.45)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.3)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.55)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(46, 189, 133, 0.25)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.4)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.65)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.35)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(46, 189, 133, 0.15)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.5)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.25)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.6)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.45)"
+            ></div>
+            <!-- 2025 -->
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.5)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.35)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.4)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(46, 189, 133, 0.2)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.55)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.3)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.45)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.65)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.35)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(46, 189, 133, 0.1)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.5)"
+            ></div>
+            <div
+              class="heatmap-cell"
+              style="background: rgba(246, 70, 93, 0.4)"
+            ></div>
+          </div>
+        </div>
+
+        <!-- ═══ 10. IC Decay Profile ═══ -->
+        <div class="section">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 8px;
+            "
+          >
+            <span class="section-title" style="margin-bottom: 0"
+              >IC DECAY PROFILE</span
+            >
+            <span style="font-size: 8px; color: var(--mine-muted)"
+              >Lag T+1 ~ T+20</span
+            >
+          </div>
+          <div class="chart-box">
+            <svg
+              id="decay-chart-final"
+              width="100%"
+              viewBox="0 0 360 135"
+            ></svg>
+          </div>
+        </div>
+
+        <script>
+          (function () {
+            // ——— IC Decay Profile: market-up/market-down + gray highlight column ———
+            const decayIC = [
+              0.068,
+              0.061,
+              0.055,
+              0.051,
+              0.047, // T+1~5
+              0.043,
+              0.039,
+              0.035,
+              0.032,
+              0.029, // T+6~10
+              0.026,
+              0.024,
+              0.021,
+              0.019,
+              0.016, // T+11~15
+              0.013,
+              0.01,
+              0.007,
+              0.004,
+              0.002, // T+16~20
+            ];
+            // Add some noise to make it realistic (some bars slightly negative at tail)
+            decayIC[17] = -0.003;
+            decayIC[18] = 0.005;
+            decayIC[19] = -0.008;
+
+            const N = 20;
+            const highlightIdx = 19; // T+20 = selectedHorizon 20D
+            const margin = { top: 12, right: 10, bottom: 28, left: 30 };
+            const W = 360,
+              H = 135;
+            const cw = W - margin.left - margin.right;
+            const ch = H - margin.top - margin.bottom;
+
+            const maxAbs = Math.max(...decayIC.map((v) => Math.abs(v)));
+            const yMax = maxAbs * 1.15;
+            const yMin = -maxAbs * 0.3;
+
+            function yPos(v) {
+              return margin.top + (1 - (v - yMin) / (yMax - yMin)) * ch;
+            }
+            const zeroY = yPos(0);
+
+            const barW = (cw / N) * 0.65;
+            const gap = cw / N;
+
+            function barX(i) {
+              return margin.left + i * gap + (gap - barW) / 2;
+            }
+
+            // X tick labels
+            const tickIndices = [0, 4, 9, 14, 19]; // T+1, T+5, T+10, T+15, T+20
+            const tickLabels = ['1', '5', '10', '15', '20'];
+
+            // ——— REMOVED Scheme A+B, see final scheme below ———
+            /* DEAD_CODE_START
+            function drawSchemeA() {
+              let html = '';
+              // Defs for bar gradients
+              html += '<defs>';
+              html +=
+                '<linearGradient id="decay-a-pos-grad" x1="0" y1="0" x2="0" y2="1">';
+              html +=
+                '<stop offset="0%" stop-color="#3b82f6" stop-opacity="0.55"/>';
+              html +=
+                '<stop offset="100%" stop-color="#3b82f6" stop-opacity="0.10"/>';
+              html += '</linearGradient>';
+              html +=
+                '<linearGradient id="decay-a-neg-grad" x1="0" y1="1" x2="0" y2="0">';
+              html +=
+                '<stop offset="0%" stop-color="var(--market-up)" stop-opacity="0.50"/>';
+              html +=
+                '<stop offset="100%" stop-color="var(--market-up)" stop-opacity="0.10"/>';
+              html += '</linearGradient>';
+              html +=
+                '<linearGradient id="decay-a-hl-grad" x1="0" y1="0" x2="0" y2="1">';
+              html +=
+                '<stop offset="0%" stop-color="var(--mine-accent-teal)" stop-opacity="0.85"/>';
+              html +=
+                '<stop offset="100%" stop-color="var(--mine-accent-teal)" stop-opacity="0.20"/>';
+              html += '</linearGradient>';
+              html += '</defs>';
+
+              // Background micro grid
+              [0.25, 0.5, 0.75].forEach((pct) => {
+                const y = margin.top + ch * pct;
+                html +=
+                  '<line x1="' +
+                  margin.left +
+                  '" x2="' +
+                  (W - margin.right) +
+                  '" y1="' +
+                  y +
+                  '" y2="' +
+                  y +
+                  '" stroke="var(--mine-border)" stroke-opacity="0.04" stroke-width="0.5"/>';
+              });
+
+              // Zero line
+              html +=
+                '<line x1="' +
+                margin.left +
+                '" x2="' +
+                (W - margin.right) +
+                '" y1="' +
+                zeroY +
+                '" y2="' +
+                zeroY +
+                '" stroke="var(--mine-border)" stroke-width="0.6" stroke-dasharray="4,3"/>';
+
+              // Bars
+              for (let i = 0; i < N; i++) {
+                const x = barX(i);
+                const v = decayIC[i];
+                const isHL = i === highlightIdx;
+                const isPos = v >= 0;
+                const y1 = yPos(v);
+                const barTop = Math.min(zeroY, y1);
+                const barH = Math.max(0.5, Math.abs(y1 - zeroY));
+
+                // Gray background column for highlighted bar
+                if (isHL) {
+                  html +=
+                    '<rect x="' +
+                    (x - 2) +
+                    '" y="' +
+                    margin.top +
+                    '" width="' +
+                    (barW + 4) +
+                    '" height="' +
+                    ch +
+                    '" fill="var(--mine-border)" opacity="0.12" rx="2"/>';
+                }
+
+                // Bar with gradient
+                let fill;
+                if (isHL) fill = 'url(#decay-a-hl-grad)';
+                else if (isPos) fill = 'url(#decay-a-pos-grad)';
+                else fill = 'url(#decay-a-neg-grad)';
+
+                html +=
+                  '<rect x="' +
+                  x +
+                  '" y="' +
+                  barTop +
+                  '" width="' +
+                  barW +
+                  '" height="' +
+                  barH +
+                  '" fill="' +
+                  fill +
+                  '" rx="0.5"/>';
+              }
+
+              // X ticks
+              tickIndices.forEach((idx, ti) => {
+                const x = barX(idx) + barW / 2;
+                const isHL = idx === highlightIdx;
+                html +=
+                  '<text x="' +
+                  x +
+                  '" y="' +
+                  (H - margin.bottom + 14) +
+                  '" text-anchor="middle" font-size="7" font-family="Geist Mono, monospace" fill="' +
+                  (isHL ? 'var(--mine-accent-teal)' : 'var(--mine-muted)') +
+                  '" font-weight="' +
+                  (isHL ? '600' : '400') +
+                  '">T+' +
+                  tickLabels[ti] +
+                  '</text>';
+              });
+
+              // "当前" label under highlighted bar
+              html +=
+                '<text x="' +
+                (barX(highlightIdx) + barW / 2) +
+                '" y="' +
+                (H - 2) +
+                '" text-anchor="middle" font-size="6.5" fill="var(--mine-accent-teal)" font-weight="500">当前</text>';
+
+              // Y axis labels
+              [0, 0.03, 0.06].forEach((v) => {
+                const y = yPos(v);
+                if (y > margin.top - 5 && y < H - margin.bottom + 5) {
+                  html +=
+                    '<text x="' +
+                    (margin.left - 4) +
+                    '" y="' +
+                    y +
+                    '" text-anchor="end" font-size="7" fill="var(--mine-muted)" dominant-baseline="middle" font-family="Geist Mono, monospace" opacity="0.5">' +
+                    (v >= 0 ? '+' : '') +
+                    v.toFixed(2) +
+                    '</text>';
+                }
+              });
+
+              document.getElementById('decay-chart-a').innerHTML = html;
+            }
+
+            // ——— Scheme B: Teal gradient (deep→light by IC magnitude) + gray highlight ———
+            function drawSchemeB() {
+              let html = '';
+              html += '<defs>';
+              // Per-bar gradients generated inline
+              for (let i = 0; i < N; i++) {
+                const v = decayIC[i];
+                const isHL = i === highlightIdx;
+                const isPos = v >= 0;
+                const intensity = Math.abs(v) / maxAbs; // 0~1
+                if (isHL) {
+                  html +=
+                    '<linearGradient id="decay-b-bar' +
+                    i +
+                    '" x1="0" y1="0" x2="0" y2="1">';
+                  html +=
+                    '<stop offset="0%" stop-color="var(--mine-accent-teal)" stop-opacity="' +
+                    (0.4 + intensity * 0.5) +
+                    '"/>';
+                  html +=
+                    '<stop offset="100%" stop-color="var(--mine-accent-teal)" stop-opacity="0.08"/>';
+                  html += '</linearGradient>';
+                } else if (isPos) {
+                  const baseOpacity = 0.15 + intensity * 0.45;
+                  html +=
+                    '<linearGradient id="decay-b-bar' +
+                    i +
+                    '" x1="0" y1="0" x2="0" y2="1">';
+                  html +=
+                    '<stop offset="0%" stop-color="var(--mine-accent-teal)" stop-opacity="' +
+                    baseOpacity +
+                    '"/>';
+                  html +=
+                    '<stop offset="100%" stop-color="var(--mine-accent-teal)" stop-opacity="0.04"/>';
+                  html += '</linearGradient>';
+                } else {
+                  const baseOpacity = 0.15 + intensity * 0.4;
+                  html +=
+                    '<linearGradient id="decay-b-bar' +
+                    i +
+                    '" x1="0" y1="1" x2="0" y2="0">';
+                  html +=
+                    '<stop offset="0%" stop-color="var(--market-down)" stop-opacity="' +
+                    baseOpacity +
+                    '"/>';
+                  html +=
+                    '<stop offset="100%" stop-color="var(--market-down)" stop-opacity="0.04"/>';
+                  html += '</linearGradient>';
+                }
+              }
+              html += '</defs>';
+
+              // Background micro grid
+              [0.25, 0.5, 0.75].forEach((pct) => {
+                const y = margin.top + ch * pct;
+                html +=
+                  '<line x1="' +
+                  margin.left +
+                  '" x2="' +
+                  (W - margin.right) +
+                  '" y1="' +
+                  y +
+                  '" y2="' +
+                  y +
+                  '" stroke="var(--mine-border)" stroke-opacity="0.04" stroke-width="0.5"/>';
+              });
+
+              // Zero line
+              html +=
+                '<line x1="' +
+                margin.left +
+                '" x2="' +
+                (W - margin.right) +
+                '" y1="' +
+                zeroY +
+                '" y2="' +
+                zeroY +
+                '" stroke="var(--mine-border)" stroke-width="0.6" stroke-dasharray="4,3"/>';
+
+              // Bars
+              for (let i = 0; i < N; i++) {
+                const x = barX(i);
+                const v = decayIC[i];
+                const isHL = i === highlightIdx;
+                const y1 = yPos(v);
+                const barTop = Math.min(zeroY, y1);
+                const barH = Math.max(0.5, Math.abs(y1 - zeroY));
+
+                // Gray background column for highlighted bar
+                if (isHL) {
+                  html +=
+                    '<rect x="' +
+                    (x - 2) +
+                    '" y="' +
+                    margin.top +
+                    '" width="' +
+                    (barW + 4) +
+                    '" height="' +
+                    ch +
+                    '" fill="var(--mine-border)" opacity="0.12" rx="2"/>';
+                }
+
+                html +=
+                  '<rect x="' +
+                  x +
+                  '" y="' +
+                  barTop +
+                  '" width="' +
+                  barW +
+                  '" height="' +
+                  barH +
+                  '" fill="url(#decay-b-bar' +
+                  i +
+                  ')" rx="0.5"/>';
+              }
+
+              // X ticks
+              tickIndices.forEach((idx, ti) => {
+                const x = barX(idx) + barW / 2;
+                const isHL = idx === highlightIdx;
+                html +=
+                  '<text x="' +
+                  x +
+                  '" y="' +
+                  (H - margin.bottom + 14) +
+                  '" text-anchor="middle" font-size="7" font-family="Geist Mono, monospace" fill="' +
+                  (isHL ? 'var(--mine-accent-teal)' : 'var(--mine-muted)') +
+                  '" font-weight="' +
+                  (isHL ? '600' : '400') +
+                  '">T+' +
+                  tickLabels[ti] +
+                  '</text>';
+              });
+
+              // "当前" label
+              html +=
+                '<text x="' +
+                (barX(highlightIdx) + barW / 2) +
+                '" y="' +
+                (H - 2) +
+                '" text-anchor="middle" font-size="6.5" fill="var(--mine-accent-teal)" font-weight="500">当前</text>';
+
+              // Y axis labels
+              [0, 0.03, 0.06].forEach((v) => {
+                const y = yPos(v);
+                if (y > margin.top - 5 && y < H - margin.bottom + 5) {
+                  html +=
+                    '<text x="' +
+                    (margin.left - 4) +
+                    '" y="' +
+                    y +
+                    '" text-anchor="end" font-size="7" fill="var(--mine-muted)" dominant-baseline="middle" font-family="Geist Mono, monospace" opacity="0.5">' +
+                    (v >= 0 ? '+' : '') +
+                    v.toFixed(2) +
+                    '</text>';
+                }
+              });
+
+              document.getElementById('decay-chart-b').innerHTML = html;
+            }
+
+            DEAD_CODE_END */
+            // ——— Draw final scheme: market-up (#cf304a) / market-down (#0b8c5f) + gray highlight ———
+            (function drawFinal() {
+              const svg = document.getElementById('decay-chart-final');
+              if (!svg) return;
+              let html = '';
+
+              // Defs — per-bar gradients with subtle fade-out at base
+              html += '<defs>';
+              for (let i = 0; i < N; i++) {
+                const v = decayIC[i];
+                const isHL = i === highlightIdx;
+                const isPos = v >= 0;
+                const intensity = Math.abs(v) / maxAbs;
+                const topColor = isHL
+                  ? '#26a69a'
+                  : isPos
+                    ? '#cf304a'
+                    : '#0b8c5f';
+                // Subtle fade: top is solid, bottom fades only slightly (not dramatic)
+                const topOp = isHL
+                  ? 0.5 + intensity * 0.4
+                  : 0.25 + intensity * 0.45;
+                const botOp = topOp * 0.55; // bottom is ~55% of top (subtle, not dramatic)
+                const dir = isPos ? 'y1="0" y2="1"' : 'y1="1" y2="0"';
+                html +=
+                  '<linearGradient id="decay-f-bar' +
+                  i +
+                  '" x1="0" ' +
+                  dir +
+                  '>';
+                html +=
+                  '<stop offset="0%" stop-color="' +
+                  topColor +
+                  '" stop-opacity="' +
+                  topOp.toFixed(2) +
+                  '"/>';
+                html +=
+                  '<stop offset="100%" stop-color="' +
+                  topColor +
+                  '" stop-opacity="' +
+                  botOp.toFixed(2) +
+                  '"/>';
+                html += '</linearGradient>';
+              }
+              html += '</defs>';
+
+              // Background micro-texture: horizontal guide lines at 25/50/75%
+              // Using a slightly stronger opacity so they're actually visible
+              [0.25, 0.5, 0.75].forEach((pct) => {
+                const y = margin.top + ch * pct;
+                html +=
+                  '<line x1="' +
+                  margin.left +
+                  '" x2="' +
+                  (W - margin.right) +
+                  '" y1="' +
+                  y.toFixed(1) +
+                  '" y2="' +
+                  y.toFixed(1) +
+                  '" stroke="#b0ada6" stroke-opacity="0.08" stroke-width="0.5"/>';
+              });
+
+              // Zero line
+              html +=
+                '<line x1="' +
+                margin.left +
+                '" x2="' +
+                (W - margin.right) +
+                '" y1="' +
+                zeroY.toFixed(1) +
+                '" y2="' +
+                zeroY.toFixed(1) +
+                '" stroke="var(--mine-border)" stroke-width="0.6" stroke-dasharray="4,3"/>';
+
+              // Bars
+              for (let i = 0; i < N; i++) {
+                const x = barX(i);
+                const v = decayIC[i];
+                const isHL = i === highlightIdx;
+                const y1 = yPos(v);
+                const barTop = Math.min(zeroY, y1);
+                const barH = Math.max(0.5, Math.abs(y1 - zeroY));
+
+                // Full-height gray background column for highlighted bar
+                if (isHL) {
+                  html +=
+                    '<rect x="' +
+                    (x - 2).toFixed(1) +
+                    '" y="' +
+                    margin.top +
+                    '" width="' +
+                    (barW + 4).toFixed(1) +
+                    '" height="' +
+                    ch +
+                    '" fill="#b0ada6" opacity="0.10" rx="2.5"/>';
+                }
+
+                html +=
+                  '<rect x="' +
+                  x.toFixed(1) +
+                  '" y="' +
+                  barTop.toFixed(1) +
+                  '" width="' +
+                  barW.toFixed(1) +
+                  '" height="' +
+                  Math.max(0.5, barH).toFixed(1) +
+                  '" fill="url(#decay-f-bar' +
+                  i +
+                  ')" rx="0.5"/>';
+              }
+
+              // X tick labels
+              tickIndices.forEach((idx, ti) => {
+                const x = barX(idx) + barW / 2;
+                const isHL = idx === highlightIdx;
+                html +=
+                  '<text x="' +
+                  x.toFixed(1) +
+                  '" y="' +
+                  (H - margin.bottom + 14) +
+                  '" text-anchor="middle" font-size="7" font-family="Geist Mono, monospace" fill="' +
+                  (isHL ? 'var(--mine-accent-teal)' : 'var(--mine-muted)') +
+                  '" font-weight="' +
+                  (isHL ? '600' : '400') +
+                  '">T+' +
+                  tickLabels[ti] +
+                  '</text>';
+              });
+
+              // "当前" label under highlighted bar
+              html +=
+                '<text x="' +
+                (barX(highlightIdx) + barW / 2).toFixed(1) +
+                '" y="' +
+                (H - 2) +
+                '" text-anchor="middle" font-size="6.5" fill="var(--mine-accent-teal)" font-weight="500">当前</text>';
+
+              // Y axis labels
+              [0, 0.03, 0.06].forEach((v) => {
+                const y = yPos(v);
+                if (y > margin.top - 5 && y < H - margin.bottom + 5) {
+                  html +=
+                    '<text x="' +
+                    (margin.left - 4) +
+                    '" y="' +
+                    y.toFixed(1) +
+                    '" text-anchor="end" font-size="7" fill="var(--mine-muted)" dominant-baseline="middle" font-family="Geist Mono, monospace" opacity="0.4">' +
+                    (v >= 0 ? '+' : '') +
+                    v.toFixed(2) +
+                    '</text>';
+                }
+              });
+
+              svg.innerHTML = html;
+            })();
+          })();
+        </script>
+
+        <!-- ═══ 11. IC by Industry (Top5 + expand + Bottom3) ═══ -->
+        <div class="section">
+          <div class="section-title">
+            IC by Industry
+            <span class="info-trigger"
+              >i<span class="info-tooltip"
+                ><strong>IC by Industry</strong><br />因子在申万一级行业的 IC
+                分布。正值=该行业因子有效，负值=反转。帮助判断因子的行业偏向性。</span
+              ></span
+            >
+          </div>
+          <!-- Top 5 -->
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <div class="ind-row">
+              <span class="ind-name">电子</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 82%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.068</span>
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">计算机</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 75%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.061</span>
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">电力设备</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 70%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.055</span>
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">机械设备</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 65%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.050</span>
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">医药生物</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 60%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.045</span>
+            </div>
+          </div>
+          <!-- Expand separator -->
+          <div class="expand-separator" onclick="toggleCollapse('ind-mid')">
+            <hr />
+            <span
+              id="ind-mid-arrow"
+              class="collapse-arrow"
+              style="font-size: 10px"
+              >▶</span
+            >
+            <span>展开 8 个行业</span>
+            <hr />
+          </div>
+          <!-- Hidden middle industries -->
+          <div
+            id="ind-mid-content"
+            style="
+              display: none;
+              display: flex;
+              flex-direction: column;
+              gap: 3px;
+              margin-bottom: 4px;
+              display: none;
+            "
+          >
+            <div class="ind-row">
+              <span class="ind-name">汽车</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 55%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.040</span>
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">有色金属</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 48%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.032</span>
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">化工</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 40%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.025</span>
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">食品饮料</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 28%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-up)">0.012</span>
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">交通运输</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 18%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--mine-muted)"
+                >0.005</span
+              >
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">钢铁</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 14%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--mine-muted)"
+                >0.003</span
+              >
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">公用事业</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill pos" style="width: 10%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--mine-muted)"
+                >0.001</span
+              >
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">纺织服饰</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill neg" style="width: 10%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--mine-muted)"
+                >-0.002</span
+              >
+            </div>
+          </div>
+          <!-- Bottom 3 -->
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <div class="ind-row">
+              <span class="ind-name">银行</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill neg" style="width: 20%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-down)"
+                >-0.008</span
+              >
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">房地产</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill neg" style="width: 30%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-down)"
+                >-0.015</span
+              >
+            </div>
+            <div class="ind-row">
+              <span class="ind-name">煤炭</span>
+              <div class="ind-bar-track">
+                <div class="ind-bar-fill neg" style="width: 42%"></div>
+              </div>
+              <span class="ind-val" style="color: var(--market-down)"
+                >-0.028</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ 12. IC Statistics (NOT folded: histogram + robustness + KV) ═══ -->
+        <div class="section">
+          <div class="section-title">IC Statistics</div>
+
+          <!-- IC Distribution Histogram with Normal Fit + Hatching -->
+          <div
+            style="font-size: 9px; color: var(--mine-muted); margin-bottom: 4px"
+          >
+            IC Distribution
+          </div>
+          <div class="chart-box">
+            <svg viewBox="0 0 300 80">
+              <defs>
+                <pattern
+                  id="hatching"
+                  patternUnits="userSpaceOnUse"
+                  width="4"
+                  height="4"
+                  patternTransform="rotate(45)"
+                >
+                  <line
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="4"
+                    stroke="var(--mine-accent-teal)"
+                    stroke-width="0.8"
+                    opacity="0.5"
+                  />
+                </pattern>
+              </defs>
+              <line
+                x1="20"
+                y1="65"
+                x2="280"
+                y2="65"
+                stroke="var(--mine-border)"
+                stroke-width="0.5"
+              />
+              <!-- Histogram bars (solid = within normal, hatched = excess) -->
+              <g fill="var(--mine-accent-teal)" opacity="0.4">
+                <rect x="28" y="60" width="12" height="5" rx="1" />
+                <rect x="42" y="55" width="12" height="10" rx="1" />
+                <rect x="56" y="48" width="12" height="17" rx="1" />
+                <rect x="70" y="40" width="12" height="25" rx="1" />
+                <rect x="84" y="30" width="12" height="35" rx="1" />
+                <rect x="98" y="22" width="12" height="43" rx="1" />
+                <rect x="112" y="12" width="12" height="53" rx="1" />
+                <rect x="126" y="5" width="12" height="60" rx="1" />
+                <rect x="140" y="8" width="12" height="57" rx="1" />
+                <rect x="154" y="15" width="12" height="50" rx="1" />
+                <rect x="168" y="25" width="12" height="40" rx="1" />
+                <rect x="182" y="35" width="12" height="30" rx="1" />
+                <rect x="196" y="42" width="12" height="23" rx="1" />
+                <rect x="210" y="50" width="12" height="15" rx="1" />
+                <rect x="224" y="55" width="12" height="10" rx="1" />
+                <rect x="238" y="58" width="12" height="7" rx="1" />
+                <rect x="252" y="62" width="12" height="3" rx="1" />
+              </g>
+              <!-- Hatching for deviation areas (left tail excess) -->
+              <rect
+                x="28"
+                y="58"
+                width="12"
+                height="2"
+                fill="url(#hatching)"
+                rx="0.5"
+              />
+              <rect
+                x="252"
+                y="61"
+                width="12"
+                height="1"
+                fill="url(#hatching)"
+                rx="0.5"
+              />
+              <!-- Normal fit curve -->
+              <path
+                d="M28,62 C50,60 70,52 84,40 C98,28 112,14 126,7 C140,14 154,22 168,32 C182,42 196,50 210,55 C224,58 238,61 264,64"
+                fill="none"
+                stroke="var(--mine-muted)"
+                stroke-width="1"
+                stroke-dasharray="3,2"
+              />
+              <text
+                x="28"
+                y="75"
+                font-size="7"
+                fill="var(--mine-muted)"
+                font-family="Geist Mono"
+              >
+                -0.10
+              </text>
+              <text
+                x="140"
+                y="75"
+                font-size="7"
+                fill="var(--mine-muted)"
+                font-family="Geist Mono"
+              >
+                0.00
+              </text>
+              <text
+                x="250"
+                y="75"
+                font-size="7"
+                fill="var(--mine-muted)"
+                font-family="Geist Mono"
+              >
+                0.10
+              </text>
+            </svg>
+          </div>
+
+          <!-- Robustness Tests -->
+          <div
+            style="
+              margin-top: 10px;
+              padding-top: 8px;
+              border-top: 1px solid var(--mine-border);
+            "
+          >
+            <div
+              style="
+                font-size: 9px;
+                color: var(--mine-muted);
+                margin-bottom: 6px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                font-weight: 500;
+              "
+            >
+              Robustness
+            </div>
+            <div class="robustness-row">
+              <div class="robustness-left">
+                <span class="name">Rank Test</span
+                ><span class="hint">(排序稳定性)</span>
+              </div>
+              <div class="robustness-right">
+                <span class="robustness-val" style="color: var(--market-up)"
+                  >87%</span
+                ><span class="tier-badge good" style="font-size: 8px"
+                  >通过</span
+                >
+              </div>
+            </div>
+            <div class="robustness-row">
+              <div class="robustness-left">
+                <span class="name">Binary Test</span
+                ><span class="hint">(方向一致性)</span>
+              </div>
+              <div class="robustness-right">
+                <span class="robustness-val" style="color: var(--market-up)"
+                  >82%</span
+                ><span class="tier-badge good" style="font-size: 8px"
+                  >通过</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- KV Statistics -->
+          <div
+            style="
+              margin-top: 10px;
+              padding-top: 8px;
+              border-top: 1px solid var(--mine-border);
+            "
+          >
+            <div class="kv-grid">
+              <div class="kv-row">
+                <span class="kv-label">IC Mean</span
+                ><span class="kv-value">0.0352</span>
+              </div>
+              <div class="kv-row">
+                <span class="kv-label">IC Std</span
+                ><span class="kv-value">0.0921</span>
+              </div>
+              <div class="kv-row">
+                <span class="kv-label">IC Skew</span
+                ><span class="kv-value">-0.18</span>
+              </div>
+              <div class="kv-row">
+                <span class="kv-label">IC Kurt</span
+                ><span class="kv-value">2.84</span>
+              </div>
+              <div class="kv-row">
+                <span class="kv-label">IC Max</span
+                ><span class="kv-value">0.142</span>
+              </div>
+              <div class="kv-row">
+                <span class="kv-label">IC Min</span
+                ><span class="kv-value">-0.098</span>
+              </div>
+              <div class="kv-row">
+                <span class="kv-label">p-value</span
+                ><span class="kv-value">0.0015</span>
+              </div>
+              <div class="kv-row">
+                <span class="kv-label">JB p-val</span
+                ><span class="kv-value">0.54</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end panel-body -->
+    </div>
+    <!-- end sidebar -->
+
+    <script>
+      function toggleCollapse(id) {
+        const content = document.getElementById(id + '-content');
+        const arrow = document.getElementById(id + '-arrow');
+        if (!content) return;
+        if (content.style.display === 'none') {
+          content.style.display = id === 'ind-mid' ? 'flex' : 'block';
+          if (arrow) arrow.classList.add('open');
+        } else {
+          content.style.display = 'none';
+          if (arrow) arrow.classList.remove('open');
+        }
+      }
+
+      function switchPool(btn, pool) {
+        btn.parentElement
+          .querySelectorAll('.pool-tab')
+          .forEach((t) => t.classList.remove('active'));
+        btn.classList.add('active');
+        updateComboHighlight(pool, getCurrentHorizon());
+      }
+
+      function switchHorizon(btn, horizon) {
+        btn.parentElement
+          .querySelectorAll('.horizon-tab')
+          .forEach((t) => t.classList.remove('active'));
+        btn.classList.add('active');
+        updateComboHighlight(getCurrentPool(), horizon);
+      }
+
+      function getCurrentPool() {
+        const active = document.querySelector('.pool-tabs .pool-tab.active');
+        if (!active) return 'all';
+        const text = active.textContent.trim();
+        if (text.includes('沪深300')) return 'hs300';
+        if (text.includes('中证500')) return 'zz500';
+        if (text.includes('中证1000')) return 'zz1000';
+        return 'all';
+      }
+
+      function getCurrentHorizon() {
+        const active = document.querySelector(
+          '.horizon-tabs .horizon-tab.active',
+        );
+        return active ? active.textContent.trim().toLowerCase() : '20d';
+      }
+
+      function selectCombo(cell, pool, horizon) {
+        const poolMap = {
+          all: '全A',
+          hs300: '沪深300',
+          zz500: '中证500',
+          zz1000: '中证1000',
+        };
+        document.querySelectorAll('.pool-tabs .pool-tab').forEach((t) => {
+          t.classList.toggle(
+            'active',
+            t.textContent.trim().startsWith(poolMap[pool]),
+          );
+        });
+        document.querySelectorAll('.horizon-tabs .horizon-tab').forEach((t) => {
+          t.classList.toggle(
+            'active',
+            t.textContent.trim().toLowerCase() === horizon,
+          );
+        });
+        updateComboHighlight(pool, horizon);
+      }
+
+      function updateComboHighlight(pool, horizon) {
+        const poolIndex = { all: 0, hs300: 1, zz500: 2, zz1000: 3 }[pool] || 0;
+        const horizonIndex = { '5d': 0, '20d': 1, '60d': 2 }[horizon] || 1;
+        document
+          .querySelectorAll('.combo-cell')
+          .forEach((c) => c.classList.remove('selected'));
+        const cells = document.querySelectorAll('.combo-cell');
+        const targetIdx = (poolIndex + 1) * 4 + (horizonIndex + 1);
+        if (cells[targetIdx]) cells[targetIdx].classList.add('selected');
+      }
+
+      function toggleConfig() {
+        document.getElementById('config-popover').classList.toggle('open');
+      }
+
+      document.addEventListener('click', (e) => {
+        if (
+          !e.target.closest('.calc-config') &&
+          !e.target.closest('.config-popover')
+        ) {
+          document.getElementById('config-popover').classList.remove('open');
+        }
+      });
+    </script>
+  </body>
+</html>
