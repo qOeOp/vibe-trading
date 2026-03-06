@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** 将现有 28 行业柱状图改为 Top 5 + expand separator + Bottom 3 列表，减少垂直占用，聚焦极端行业。
+**Goal:** 将现有 31 行业柱状图改为 Top 5 + expand separator + Bottom 3 列表，减少垂直占用，聚焦极端行业。
 
 **Architecture:** 改造现有 `ICByIndustrySection`，从 BarVertical 图表改为排序列表 + 展开/折叠交互。不使用滚动容器。
 
@@ -33,14 +33,32 @@
 ```
 
 **设计理由:**
-- **28 行业柱状图太密**: 侧栏宽度下 28 根 bar 每根只有 ~10px，标签挤在一起无法阅读
+- **31 行业柱状图太密**: 侧栏宽度下 28 根 bar 每根只有 ~10px，标签挤在一起无法阅读
 - **Top 5 + Bottom 3**: 用户关心的是"因子在哪些行业最有效/最无效"，中间行业不重要
 - **Expand 折叠**: 需要时展开看全貌，不需要时节省空间
 - **列表 vs 图表**: 行业名称是关键信息，列表比柱状图更适合展示长名称 + 精确数值
 
 ---
 
-## 2. 行业行视觉规格
+## 2. 数据来源
+
+### 多维度数据对接
+
+所有数据通过 `useFactorSlice()` hook 获取当前 pool×horizon 的信号数据切片：
+
+| 元素 | 旧数据源 | 新数据源 |
+|------|---------|---------|
+| IC 行业分布 (31 行业) | `factor.icByIndustry` | `signalSlice.icByIndustry` |
+
+见 `factor-data-architecture.md` §2.5。
+
+### 切 tab 行为
+
+用户切换 pool/horizon 时，31 行业 IC 数据自动替换。排序和 Top5/Bottom3 分组在前端实时重算。不同 pool 下行业 IC 分布差异明显（例如中证 500 偏中小盘行业），切换后列表顺序会变。
+
+---
+
+## 3. 行业行视觉规格
 
 ### 行布局
 
@@ -77,7 +95,7 @@
 
 ---
 
-## 3. Expand Separator 视觉规格
+## 4. Expand Separator 视觉规格
 
 - 容器: `flex items-center gap-2 py-2 cursor-pointer group`
 - 左线: `flex-1 h-px bg-mine-border`
@@ -88,7 +106,7 @@
 
 ---
 
-## 4. 数据逻辑
+## 5. 数据逻辑
 
 ### 排序和分组
 
@@ -115,14 +133,14 @@ const maxAbsIC = Math.max(...sorted.map(d => Math.abs(d.value)), 0.001);
 
 ---
 
-## 5. PanelSection 标题
+## 6. PanelSection 标题
 
 - title: `"IC BY INDUSTRY"`
 - suffix: `"申万L1"`（保留现有）
 
 ---
 
-## 6. 组件规范
+## 7. 组件规范
 
 - `data-slot="ic-by-industry-section"`
 - 接受 `className` prop，用 `cn()` 合并
@@ -131,7 +149,7 @@ const maxAbsIC = Math.max(...sorted.map(d => Math.abs(d.value)), 0.001);
 
 ---
 
-## 7. 任务顺序
+## 8. 任务顺序
 
 1. **排序和分组逻辑** — Top 5 / Bottom 3 / middle 分组
 2. **行业行组件** — 色点 + 行业名 + inline bar + IC 值

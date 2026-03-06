@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 import {
   FlaskConical,
   Play,
@@ -10,25 +10,25 @@ import {
   LineChart,
   Copy,
   ExternalLink,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-} from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { VIBE_COMPUTE_URL } from "@/lib/env";
-import type { Factor, FactorLifecycleStatus } from "@/features/library/types";
-import { useLibraryStore } from "@/features/library/store/use-library-store";
-import { StatusChangeDialog } from "../status-change-dialog";
+} from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { VIBE_COMPUTE_URL } from '@/lib/env';
+import type { Factor, FactorLifecycleStatus } from '@/features/library/types';
+import { useLibraryStore } from '@/features/library/store/use-library-store';
+import { StatusChangeDialog } from '../status-change-dialog';
 
 // ─── Action Types ────────────────────────────────────────
 
 interface StatusAction {
-  type: "status";
+  type: 'status';
   icon: LucideIcon;
   label: string;
   targetStatus: FactorLifecycleStatus;
@@ -36,10 +36,10 @@ interface StatusAction {
 }
 
 interface UtilAction {
-  type: "util";
+  type: 'util';
   icon: LucideIcon;
   label: string;
-  action: "copy" | "monitor" | "backtest";
+  action: 'copy' | 'monitor' | 'backtest';
 }
 
 type ActionItem = StatusAction | UtilAction;
@@ -50,66 +50,98 @@ type ActionItem = StatusAction | UtilAction;
 
 const ACTION_CONFIG: Record<FactorLifecycleStatus, ActionItem[]> = {
   INCUBATING: [
-    { type: "status", icon: FlaskConical, label: "送检", targetStatus: "PAPER_TEST" },
-    { type: "status", icon: Trash2, label: "废弃", targetStatus: "RETIRED", destructive: true },
-    { type: "util", icon: Copy, label: "复制表达式", action: "copy" },
+    {
+      type: 'status',
+      icon: FlaskConical,
+      label: '送检',
+      targetStatus: 'PAPER_TEST',
+    },
+    {
+      type: 'status',
+      icon: Trash2,
+      label: '废弃',
+      targetStatus: 'RETIRED',
+      destructive: true,
+    },
+    { type: 'util', icon: Copy, label: '复制路径', action: 'copy' },
   ],
   PAPER_TEST: [
-    { type: "status", icon: Play, label: "上线", targetStatus: "LIVE_ACTIVE" },
-    { type: "util", icon: LineChart, label: "回测", action: "backtest" },
-    { type: "status", icon: Trash2, label: "废弃", targetStatus: "RETIRED", destructive: true },
-    { type: "util", icon: Copy, label: "复制表达式", action: "copy" },
+    { type: 'status', icon: Play, label: '上线', targetStatus: 'LIVE_ACTIVE' },
+    { type: 'util', icon: LineChart, label: '回测', action: 'backtest' },
+    {
+      type: 'status',
+      icon: Trash2,
+      label: '废弃',
+      targetStatus: 'RETIRED',
+      destructive: true,
+    },
+    { type: 'util', icon: Copy, label: '复制路径', action: 'copy' },
   ],
   LIVE_ACTIVE: [
-    { type: "util", icon: Activity, label: "监控", action: "monitor" },
-    { type: "util", icon: LineChart, label: "回测", action: "backtest" },
-    { type: "status", icon: Trash2, label: "废弃", targetStatus: "RETIRED", destructive: true },
-    { type: "util", icon: Copy, label: "复制表达式", action: "copy" },
+    { type: 'util', icon: Activity, label: '监控', action: 'monitor' },
+    { type: 'util', icon: LineChart, label: '回测', action: 'backtest' },
+    {
+      type: 'status',
+      icon: Trash2,
+      label: '废弃',
+      targetStatus: 'RETIRED',
+      destructive: true,
+    },
+    { type: 'util', icon: Copy, label: '复制路径', action: 'copy' },
   ],
   PROBATION: [
-    { type: "status", icon: RotateCcw, label: "恢复", targetStatus: "LIVE_ACTIVE" },
-    { type: "util", icon: Activity, label: "监控", action: "monitor" },
-    { type: "status", icon: Trash2, label: "废弃", targetStatus: "RETIRED", destructive: true },
-    { type: "util", icon: Copy, label: "复制表达式", action: "copy" },
+    {
+      type: 'status',
+      icon: RotateCcw,
+      label: '恢复',
+      targetStatus: 'LIVE_ACTIVE',
+    },
+    { type: 'util', icon: Activity, label: '监控', action: 'monitor' },
+    {
+      type: 'status',
+      icon: Trash2,
+      label: '废弃',
+      targetStatus: 'RETIRED',
+      destructive: true,
+    },
+    { type: 'util', icon: Copy, label: '复制路径', action: 'copy' },
   ],
-  RETIRED: [
-    { type: "util", icon: Copy, label: "复制表达式", action: "copy" },
-  ],
+  RETIRED: [{ type: 'util', icon: Copy, label: '复制路径', action: 'copy' }],
 };
 
 // ─── Helpers ─────────────────────────────────────────────
 
 function isDestructive(item: ActionItem): boolean {
-  return item.type === "status" && item.destructive === true;
+  return item.type === 'status' && item.destructive === true;
 }
 
 // ─── OpenInLabButton ─────────────────────────────────────
 
 function OpenInLabButton({ factor }: { factor: Factor }) {
   const router = useRouter();
-  const [state, setState] = useState<"idle" | "loading" | "error">("idle");
+  const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle');
 
-  if (factor.source !== "mining_llm" || !factor.codeFile) return null;
+  if (factor.source !== 'mining_llm' || !factor.codeFile) return null;
 
   async function handleOpen() {
-    setState("loading");
+    setState('loading');
     try {
       const resp = await fetch(`${VIBE_COMPUTE_URL}/api/lab/files/resolve`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           factorId: factor.id,
           codeFile: factor.codeFile,
         }),
       });
-      if (!resp.ok) throw new Error("resolve failed");
+      if (!resp.ok) throw new Error('resolve failed');
       const { workspacePath } = (await resp.json()) as {
         workspacePath: string;
       };
       router.push(`/lab?file=${encodeURIComponent(workspacePath)}`);
     } catch {
-      setState("error");
-      setTimeout(() => setState("idle"), 3000);
+      setState('error');
+      setTimeout(() => setState('idle'), 3000);
     }
   }
 
@@ -120,17 +152,21 @@ function OpenInLabButton({ factor }: { factor: Factor }) {
         e.stopPropagation();
         void handleOpen();
       }}
-      disabled={state === "loading"}
+      disabled={state === 'loading'}
       className={cn(
-        "flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded transition-colors",
-        state === "error"
-          ? "text-market-up-medium border border-market-up-medium/30 hover:bg-market-up-medium/5"
-          : "text-mine-muted hover:text-mine-text hover:bg-mine-bg border border-transparent hover:border-mine-border",
-        "disabled:opacity-50 disabled:cursor-not-allowed",
+        'flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded transition-colors',
+        state === 'error'
+          ? 'text-market-up-medium border border-market-up-medium/30 hover:bg-market-up-medium/5'
+          : 'text-mine-muted hover:text-mine-text hover:bg-mine-bg border border-transparent hover:border-mine-border',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
       )}
     >
       <ExternalLink className="w-3 h-3" />
-      {state === "loading" ? "打开中..." : state === "error" ? "打开失败" : "在 Lab 中编辑"}
+      {state === 'loading'
+        ? '打开中...'
+        : state === 'error'
+          ? '打开失败'
+          : '在 Lab 中编辑'}
     </button>
   );
 }
@@ -153,23 +189,23 @@ export function FactorActionsCell({ factor }: FactorActionsCellProps) {
     (item: ActionItem, e: React.MouseEvent) => {
       e.stopPropagation();
 
-      if (item.type === "status") {
+      if (item.type === 'status') {
         setDialogOpen(true);
         return;
       }
 
       // Utility actions
       switch (item.action) {
-        case "copy":
-          navigator.clipboard.writeText(factor.expression);
+        case 'copy':
+          navigator.clipboard.writeText(factor.workspacePath);
           break;
-        case "monitor":
-        case "backtest":
+        case 'monitor':
+        case 'backtest':
           // P2: route to Factor/Monitor or Factor/Backtest
           break;
       }
     },
-    [factor.expression],
+    [factor.workspacePath],
   );
 
   const handleStatusConfirm = useCallback(
@@ -197,7 +233,7 @@ export function FactorActionsCell({ factor }: FactorActionsCellProps) {
                   size="icon-sm"
                   className={cn(
                     destructive &&
-                      "text-destructive hover:bg-destructive hover:text-white",
+                      'text-destructive hover:bg-destructive hover:text-white',
                   )}
                   onClick={(e) => handleAction(item, e)}
                   aria-label={item.label}

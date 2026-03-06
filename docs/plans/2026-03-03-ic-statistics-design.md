@@ -43,7 +43,37 @@
 
 ---
 
-## 2. Enhanced Histogram 视觉规格
+## 2. 数据来源
+
+### 多维度数据对接
+
+所有数据通过 `useFactorSlice()` hook 获取当前 pool×horizon 的信号数据切片：
+
+| 元素 | 旧数据源 | 新数据源 |
+|------|---------|---------|
+| IC 直方图 (20 bin) | `factor.icDistribution` | `signalSlice.icHistogram` |
+| IC 均值 | `factor.icDistribution.icMean` | `signalSlice.ic` |
+| IC 标准差 | `factor.icDistribution.icStd` | `signalSlice.icStd` |
+| 偏度/峰度 | `factor.icDistribution.skewness/kurtosis` | `signalSlice.skewness/kurtosis` |
+| P 值 | `factor.icDistribution.pValue` | `signalSlice.pValue` |
+| IC 半衰期 | `factor.icHalfLife` | `signalSlice.icHalfLife` |
+| 正值/负值次数 | `factor.icDistribution` | `signalSlice.positiveCount/negativeCount` |
+| 显著比例 | `factor.icDistribution` | `signalSlice.significantRatio` |
+| 稳健性检验 | `factor.robustness` | `signalSlice.robustness` |
+
+见 `factor-data-architecture.md` §2.5。
+
+### 正态拟合曲线（前端衍生，见 §4.3）
+
+正态拟合 PDF 参数 = `signalSlice.ic` + `signalSlice.icStd`，前端实时计算高斯曲线。
+
+### 切 tab 行为
+
+用户切换 pool/horizon 时，直方图、统计量、稳健性检验全部替换。正态拟合曲线自动重算。
+
+---
+
+## 3. Enhanced Histogram 视觉规格
 
 ### 直方图 Bar
 
@@ -53,7 +83,7 @@
 
 ### 正态拟合曲线
 
-- 参数: `mean = icDistribution.icMean`, `std = icDistribution.icStd`
+- 参数: `mean = signalSlice.ic`, `std = signalSlice.icStd`
 - 渲染: SVG `<path>` 叠加在 bar 上方
 - 颜色: `mine-muted`, 1px, opacity 0.6
 - 计算: 高斯 PDF 曲线，归一化到与直方图同一 Y 轴
@@ -94,7 +124,7 @@ function normalPDF(x: number, mean: number, std: number): number {
 
 ---
 
-## 3. IC KV Grid 视觉规格
+## 4. IC KV Grid 视觉规格
 
 - 布局: `grid grid-cols-2 gap-x-4 gap-y-0`（保留现有 ICStatsCollapsible 的布局）
 - 容器: `mt-3 pt-3 border-t border-mine-border/40`
@@ -118,7 +148,7 @@ function normalPDF(x: number, mean: number, std: number): number {
 
 ---
 
-## 4. Robustness Tests 视觉规格
+## 5. Robustness Tests 视觉规格
 
 - 容器: `mt-3 pt-3 border-t border-mine-border/40`
 - 标题: `panel-hint mb-2` — "鲁棒性检验"
@@ -132,17 +162,17 @@ Rank Test    rank(X) 保留率              72%      逻辑扎实
 Binary Test  sign(X) 保留率              58%      中等
 ```
 
-### 颜色逻辑（保留现有）
+### 颜色逻辑（修正：红好绿坏）
 
-- ≥70%: `text-market-down-medium` + `bg-market-down-medium/8` — "逻辑扎实"（绿=好）
+- ≥70%: `text-market-up-medium` + `bg-market-up-medium/8` — "逻辑扎实"（红=好）
 - 30-70%: `text-market-flat` + `bg-market-flat/8` — "中等"
-- <30%: `text-market-up-medium` + `bg-market-up-medium/8` — "过拟合风险"（红=差）
+- <30%: `text-market-down-medium` + `bg-market-down-medium/8` — "过拟合风险"（绿=差）
 
-注意: 这里的颜色逻辑和市场色相反（高保留率=好=绿，不是红），因为这不是收益而是稳定性指标。
+遵循全局规则：**所有评价性色彩编码都遵循红好绿坏**（A 股惯例）。不仅限于价格方向，保留率作为因子质量评价指标，高=好=红。
 
 ---
 
-## 5. 删除清单
+## 6. 删除清单
 
 | 删除项 | 文件 | 说明 |
 |--------|------|------|
@@ -153,7 +183,7 @@ Binary Test  sign(X) 保留率              58%      中等
 
 ---
 
-## 6. 组件规范
+## 7. 组件规范
 
 - `data-slot="ic-statistics-section"`
 - 接受 `className` prop，用 `cn()` 合并
@@ -162,7 +192,7 @@ Binary Test  sign(X) 保留率              58%      中等
 
 ---
 
-## 7. 任务顺序
+## 8. 任务顺序
 
 1. **新建增强版直方图** — 自定义 SVG 渲染，20-bin bar + 正态拟合曲线 + hatching
 2. **IC KV Grid** — 从 ICStatsCollapsible 迁移，去掉折叠，直接显示

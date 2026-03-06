@@ -45,10 +45,8 @@
   - IC > 0: `market-up-medium`（红=好，A 股惯例）
   - IC ≤ 0: `market-down-medium`（绿=差）
 - **Opacity 密度梯度**: 不是固定 opacity，根据 bar 高度动态调整
-  - 短 bar（靠近零线）: opacity 0.12
-  - 高 bar: opacity 0.28
   - 公式: `opacity = 0.12 + 0.16 * (|IC| / maxAbsIC)`
-- **Bar 内部渐变**: 每根 bar 用 `<linearGradient>` 从顶部实色渐变到底部 fade out，模拟"从零线生长"效果
+- **Bar 渐变**: 定义 4 个预设 `<linearGradient>`（opacity 0.10/0.15/0.20/0.25），bar 按 `|IC|/maxAbsIC` 的四分位选择其中一个。避免 240 个独立 gradient 元素。
 - 圆角: `rx="0.5"` 微圆角，消除像素锯齿感
 - Y 轴起点: 0（bar 从零线向上/向下延伸）
 - 层级: 最底层
@@ -63,10 +61,7 @@
 | 60D MA | 背景参考 | `#6366f1` (indigo) | 0.8px | 0.3 | 淡到背景里，只提供参考 |
 | 120D MA | 趋势通道 | `#8b5cf6` (purple) | 无线条 | — | 只画 area fill，不画线 |
 
-**120D Area Fill 双层渐变**:
-- 底层: 从 MA 曲线到零线，opacity 0.03（大面积淡色）
-- 顶层: 靠近 MA 线的 20px 窄带，opacity 0.12（模拟光源从线条向下衰减）
-- 实现: 两个 `<path>` 叠加，顶层用 `<linearGradient>` 从 MA 线位置 opacity 0.12 → 向下 20px 处 opacity 0
+**120D MA: 单层 area fill，从 MA 线到 X 轴。`<linearGradient>` 从顶部 opacity 0.08 渐变到底部 opacity 0.01。单个 gradient，单个 path。**
 
 **MA 线平滑**: `d3.curveMonotoneX`（monotone cubic 插值），消除折线锯齿转角。MA 本身是平滑趋势，视觉上也应该丝滑
 
@@ -79,7 +74,7 @@
 ### 参考线
 
 - 零线: `mine-border` 色，0.5px 虚线（`strokeDasharray: 4,3`），opacity 极低不抢视觉权重
-- 阈值线 (IC = 0.01): `market-up-medium` 色，0.5px 虚线
+- 阈值线: Radar predictive 维度的 `poor` 校准基准（随 horizon 变化：T+1~0.01, T+5~0.02, T+10~0.03, T+20~0.04），`market-up-medium` 色，0.5px 虚线
 - **背景微纹理**: 2-3 条极淡水平参考线（opacity 0.03-0.04），对应 Y 轴 25%/50%/75% 位置，给空间以深度
 
 ### 图例
@@ -135,20 +130,30 @@ function ICBarMAChart({ icSeries }: { icSeries: number[] }) {
 
 ---
 
-## 4. 数据
+## 4. 数据来源
 
-### 现有数据（无需变更）
+### 多维度数据对接
 
-```ts
-factor.icTimeSeries: number[]  // 240 点日频 IC 值
-```
+所有数据通过 `useFactorSlice()` hook 获取当前 pool×horizon 的信号数据切片：
 
-### MA 计算（现有 util）
+| 元素 | 旧数据源 | 新数据源 |
+|------|---------|---------|
+| IC 时间序列 (240D) | `factor.icTimeSeries` | `signalSlice.icTimeSeries` |
+
+见 `factor-data-architecture.md` §2.5。
+
+### MA 计算（前端衍生，见 §4.3）
 
 ```ts
 import { computeRollingMA } from '@/features/library/utils/compute-ic-stats';
 // computeRollingMA(data, window) → (number | null)[]
+// 输入: signalSlice.icTimeSeries
+// 输出: 20D / 60D / 120D 三条 MA 线
 ```
+
+### 切 tab 行为
+
+用户切换 pool/horizon 时，`signalSlice.icTimeSeries` 自动替换为对应维度的时序数据。图表需要 re-render 全部 bar + MA 线。
 
 ---
 

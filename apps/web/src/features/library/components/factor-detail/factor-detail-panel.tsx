@@ -37,7 +37,6 @@ import { QuantileTurnoverSection } from './charts/quantile-turnover';
 import { FitnessSection } from './fitness-section';
 import { RobustnessSection } from './robustness-section';
 import { ICStatsCollapsible } from './ic-stats-collapsible';
-import { StatusActionsSection } from './status-actions';
 
 interface FactorDetailPanelProps {
   factor: Factor;
@@ -93,7 +92,6 @@ export function FactorDetailPanel({ factor }: FactorDetailPanelProps) {
             <FitnessSection factor={factor} />
             <RobustnessSection factor={factor} />
             <ICStatsCollapsible factor={factor} />
-            <StatusActionsSection factor={factor} />
           </motion.div>
         </AnimatePresence>
       </PanelFrameBody>

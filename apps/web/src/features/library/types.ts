@@ -9,53 +9,57 @@
 
 /** 9 大因子分类 (与 Home tab 概念索引一致) */
 export const FACTOR_CATEGORIES = [
-  "动能",
-  "股息率",
-  "价值",
-  "成长",
-  "品质",
-  "流动性",
-  "波动度",
-  "规模",
-  "情绪",
+  '动能',
+  '股息率',
+  '价值',
+  '成长',
+  '品质',
+  '流动性',
+  '波动度',
+  '规模',
+  '情绪',
 ] as const;
 export type FactorCategory = (typeof FACTOR_CATEGORIES)[number];
 
 /** 5 阶段因子生命周期 */
 export const FACTOR_LIFECYCLE_STATUSES = [
-  "INCUBATING",
-  "PAPER_TEST",
-  "LIVE_ACTIVE",
-  "PROBATION",
-  "RETIRED",
+  'INCUBATING',
+  'PAPER_TEST',
+  'LIVE_ACTIVE',
+  'PROBATION',
+  'RETIRED',
 ] as const;
-export type FactorLifecycleStatus =
-  (typeof FACTOR_LIFECYCLE_STATUSES)[number];
+export type FactorLifecycleStatus = (typeof FACTOR_LIFECYCLE_STATUSES)[number];
 
 /** 因子类型 */
-export type FactorType = "leaf" | "composite";
+export type FactorType = 'leaf' | 'composite';
 
 /** 因子来源 (与分类正交) */
 export type FactorSource =
-  | "manual"
-  | "mining_gplearn"
-  | "mining_pysr"
-  | "mining_llm";
+  | 'manual'
+  | 'mining_gplearn'
+  | 'mining_pysr'
+  | 'mining_llm';
 
 /** 因子预期方向 */
-export type FactorDirection = "positive" | "negative";
+export type FactorDirection = 'positive' | 'negative';
 
 // ─── Benchmark Config ────────────────────────────────────
 
 /** 标准股票池列表 */
-export const UNIVERSE_POOLS = ["全A", "沪深300", "中证500", "中证1000"] as const;
+export const UNIVERSE_POOLS = [
+  '全A',
+  '沪深300',
+  '中证500',
+  '中证1000',
+] as const;
 export type UniversePool = (typeof UNIVERSE_POOLS)[number];
 
 /** 因子检验基准配置 — IC/IR 等统计量的计算上下文 */
 export interface BenchmarkConfig {
   universe: UniversePool;
-  icMethod: "RankIC" | "NormalIC";
-  winsorization: "MAD" | "3σ" | "百分位" | "无";
+  icMethod: 'RankIC' | 'NormalIC';
+  winsorization: 'MAD' | '3σ' | '百分位' | '无';
   rebalanceDays: number;
   quantiles: number;
 }
@@ -103,7 +107,6 @@ export interface Factor {
   expectedDirection: FactorDirection;
   source: FactorSource;
   status: FactorLifecycleStatus;
-  expression: string;
   /** 最近 20 日滚动 IC */
   ic: number;
   /** IC Information Ratio (均值/标准差) */
@@ -158,7 +161,10 @@ export interface Factor {
   /** Q1-Q5 分组累计收益曲线 (每组 240 点日频, 起始=1.0) */
   quantileCumulativeReturns: [number[], number[], number[], number[], number[]];
   /** IC 月度热力图: 行=年份, 列=月份, 值=月均IC */
-  icMonthlyHeatmap: Array<{ name: string; series: Array<{ name: string; value: number }> }>;
+  icMonthlyHeatmap: Array<{
+    name: string;
+    series: Array<{ name: string; value: number }>;
+  }>;
   /** 分行业 IC: 申万一级 28 个行业的截面 IC */
   icByIndustry: Array<{ name: string; value: number }>;
   /** 因子排名自相关时序 (240 点日频) */
@@ -168,15 +174,24 @@ export interface Factor {
   /** 状态变更历史 */
   statusHistory: StatusChangeRecord[];
 
+  /** Lab 工作区中的因子路径 (如 'factors/vol_adj_momentum/factor.py') */
+  workspacePath: string;
+  /** 金融假设，来源: hypothesis.md 文件内容 */
+  hypothesis: string;
+  /** 系统自动提议的生命周期转换 */
+  pendingProposal?: {
+    targetStatus: FactorLifecycleStatus;
+    reason: string;
+    proposedAt: string;
+  };
+
   /** 挖掘来源扩展字段 — 仅 source === "mining_llm" 时存在 */
-  codeFile?: string;           // factor.py 绝对路径
-  workspacePath?: string;      // Lab workspace 关联路径（关联后填入）
-  taskId?: string;             // 来源挖掘任务 ID
-  annualReturn?: number;       // 年化收益（来自 RD-Agent 回测）
-  sharpeRatio?: number;        // Sharpe ratio
-  maxDrawdown?: number;        // 最大回撤
-  hypothesis?: string;         // 挖掘假设描述
-  lookback?: number;           // 因子回溯窗口（天数）
+  codeFile?: string;
+  taskId?: string;
+  annualReturn?: number;
+  sharpeRatio?: number;
+  maxDrawdown?: number;
+  lookback?: number;
 }
 
 // ─── Status Change ────────────────────────────────────────
@@ -195,10 +210,10 @@ export const VALID_STATUS_TRANSITIONS: Record<
   FactorLifecycleStatus,
   FactorLifecycleStatus[]
 > = {
-  INCUBATING: ["PAPER_TEST", "RETIRED"],
-  PAPER_TEST: ["LIVE_ACTIVE", "RETIRED"],
-  LIVE_ACTIVE: ["PROBATION", "RETIRED"],
-  PROBATION: ["LIVE_ACTIVE", "RETIRED"],
+  INCUBATING: ['PAPER_TEST', 'RETIRED'],
+  PAPER_TEST: ['LIVE_ACTIVE', 'RETIRED'],
+  LIVE_ACTIVE: ['PROBATION', 'RETIRED'],
+  PROBATION: ['LIVE_ACTIVE', 'RETIRED'],
   RETIRED: [],
 };
 
@@ -206,70 +221,70 @@ export const VALID_STATUS_TRANSITIONS: Record<
 
 /** 分类颜色映射 (badge 背景 18% + 文字色) */
 export const CATEGORY_COLORS: Record<FactorCategory, string> = {
-  动能: "#f97316",
-  股息率: "#ec4899",
-  价值: "#3b82f6",
-  成长: "#22c55e",
-  品质: "#10b981",
-  流动性: "#06b6d4",
-  波动度: "#eab308",
-  规模: "#64748b",
-  情绪: "#a855f7",
+  动能: '#f97316',
+  股息率: '#ec4899',
+  价值: '#3b82f6',
+  成长: '#22c55e',
+  品质: '#10b981',
+  流动性: '#06b6d4',
+  波动度: '#eab308',
+  规模: '#64748b',
+  情绪: '#a855f7',
 };
 
 /** 状态颜色映射 */
 export const STATUS_COLORS: Record<FactorLifecycleStatus, string> = {
-  INCUBATING: "#8b8b8b",
-  PAPER_TEST: "#3b82f6",
-  LIVE_ACTIVE: "#4caf50",
-  PROBATION: "#f5a623",
-  RETIRED: "#8a8a8a",
+  INCUBATING: '#8b8b8b',
+  PAPER_TEST: '#3b82f6',
+  LIVE_ACTIVE: '#4caf50',
+  PROBATION: '#f5a623',
+  RETIRED: '#8a8a8a',
 };
 
 /** 状态中文标签 */
 export const STATUS_LABELS: Record<FactorLifecycleStatus, string> = {
-  INCUBATING: "INC",
-  PAPER_TEST: "PAPER",
-  LIVE_ACTIVE: "LIVE",
-  PROBATION: "PROB",
-  RETIRED: "RET",
+  INCUBATING: 'INC',
+  PAPER_TEST: 'PAPER',
+  LIVE_ACTIVE: 'LIVE',
+  PROBATION: 'PROB',
+  RETIRED: 'RET',
 };
 
 /** 来源中文标签 */
 export const SOURCE_LABELS: Record<FactorSource, string> = {
-  manual: "手动",
-  mining_gplearn: "gplearn",
-  mining_pysr: "PySR",
-  mining_llm: "LLM",
+  manual: '手动',
+  mining_gplearn: 'gplearn',
+  mining_pysr: 'PySR',
+  mining_llm: 'LLM',
 };
 
 /** 来源颜色 */
 export const SOURCE_COLORS: Record<FactorSource, string> = {
-  manual: "#8b8b8b",
-  mining_gplearn: "#22c55e",
-  mining_pysr: "#3b82f6",
-  mining_llm: "#a855f7",
+  manual: '#8b8b8b',
+  mining_gplearn: '#22c55e',
+  mining_pysr: '#3b82f6',
+  mining_llm: '#a855f7',
 };
 
 /** 类型中文标签 */
 export const TYPE_LABELS: Record<FactorType, string> = {
-  leaf: "叶子",
-  composite: "复合",
+  leaf: '叶子',
+  composite: '复合',
 };
 
 /** 类型颜色 */
 export const TYPE_COLORS: Record<FactorType, string> = {
-  leaf: "#3b82f6",
-  composite: "#a855f7",
+  leaf: '#3b82f6',
+  composite: '#a855f7',
 };
 
 /** 去极值方法标签 */
 export const WINSORIZATION_LABELS: Record<
-  BenchmarkConfig["winsorization"],
+  BenchmarkConfig['winsorization'],
   string
 > = {
-  MAD: "MAD去极值",
-  "3σ": "3σ去极值",
-  百分位: "百分位去极值",
-  无: "无去极值",
+  MAD: 'MAD去极值',
+  '3σ': '3σ去极值',
+  百分位: '百分位去极值',
+  无: '无去极值',
 };
