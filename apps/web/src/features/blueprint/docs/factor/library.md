@@ -319,3 +319,25 @@ Detail Panel is a standalone `FactorDetailPanel` component. The panel uses the u
 ## Theme Compliance
 
 All table header text and drag-handle icons must use Mine theme tokens (`text-mine-text`, `text-mine-muted`) instead of dark-theme colors (`text-white`, `text-white/70`, `text-white/30`). The table renders on a light background; dark-theme text classes produce invisible or low-contrast text.
+
+---
+
+## Identity Header Redesign (Test Plan)
+
+重构 Identity Header，移除表达式折叠 + StatusActionsSection，新增 SourceBlock + 金融假设 + ProposalBar。详见设计文档 `docs/plans/2026-03-03-identity-header-design.md`。
+
+### 测试骨架文件
+
+| 文件 | 组件 | 用例数 |
+|------|------|--------|
+| `identity-header.test.tsx` | IdentityHeader (重构后整体) | 16 |
+| `source-block.test.tsx` | SourceBlock (文件路径+跳转) | 10 |
+| `proposal-bar.test.tsx` | ProposalBar (系统升降级建议) | 20 |
+
+### 覆盖维度
+
+- 条件渲染：ProposalBar 有/无 pendingProposal
+- 色彩编码：升级=teal, 降级=红色(market-up)
+- 交互：假设展开/收起, Approve/Reject, Lab 跳转 (stub)
+- 删除验证：表达式折叠、StatusActionsSection 不再渲染
+- 边界：空 hypothesis, 空 workspacePath

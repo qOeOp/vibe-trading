@@ -13,9 +13,9 @@
 **最终 Section 顺序（优先级排序：决策性 → 监控性 → 维度性 → 验证性）:**
 
 1. Identity Header（含生命周期 stepper + pending 审批通知）
-2. Global Selector（sticky: pool tabs + horizon tabs + ⚙ calc config popover）
+2. Global Selector（sticky: pool tabs + horizon tabs）
 3. V-Score + Radar（全宽，跟随 global selector 变化）
-4. Cross-combo Matrix（4×3 IC grid，仅标全局最优 ★）
+4. SensitivityGrid（4×4 IC grid，仅标全局最优 ★）
 5. Predictive Power（IC card with CI + t-stat, ICIR card with 胜率）
 6. Risk-Return（Sharpe/MaxDD hero + ARR/Calmar/换手率/容量 sub-metrics）
 7. Quantile Cumulative Returns + QuantileGauge（独立 plan）
@@ -91,13 +91,13 @@
 ### Task 6: 删除 FitnessSection（多池适用性）
 
 **原 Section:** FitnessSection
-**删除理由:** 功能被全局 pool tabs (#3) + 跨组合矩阵 (#4) 完全替代。矩阵提供 4 池 × 3 周期的 IC 全貌，交互式切换比静态罗列更好。
+**删除理由:** 功能被全局 pool tabs (#3) + SensitivityGrid (#4) 完全替代。矩阵提供 4 池 × 4 周期的 IC 全貌，交互式切换比静态罗列更好。
 **Files:**
 - Delete: `apps/web/src/features/library/components/factor-detail/fitness-section.tsx`（或对应文件名）
 - Modify: `factor-detail-panel.tsx` — 移除 import + JSX
 
 **Step 1-4:** 同 Task 1 模式
-**Commit:** `refactor(factor-detail): remove FitnessSection (replaced by global selector + cross-combo matrix)`
+**Commit:** `refactor(factor-detail): remove FitnessSection (replaced by global selector + sensitivity-grid)`
 
 ### Task 7: 删除分位收益柱状图（StatisticsSection 内）+ 删除补充统计 Section
 
@@ -138,6 +138,11 @@
 - 移除: status badge（TESTING）、action-group（升级/退回按钮）
 - 新增: 当生命周期有 pending 转换时，stepper 下方显示一行通知条（teal bg），包含转换说明 + approve/reject 按钮
 - 生命周期模型: 系统基于量化条件自动提议转换（如 IC 连续 N 期超过阈值 → 提议 TESTING→VALIDATED），用户审批
+- 新增: Identity Header 右上角 '...' 菜单（DropdownMenu）：
+  - 编辑标签 — 弹出 tag 编辑器
+  - 查看版本历史 — tooltip 展示版本列表（Phase 1 最简方案）
+  - 手动退役 — 需二次确认弹窗（'确认将因子 {name} 标记为 RETIRED？此操作不可逆。'）
+  - 查看回测报告 — 导航至 /backtest/{id}/report
 
 **Files:**
 - Modify: Identity Header 组件
@@ -151,14 +156,12 @@
 
 ### Task 10: 全局选择器（全新 sticky 组件）
 
-**改造:** 新建面板级 sticky 选择器，控制全局上下文（stock pool × horizon × calc config）。所有下游 section 响应选择器变化。
+**改造:** 新建面板级 sticky 选择器，控制全局上下文（stock pool × horizon）。所有下游 section 响应选择器变化。
 
 **设计规格:**
 - 位置: Identity Header 下方，sticky top: 0, z-index: 10
 - Pool tabs: 全A | 沪深300 | 中证500 | 中证1000（segmented control 样式）
-- Horizon tabs: 5D | 20D | 60D（同上）
-- ⚙ Calc config popover: IC 方法 (RankIC/NormalIC)、去极值 (MAD/3σ/Winsorize)、行业中性化、市值中性化
-- 只展示已预计算的配置组合，未计算的 tab 灰色不可点
+- Horizon tabs: T+1 | T+5 | T+10 | T+20（同上）
 - 无"触发计算"功能（Library 是只读展示层）
 
 **Files:**
@@ -167,18 +170,16 @@
 
 **Step 1:** 创建 GlobalSelector 组件（PanelSection sticky 容器）
 **Step 2:** 实现 pool tabs + horizon tabs（segmented control）
-**Step 3:** 实现 calc config popover
-**Step 4:** 添加灰色不可点逻辑（基于 factor.availableConfigs 数据）
-**Step 5:** 在 factor-detail-panel 中集成，state lift 到面板级
-**Step 6:** 运行测试
-**Step 7:** Commit: `feat(factor-detail): add GlobalSelector (sticky pool/horizon/config selector)`
+**Step 3:** 在 factor-detail-panel 中集成，state lift 到面板级
+**Step 4:** 运行测试
+**Step 5:** Commit: `feat(factor-detail): add GlobalSelector (sticky pool/horizon selector)`
 
-### Task 11: 跨组合概览矩阵（全新）
+### Task 11: SensitivityGrid（全新）
 
-**改造:** 4 池 × 3 周期的 IC 矩阵，点击格子切换全局上下文。
+**改造:** 4 池 × 4 周期的 IC 矩阵，点击格子切换全局上下文。
 
 **设计规格:**
-- Grid: 4 rows (全A/沪深300/中证500/中证1000) × 3 cols (5D/20D/60D)
+- Grid: 4 rows (全A/沪深300/中证500/中证1000) × 4 cols (T+1/T+5/T+10/T+20)
 - 每个格子: 色点（好/中/差）+ IC 值
 - 仅全局最优格子标 ★（不高亮行/列最优）
 - 当前选中格子高亮（teal outline）
@@ -186,15 +187,15 @@
 - 未计算的格子显示 "—" 灰色
 
 **Files:**
-- Create: `apps/web/src/features/library/components/factor-detail/cross-combo-matrix.tsx`
+- Create: `apps/web/src/features/library/components/factor-detail/sensitivity-grid.tsx`
 - Modify: `factor-detail-panel.tsx` — 添加 import + JSX
 
-**Step 1:** 创建 CrossComboMatrix 组件
+**Step 1:** 创建 SensitivityGrid 组件
 **Step 2:** 实现 grid 布局 + IC 色点 + 值
 **Step 3:** 实现 click → 全局切换联动
 **Step 4:** 实现 ★ global best 标注
 **Step 5:** 运行测试
-**Step 6:** Commit: `feat(factor-detail): add CrossComboMatrix (4×3 IC overview with global best)`
+**Step 6:** Commit: `feat(factor-detail): add SensitivityGrid (4×4 IC overview with global best)`
 
 ### Task 12: 预测力 Hero 增强
 
@@ -383,7 +384,7 @@
 | Section | Title |
 |---------|-------|
 | V-Score + Radar | OVERVIEW |
-| Cross-combo Matrix | CROSS-COMBO OVERVIEW |
+| SensitivityGrid | SENSITIVITY |
 | 预测力 | PREDICTIVE POWER |
 | 风险收益 | RISK-RETURN |
 | 分组累计收益 | QUANTILE CUMULATIVE RETURNS |
@@ -409,8 +410,8 @@
 |---|-----------|------|------|
 | 1+23 | Identity Header + 状态按钮 | 简化（移除 badge + 按钮，改为 auto-lifecycle + approval bar） | ✅ Task 9 |
 | 2 | V-Score + Radar | 全宽，移至 Global Selector 下方 | ✅ Task 18 |
-| 3 | 全局选择器 | 新增 sticky 组件（pool + horizon + config popover） | ✅ Task 10 |
-| 4 | 跨组合矩阵 | 新增（仅标全局最优 ★，不高亮行列最优） | ✅ Task 11 |
+| 3 | 全局选择器 | 新增 sticky 组件（pool + horizon） | ✅ Task 10 |
+| 4 | SensitivityGrid | 新增（仅标全局最优 ★，不高亮行列最优） | ✅ Task 11 |
 | 5 | 预测力 Hero | 增强（t-stat+CI in IC card, 胜率 in ICIR card） | ✅ Task 12 |
 | 6 | 风险收益 | 增强（2 hero + 4 sub-metrics: +Calmar +换手率） | ✅ Task 13 |
 | 7 | 补充统计 | 拆散删除（指标分散到各 section） | ✅ Task 7 |
@@ -441,3 +442,14 @@
 **生命周期转换模型:** 系统基于量化条件自动提议转换（例如 IC 连续 N 期 > 阈值），用户审批（approve/reject）。不支持手动拖拽或下拉选择。
 
 **Global Selector 语义:** 切换的是"查看哪个已有结果"，不是"触发新的计算"。未计算的配置灰色不可选。
+
+---
+
+### Section 三态渲染规范
+
+所有 section 组件必须支持三种渲染状态：
+- **ready**: 正常渲染数据
+- **loading**: PanelSection 内显示 skeleton（各 section 自行定义 skeleton 形状）
+- **error**: PanelSection 内显示 `SectionErrorCard`（错误消息 + pool×horizon 标识）
+  - 样式: mine-muted 文字 + ⚠️ 图标 + 错误原因
+  - 不用红色（不是紧急告警，只是该组合数据不可用）

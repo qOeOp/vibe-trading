@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
-import { create } from "zustand";
+import { create } from 'zustand';
 import type {
   Factor,
   FactorCategory,
   FactorLifecycleStatus,
   StatusChangeRecord,
-} from "../types";
-import { VALID_STATUS_TRANSITIONS } from "../types";
-import { getLibraryFactors } from "../data/mock-library";
-import { VIBE_COMPUTE_URL } from "@/lib/env";
+} from '../types';
+import { VALID_STATUS_TRANSITIONS } from '../types';
+import { getLibraryFactors } from '../data/mock-library';
+import { VIBE_COMPUTE_URL } from '@/lib/env';
 
 // ─── Filter State ────────────────────────────────────────
 
-export type ViewMode = "grid" | "card";
+export type ViewMode = 'grid' | 'card';
 
 interface LibraryFilters {
   /** Multi-select status filter (empty = all) */
   statuses: FactorLifecycleStatus[];
   /** Single-select category (null = all) */
   category: FactorCategory | null;
-  /** Search query (name / expression / tags) */
+  /** Search query (name / hypothesis / tags) */
   search: string;
   /** Grid or Card view */
   viewMode: ViewMode;
@@ -73,6 +73,9 @@ interface LibraryState extends LibraryFilters {
     reason: string,
   ) => void;
 
+  // Proposal actions
+  dismissProposal: (factorId: string) => void;
+
   // Mining integration actions
   addFactor: (factor: Factor) => void;
   fetchMiningFactors: () => Promise<void>;
@@ -81,8 +84,8 @@ interface LibraryState extends LibraryFilters {
 const DEFAULT_FILTERS: LibraryFilters = {
   statuses: [],
   category: null,
-  search: "",
-  viewMode: "grid",
+  search: '',
+  viewMode: 'grid',
 };
 
 export const useLibraryStore = create<LibraryState>((set, get) => ({
@@ -108,8 +111,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
 
   setViewMode: (mode) => set({ viewMode: mode }),
 
-  resetFilters: () =>
-    set({ ...DEFAULT_FILTERS, selectedFactorId: null }),
+  resetFilters: () => set({ ...DEFAULT_FILTERS, selectedFactorId: null }),
 
   clearStatuses: () => set({ statuses: [] }),
 
@@ -128,11 +130,9 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
       return { selectedFactorIds: next };
     }),
 
-  selectAllFactors: (ids) =>
-    set({ selectedFactorIds: new Set(ids) }),
+  selectAllFactors: (ids) => set({ selectedFactorIds: new Set(ids) }),
 
-  clearSelection: () =>
-    set({ selectedFactorIds: new Set<string>() }),
+  clearSelection: () => set({ selectedFactorIds: new Set<string>() }),
 
   // ─── Grouping Actions ───────────────────────────────
 
@@ -175,7 +175,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
         if (!VALID_STATUS_TRANSITIONS[f.status].includes(newStatus)) return f;
         const record: StatusChangeRecord = {
           timestamp: new Date().toISOString(),
-          operator: "Vincent",
+          operator: 'Vincent',
           reason,
           fromStatus: f.status,
           toStatus: newStatus,
@@ -183,6 +183,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
         return {
           ...f,
           status: newStatus,
+          pendingProposal: undefined,
           statusHistory: [...f.statusHistory, record],
         };
       });
@@ -197,7 +198,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
         if (!VALID_STATUS_TRANSITIONS[f.status].includes(newStatus)) return f;
         const record: StatusChangeRecord = {
           timestamp: new Date().toISOString(),
-          operator: "Vincent",
+          operator: 'Vincent',
           reason,
           fromStatus: f.status,
           toStatus: newStatus,
@@ -211,6 +212,15 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
       return { factors, selectedFactorIds: new Set<string>() };
     }),
 
+  // ─── Proposal Actions ───────────────────────────────
+
+  dismissProposal: (factorId) =>
+    set((state) => ({
+      factors: state.factors.map((f) =>
+        f.id === factorId ? { ...f, pendingProposal: undefined } : f,
+      ),
+    })),
+
   addFactor: (factor) =>
     set((state) => {
       // Dedup: skip if already exists by id
@@ -222,7 +232,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     try {
       const resp = await fetch(`${VIBE_COMPUTE_URL}/api/library/factors`);
       if (!resp.ok) return;
-      const data = await resp.json() as { factors: Factor[] };
+      const data = (await resp.json()) as { factors: Factor[] };
       const { addFactor } = useLibraryStore.getState();
       data.factors.forEach((f) => addFactor(f));
     } catch {
@@ -235,7 +245,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
 
 export function filterFactors(
   factors: Factor[],
-  filters: Pick<LibraryFilters, "statuses" | "category" | "search">,
+  filters: Pick<LibraryFilters, 'statuses' | 'category' | 'search'>,
 ): Factor[] {
   let result = factors;
 
@@ -249,13 +259,13 @@ export function filterFactors(
     result = result.filter((f) => f.category === filters.category);
   }
 
-  // Search filter (name, expression, tags)
+  // Search filter (name, hypothesis, tags)
   if (filters.search.trim()) {
     const q = filters.search.trim().toLowerCase();
     result = result.filter(
       (f) =>
         f.name.toLowerCase().includes(q) ||
-        f.expression.toLowerCase().includes(q) ||
+        f.hypothesis.toLowerCase().includes(q) ||
         f.tags.some((t) => t.toLowerCase().includes(q)),
     );
   }

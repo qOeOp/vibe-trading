@@ -17,15 +17,15 @@ import {
   Cpu,
   Bot,
   Pen,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import type { Factor } from "@/features/library/types";
-import { SOURCE_LABELS } from "@/features/library/types";
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import type { Factor } from '@/features/library/types';
+import { SOURCE_LABELS } from '@/features/library/types';
 import type {
   FactorCategory,
   FactorLifecycleStatus,
   FactorSource,
-} from "@/features/library/types";
+} from '@/features/library/types';
 
 // ─── Name Cell ──────────────────────────────────────────
 
@@ -45,7 +45,7 @@ export function NameCell({
           {factor.name}
         </span>
         <span className="text-xs text-muted-foreground font-mono truncate">
-          {factor.expression?.slice(0, 40) ?? factor.version}
+          {factor.version}
         </span>
       </div>
       {showToolbar && toolbarNode}
@@ -56,7 +56,10 @@ export function NameCell({
 // ─── Category Badge (tablecn outline Badge + icon) ──────
 
 /** Category → lucide icon mapping */
-const CATEGORY_ICONS: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
+const CATEGORY_ICONS: Record<
+  string,
+  React.FC<React.SVGProps<SVGSVGElement>>
+> = {
   动能: Flame,
   股息率: TrendingUp,
   价值: Gem,
@@ -81,7 +84,10 @@ export function CategoryBadge({ category }: { category: FactorCategory }) {
 // ─── Status Badge (tablecn outline Badge + icon) ────────
 
 /** Status → lucide icon mapping */
-const STATUS_ICONS: Record<FactorLifecycleStatus, React.FC<React.SVGProps<SVGSVGElement>>> = {
+const STATUS_ICONS: Record<
+  FactorLifecycleStatus,
+  React.FC<React.SVGProps<SVGSVGElement>>
+> = {
   INCUBATING: CircleDashed,
   PAPER_TEST: CircleDot,
   LIVE_ACTIVE: CirclePlay,
@@ -90,11 +96,11 @@ const STATUS_ICONS: Record<FactorLifecycleStatus, React.FC<React.SVGProps<SVGSVG
 };
 
 const STATUS_LABELS: Record<FactorLifecycleStatus, string> = {
-  INCUBATING: "INC",
-  PAPER_TEST: "PAPER",
-  LIVE_ACTIVE: "LIVE",
-  PROBATION: "PROB",
-  RETIRED: "RET",
+  INCUBATING: 'INC',
+  PAPER_TEST: 'PAPER',
+  LIVE_ACTIVE: 'LIVE',
+  PROBATION: 'PROB',
+  RETIRED: 'RET',
 };
 
 export function StatusBadge({ status }: { status: FactorLifecycleStatus }) {
@@ -111,7 +117,10 @@ export function StatusBadge({ status }: { status: FactorLifecycleStatus }) {
 // ─── Source Badge (tablecn outline Badge + icon) ─────────
 
 /** Source → lucide icon mapping */
-const SOURCE_ICONS: Record<FactorSource, React.FC<React.SVGProps<SVGSVGElement>>> = {
+const SOURCE_ICONS: Record<
+  FactorSource,
+  React.FC<React.SVGProps<SVGSVGElement>>
+> = {
   manual: Pen,
   mining_gplearn: Pickaxe,
   mining_pysr: Cpu,
@@ -142,7 +151,7 @@ export function PeakCell({ factor }: { factor: Factor }) {
 
   if (best.universe === defaultPool) return null;
 
-  const icStr = `${best.ic >= 0 ? "+" : ""}${best.ic.toFixed(3)}`;
+  const icStr = `${best.ic >= 0 ? '+' : ''}${best.ic.toFixed(3)}`;
 
   return (
     <div className="flex flex-col items-center gap-0 min-w-0">
@@ -151,7 +160,7 @@ export function PeakCell({ factor }: { factor: Factor }) {
       </span>
       <span
         className={`text-sm font-mono tabular-nums leading-tight ${
-          best.ic >= 0 ? "text-market-down-medium" : "text-market-up-medium"
+          best.ic >= 0 ? 'text-market-down-medium' : 'text-market-up-medium'
         }`}
       >
         {icStr}

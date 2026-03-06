@@ -49,16 +49,21 @@
 - 数值行: `flex items-baseline gap-1.5 mt-1`
   - 大数字: `text-xl font-bold font-mono tabular-nums text-mine-text`（20px）
   - Tier badge: `text-[9px] font-semibold px-1.5 py-[1px] rounded`
-    - good: `text-market-up-medium bg-market-up-medium/[0.06]`
-    - ok: `text-amber-500 bg-amber-500/[0.06]`
-    - poor: `text-mine-muted bg-mine-muted/[0.06]`
+    - 基于 `calibratedNormalize` score 分档（与 Radar 校准基准一致，Settings 可调）
+    - score ≥ 0.8 (good+): `text-market-up-medium bg-market-up-medium/[0.06]` — "优秀"
+    - score 0.5-0.8 (average-good): `text-amber-500 bg-amber-500/[0.06]` — "合格"
+    - score < 0.5: `text-mine-muted bg-mine-muted/[0.06]` — "低于合格线"
+    - IC Card 用 predictive 校准，ICIR Card 用 stability 校准
 
 ### Threshold Bar
 
 - 复用现有 `ThresholdBar` 组件（`@/components/shared/factor-metrics/threshold-bar`）
 - 高度: 4px
 - margin-top: `mt-2`
-- 阈值刻度线: 1px 竖线，高度 8px，`bg-mine-muted/30`
+- 刻度线对齐校准基准: poor / average / good 三个位置各一条 1px 竖线，高度 8px
+- 填充分色: poor 左侧灰 → poor-average 琥珀渐变 → average-good 红渐变 → good 右侧深红
+- Domain 收窄: IC `[-0.02, 0.08]`，ICIR `[-0.5, 2.5]`（让校准刻度线位置清晰）
+- 刻度线不标数字（bar 太紧凑），hover 时 tooltip 显示值
 
 ### Sub-metrics 区域
 
@@ -90,7 +95,7 @@
 | 元素 | 数据来源 | 格式 |
 |------|----------|------|
 | Hero value | `factor.ic` | `+0.042`（±符号 + 3位小数） |
-| Tier badge | `getThresholdTier(ic, [0.03, 0.05])` | 优秀/合格/低于合格线 |
+| Tier badge | `calibratedNormalize(value, calibrations[key])` → score ≥ 0.8 优秀(红), score ≥ 0.5 合格(琥珀), < 0.5 低(灰)。阈值从 Settings 校准基准派生，不硬编码。 | 优秀/合格/低于合格线 |
 | Threshold bar | `METRIC_CONFIGS.ic` | domain [-0.08, 0.12] |
 | t-stat | `factor.icTstat` | `3.21`（2位小数） |
 | 95% CI | Bootstrap CI（新增字段或从现有数据计算） | `[.031, .053]` |
@@ -101,34 +106,59 @@
 | 元素 | 数据来源 | 格式 |
 |------|----------|------|
 | Hero value | `factor.ir` | `1.82`（2位小数） |
-| Tier badge | `getThresholdTier(ir, [1.0, 1.5])` | 优秀/合格/低于合格线 |
+| Tier badge | `calibratedNormalize(value, calibrations[key])` → score ≥ 0.8 优秀(红), score ≥ 0.5 合格(琥珀), < 0.5 低(灰)。阈值从 Settings 校准基准派生，不硬编码。 | 优秀/合格/低于合格线 |
 | Threshold bar | `METRIC_CONFIGS.icir` | domain [-1, 3] |
-| 胜率 | `factor.winRate` | `62%` |
+| 胜率 | `signalSlice.positiveIcRatio` (tooltip: IC 方向正确的交易日占比) | `62%` |
 | Mini chart | 从 `factor.icTimeSeries` 计算 90D rolling ICIR | sparkline |
 
 ---
 
-## 4. 数据模型变更
+## 4. 数据来源
+
+### 多维度数据对接
+
+所有数据通过 `useFactorSlice()` hook 获取当前 pool×horizon 的信号数据切片，不直接读 factor 扁平字段：
+
+| 元素 | 旧数据源 | 新数据源 |
+|------|---------|---------|
+| IC value | `factor.ic` | `signalSlice.ic` |
+| ICIR value | `factor.ir` | `signalSlice.ir` |
+| t-stat | `factor.icTstat` | `signalSlice.icTstat` |
+| 胜率 | `factor.winRate` | `signalSlice.positiveIcRatio` |
+| Mini chart (IC) | `factor.icTimeSeries` | `signalSlice.icTimeSeries` |
+| Mini chart (ICIR) | 从 `factor.icTimeSeries` 计算 | 从 `signalSlice.icTimeSeries` 计算 |
+| Bootstrap CI | 从 `factor.icTimeSeries` 计算 | 从 `signalSlice.icTimeSeries` 计算 |
+
+见 `factor-data-architecture.md` §2.5。
+
+### 数据模型变更
 
 ### Bootstrap CI
 
-需要新增字段或计算逻辑：
+**Bootstrap CI 优先从 `signalSlice.bootstrapCI` 读取（后端预算，1000 次 percentile 法，确定性结果）。仅在后端数据不可用时 fallback 到前端计算（需使用 seeded PRNG 保证确定性）。**
+
+**Fallback: 前端 Bootstrap 计算**
 
 ```ts
-// 方案 1: Factor 接口新增（后端预计算）
-interface Factor {
-  icBootstrapCI?: [number, number];  // [lower, upper] 95% CI
-}
-
-// 方案 2: 前端从 icTimeSeries 计算（简化版）
-function computeBootstrapCI(icSeries: number[]): [number, number] {
-  const sorted = [...icSeries].sort((a, b) => a - b);
-  const n = sorted.length;
-  return [sorted[Math.floor(n * 0.025)], sorted[Math.floor(n * 0.975)]];
+function bootstrapCI(series: number[], iterations = 1000): [number, number] {
+  const n = series.length;
+  const means: number[] = [];
+  for (let i = 0; i < iterations; i++) {
+    let sum = 0;
+    for (let j = 0; j < n; j++) {
+      sum += series[Math.floor(Math.random() * n)];
+    }
+    means.push(sum / n);
+  }
+  means.sort((a, b) => a - b);
+  return [means[Math.floor(iterations * 0.025)], means[Math.floor(iterations * 0.975)]];
 }
 ```
 
-**推荐方案 2**: Phase 1 前端直接用 percentile 近似，无需改后端。
+- 数据源: `signalSlice.icTimeSeries`（当前 pool×horizon 的 IC 序列）
+- 计算量: 240 数据点 × 1000 次重采样 ≈ 几十毫秒，前端可承受
+- Sub-metric label: `95% CI (240D)` — 标注数据窗口长度
+- ⓘ tooltip: "通过 1000 次自助采样计算的 IC 均值 95% 置信区间。区间不含 0 = IC 显著。"
 
 ### Rolling ICIR 计算
 
@@ -184,9 +214,8 @@ interface HeroMetricCardProps {
 
 从 StatisticsSection 的 3×3 PanelStatGrid 中移除以下指标（已迁移到 PredictivePowerSection）：
 
-- IC (20D) — → IC Card hero
-- IC (60D) — 删除（Global Selector 切 horizon 即可）
-- IC (120D) — 删除（同上）
+- IC（当前 horizon）— → IC Card hero（由 Global Selector 的 horizon tab 决定展示哪个）
+- 其余 3 个 horizon 的 IC — 删除（Global Selector 切 horizon 即可）
 - IR — → ICIR Card hero
 - t-stat — → IC Card sub-metric
 - 胜率 — → ICIR Card sub-metric

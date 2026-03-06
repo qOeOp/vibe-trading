@@ -1,12 +1,13 @@
 # Global Selector 组件设计
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+> **上游约束:** `docs/plans/2026-03-03-factor-data-architecture.md` §2
 
-**Goal:** 新建面板级 sticky 选择器，控制全局上下文（stock pool × horizon × calc config）。所有下游 section 响应选择器变化。
+**Goal:** 新建面板级 sticky 选择器，控制全局上下文（stock pool × horizon）。所有下游 section 响应选择器变化。
 
-**Architecture:** 复用现有 Radix Tabs 组件（`@/components/ui/tabs`），配合 Zustand store 管理全局 pool/horizon/config 状态。Sticky 定位在 PanelFrameBody 内顶部。
+**Architecture:** 复用现有 Radix Tabs 组件（`@/components/ui/tabs`），配合 Zustand store 管理全局 pool/horizon 状态。Sticky 定位在 PanelFrameBody 内顶部。
 
-**Tech Stack:** React 19, TypeScript, Radix Tabs, Tailwind CSS v4, Zustand, Popover (Radix)
+**Tech Stack:** React 19, TypeScript, Radix Tabs, Tailwind CSS v4, Zustand
 
 ---
 
@@ -20,10 +21,8 @@
 │ └───────────────────────────────────────────┘ │
 │                                               │
 │ ┌─ Horizon Tabs (Radix TabsList) ──────────┐ │
-│ │ [5D] [20D] [60D]                          │ │  segmented control
+│ │ [T+1] [T+5] [T+10] [T+20]                │ │  segmented control
 │ └───────────────────────────────────────────┘ │
-│                                               │
-│ ⚙ RankIC · MAD去极值 · 行业中性        ▾     │  calc config summary + popover
 └───────────────────────────────────────────────┘
 ```
 
@@ -54,93 +53,134 @@ interface GlobalSelectorProps {
 - Best-dot: 全局 IC 最优池的 tab 右上角显示 teal 圆点
   - `position: absolute; top: 3px; right: 6px; w-1 h-1 rounded-full bg-mine-accent-teal`
   - 仅一个 tab 有 dot（IC 值最高的池）
-- Disabled: 未计算的池 `disabled` 属性，opacity 0.5，cursor not-allowed
 
 ### Horizon Tabs
 
 - 同样使用 Radix Tabs，variant="default"
-- 3 个 tab: 5D | 20D | 60D
+- 4 个 tab: T+1 | T+5 | T+10 | T+20
 - `<TabsList>` 样式: `w-full`，高度略小 `h-8`
-- Disabled 逻辑同 Pool
 
-### Calc Config 行
+### Tab 状态视觉
 
-- 非 tab 组件，纯 `<button>` + Radix `<Popover>`
-- Summary 行: `flex items-center gap-1.5`
-  - ⚙ icon: `Settings2` (lucide), 12px, mine-muted
-  - 文字: `text-[10px] text-mine-muted` — 格式: `{icMethod} · {winsorization} · {neutralization}`
-  - ▾ 箭头: `text-[8px] text-mine-muted`
-- 整行 hover: `hover:text-mine-text transition-colors`
-- Popover 内容:
-  - `bg-white border border-mine-border rounded-lg shadow-md p-3`
-  - 4 行配置项，每行 `flex justify-between items-center py-1`
-  - Label: `text-[10px] text-mine-muted`
-  - Select: `text-[10px] px-1.5 py-0.5 border border-mine-border rounded bg-mine-bg`
-  - 配置项:
-    1. IC 方法: RankIC / NormalIC
-    2. 去极值: MAD / 3σ / Winsorize
-    3. 行业中性化: 是 / 否
-    4. 市值中性化: 是 / 否
-  - **只读选择**: 只展示已预计算的配置组合，切换 select 实际是切换"查看哪个已有结果"
+每个 tab 有两种数据状态：
+
+| 状态 | Tab 视觉 | 说明 |
+|------|----------|------|
+| ready | 正常样式，无标记 | 数据完整可查看 |
+| loading | 正常样式 + 右上角 2px amber 呼吸点 (pulse) | 后台正在计算/待处理 |
+| error | 正常样式 + 右上角 2px red 点 | 计算失败 |
+
+失败的 pool×horizon 组合显示 error 状态（SectionErrorCard），不提供"触发计算"按钮——入库时 16 组全算，Library 不触发计算。
+
+映射关系：DB `pending` → 前端 `loading`，DB `error` → 前端 `error`
+
+- ready tab: 正常可点击切换
+- loading tab: 可点击，切换后内容区显示计算进度（见 §4）
+- error tab: 可点击，切换后内容区显示 SectionErrorCard
 
 ---
 
-## 3. 状态管理
+## 3. 数据计算策略
+
+### 入库时的计算范围（BLOCKED_BY: Backtest 模块）
+
+- **信号指标**（IC、ICIR、IC decay、IC by industry 等）:
+  - 入库时 16 pool×horizon 组合全部自动计算
+  - 计算量轻（截面相关），每组毫秒级，全算也就几分钟
+- **组合指标**（Sharpe、MaxDD、分组累计收益、换手率）:
+  - 入库时 16 pool×horizon 组合全部后台异步计算
+  - 后台异步任务，约 30-60 分钟。入库是低频操作，不阻塞用户
+
+### Pool × Horizon 切换时的数据状态
+
+Pool/Horizon 切换即时更新 store，下游 section 数据跟随切换。已入库时全算，切换无需按需补算。
+
+---
+
+## 4. 下游 Section 数据状态
+
+当用户切换到某个 pool × horizon 组合时，下游 section 根据 ComputeStatus 有三种状态：
+
+### 全部就绪
+
+正常展示所有指标数据。
+
+### 整个 section 计算中
+
+该组合正在后台计算时，section 内容区替换为计算状态卡片：
+
+```
+┌─ PanelSection ──────────────────────────┐
+│  PREDICTIVE POWER                        │
+│  ┌────────────────────────────────────┐  │
+│  │     ○ ─── 计算中 ···               │  │
+│  │     沪深300 × T+5 信号指标          │  │
+│  │     ████████░░░░  68%              │  │
+│  └────────────────────────────────────┘  │
+└──────────────────────────────────────────┘
+```
+
+- 居中布局，skeleton 风格背景
+- 显示当前计算的组合名称
+- 进度条（如后端支持进度上报）或 pulse 动画（如只知道在算）
+
+### 部分指标缺失
+
+Section 有部分数据（如信号指标就绪但组合指标在算），有数据的指标正常显示，缺失的指标位置用 skeleton：
+
+- `skeleton + animate-pulse` 替代指标值
+- 指标标签保留，值区域显示 skeleton 占位
+- 不用微型进度条（单个指标要么有要么没有）
+- 符合设计规范：禁止 spinner，用 skeleton
+
+---
+
+## 5. 状态管理
 
 ### Store 扩展 (`use-library-store.ts`)
 
 ```ts
 interface LibraryStore {
   // 新增: Global Selector 状态
-  selectedPool: UniversePool;        // 默认 '全A'
-  selectedHorizon: 5 | 20 | 60;     // 默认 20
-  selectedConfig: {
-    icMethod: 'RankIC' | 'NormalIC';
-    winsorization: 'MAD' | '3σ' | 'Winsorize';
-    industryNeutral: boolean;
-    sizeNeutral: boolean;
-  };
+  selectedPool: UniversePool;                    // 默认 '全A'
+  selectedHorizon: 'T1' | 'T5' | 'T10' | 'T20'; // 默认 'T5'
 
   // Actions
   setPool: (pool: UniversePool) => void;
-  setHorizon: (horizon: 5 | 20 | 60) => void;
-  setConfig: (config: Partial<LibraryStore['selectedConfig']>) => void;
+  setHorizon: (horizon: 'T1' | 'T5' | 'T10' | 'T20') => void;
 }
 ```
 
 ### 数据模型扩展 (`types.ts`)
 
 ```ts
+type ComputeStatus = 'ready' | 'loading' | 'error';
+
 interface Factor {
-  // 新增: 哪些 pool×horizon×config 组合已预计算
-  availableConfigs?: Array<{
-    pool: UniversePool;
-    horizon: number;
-    icMethod: string;
-    winsorization: string;
-    industryNeutral: boolean;
-    sizeNeutral: boolean;
+  // 每个 pool×horizon 组合的计算状态
+  // key = `${pool}_${horizon}`
+  configStatus?: Record<string, {
+    signalStatus: ComputeStatus;   // 信号指标状态
+    portfolioStatus: ComputeStatus; // 组合指标状态
   }>;
 }
 ```
 
 ### 下游响应
 
-所有 section 通过 `useLibraryStore` 读取 `selectedPool` / `selectedHorizon` / `selectedConfig`，用这些参数从 factor 数据中取对应切片。当前 mock 数据只有默认配置，后续数据层扩展后自动生效。
+所有 section 通过 `useLibraryStore` 读取 `selectedPool` / `selectedHorizon`，同时检查 `factor.configStatus[key]` 决定渲染数据、skeleton 还是计算状态卡片。
 
 ---
 
-## 4. 交互细节
+## 6. 交互细节
 
 - Pool/Horizon 切换: 即时更新 store，下方所有 section 数据跟随切换
-- 切换动画: 下方内容区 opacity 0.3 → 1.0，150ms transition（模拟数据切换）
-- Disabled tab: 未预计算的组合灰色不可点。hover 时 tooltip 显示"该配置尚未计算"
-- Best-dot: 在所有可用池中比较当前 horizon+config 下的 IC 值，最高者显示 dot
-- Calc config popover: 点击 ⚙ 行打开，点击外部关闭。切换 select 即时生效
+- 切换动画: 下方内容区 opacity 0.3 → 1.0，150ms transition
+- Best-dot: 在所有**已就绪**的池中比较当前 horizon 下的 IC 值，最高者显示 dot
 
 ---
 
-## 5. 组件规范
+## 7. 组件规范
 
 - `data-slot="global-selector"`
 - 接受 `className` prop，用 `cn()` 合并
@@ -149,10 +189,21 @@ interface Factor {
 
 ---
 
-## 6. 任务顺序
+## 8. 上游依赖
 
-1. **Store 扩展** — `use-library-store.ts` 添加 pool/horizon/config 状态和 actions
-2. **数据模型** — `types.ts` 添加 `availableConfigs`，mock 数据添加示例
-3. **新建 GlobalSelector** — Radix Tabs pool/horizon + Popover config
+| 依赖项 | 阻塞模块 | 说明 |
+|--------|----------|------|
+| 信号指标批量计算 | Backtest | 入库时 4×4=16 组信号指标自动计算 |
+| 组合指标批量计算 | Backtest | 入库时 4×4=16 组组合指标后台异步计算，无按需触发 |
+| 计算状态 API | 后台服务 | 前端需要知道每个组合的状态（ready/loading/error） |
+
+---
+
+## 9. 任务顺序
+
+1. **Store 扩展** — `use-library-store.ts` 添加 pool/horizon 状态、actions（无 triggerCompute）
+2. **数据模型** — `types.ts` 添加 `configStatus`，mock 数据添加示例（部分 ready/部分 loading/部分 error）
+3. **新建 GlobalSelector** — Radix Tabs pool/horizon + tab 三态视觉
 4. **集成到 factor-detail-panel** — Identity Header 下方，sticky 定位
-5. **下游 section 接入** — 各 section 读取 store 全局状态（后续 task，先建骨架）
+5. **Section 数据状态组件** — 通用的 section 级计算状态卡片 + 指标级 skeleton
+6. **下游 section 接入** — 各 section 读取 store 全局状态 + configStatus 渲染对应状态

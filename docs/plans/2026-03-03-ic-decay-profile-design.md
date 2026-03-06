@@ -20,7 +20,25 @@
 
 ---
 
-## 2. 配色改造
+## 2. 数据来源
+
+### 多维度数据对接
+
+所有数据通过 `useFactorSlice()` hook 获取当前 pool×horizon 的信号数据切片：
+
+| 元素 | 旧数据源 | 新数据源 |
+|------|---------|---------|
+| IC 衰减曲线 (20 lag) | `factor.icDecayProfile` | `signalSlice.icDecayProfile` |
+
+见 `factor-data-architecture.md` §2.5。
+
+### 切 tab 行为
+
+用户切换 pool/horizon 时，衰减曲线数据自动替换。Horizon 高亮联动（§4）不受数据源影响——始终根据 `selectedHorizon` 高亮对应 bar。
+
+---
+
+## 3. 配色改造
 
 ### Bar 颜色
 
@@ -54,13 +72,13 @@ const opacity = 0.25 + intensity * 0.45;   // 0.25~0.70
 
 ---
 
-## 3. Horizon 高亮
+## 4. Horizon 高亮
 
 ### 联动逻辑
 
-- 从 `useLibraryStore` 读取 `selectedHorizon`（5 | 20 | 60）
-- Horizon 对应的 bar index: `horizon - 1`（T+5 → index 4, T+20 → index 19）
-- T+60 超出 20 bar 范围 → 不高亮
+- 从 `useLibraryStore` 读取 `selectedHorizon`（'T1' | 'T5' | 'T10' | 'T20'）
+- Horizon 对应的 bar index: T+1 → index 0, T+5 → index 4, T+10 → index 9, T+20 → index 19
+- 所有 4 种 horizon 均在 20 bar 范围内，均可高亮
 
 ### 灰底衬柱
 
@@ -88,7 +106,7 @@ const opacity = 0.25 + intensity * 0.45;   // 0.25~0.70
 
 ---
 
-## 4. 视觉精修
+## 5. 视觉精修
 
 参考 `memory/chart-visual-polish.md` 全局图表精修规范：
 
@@ -99,14 +117,14 @@ const opacity = 0.25 + intensity * 0.45;   // 0.25~0.70
 
 ---
 
-## 5. PanelSection 标题
+## 6. PanelSection 标题
 
 - 从手写 `<span>` 改为 PanelSection `title="IC DECAY PROFILE"`
 - 右侧 suffix: `Lag T+1 ~ T+20`
 
 ---
 
-## 6. 组件规范
+## 7. 组件规范
 
 - `data-slot="ic-decay-profile-section"` (保留)
 - 接受 `className` prop，用 `cn()` 合并
@@ -114,11 +132,11 @@ const opacity = 0.25 + intensity * 0.45;   // 0.25~0.70
 
 ---
 
-## 7. 任务顺序
+## 8. 任务顺序
 
 1. **修改 buildDecayColors 配色** — 从蓝/红改为 market-up/market-down，添加 opacity 梯度和渐变
 2. **灰底衬柱 + teal 高亮** — 添加 `highlightIndex` 参数，渲染灰底全高列 + teal 色 bar
 3. **Store 联动** — ICDecayChart 读取 `selectedHorizon`，计算 highlightIndex
 4. **PanelSection title** — 改为 `"IC DECAY PROFILE"`，右侧 Lag 提示
 5. **视觉精修** — 背景微纹理、零线虚线、Y 轴标签、微圆角
-6. **边界处理** — horizon=60 时不高亮（index 超出数据范围）
+6. **边界处理** — 所有 4 种 horizon（T1/T5/T10/T20）均在 20 bar 范围内，均可高亮

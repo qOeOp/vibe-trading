@@ -39,7 +39,42 @@
 
 ---
 
-## 2. Hero Cards 视觉规格
+## 2. 数据来源
+
+### 多维度数据对接
+
+所有数据通过 `useFactorSlice()` hook 获取当前 pool×horizon 的组合数据切片：
+
+| 元素 | 旧数据源 | 新数据源 |
+|------|---------|---------|
+| Sharpe | `factor.sharpeRatio` | `portfolioSlice.sharpe` |
+| MaxDD | `factor.maxDrawdown` | `portfolioSlice.maxDrawdown` |
+| ARR | `factor.annualReturn` | `portfolioSlice.annualReturn` |
+| 换手率 | `factor.turnover` | `portfolioSlice.turnover` |
+| 容量 | `factor.capacity` | `portfolioSlice.capacity` |
+
+见 `factor-data-architecture.md` §2.5。
+
+### 数据来源标签
+
+组合指标在 INCUBATING 阶段是回测快照，PAPER_TEST 起是活数据。Section title 旁显示数据来源标签：
+
+| 阶段 | 标签 | 含义 |
+|------|------|------|
+| INCUBATING | "回测值" | 入库时回测的静态快照，不随日更新变化 |
+| PAPER_TEST | "模拟盘" | 模拟盘每日更新 |
+| LIVE_ACTIVE | "实盘" | 实盘每日更新 |
+
+- 标签样式: `text-[8px] text-mine-muted`，放在 section title 右侧
+- 旁加 ⓘ tooltip 解释含义（复用 V-Score 的 tooltip 文案）
+
+### 入库时全算
+
+入库时 16 组 pool×horizon 的组合指标全部后台异步计算（约 30-60 分钟）。用户切换 tab 时所有 section 都有数据，体验一致。
+
+---
+
+## 3. Hero Cards 视觉规格
 
 ### 复用 HeroMetricCard
 
@@ -52,26 +87,40 @@
 
 | 元素 | 数据来源 | 格式 |
 |------|----------|------|
-| Hero value | `factor.sharpeRatio` | `2.14`（2位小数） |
-| Tier badge | `getThresholdTier(sharpe, [1.0, 2.0])` | 优秀/合格/低于合格线 |
+| Hero value | `portfolioSlice.sharpe` | `2.14`（2位小数） |
+| Tier badge | `getThresholdTier(sharpe, [0.8, 1.5])` | 优秀/合格/低于合格线 |
 | Threshold bar | `METRIC_CONFIGS.sharpe` | domain [-1, 4] |
+
+**Sharpe 计算公式:**
+
+```
+Sharpe = (年化收益率 - 无风险利率) / 年化波动率
+```
+
+- **无风险利率**: 默认 3%（中国 10 年期国债收益率中枢），写入 Settings 全局配置允许调整
+- **年化**: 波动率 × √252（A 股年交易日约 252 天）
+- **业界对标**: 聚宽、米筐、Wind 均使用同一公式，无风险利率参数通常 2-4%
+- **阈值**: ≥1.5 优秀, ≥0.8 合格 — 单因子多空组合标准（区别于完整策略的 ≥2.0 优秀）
 
 ### MaxDD Card
 
 | 元素 | 数据来源 | 格式 |
 |------|----------|------|
-| Hero value | `factor.maxDrawdown` | `-12.3%`（百分比 1 位小数） |
+| Hero value | `portfolioSlice.maxDrawdown` | `-12.3%`（百分比 1 位小数） |
 | Tier badge | `getThresholdTier(maxDD, [-0.2, -0.1])` | 优秀/合格/低于合格线 |
 | Threshold bar | `METRIC_CONFIGS.maxDrawdown` | domain [-0.5, 0] |
 
-### 颜色逻辑
+### Tier Badge 与颜色逻辑
 
-- Sharpe: 越高越好 → good=red badge, ok=amber, poor=gray
-- MaxDD: 越小越好（绝对值越小越好）→ good=red（回撤小=好）, poor=gray（回撤大=差）
+Sharpe 没有对应的 Radar 校准维度（Radar 将其拆为 return + risk 两个独立维度），保留业界标准硬编码阈值。MaxDD 使用 Radar risk 维度的校准基准（score 分档）。
+
+- **Sharpe**: 单因子多空组合标准 — ≥1.5 优秀(红), ≥0.8 合格(琥珀), <0.8 低于合格线(灰)
+- **MaxDD**: 基于 risk 维度 `calibratedNormalize` score — score≥0.8 优秀(红), score≥0.5 合格(琥珀), score<0.5 低于合格线(灰)
+- 颜色语义: good=`market-up-medium`(红=好), ok=`amber-500`, poor=`mine-muted`
 
 ---
 
-## 3. Sub-metrics Grid 视觉规格
+## 4. Sub-metrics Grid 视觉规格
 
 - 容器: `mt-2.5`
 - 布局: `PanelStatGrid columns={2}`
@@ -79,14 +128,14 @@
 
 | 指标 | 数据来源 | 格式 | 颜色逻辑 |
 |------|----------|------|----------|
-| ARR | `factor.annualReturn` | `+18.6%`（±符号 + 百分比） | >0 → up, <0 → down |
-| Calmar | `factor.annualReturn / abs(factor.maxDrawdown)` | `1.51`（2位小数） | ≥1.5 → up, ≥0.5 → flat, <0.5 → down |
-| 换手率 | `factor.turnover` | `23%` | flat（中性指标） |
-| 容量 | `factor.capacity` | `2.3亿` / `5000万` | flat（中性指标） |
+| ARR | `portfolioSlice.annualReturn` | `+18.6%`（±符号 + 百分比） | >0 → up, <0 → down |
+| Calmar | `portfolioSlice.calmar` | `1.51`（2位小数） | ≥2.0 → up, ≥1.0 → flat, <1.0 → down |
+| 换手率 | `portfolioSlice.turnover` | `23%` | flat（中性指标） |
+| 容量 | `portfolioSlice.capacity` | `2.3亿` / `5000万` | flat（中性指标） |
 
 ---
 
-## 4. 数据模型变更
+## 5. 数据模型变更
 
 ### 字段提升为 required
 
@@ -112,10 +161,16 @@ maxDrawdown: -Math.abs(volatility * 2 + noise),  // 波动率正相关
 ### Calmar 计算（前端）
 
 ```ts
-const calmarRatio = factor.maxDrawdown !== 0
-  ? factor.annualReturn / Math.abs(factor.maxDrawdown)
+const calmarRatio = portfolioSlice.maxDrawdown !== 0
+  ? portfolioSlice.annualReturn / Math.abs(portfolioSlice.maxDrawdown)
   : 0;
 ```
+
+**Calmar 计算说明:**
+
+- **公式**: Calmar = ARR / |MaxDD|，标准定义不扣无风险利率（区别于 Sharpe）
+- **时间窗口**: 原始定义用 36 个月滚动窗口（Young, 1991），但因子回测结果使用**全回测区间**，与 A 股量化平台惯例一致（聚宽、米筐均默认全区间）
+- **阈值**: ≥2.0 优秀, ≥1.0 合格 — 结合 A 股因子回测实践设定
 
 ### METRIC_CONFIGS 扩展
 
@@ -125,7 +180,7 @@ const calmarRatio = factor.maxDrawdown !== 0
 calmar: {
   label: 'Calmar',
   domain: [0, 5],
-  thresholds: [0.5, 1.5],
+  thresholds: [1.0, 2.0],
   higherIsBetter: true,
   fmt: 'decimal2',
 }
@@ -133,7 +188,7 @@ calmar: {
 
 ---
 
-## 5. 组件结构
+## 6. 组件结构
 
 ```tsx
 interface RiskReturnSectionProps {
@@ -142,23 +197,21 @@ interface RiskReturnSectionProps {
 }
 
 function RiskReturnSection({ factor, className, ...props }: RiskReturnSectionProps) {
-  const calmar = factor.maxDrawdown !== 0
-    ? factor.annualReturn / Math.abs(factor.maxDrawdown)
-    : 0;
+  const slice = useFactorSlice();
 
   return (
     <PanelSection title="RISK-RETURN" className={cn(className)} {...props}>
       {/* Hero row: 2 cards */}
       <div className="grid grid-cols-2 gap-2.5">
-        <HeroMetricCard label="Sharpe" value={factor.sharpeRatio} metricKey="sharpe" />
-        <HeroMetricCard label="最大回撤" value={factor.maxDrawdown} metricKey="maxDrawdown" />
+        <HeroMetricCard label="Sharpe" value={slice.sharpe} metricKey="sharpe" />
+        <HeroMetricCard label="最大回撤" value={slice.maxDrawdown} metricKey="maxDrawdown" />
       </div>
       {/* Sub-metrics 2×2 */}
       <PanelStatGrid columns={2} className="mt-2.5">
-        <PanelStatItem label="ARR" value={fmtPercent(factor.annualReturn)} color={arrColor(factor.annualReturn)} />
-        <PanelStatItem label="Calmar" value={calmar.toFixed(2)} color={calmarColor(calmar)} />
-        <PanelStatItem label="换手率" value={`${factor.turnover}%`} />
-        <PanelStatItem label="容量" value={fmtCapacity(factor.capacity)} />
+        <PanelStatItem label="ARR" value={fmtPercent(slice.annualReturn)} color={arrColor(slice.annualReturn)} />
+        <PanelStatItem label="Calmar" value={slice.calmar.toFixed(2)} color={calmarColor(slice.calmar)} />
+        <PanelStatItem label="换手率" value={`${slice.turnover}%`} />
+        <PanelStatItem label="容量" value={fmtCapacity(slice.capacity)} />
       </PanelStatGrid>
     </PanelSection>
   );
@@ -174,7 +227,7 @@ function RiskReturnSection({ factor, className, ...props }: RiskReturnSectionPro
 
 ---
 
-## 6. StatisticsSection 变更
+## 7. StatisticsSection 变更
 
 从 StatisticsSection 移除所有指标后，StatisticsSection 剩余内容：
 - FactorMetricGrid（6 指标 vs 因子库分布）→ 迁移到 #12 IC Statistics 或保留为独立 section
@@ -184,7 +237,7 @@ function RiskReturnSection({ factor, className, ...props }: RiskReturnSectionPro
 
 ---
 
-## 7. 任务顺序
+## 8. 任务顺序
 
 1. **数据模型变更** — `annualReturn`/`sharpeRatio`/`maxDrawdown` 提升为 required，mock 数据全部生成
 2. **METRIC_CONFIGS 扩展** — 新增 `calmar` 配置

@@ -1,0 +1,78 @@
+{
+  "version": "2.8",
+  "children": [],
+  "variables": {
+    "market-down": {
+      "type": "color",
+      "value": "#0B8C5F"
+    },
+    "market-flat": {
+      "type": "color",
+      "value": "#f5a623"
+    },
+    "market-up": {
+      "type": "color",
+      "value": "#CF304A"
+    },
+    "mine-accent-green": {
+      "type": "color",
+      "value": "#0B8C5F"
+    },
+    "mine-accent-red": {
+      "type": "color",
+      "value": "#CF304A"
+    },
+    "mine-accent-teal": {
+      "type": "color",
+      "value": "#26a69a"
+    },
+    "mine-bg": {
+      "type": "color",
+      "value": "#faf8f5"
+    },
+    "mine-border": {
+      "type": "color",
+      "value": "#e0ddd8"
+    },
+    "mine-card": {
+      "type": "color",
+      "value": "#ffffff"
+    },
+    "mine-muted": {
+      "type": "color",
+      "value": "#8a8a8a"
+    },
+    "mine-nav-active": {
+      "type": "color",
+      "value": "#2d2d2d"
+    },
+    "mine-page-bg": {
+      "type": "color",
+      "value": "#f5f3ef"
+    },
+    "mine-text": {
+      "type": "color",
+      "value": "#1a1a1a"
+    },
+    "status-inc": {
+      "type": "color",
+      "value": "#8b8b8b"
+    },
+    "status-live": {
+      "type": "color",
+      "value": "#4caf50"
+    },
+    "status-paper": {
+      "type": "color",
+      "value": "#3b82f6"
+    },
+    "status-prob": {
+      "type": "color",
+      "value": "#f5a623"
+    },
+    "status-ret": {
+      "type": "color",
+      "value": "#8a8a8a"
+    }
+  }
+}
