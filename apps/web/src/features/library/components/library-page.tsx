@@ -1,12 +1,15 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo } from "react";
-import { AnimateHeavy } from "@/components/animation";
-import { ErrorBoundary, FeatureErrorFallback } from "@/components/error-boundary";
+import { useEffect, useMemo } from 'react';
+import { AnimateHeavy } from '@/components/animation';
+import {
+  ErrorBoundary,
+  FeatureErrorFallback,
+} from '@/components/error-boundary';
 
-import { FactorDataTable } from "./factor-data-table";
-import { FactorDetailPanel } from "./factor-detail";
-import { useLibraryStore, filterFactors } from "../store/use-library-store";
+import { FactorDataTable } from './factor-data-table';
+import { FactorDetailPanel } from './factor-detail';
+import { useLibraryStore, filterFactors } from '../store/use-library-store';
 
 // ─── Page Content ────────────────────────────────────────
 
@@ -18,7 +21,9 @@ function LibraryPageContent() {
   const selectedFactorId = useLibraryStore((s) => s.selectedFactorId);
 
   const fetchMiningFactors = useLibraryStore((s) => s.fetchMiningFactors);
-  useEffect(() => { void fetchMiningFactors(); }, [fetchMiningFactors]);
+  useEffect(() => {
+    void fetchMiningFactors();
+  }, [fetchMiningFactors]);
 
   const filteredFactors = useMemo(
     () => filterFactors(factors, { statuses, category, search }),
@@ -28,7 +33,7 @@ function LibraryPageContent() {
   const selectedFactor = useMemo(
     () =>
       selectedFactorId
-        ? factors.find((f) => f.id === selectedFactorId) ?? null
+        ? (factors.find((f) => f.id === selectedFactorId) ?? null)
         : null,
     [factors, selectedFactorId],
   );
@@ -43,7 +48,7 @@ function LibraryPageContent() {
         {/* Grid panel (left, dominant) — no card wrapper, tablecn style */}
         <div
           className="flex-1 min-w-0 overflow-hidden flex flex-col"
-          style={{ flex: selectedFactor ? "65 1 0%" : "1 1 0%" }}
+          style={{ flex: selectedFactor ? '65 1 0%' : '1 1 0%' }}
         >
           {/* View content */}
           <ErrorBoundary
@@ -57,10 +62,7 @@ function LibraryPageContent() {
 
         {/* Detail Panel (right, 35%) — only when a factor is selected */}
         {selectedFactor && (
-          <div
-            className="shrink-0 overflow-hidden"
-            style={{ flex: "35 1 0%", maxWidth: "420px", minWidth: "320px" }}
-          >
+          <div className="shrink-0 overflow-hidden w-[340px]">
             <ErrorBoundary
               fallback={(error) => (
                 <FeatureErrorFallback

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useCallback, useMemo } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { Bell } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { getModuleByRoute, getActiveTab } from "@/lib/navigation";
-import { MarketTicker } from "./market-ticker";
-import { useTopBarExtraNavItems } from "./top-bar-slot";
+import { useCallback, useMemo } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { Bell } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
+import { getModuleByRoute, getActiveTab } from '@/lib/navigation';
+import { MarketTicker } from './market-ticker';
+import { useTopBarExtraNavItems } from './top-bar-slot';
 
 export interface NavItem {
   id: string;
@@ -109,7 +109,7 @@ export function TopNavBar({
       {/* Right: nav pills + actions */}
       <div className="flex items-center gap-4 shrink-0">
         {displayNavItems.length > 0 && (
-          <nav className="flex items-center gap-1 bg-white/60 backdrop-blur-sm rounded-full p-1">
+          <nav className="flex items-center gap-0.5 bg-white/60 backdrop-blur-sm rounded-full p-1 border border-white/40">
             {displayNavItems.map((item, index) => {
               const { id, label, icon: Icon } = item;
               const active = isItemActive(item);
@@ -119,13 +119,13 @@ export function TopNavBar({
                   key={id}
                   disabled={item.disabled}
                   onClick={() => !item.disabled && handleNavClick(item, index)}
-                  aria-current={active ? "page" : undefined}
+                  aria-current={active ? 'page' : undefined}
                   className={`flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
                     active
-                      ? "bg-mine-nav-active text-white shadow-sm"
+                      ? 'bg-mine-nav-active text-white shadow-sm'
                       : item.disabled
-                        ? "text-mine-muted/50 cursor-default"
-                        : "text-mine-text hover:bg-white/50"
+                        ? 'text-mine-muted/50 cursor-default'
+                        : 'text-mine-text hover:bg-white/50'
                   }`}
                 >
                   {Icon && <Icon className="w-4 h-4" strokeWidth={1.5} />}

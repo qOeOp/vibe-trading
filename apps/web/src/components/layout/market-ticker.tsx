@@ -1,9 +1,12 @@
-"use client";
+'use client';
 
-import { mockIndices, mockBreadth } from "@/features/market/data/mock-indices";
-import { mockLimitStats } from "@/features/market/data/mock-limit-stats";
-import { formatNumber, formatPercent } from "@/features/market/utils/formatters";
-import { cn } from "@/lib/utils";
+import { mockIndices, mockBreadth } from '@/features/market/data/mock-indices';
+import { mockLimitStats } from '@/features/market/data/mock-limit-stats';
+import {
+  formatNumber,
+  formatPercent,
+} from '@/features/market/utils/formatters';
+import { cn } from '@/lib/utils';
 
 // Tape item component
 function TapeItem({
@@ -21,22 +24,22 @@ function TapeItem({
   const isDown = change !== undefined && change < 0;
 
   return (
-    <div className={cn("flex items-center gap-1.5 px-3", className)}>
+    <div className={cn('flex items-center gap-1.5 px-3', className)}>
       <span className="text-[11px] text-mine-muted font-medium whitespace-nowrap">
         {label}
       </span>
       {value !== undefined && (
-        <span className="text-xs font-semibold text-mine-text whitespace-nowrap">
-          {typeof value === "number" ? formatNumber(value) : value}
+        <span className="text-[11px] font-semibold text-mine-text whitespace-nowrap">
+          {typeof value === 'number' ? formatNumber(value) : value}
         </span>
       )}
       {change !== undefined && (
         <span
           className={cn(
-            "text-[11px] font-semibold whitespace-nowrap",
-            isUp && "text-[#22c55e]",
-            isDown && "text-[#ef4444]",
-            !isUp && !isDown && "text-mine-muted"
+            'text-[11px] font-semibold whitespace-nowrap',
+            isUp && 'text-market-up-medium',
+            isDown && 'text-market-down-medium',
+            !isUp && !isDown && 'text-mine-muted',
           )}
         >
           {formatPercent(change)}
@@ -48,7 +51,7 @@ function TapeItem({
 
 // Separator
 function TapeSeparator() {
-  return <div className="w-px h-3 bg-[#d4d4d4] mx-1" />;
+  return <div className="w-px h-3 bg-mine-border mx-1" />;
 }
 
 export function MarketTicker() {
@@ -72,11 +75,11 @@ export function MarketTicker() {
       {/* 涨跌统计 */}
       <div className="flex items-center gap-1 px-3">
         <span className="text-[11px] text-mine-muted">涨跌比</span>
-        <span className="text-xs font-semibold text-[#22c55e]">
+        <span className="text-[11px] font-semibold text-market-up-medium">
           {b.advancers}
         </span>
         <span className="text-[11px] text-mine-muted">:</span>
-        <span className="text-xs font-semibold text-[#ef4444]">
+        <span className="text-[11px] font-semibold text-market-down-medium">
           {b.decliners}
         </span>
       </div>
@@ -86,11 +89,15 @@ export function MarketTicker() {
       <div className="flex items-center gap-2 px-3">
         <span className="text-[11px] whitespace-nowrap">
           <span className="text-mine-muted">涨停 </span>
-          <span className="font-semibold text-[#22c55e]">{l.limitUp}</span>
+          <span className="font-semibold text-market-up-medium">
+            {l.limitUp}
+          </span>
         </span>
         <span className="text-[11px] whitespace-nowrap">
           <span className="text-mine-muted">跌停 </span>
-          <span className="font-semibold text-[#ef4444]">{l.limitDown}</span>
+          <span className="font-semibold text-market-down-medium">
+            {l.limitDown}
+          </span>
         </span>
         <span className="text-[11px] whitespace-nowrap">
           <span className="text-mine-muted">封板率 </span>
@@ -101,8 +108,10 @@ export function MarketTicker() {
 
       {/* 成交额 */}
       <div className="flex items-center gap-1 px-3">
-        <span className="text-[11px] text-mine-muted whitespace-nowrap">两市成交</span>
-        <span className="text-xs font-semibold text-mine-text whitespace-nowrap">
+        <span className="text-[11px] text-mine-muted whitespace-nowrap">
+          两市成交
+        </span>
+        <span className="text-[11px] font-semibold text-mine-text whitespace-nowrap">
           {formatNumber(mockIndices.reduce((sum, i) => sum + i.turnover, 0))}亿
         </span>
       </div>
