@@ -67,7 +67,3 @@ export type {
   PanelActionButtonProps,
   ActionButtonHoverColor,
 } from './panel-action-button';
-
-// Search
-export { PanelSearchBar } from './panel-search-bar';
-export type { PanelSearchBarProps } from './panel-search-bar';
