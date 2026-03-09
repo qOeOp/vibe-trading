@@ -1,15 +1,16 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { ChevronRightIcon, LoaderCircle, XIcon } from "lucide-react";
-import type { DataType } from "@/features/lab/core/kernel/messages";
-import { cn } from "@/features/lab/utils/cn";
-import { DATA_TYPE_ICON, getDataTypeColor } from "../datasets/icons";
+import { ChevronRightIcon, LoaderCircle, XIcon } from 'lucide-react';
+import type { DataType } from '@/features/lab/core/kernel/messages';
+import { cn } from '@/features/lab/utils/cn';
+import { DATA_TYPE_ICON, getDataTypeColor } from '../datasets/icons';
 
 export const RotatingChevron: React.FC<{ isExpanded: boolean }> = ({
   isExpanded,
 }) => (
   <ChevronRightIcon
-    className={cn("h-3 w-3 transition-transform", isExpanded && "rotate-90")}
+    data-slot="rotating-chevron"
+    className={cn('h-3 w-3 transition-transform', isExpanded && 'rotate-90')}
   />
 );
 
@@ -19,8 +20,9 @@ export const DatasourceLabel: React.FC<{
 }> = ({ children, className }) => {
   return (
     <div
+      data-slot="datasource-label"
       className={cn(
-        "flex gap-1.5 items-center font-bold py-1.5 text-muted-foreground bg-(--slate-2) text-sm",
+        'flex gap-1.5 items-center font-bold py-1.5 text-mine-muted bg-(--slate-2) text-sm',
         className,
       )}
     >
@@ -34,7 +36,10 @@ export const EmptyState: React.FC<{ content: string; className?: string }> = ({
   className,
 }) => {
   return (
-    <div className={cn("text-sm text-muted-foreground py-1", className)}>
+    <div
+      data-slot="empty-state"
+      className={cn('text-sm text-mine-muted py-1', className)}
+    >
       {content}
     </div>
   );
@@ -46,8 +51,9 @@ export const ErrorState: React.FC<{
 }> = ({ error, className }) => {
   return (
     <div
+      data-slot="error-state"
       className={cn(
-        "text-sm bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-50 flex items-center gap-2 p-2 h-8",
+        'text-sm bg-red-50 text-red-600 flex items-center gap-2 p-2 h-8',
         className,
       )}
     >
@@ -63,8 +69,9 @@ export const LoadingState: React.FC<{
 }> = ({ message, className }) => {
   return (
     <div
+      data-slot="loading-state"
       className={cn(
-        "text-sm bg-blue-50 dark:bg-(--accent) text-blue-500 dark:text-blue-50 flex items-center gap-2 p-2 h-8",
+        'text-sm bg-blue-50 text-blue-500 flex items-center gap-2 p-2 h-8',
         className,
       )}
     >
@@ -79,7 +86,10 @@ export const ColumnPreviewContainer: React.FC<{
   className?: string;
 }> = ({ children, className }) => {
   return (
-    <div className={cn("flex flex-col gap-2 relative", className)}>
+    <div
+      data-slot="column-preview-container"
+      className={cn('flex flex-col gap-2 relative', className)}
+    >
       {children}
     </div>
   );
@@ -96,7 +106,7 @@ export const ColumnName = ({
   const color = getDataTypeColor(dataType);
 
   return (
-    <div className="flex flex-row items-center gap-1.5">
+    <div data-slot="column-name" className="flex flex-row items-center gap-1.5">
       <Icon
         className={`w-4 h-4 p-0.5 rounded-sm stroke-card-foreground ${color}`}
       />

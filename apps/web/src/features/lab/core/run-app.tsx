@@ -49,7 +49,7 @@ export const RunApp: React.FC<AppProps> = ({ appConfig }) => {
       return (
         <DelayMount milliseconds={2000} fallback={null}>
           <Spinner className="mx-auto" />
-          <p className="text-center text-sm text-muted-foreground mt-2">
+          <p className="text-center text-sm text-mine-muted mt-2">
             Connecting...
           </p>
         </DelayMount>
@@ -82,7 +82,7 @@ export const RunApp: React.FC<AppProps> = ({ appConfig }) => {
               aria-label="Back to gallery"
               className={cn(
                 buttonVariants({ variant: 'text', size: 'sm' }),
-                'gap-2 px-0 text-muted-foreground hover:text-foreground',
+                'gap-2 px-0 text-mine-muted hover:text-mine-text',
               )}
             >
               <ArrowLeftIcon className="size-4" aria-hidden={true} />

@@ -166,7 +166,7 @@ export const TableColumnSummary = <TData, TValue>({
   };
 
   return (
-    <div className="flex flex-col items-center text-xs text-muted-foreground align-end">
+    <div className="flex flex-col items-center text-xs text-mine-muted align-end">
       {chart}
       {renderStats()}
     </div>

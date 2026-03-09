@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { CommandList } from "cmdk";
-import { useAtomValue } from "jotai";
+import { CommandList } from 'cmdk';
+import { useAtomValue } from 'jotai';
 /* Copyright 2026 Marimo. All rights reserved. */
 import React, {
   Fragment,
@@ -10,13 +10,13 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from "react";
-import useEvent from "react-use-event-hook";
-import { getCellForDomProps } from "@/features/lab/components/data-table/cell-utils";
+} from 'react';
+import useEvent from 'react-use-event-hook';
+import { getCellForDomProps } from '@/features/lab/components/data-table/cell-utils';
 import {
   renderMinimalShortcut,
   renderShortcut,
-} from "@/features/lab/components/shortcuts/renderShortcut";
+} from '@/features/lab/components/shortcuts/renderShortcut';
 import {
   Command,
   CommandEmpty,
@@ -24,27 +24,27 @@ import {
   CommandInput,
   CommandItem,
   CommandSeparator,
-} from "@/features/lab/components/ui/command";
+} from '@/features/lab/components/ui/command';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/features/lab/components/ui/popover";
+} from '@/components/ui/popover';
 import {
   Tooltip,
   TooltipContent,
   TooltipRoot,
   TooltipTrigger,
-} from "@/features/lab/components/ui/tooltip";
-import { useRestoreFocus } from "@/features/lab/components/ui/use-restore-focus";
-import { cellFocusDetailsAtom } from "@/features/lab/core/cells/focus";
-import type { CellId } from "@/features/lab/core/cells/ids";
-import { cn } from "@/features/lab/utils/cn";
+} from '@/components/ui/tooltip';
+import { useRestoreFocus } from '@/features/lab/components/ui/use-restore-focus';
+import { cellFocusDetailsAtom } from '@/features/lab/core/cells/focus';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { cn } from '@/features/lab/utils/cn';
 import {
   type CellActionButtonProps,
   useCellActionButtons,
-} from "../actions/useCellActionButton";
-import { raf2 } from "../navigation/focus-utils";
+} from '../actions/useCellActionButton';
+import { raf2 } from '../navigation/focus-utils';
 
 interface Props extends CellActionButtonProps {
   children: React.ReactNode;
@@ -71,8 +71,8 @@ const CellActionsDropdownInternal = (
     raf2(() => {
       if (buttonRef.current) {
         buttonRef.current.scrollIntoView({
-          behavior: "auto",
-          block: "nearest",
+          behavior: 'auto',
+          block: 'nearest',
         });
       }
     });
@@ -84,7 +84,7 @@ const CellActionsDropdownInternal = (
     // hidden at the same time.
     setOpen((prevOpen) => {
       const nextOpen =
-        typeof nextOpenOrCallback === "function"
+        typeof nextOpenOrCallback === 'function'
           ? nextOpenOrCallback(prevOpen)
           : nextOpenOrCallback;
       if (nextOpen) {
@@ -101,7 +101,9 @@ const CellActionsDropdownInternal = (
   const content = (
     <PopoverContent
       className="w-[300px] p-0 pt-1 overflow-auto"
-      scrollable={true}
+      style={{
+        maxHeight: 'calc(var(--radix-popover-content-available-height) - 10px)',
+      }}
       {...restoreFocus}
     >
       <Command>
@@ -122,7 +124,7 @@ const CellActionsDropdownInternal = (
                   let body = (
                     <div className="flex items-center flex-1">
                       {action.icon && (
-                        <div className="mr-2 w-5 text-muted-foreground">
+                        <div className="mr-2 w-5 text-mine-muted">
                           {action.icon}
                         </div>
                       )}
@@ -147,7 +149,7 @@ const CellActionsDropdownInternal = (
                       key={action.label}
                       // Disable with classname instead of disabled prop
                       // otherwise the tooltip doesn't work
-                      className={cn(action.disabled && "opacity-50!")}
+                      className={cn(action.disabled && 'opacity-50!')}
                       onSelect={() => {
                         if (action.disableClick || action.disabled) {
                           return;
@@ -181,7 +183,7 @@ const CellActionsDropdownInternal = (
 
   const tooltipContent = (
     <TooltipContent tabIndex={-1}>
-      {renderShortcut("cell.cellActions")}
+      {renderShortcut('cell.cellActions')}
     </TooltipContent>
   );
 
@@ -222,4 +224,4 @@ export const ConnectionCellActionsDropdown = React.memo(
     );
   },
 );
-ConnectionCellActionsDropdown.displayName = "ConnectionCellActionsDropdown";
+ConnectionCellActionsDropdown.displayName = 'ConnectionCellActionsDropdown';

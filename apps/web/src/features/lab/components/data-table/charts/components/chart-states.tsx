@@ -28,8 +28,8 @@ export const ChartInfoState: React.FC<{
         className,
       )}
     >
-      <ChartPieIcon className="w-10 h-10 text-muted-foreground" />
-      <span className="text-md font-semibold text-muted-foreground">
+      <ChartPieIcon className="w-10 h-10 text-mine-muted" />
+      <span className="text-md font-semibold text-mine-muted">
         {children}
       </span>
     </div>

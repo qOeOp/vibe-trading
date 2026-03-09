@@ -25,7 +25,7 @@ import {
 import { useDependencyPanelTab } from '../wrapper/useDependencyPanelTab';
 import { usePanelSection } from './panel-context';
 
-const DependencyGraphPanel: React.FC = () => {
+export const DependencyGraphPanel: React.FC = () => {
   const { dependencyPanelTab, setDependencyPanelTab } = useDependencyPanelTab();
   const variables = useVariables();
   const cellIds = useCellIds();
@@ -100,11 +100,11 @@ function GraphSettingsPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="text" size="xs" className="text-muted-foreground">
+        <Button variant="text" size="xs" className="text-mine-muted">
           <SettingsIcon className="w-3.5 h-3.5" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-3 text-muted-foreground" align="end">
+      <PopoverContent className="w-auto p-3 text-mine-muted" align="end">
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2">
             <Checkbox
@@ -135,5 +135,3 @@ function GraphSettingsPopover() {
     </Popover>
   );
 }
-
-export default DependencyGraphPanel;

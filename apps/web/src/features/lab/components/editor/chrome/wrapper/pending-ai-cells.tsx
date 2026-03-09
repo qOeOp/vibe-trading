@@ -64,7 +64,7 @@ export const PendingAICells: React.FC = () => {
   return (
     <div
       className={cn(
-        "fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/80 border border-border rounded-lg px-3 py-2 flex items-center justify-between gap-2.5 w-100",
+        "fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 bg-mine-page-bg/95 backdrop-blur-sm supports-backdrop-filter:bg-mine-page-bg/80 border border-mine-border rounded-lg px-3 py-2 flex items-center justify-between gap-2.5 w-100",
         cyanShadow,
       )}
     >

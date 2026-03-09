@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { cn } from "@/features/lab/utils/cn";
+import { Loader2Icon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { cn } from '@/features/lab/utils/cn';
 
 export const LargeSpinner = ({ title }: { title?: string }) => {
   const [currentTitle, setCurrentTitle] = useState(title);
@@ -20,7 +20,10 @@ export const LargeSpinner = ({ title }: { title?: string }) => {
   }, [title, currentTitle]);
 
   return (
-    <div className="flex flex-col h-full flex-1 items-center justify-center p-4">
+    <div
+      data-slot="large-spinner"
+      className="flex flex-col h-full flex-1 items-center justify-center p-4"
+    >
       <Loader2Icon
         className="size-20 animate-spin text-primary"
         data-testid="large-spinner"
@@ -28,8 +31,8 @@ export const LargeSpinner = ({ title }: { title?: string }) => {
       />
       <div
         className={cn(
-          "mt-2 text-muted-foreground font-semibold text-lg transition-opacity duration-300",
-          isVisible ? "opacity-100" : "opacity-0",
+          'mt-2 text-mine-muted font-semibold text-lg transition-opacity duration-300',
+          isVisible ? 'opacity-100' : 'opacity-0',
         )}
       >
         {currentTitle}

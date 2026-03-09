@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { EditorView } from "@codemirror/view";
-import { useAtomValue } from "jotai";
+import type { EditorView } from '@codemirror/view';
+import { useAtomValue } from 'jotai';
 import {
   AlertTriangleIcon,
   ChevronDownIcon,
@@ -17,40 +17,40 @@ import {
   XCircleIcon,
   ZapIcon,
   ZapOffIcon,
-} from "lucide-react";
-import React from "react";
-import { FocusScope } from "react-aria";
-import useEvent from "react-use-event-hook";
-import { MinimalShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
-import { Button } from "@/features/lab/components/ui/button";
+} from 'lucide-react';
+import React from 'react';
+import { FocusScope } from 'react-aria';
+import useEvent from 'react-use-event-hook';
+import { MinimalShortcut } from '@/features/lab/components/shortcuts/renderShortcut';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/features/lab/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   getCellEditorView,
   hasOnlyOneCellAtom,
   notebookAtom,
   useCellActions,
-} from "@/features/lab/core/cells/cells";
-import type { CellId } from "@/features/lab/core/cells/ids";
-import { usePendingDeleteService } from "@/features/lab/core/cells/pending-delete-service";
-import { formatEditorViews } from "@/features/lab/core/codemirror/format";
-import { userConfigAtom } from "@/features/lab/core/config/config";
-import type { HotkeyAction } from "@/features/lab/core/hotkeys/hotkeys";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import type { CellConfig } from "@/features/lab/core/network/types";
-import { store } from "@/features/lab/core/state/jotai";
-import { useEventListener } from "@/features/lab/hooks/useEventListener";
-import type { ActionButton } from "../actions/types";
-import { useDeleteManyCellsCallback } from "../cell/useDeleteCell";
-import { useRunCells } from "../cell/useRunCells";
-import { useCellSelectionActions, useCellSelectionState } from "./selection";
+} from '@/features/lab/core/cells/cells';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { usePendingDeleteService } from '@/features/lab/core/cells/pending-delete-service';
+import { formatEditorViews } from '@/features/lab/core/codemirror/format';
+import { userConfigAtom } from '@/features/lab/core/config/config';
+import type { HotkeyAction } from '@/features/lab/core/hotkeys/hotkeys';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import type { CellConfig } from '@/features/lab/core/network/types';
+import { store } from '@/features/lab/core/state/jotai';
+import { useEventListener } from '@/features/lab/hooks/useEventListener';
+import type { ActionButton } from '../actions/types';
+import { useDeleteManyCellsCallback } from '../cell/useDeleteCell';
+import { useRunCells } from '../cell/useRunCells';
+import { useCellSelectionActions, useCellSelectionState } from './selection';
 
-interface MultiCellActionButton extends Omit<ActionButton, "handle"> {
+interface MultiCellActionButton extends Omit<ActionButton, 'handle'> {
   handle: (selectedCells: CellId[]) => void;
   hotkey?: HotkeyAction;
 }
@@ -84,7 +84,7 @@ const CellStateDropdown: React.FC<{
               >
                 <div className="flex items-center flex-1">
                   {action.icon && (
-                    <div className="mr-2 w-5 text-muted-foreground">
+                    <div className="mr-2 w-5 text-mine-muted">
                       {action.icon}
                     </div>
                   )}
@@ -143,9 +143,9 @@ export function useMultiCellActionButtons(cellIds: CellId[]) {
   });
 
   const moveSelectedCells = useEvent(
-    (cellIds: CellId[], direction: "up" | "down") => {
+    (cellIds: CellId[], direction: 'up' | 'down') => {
       /// If moving down, make sure the last cell is not at the bottom of the notebook
-      if (direction === "down") {
+      if (direction === 'down') {
         const lastCellId = cellIds[cellIds.length - 1];
         const notebook = store.get(notebookAtom);
         const isLast =
@@ -156,7 +156,7 @@ export function useMultiCellActionButtons(cellIds: CellId[]) {
       }
 
       // If moving up, make sure the first cell is not at the top of the notebook
-      if (direction === "up") {
+      if (direction === 'up') {
         const firstCellId = cellIds[0];
         const notebook = store.get(notebookAtom);
         const isFirst =
@@ -167,9 +167,9 @@ export function useMultiCellActionButtons(cellIds: CellId[]) {
       }
 
       // Move cells in the appropriate order to maintain relative positions
-      const sortedCells = direction === "up" ? cellIds : [...cellIds].reverse();
+      const sortedCells = direction === 'up' ? cellIds : [...cellIds].reverse();
       sortedCells.forEach((cellId) => {
-        moveCell({ cellId, before: direction === "up" });
+        moveCell({ cellId, before: direction === 'up' });
       });
     },
   );
@@ -223,30 +223,30 @@ export function useMultiCellActionButtons(cellIds: CellId[]) {
     [
       {
         icon: <PlayIcon size={13} strokeWidth={1.5} />,
-        label: "Run cells",
+        label: 'Run cells',
         handle: (cellIds) => runCells(cellIds),
-        hotkey: "cell.run",
+        hotkey: 'cell.run',
       },
     ],
     [
       {
         icon: <ChevronUpIcon size={13} strokeWidth={1.5} />,
-        label: "Move up",
-        handle: (cellIds) => moveSelectedCells(cellIds, "up"),
-        hotkey: "cell.moveUp",
+        label: 'Move up',
+        handle: (cellIds) => moveSelectedCells(cellIds, 'up'),
+        hotkey: 'cell.moveUp',
       },
       {
         icon: <ChevronDownIcon size={13} strokeWidth={1.5} />,
-        label: "Move down",
-        handle: (cellIds) => moveSelectedCells(cellIds, "down"),
-        hotkey: "cell.moveDown",
+        label: 'Move down',
+        handle: (cellIds) => moveSelectedCells(cellIds, 'down'),
+        hotkey: 'cell.moveDown',
       },
     ],
     [
       {
         icon: <Trash2Icon size={13} strokeWidth={1.5} />,
-        label: "Delete cells",
-        variant: "danger",
+        label: 'Delete cells',
+        variant: 'danger',
         hidden: !canDelete,
         handle: deleteSelectedCells,
       },
@@ -257,70 +257,70 @@ export function useMultiCellActionButtons(cellIds: CellId[]) {
     [
       {
         icon: <Code2Icon size={13} strokeWidth={1.5} />,
-        label: "Format cells",
+        label: 'Format cells',
         handle: formatSelectedCells,
-        hotkey: "cell.format",
+        hotkey: 'cell.format',
       },
       {
         icon: <XCircleIcon size={13} strokeWidth={1.5} />,
-        label: "Clear outputs",
+        label: 'Clear outputs',
         handle: clearSelectedCellsOutput,
       },
     ],
     [
       {
         icon: <EyeOffIcon size={13} strokeWidth={1.5} />,
-        label: "Hide code",
+        label: 'Hide code',
         handle: (cellIds) =>
-          toggleSelectedCellsProperty(cellIds, "hide_code", true),
-        hotkey: "cell.hideCode",
+          toggleSelectedCellsProperty(cellIds, 'hide_code', true),
+        hotkey: 'cell.hideCode',
       },
       {
         icon: <EyeIcon size={13} strokeWidth={1.5} />,
-        label: "Show code",
+        label: 'Show code',
         handle: (cellIds) =>
-          toggleSelectedCellsProperty(cellIds, "hide_code", false),
-        hotkey: "cell.hideCode",
+          toggleSelectedCellsProperty(cellIds, 'hide_code', false),
+        hotkey: 'cell.hideCode',
       },
     ],
     [
       {
         icon: <ChevronUpIcon size={13} strokeWidth={1.5} />,
-        label: "Move up",
-        handle: (cellIds) => moveSelectedCells(cellIds, "up"),
-        hotkey: "cell.moveUp",
+        label: 'Move up',
+        handle: (cellIds) => moveSelectedCells(cellIds, 'up'),
+        hotkey: 'cell.moveUp',
       },
       {
         icon: <ChevronDownIcon size={13} strokeWidth={1.5} />,
-        label: "Move down",
-        handle: (cellIds) => moveSelectedCells(cellIds, "down"),
-        hotkey: "cell.moveDown",
+        label: 'Move down',
+        handle: (cellIds) => moveSelectedCells(cellIds, 'down'),
+        hotkey: 'cell.moveDown',
       },
       {
         icon: <ChevronsUpIcon size={13} strokeWidth={1.5} />,
-        label: "Send to top",
+        label: 'Send to top',
         handle: sendSelectedCellsToTop,
-        hotkey: "cell.sendToTop",
+        hotkey: 'cell.sendToTop',
       },
       {
         icon: <ChevronsDownIcon size={13} strokeWidth={1.5} />,
-        label: "Send to bottom",
+        label: 'Send to bottom',
         handle: sendSelectedCellsToBottom,
-        hotkey: "cell.sendToBottom",
+        hotkey: 'cell.sendToBottom',
       },
     ],
     [
       {
         icon: <ZapOffIcon size={13} strokeWidth={1.5} />,
-        label: "Disable cells",
+        label: 'Disable cells',
         handle: (cellIds) =>
-          toggleSelectedCellsProperty(cellIds, "disabled", true),
+          toggleSelectedCellsProperty(cellIds, 'disabled', true),
       },
       {
         icon: <ZapIcon size={13} strokeWidth={1.5} />,
-        label: "Enable cells",
+        label: 'Enable cells',
         handle: (cellIds) =>
-          toggleSelectedCellsProperty(cellIds, "disabled", false),
+          toggleSelectedCellsProperty(cellIds, 'disabled', false),
       },
     ],
   ];
@@ -428,11 +428,11 @@ const MultiCellActionToolbarInternal = ({ cellIds }: { cellIds: CellId[] }) => {
 
   const selectedCount = cellIds.length;
 
-  useEventListener(window, "mousedown", (evt) => {
+  useEventListener(window, 'mousedown', (evt) => {
     // Clear selected, unless clicked inside an element that contains data-keep-cell-selection
     if (
       (evt.target instanceof HTMLElement || evt.target instanceof SVGElement) &&
-      evt.target.closest("[data-keep-cell-selection]") !== null
+      evt.target.closest('[data-keep-cell-selection]') !== null
     ) {
       return;
     }
@@ -454,9 +454,9 @@ const MultiCellActionToolbarInternal = ({ cellIds }: { cellIds: CellId[] }) => {
       className="absolute top-12 justify-center flex w-full left-0 right-0 z-50"
       data-keep-cell-selection={true}
     >
-      <div className="bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 border border-(--slate-7) rounded-lg shadow-lg p-2 overflow-x-auto overflow-y-hidden mx-20 scrollbar-thin">
+      <div className="bg-mine-page-bg/95 backdrop-blur-sm supports-backdrop-filter:bg-mine-page-bg/60 border border-(--slate-7) rounded-lg shadow-lg p-2 overflow-x-auto overflow-y-hidden mx-20 scrollbar-thin">
         <div className="flex items-center gap-1">
-          <span className="text-sm font-medium text-muted-foreground px-2 shrink-0">
+          <span className="text-sm font-medium text-mine-muted px-2 shrink-0">
             {selectedCount} cells selected
           </span>
           <Separator />
@@ -466,18 +466,18 @@ const MultiCellActionToolbarInternal = ({ cellIds }: { cellIds: CellId[] }) => {
                 <Button
                   key={action.label}
                   variant={
-                    action.variant === "danger" ? "linkDestructive" : "ghost"
+                    action.variant === 'danger' ? 'linkDestructive' : 'ghost'
                   }
                   size="sm"
                   onClick={() => action.handle(cellIds)}
                   className="h-8 px-2 gap-1 shrink-0 flex items-center"
                   title={action.label}
-                  disabled={isPendingDelete && action.label !== "Delete cells"}
+                  disabled={isPendingDelete && action.label !== 'Delete cells'}
                 >
                   {action.icon}
                   <span className="text-xs">{action.label}</span>
                   {action.hotkey && (
-                    <div className="ml-1 border bg-muted rounded-md px-1">
+                    <div className="ml-1 border bg-mine-hover rounded-md px-1">
                       <MinimalShortcut shortcut={action.hotkey} />
                     </div>
                   )}

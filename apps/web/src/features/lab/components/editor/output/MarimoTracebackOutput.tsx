@@ -18,7 +18,7 @@ export const MarimoTracebackOutput = ({ traceback }: Props): JSX.Element => {
   const htmlTraceback = renderHTML({ html: traceback });
   return (
     <div className="flex flex-col gap-2 min-w-full w-fit">
-      <div className="text-muted-foreground px-4 pt-2 text-xs overflow-auto">
+      <div className="text-mine-muted px-4 pt-2 text-xs overflow-auto">
         {htmlTraceback}
       </div>
     </div>

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { cn } from "@/lib/utils";
-import { ChevronRight, ChevronDown, Copy, Check } from "lucide-react";
+import { useState, useMemo } from 'react';
+import { cn } from '@/lib/utils';
+import { ChevronRight, ChevronDown, Copy, Check } from 'lucide-react';
 
 // ─── JSON Output ─────────────────────────────────────────
 
@@ -21,7 +21,7 @@ export function JsonOutput({ data, className }: JsonOutputProps) {
   const [copied, setCopied] = useState(false);
 
   const parsed = useMemo(() => {
-    if (typeof data === "string") {
+    if (typeof data === 'string') {
       try {
         return JSON.parse(data);
       } catch {
@@ -32,7 +32,7 @@ export function JsonOutput({ data, className }: JsonOutputProps) {
   }, [data]);
 
   const rawString = useMemo(() => {
-    return typeof data === "string" ? data : JSON.stringify(data, null, 2);
+    return typeof data === 'string' ? data : JSON.stringify(data, null, 2);
   }, [data]);
 
   const handleCopy = () => {
@@ -42,21 +42,28 @@ export function JsonOutput({ data, className }: JsonOutputProps) {
   };
 
   return (
-    <div data-slot="json-output" className={cn("relative group/json", className)}>
+    <div
+      data-slot="json-output"
+      className={cn('relative group/json', className)}
+    >
       {/* Copy button */}
       <button
         type="button"
         onClick={handleCopy}
         className={cn(
-          "absolute top-2 right-2 z-10",
-          "p-1 rounded-md transition-all",
-          "opacity-0 group-hover/json:opacity-100",
-          "bg-white border border-mine-border shadow-sm",
-          "text-mine-muted hover:text-mine-text",
+          'absolute top-2 right-2 z-10',
+          'p-1 rounded-md transition-all',
+          'opacity-0 group-hover/json:opacity-100',
+          'bg-white border border-mine-border shadow-sm',
+          'text-mine-muted hover:text-mine-text',
         )}
         title="Copy JSON"
       >
-        {copied ? <Check className="w-3.5 h-3.5 text-mine-accent-green" /> : <Copy className="w-3.5 h-3.5" />}
+        {copied ? (
+          <Check className="w-3.5 h-3.5 text-mine-accent-green" />
+        ) : (
+          <Copy className="w-3.5 h-3.5" />
+        )}
       </button>
 
       {/* JSON tree */}
@@ -85,16 +92,16 @@ function JsonNode({ value, depth, keyName }: JsonNodeProps) {
     );
   }
 
-  if (typeof value === "boolean") {
+  if (typeof value === 'boolean') {
     return (
       <span>
         {keyName && <span className="text-mine-muted">{`"${keyName}": `}</span>}
-        <span className="text-[#6366f1]">{String(value)}</span>
+        <span className="text-mine-accent-teal">{String(value)}</span>
       </span>
     );
   }
 
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     return (
       <span>
         {keyName && <span className="text-mine-muted">{`"${keyName}": `}</span>}
@@ -103,7 +110,7 @@ function JsonNode({ value, depth, keyName }: JsonNodeProps) {
     );
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return (
       <span>
         {keyName && <span className="text-mine-muted">{`"${keyName}": `}</span>}
@@ -116,8 +123,10 @@ function JsonNode({ value, depth, keyName }: JsonNodeProps) {
     if (value.length === 0) {
       return (
         <span>
-          {keyName && <span className="text-mine-muted">{`"${keyName}": `}</span>}
-          {"[]"}
+          {keyName && (
+            <span className="text-mine-muted">{`"${keyName}": `}</span>
+          )}
+          {'[]'}
         </span>
       );
     }
@@ -126,26 +135,28 @@ function JsonNode({ value, depth, keyName }: JsonNodeProps) {
       <CollapsibleNode
         keyName={keyName}
         label={`Array(${value.length})`}
-        bracket={["[", "]"]}
+        bracket={['[', ']']}
         depth={depth}
       >
         {value.map((item, i) => (
           <div key={i} className="ml-4">
             <JsonNode value={item} depth={depth + 1} />
-            {i < value.length - 1 && ","}
+            {i < value.length - 1 && ','}
           </div>
         ))}
       </CollapsibleNode>
     );
   }
 
-  if (typeof value === "object") {
+  if (typeof value === 'object') {
     const entries = Object.entries(value as Record<string, unknown>);
     if (entries.length === 0) {
       return (
         <span>
-          {keyName && <span className="text-mine-muted">{`"${keyName}": `}</span>}
-          {"{}"}
+          {keyName && (
+            <span className="text-mine-muted">{`"${keyName}": `}</span>
+          )}
+          {'{}'}
         </span>
       );
     }
@@ -154,13 +165,13 @@ function JsonNode({ value, depth, keyName }: JsonNodeProps) {
       <CollapsibleNode
         keyName={keyName}
         label={`Object(${entries.length})`}
-        bracket={["{", "}"]}
+        bracket={['{', '}']}
         depth={depth}
       >
         {entries.map(([key, val], i) => (
           <div key={key} className="ml-4">
             <JsonNode value={val} depth={depth + 1} keyName={key} />
-            {i < entries.length - 1 && ","}
+            {i < entries.length - 1 && ','}
           </div>
         ))}
       </CollapsibleNode>
@@ -180,7 +191,13 @@ interface CollapsibleNodeProps {
   children: React.ReactNode;
 }
 
-function CollapsibleNode({ keyName, label, bracket, depth, children }: CollapsibleNodeProps) {
+function CollapsibleNode({
+  keyName,
+  label,
+  bracket,
+  depth,
+  children,
+}: CollapsibleNodeProps) {
   const defaultOpen = depth < 2;
 
   return (

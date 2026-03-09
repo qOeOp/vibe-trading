@@ -1,23 +1,23 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtomValue } from "jotai";
-import { BotMessageSquareIcon, ClockIcon, SearchIcon } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useLocale } from "react-aria";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { useAtomValue } from 'jotai';
+import { BotMessageSquareIcon, ClockIcon, SearchIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useLocale } from 'react-aria';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../ui/popover";
-import { ScrollArea } from "../ui/scroll-area";
-import { Tooltip } from "../ui/tooltip";
-import { type ChatId, chatStateAtom } from "@/features/lab/core/ai/state";
-import { cn } from "@/features/lab/utils/cn";
-import { timeAgo } from "@/features/lab/utils/dates";
-import { PanelEmptyState } from "../editor/chrome/panels/empty-state";
-import { groupChatsByDate } from "./chat-history-utils";
+} from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip } from '@/components/ui/tooltip';
+import { type ChatId, chatStateAtom } from '@/features/lab/core/ai/state';
+import { cn } from '@/features/lab/utils/cn';
+import { timeAgo } from '@/features/lab/utils/dates';
+import { PanelEmptyState } from '../editor/chrome/panels/empty-state';
+import { groupChatsByDate } from './chat-history-utils';
 
 interface ChatHistoryPopoverProps {
   activeChatId: ChatId | undefined;
@@ -30,7 +30,7 @@ export const ChatHistoryPopover: React.FC<ChatHistoryPopoverProps> = ({
 }) => {
   const chatState = useAtomValue(chatStateAtom);
   const { locale } = useLocale();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   const chats = useMemo(() => {
     return [...chatState.chats.values()].sort(
@@ -52,7 +52,7 @@ export const ChatHistoryPopover: React.FC<ChatHistoryPopoverProps> = ({
   }, [filteredChats]);
 
   return (
-    <Popover>
+    <Popover data-slot="chat-history-popover">
       <Tooltip content="Previous chats">
         <PopoverTrigger asChild={true}>
           <Button variant="text" size="icon">
@@ -87,7 +87,7 @@ export const ChatHistoryPopover: React.FC<ChatHistoryPopoverProps> = ({
             )}
             {groupedChats.map((group, idx) => (
               <div key={group.label} className="space-y-2">
-                <div className="text-xs px-1 text-muted-foreground/60">
+                <div className="text-xs px-1 text-mine-muted/60">
                   {group.label}
                 </div>
                 <div>
@@ -95,9 +95,9 @@ export const ChatHistoryPopover: React.FC<ChatHistoryPopoverProps> = ({
                     <button
                       key={chat.id}
                       className={cn(
-                        "w-full p-1 rounded-md cursor-pointer text-left flex items-center justify-between",
-                        chat.id === activeChatId && "bg-accent",
-                        chat.id !== activeChatId && "hover:bg-muted/20",
+                        'w-full p-1 rounded-md cursor-pointer text-left flex items-center justify-between',
+                        chat.id === activeChatId && 'bg-mine-hover',
+                        chat.id !== activeChatId && 'hover:bg-mine-hover/20',
                       )}
                       onClick={() => {
                         setActiveChat(chat.id);
@@ -107,7 +107,7 @@ export const ChatHistoryPopover: React.FC<ChatHistoryPopoverProps> = ({
                       <div className="flex-1 min-w-0">
                         <div className="text-sm truncate">{chat.title}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground/60 ml-2 flex-shrink-0">
+                      <div className="text-xs text-mine-muted/60 ml-2 flex-shrink-0">
                         {timeAgo(chat.updatedAt, locale)}
                       </div>
                     </button>

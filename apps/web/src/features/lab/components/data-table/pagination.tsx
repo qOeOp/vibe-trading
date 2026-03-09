@@ -10,7 +10,7 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { useLocale } from "react-aria";
-import { Button } from "../ui/button";
+import { Button } from '@/components/ui/button';
 import { Events } from "@/features/lab/utils/events";
 import { prettyNumber } from "@/features/lab/utils/numbers";
 import { PluralWord } from "@/features/lab/utils/pluralize";
@@ -22,7 +22,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from '@/components/ui/select';
 import type { DataTableSelection } from "./types";
 
 interface DataTablePaginationProps<TData> {
@@ -144,7 +144,7 @@ export const DataTablePagination = <TData,>({
           value={pageSize.toString()}
           onValueChange={(value) => table.setPageSize(Number(value))}
         >
-          <SelectTrigger className="w-11 h-[18px] shadow-none! !hover:shadow-none ring-0! border-border text-xs p-1">
+          <SelectTrigger className="w-11 h-[18px] shadow-none! !hover:shadow-none ring-0! border-mine-border text-xs p-1">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -169,7 +169,7 @@ export const DataTablePagination = <TData,>({
   return (
     <div className="flex flex-1 items-center justify-between px-2">
       <div className="flex items-center gap-2">
-        <div className="text-sm text-muted-foreground">{renderTotal()}</div>
+        <div className="text-sm text-mine-muted">{renderTotal()}</div>
         {showPageSizeSelector && renderPageSizeSelector()}
       </div>
 

@@ -39,8 +39,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/features/lab/components/ui/dropdown-menu';
-import { Tooltip } from '@/features/lab/components/ui/tooltip';
+} from '@/components/ui/dropdown-menu';
+import { Tooltip } from '@/components/ui/tooltip';
 import { toast } from '@/features/lab/components/ui/use-toast';
 import { useCellActions } from '@/features/lab/core/cells/cells';
 import { useLastFocusedCellId } from '@/features/lab/core/cells/focus';
@@ -326,7 +326,7 @@ const Edit = ({ node }: { node: NodeApi<FileInfo> }) => {
   return (
     <input
       ref={ref}
-      className="flex-1 bg-transparent border border-border text-muted-foreground"
+      className="flex-1 bg-transparent border border-mine-border text-mine-muted"
       defaultValue={node.data.name}
       onClick={(e) => e.stopPropagation()}
       onBlur={() => node.reset()}
@@ -563,7 +563,7 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
       style={style}
       ref={dragHandle}
       className={cn(
-        'flex items-center cursor-pointer ml-1 text-muted-foreground whitespace-nowrap group',
+        'flex items-center cursor-pointer ml-1 text-mine-muted whitespace-nowrap group',
       )}
       draggable={true}
       onClick={(evt) => {
@@ -576,10 +576,10 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
       <FolderArrow node={node} />
       <span
         className={cn(
-          'flex items-center pl-1 py-1 cursor-pointer hover:bg-accent/50 hover:text-accent-foreground rounded-l flex-1 overflow-hidden group',
+          'flex items-center pl-1 py-1 cursor-pointer hover:bg-mine-hover/50 hover:text-mine-text rounded-l flex-1 overflow-hidden group',
           node.willReceiveDrop &&
             node.data.isDirectory &&
-            'bg-accent/80 hover:bg-accent/80 text-accent-foreground',
+            'bg-mine-hover/80 hover:bg-mine-hover/80 text-mine-text',
         )}
       >
         <Icon className="w-5 h-5 shrink-0 mr-2" strokeWidth={1.5} />

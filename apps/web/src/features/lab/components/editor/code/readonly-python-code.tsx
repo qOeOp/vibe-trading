@@ -9,7 +9,7 @@ import { CopyIcon, EyeIcon, EyeOffIcon, PlusIcon } from "lucide-react";
 import { memo, useState } from "react";
 import { useAddCodeToNewCell } from "../cell/useAddCell";
 import { Button } from "@/features/lab/components/ui/button";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/features/lab/components/ui/use-toast";
 import { customPythonLanguageSupport } from "@/features/lab/core/codemirror/language/languages/python";
 import { useTheme } from "@/features/lab/theme/useTheme";
@@ -132,7 +132,7 @@ export const HideCodeButton = (props: {
   return (
     <div className={props.className} onClick={props.onClick}>
       <Tooltip usePortal={false} content={props.tooltip}>
-        <EyeIcon className="hover-action w-5 h-5 text-muted-foreground cursor-pointer absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-80 hover:opacity-100 z-20" />
+        <EyeIcon className="hover-action w-5 h-5 text-mine-muted cursor-pointer absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-80 hover:opacity-100 z-20" />
       </Tooltip>
     </div>
   );

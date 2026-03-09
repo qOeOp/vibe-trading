@@ -267,7 +267,7 @@ export class FileContextProvider extends AIContextProvider<FileContextItem> {
         element.append(title);
 
         const path = document.createElement("div");
-        path.classList.add("text-xs", "text-muted-foreground");
+        path.classList.add("text-xs", "text-mine-muted");
         path.textContent = data.path;
         element.append(path);
         return element;

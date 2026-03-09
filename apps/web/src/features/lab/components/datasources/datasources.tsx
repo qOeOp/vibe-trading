@@ -1,67 +1,67 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { CommandList } from "cmdk";
-import { atom, useAtomValue, useSetAtom } from "jotai";
-import { sortBy } from "lodash-es";
-import { PlusIcon, PlusSquareIcon, RefreshCwIcon, XIcon } from "lucide-react";
-import React from "react";
-import { dbDisplayName } from "../databases/display";
-import { EngineVariable } from "../databases/engine-variable";
-import { DatabaseLogo } from "../databases/icon";
-import { CopyClipboardIcon } from "../icons/copy-icon";
-import { Button } from "../ui/button";
-import { Command, CommandInput, CommandItem } from "../ui/command";
-import { Tooltip } from "../ui/tooltip";
-import { maybeAddMarimoImport } from "@/features/lab/core/cells/add-missing-import";
-import { cellIdsAtom, useCellActions } from "@/features/lab/core/cells/cells";
-import { useLastFocusedCellId } from "@/features/lab/core/cells/focus";
-import { autoInstantiateAtom } from "@/features/lab/core/config/config";
+import { CommandList } from 'cmdk';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { sortBy } from 'lodash-es';
+import { PlusIcon, PlusSquareIcon, RefreshCwIcon, XIcon } from 'lucide-react';
+import React from 'react';
+import { dbDisplayName } from '../databases/display';
+import { EngineVariable } from '../databases/engine-variable';
+import { DatabaseLogo } from '../databases/icon';
+import { CopyClipboardIcon } from '../icons/copy-icon';
+import { Button } from '@/components/ui/button';
+import { Command, CommandInput, CommandItem } from '@/components/ui/command';
+import { Tooltip } from '@/components/ui/tooltip';
+import { maybeAddMarimoImport } from '@/features/lab/core/cells/add-missing-import';
+import { cellIdsAtom, useCellActions } from '@/features/lab/core/cells/cells';
+import { useLastFocusedCellId } from '@/features/lab/core/cells/focus';
+import { autoInstantiateAtom } from '@/features/lab/core/config/config';
 import {
   dataConnectionsMapAtom,
   type SQLTableContext,
   useDataSourceActions,
-} from "@/features/lab/core/datasets/data-source-connections";
+} from '@/features/lab/core/datasets/data-source-connections';
 import {
   DEFAULT_DUCKDB_DATABASE,
   DUCKDB_ENGINE,
   INTERNAL_SQL_ENGINES,
-} from "@/features/lab/core/datasets/engines";
+} from '@/features/lab/core/datasets/engines';
 import {
   PreviewSQLTable,
   PreviewSQLTableList,
-} from "@/features/lab/core/datasets/request-registry";
+} from '@/features/lab/core/datasets/request-registry';
 import {
   closeAllColumnsAtom,
   datasetTablesAtom,
   expandedColumnsAtom,
   useDatasets,
-} from "@/features/lab/core/datasets/state";
+} from '@/features/lab/core/datasets/state';
 import type {
   Database,
   DatabaseSchema,
   DataSourceConnection,
   DataTable,
   DataTableColumn,
-} from "@/features/lab/core/kernel/messages";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import { variablesAtom } from "@/features/lab/core/variables/state";
-import type { VariableName } from "@/features/lab/core/variables/types";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { logNever } from "@/features/lab/utils/assertNever";
-import { cn } from "@/features/lab/utils/cn";
-import { Events } from "@/features/lab/utils/events";
+} from '@/features/lab/core/kernel/messages';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { variablesAtom } from '@/features/lab/core/variables/state';
+import type { VariableName } from '@/features/lab/core/variables/types';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { cn } from '@/features/lab/utils/cn';
+import { Events } from '@/features/lab/utils/events';
 import {
   DatabaseIcon,
   SchemaIcon,
   TableIcon,
   ViewIcon,
-} from "../databases/namespace-icons";
-import { ErrorBoundary } from "../editor/boundary/ErrorBoundary";
-import { PythonIcon } from "../editor/cell/code/icons";
-import { useAddCodeToNewCell } from "../editor/cell/useAddCell";
-import { PanelEmptyState } from "../editor/chrome/panels/empty-state";
-import { AddDatabaseDialog } from "../editor/database/add-database-form";
-import { DatasetColumnPreview } from "./column-preview";
+} from '../databases/namespace-icons';
+import { ErrorBoundary } from '../editor/boundary/ErrorBoundary';
+import { PythonIcon } from '../editor/cell/code/icons';
+import { useAddCodeToNewCell } from '../editor/cell/useAddCell';
+import { PanelEmptyState } from '../editor/chrome/panels/empty-state';
+import { AddDatabaseDialog } from '../editor/database/add-database-form';
+import { DatasetColumnPreview } from './column-preview';
 import {
   ColumnName,
   DatasourceLabel,
@@ -69,22 +69,22 @@ import {
   ErrorState,
   LoadingState,
   RotatingChevron,
-} from "./components";
-import { isSchemaless, sqlCode } from "./utils";
+} from './components';
+import { isSchemaless, sqlCode } from './utils';
 
 // Indentation classes for the datasource tree hierarchy.
 const INDENT = {
-  engineEmpty: "pl-3",
-  engine: "pl-3 pr-2",
-  database: "pl-4",
-  schemaEmpty: "pl-8",
-  schema: "pl-7",
-  tableLoading: "pl-11",
-  tableSchemaless: "pl-8",
-  tableWithSchema: "pl-12",
-  columnLocal: "pl-5",
-  columnSql: "pl-13",
-  columnPreview: "pl-10",
+  engineEmpty: 'pl-3',
+  engine: 'pl-3 pr-2',
+  database: 'pl-4',
+  schemaEmpty: 'pl-8',
+  schema: 'pl-7',
+  tableLoading: 'pl-11',
+  tableSchemaless: 'pl-8',
+  tableWithSchema: 'pl-12',
+  columnLocal: 'pl-5',
+  columnSql: 'pl-13',
+  columnPreview: 'pl-10',
 };
 
 const sortedTablesAtom = atom((get) => {
@@ -148,7 +148,7 @@ export const connectionsAtom = atom((get) => {
 });
 
 export const DataSources: React.FC = () => {
-  const [searchValue, setSearchValue] = React.useState<string>("");
+  const [searchValue, setSearchValue] = React.useState<string>('');
 
   const closeAllColumns = useSetAtom(closeAllColumnsAtom);
   const tables = useAtomValue(sortedTablesAtom);
@@ -176,7 +176,8 @@ export const DataSources: React.FC = () => {
 
   return (
     <Command
-      className="border-b bg-background rounded-none h-full pb-10 overflow-auto outline-hidden"
+      data-slot="data-sources"
+      className="border-b bg-mine-page-bg rounded-none h-full pb-10 overflow-auto outline-hidden"
       shouldFilter={false}
     >
       <div className="flex items-center w-full border-b">
@@ -194,8 +195,8 @@ export const DataSources: React.FC = () => {
         {hasSearch && (
           <button
             type="button"
-            className="float-right border-b px-2 m-0 h-full hover:bg-accent hover:text-accent-foreground"
-            onClick={() => setSearchValue("")}
+            className="float-right border-b px-2 m-0 h-full hover:bg-mine-hover hover:text-mine-text"
+            onClick={() => setSearchValue('')}
           >
             <XIcon className="h-4 w-4" />
           </button>
@@ -243,7 +244,7 @@ export const DataSources: React.FC = () => {
 
         {dataConnections.length > 0 && tables.length > 0 && (
           <DatasourceLabel className={INDENT.engine}>
-            <PythonIcon className="h-4 w-4 text-muted-foreground" />
+            <PythonIcon className="h-4 w-4 text-mine-muted" />
             <span className="text-xs">Python</span>
           </DatasourceLabel>
         )}
@@ -262,7 +263,7 @@ const Engine: React.FC<{
 }> = ({ connection, children, hasChildren }) => {
   // The internal duckdb connection is updated automatically, so we do not need to refresh.
   const internalEngine = connection.name === DUCKDB_ENGINE;
-  const engineName = internalEngine ? "In-Memory" : connection.name;
+  const engineName = internalEngine ? 'In-Memory' : connection.name;
   const { previewDataSourceConnection } = useRequestClient();
 
   const [isSpinning, setIsSpinning] = React.useState(false);
@@ -280,11 +281,11 @@ const Engine: React.FC<{
     <>
       <DatasourceLabel className={INDENT.engine}>
         <DatabaseLogo
-          className="h-4 w-4 text-muted-foreground"
+          className="h-4 w-4 text-mine-muted"
           name={connection.dialect}
         />
         <span className="text-xs">{dbDisplayName(connection.dialect)}</span>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-mine-muted">
           (<EngineVariable variableName={engineName as VariableName} />)
         </span>
         {!internalEngine && (
@@ -297,8 +298,8 @@ const Engine: React.FC<{
             >
               <RefreshCwIcon
                 className={cn(
-                  "h-4 w-4 text-muted-foreground hover:text-foreground",
-                  isSpinning && "animate-[spin_0.5s]",
+                  'h-4 w-4 text-mine-muted hover:text-mine-text',
+                  isSpinning && 'animate-[spin_0.5s]',
                 )}
               />
             </Button>
@@ -336,7 +337,7 @@ const DatabaseItem: React.FC<{
     <>
       <CommandItem
         className={cn(
-          "text-sm flex flex-row gap-1 items-center cursor-pointer rounded-none",
+          'text-sm flex flex-row gap-1 items-center cursor-pointer rounded-none',
           INDENT.database,
         )}
         onSelect={() => {
@@ -348,14 +349,14 @@ const DatabaseItem: React.FC<{
         <RotatingChevron isExpanded={isExpanded} />
         <DatabaseIcon
           className={cn(
-            "h-4 w-4",
+            'h-4 w-4',
             isSelected && isExpanded
-              ? "text-foreground"
-              : "text-muted-foreground",
+              ? 'text-mine-text'
+              : 'text-mine-muted',
           )}
         />
-        <span className={cn(isSelected && isExpanded && "font-semibold")}>
-          {database.name === "" ? <i>Not connected</i> : database.name}
+        <span className={cn(isSelected && isExpanded && 'font-semibold')}>
+          {database.name === '' ? <i>Not connected</i> : database.name}
         </span>
       </CommandItem>
       {isExpanded && children}
@@ -445,7 +446,7 @@ const SchemaItem: React.FC<{
     <>
       <CommandItem
         className={cn(
-          "text-sm flex flex-row gap-1 items-center cursor-pointer rounded-none",
+          'text-sm flex flex-row gap-1 items-center cursor-pointer rounded-none',
           INDENT.schema,
         )}
         onSelect={() => {
@@ -457,11 +458,11 @@ const SchemaItem: React.FC<{
         <RotatingChevron isExpanded={isExpanded} />
         <SchemaIcon
           className={cn(
-            "h-4 w-4 text-muted-foreground",
-            isSelected && isExpanded && "text-foreground",
+            'h-4 w-4 text-mine-muted',
+            isSelected && isExpanded && 'text-mine-text',
           )}
         />
-        <span className={cn(isSelected && isExpanded && "font-semibold")}>
+        <span className={cn(isSelected && isExpanded && 'font-semibold')}>
           {schema.name}
         </span>
       </CommandItem>
@@ -496,7 +497,7 @@ const TableList: React.FC<{
 
       if (!previewTableList?.tables) {
         setTablesLoading(false);
-        throw new Error("No tables available");
+        throw new Error('No tables available');
       }
 
       addTableList({
@@ -576,7 +577,7 @@ const DatasetTableItem: React.FC<{
       });
 
       if (!previewTable?.table) {
-        throw new Error("No table details available");
+        throw new Error('No table details available');
       }
 
       addTable({
@@ -598,7 +599,7 @@ const DatasetTableItem: React.FC<{
       fromCellId: lastFocusedCellId,
     });
     const getCode = () => {
-      if (table.source_type === "catalog") {
+      if (table.source_type === 'catalog') {
         const identifier = sqlTableContext?.database
           ? `${sqlTableContext.database}.${table.name}`
           : table.name;
@@ -606,18 +607,18 @@ const DatasetTableItem: React.FC<{
       }
 
       if (sqlTableContext) {
-        return sqlCode({ table, columnName: "*", sqlTableContext });
+        return sqlCode({ table, columnName: '*', sqlTableContext });
       }
 
       switch (table.source_type) {
-        case "local":
+        case 'local':
           return `mo.ui.table(${table.name})`;
-        case "duckdb":
-        case "connection":
-          return sqlCode({ table, columnName: "*", sqlTableContext });
+        case 'duckdb':
+        case 'connection':
+          return sqlCode({ table, columnName: '*', sqlTableContext });
         default:
           logNever(table.source_type);
-          return "";
+          return '';
       }
     };
 
@@ -639,8 +640,8 @@ const DatasetTableItem: React.FC<{
 
     return (
       <div className="flex flex-row gap-2 items-center pl-6 group-hover:hidden">
-        <span className="text-xs text-muted-foreground">
-          {label.join(", ")}
+        <span className="text-xs text-mine-muted">
+          {label.join(', ')}
         </span>
       </div>
     );
@@ -682,11 +683,11 @@ const DatasetTableItem: React.FC<{
   };
 
   const renderTableType = () => {
-    if (table.source_type === "local") {
+    if (table.source_type === 'local') {
       return;
     }
 
-    const TableTypeIcon = table.type === "table" ? TableIcon : ViewIcon;
+    const TableTypeIcon = table.type === 'table' ? TableIcon : ViewIcon;
     return (
       <TableTypeIcon
         className="h-3 w-3"
@@ -703,12 +704,12 @@ const DatasetTableItem: React.FC<{
     <>
       <CommandItem
         className={cn(
-          "rounded-none group h-8 cursor-pointer",
+          'rounded-none group h-8 cursor-pointer',
           sqlTableContext &&
             (isSchemaless(sqlTableContext.schema)
               ? INDENT.tableSchemaless
               : INDENT.tableWithSchema),
-          (isExpanded || isSearching) && "font-semibold",
+          (isExpanded || isSearching) && 'font-semibold',
         )}
         value={uniqueId}
         aria-selected={isExpanded}
@@ -779,7 +780,7 @@ const DatasetColumnItem: React.FC<{
   }) => {
     return (
       <Tooltip content={tooltipContent} delayDuration={100}>
-        <span className="text-xs text-black bg-gray-100 dark:invert rounded px-1">
+        <span className="text-xs text-black bg-gray-100 rounded px-1">
           {content}
         </span>
       </Tooltip>
@@ -787,7 +788,7 @@ const DatasetColumnItem: React.FC<{
   };
 
   const columnText = (
-    <span className={isExpanded ? "font-semibold" : ""}>{column.name}</span>
+    <span className={isExpanded ? 'font-semibold' : ''}>{column.name}</span>
   );
 
   return (
@@ -800,21 +801,21 @@ const DatasetColumnItem: React.FC<{
       >
         <div
           className={cn(
-            "flex flex-row gap-2 items-center flex-1",
+            'flex flex-row gap-2 items-center flex-1',
             sqlTableContext ? INDENT.columnSql : INDENT.columnLocal,
           )}
         >
           <ColumnName columnName={columnText} dataType={column.type} />
           {isPrimaryKey &&
-            renderItemSubtext({ tooltipContent: "Primary key", content: "PK" })}
+            renderItemSubtext({ tooltipContent: 'Primary key', content: 'PK' })}
           {isIndexed &&
-            renderItemSubtext({ tooltipContent: "Indexed", content: "IDX" })}
+            renderItemSubtext({ tooltipContent: 'Indexed', content: 'IDX' })}
         </div>
         <Tooltip content="Copy column name" delayDuration={400}>
           <Button
             variant="text"
             size="icon"
-            className="group-hover:opacity-100 opacity-0 hover:bg-muted text-muted-foreground hover:text-foreground"
+            className="group-hover:opacity-100 opacity-0 hover:bg-mine-hover text-mine-muted hover:text-mine-text"
           >
             <CopyClipboardIcon
               tooltip={false}
@@ -823,7 +824,7 @@ const DatasetColumnItem: React.FC<{
             />
           </Button>
         </Tooltip>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-mine-muted">
           {column.external_type}
         </span>
       </CommandItem>
@@ -831,7 +832,7 @@ const DatasetColumnItem: React.FC<{
         <div
           className={cn(
             INDENT.columnPreview,
-            "pr-2 py-2 bg-(--slate-1) shadow-inner border-b",
+            'pr-2 py-2 bg-(--slate-1) shadow-inner border-b',
           )}
         >
           <ErrorBoundary>

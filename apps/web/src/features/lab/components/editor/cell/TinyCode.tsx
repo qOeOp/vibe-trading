@@ -1,12 +1,12 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { python } from "@codemirror/lang-python";
-import CodeMirror, { minimalSetup } from "@uiw/react-codemirror";
-import React, { memo } from "react";
+import { python } from '@codemirror/lang-python';
+import CodeMirror, { minimalSetup } from '@uiw/react-codemirror';
+import React, { memo } from 'react';
 
-import "./TinyCode.css";
-import { useTheme } from "@/features/lab/theme/useTheme";
-import { cn } from "@/features/lab/utils/cn";
+import './TinyCode.css';
+import { useTheme } from '@/features/lab/theme/useTheme';
+import { cn } from '@/features/lab/utils/cn';
 
 interface Props {
   code: string;
@@ -31,14 +31,15 @@ export const TinyCode: React.FC<Props> = memo(({ code, className }) => {
 
   return (
     <div
+      data-slot="tiny-code"
       className={cn(
         className,
-        "text-muted-foreground flex flex-col overflow-hidden",
+        'text-mine-muted flex flex-col overflow-hidden',
       )}
     >
       <CodeMirror
         minHeight="10px"
-        theme={theme === "dark" ? "dark" : "light"}
+        theme={theme === 'dark' ? 'dark' : 'light'}
         height="100%"
         className="tiny-code"
         editable={false}
@@ -50,4 +51,4 @@ export const TinyCode: React.FC<Props> = memo(({ code, className }) => {
   );
 });
 
-TinyCode.displayName = "TinyCode";
+TinyCode.displayName = 'TinyCode';

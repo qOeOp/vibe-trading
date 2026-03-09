@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { startCase } from "lodash-es";
+import { startCase } from 'lodash-es';
 import {
   Grid3x3Icon,
   ListIcon,
   PresentationIcon,
   SquareIcon,
-} from "lucide-react";
-import type React from "react";
+} from 'lucide-react';
+import type React from 'react';
 import {
   Select,
   SelectContent,
@@ -16,12 +16,15 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/features/lab/components/ui/select";
-import { getFeatureFlag } from "@/features/lab/core/config/feature-flag";
-import { useLayoutActions, useLayoutState } from "@/features/lab/core/layout/layout";
-import { isWasm } from "@/features/lab/core/wasm/utils";
-import { logNever } from "@/features/lab/utils/assertNever";
-import { LAYOUT_TYPES, type LayoutType } from "./types";
+} from '@/components/ui/select';
+import { getFeatureFlag } from '@/features/lab/core/config/feature-flag';
+import {
+  useLayoutActions,
+  useLayoutState,
+} from '@/features/lab/core/layout/layout';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { LAYOUT_TYPES, type LayoutType } from './types';
 
 export const LayoutSelect: React.FC = () => {
   const { selectedLayout } = useLayoutState();
@@ -29,7 +32,7 @@ export const LayoutSelect: React.FC = () => {
 
   // Layouts are not supported in WASM mode by default,
   // unless the feature flag is enabled
-  if (isWasm() && !getFeatureFlag("wasm_layouts")) {
+  if (isWasm() && !getFeatureFlag('wasm_layouts')) {
     return null;
   }
 
@@ -40,7 +43,7 @@ export const LayoutSelect: React.FC = () => {
       onValueChange={(v) => setLayoutView(v as LayoutType)}
     >
       <SelectTrigger
-        className="min-w-[110px] border-border bg-background"
+        className="min-w-[110px] border-mine-border bg-mine-page-bg"
         data-testid="layout-select"
       >
         <SelectValue placeholder="Select a view" />
@@ -69,11 +72,11 @@ function renderIcon(layoutType: LayoutType) {
 
 export function getLayoutIcon(layoutType: LayoutType) {
   switch (layoutType) {
-    case "vertical":
+    case 'vertical':
       return ListIcon;
-    case "grid":
+    case 'grid':
       return Grid3x3Icon;
-    case "slides":
+    case 'slides':
       return PresentationIcon;
     default:
       logNever(layoutType);

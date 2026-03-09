@@ -25,7 +25,7 @@ import {
   PanelText,
 } from '@/components/shared/panel';
 
-const OutlinePanel: React.FC = () => {
+export const OutlinePanel: React.FC = () => {
   const { items } = useAtomValue(notebookOutline);
   const headerElements = useMemo(() => findOutlineElements(items), [items]);
   const { activeHeaderId, activeOccurrences } =
@@ -43,8 +43,6 @@ const OutlinePanel: React.FC = () => {
 
   return <CellListFallback />;
 };
-
-export default OutlinePanel;
 
 // ─── Cell List Fallback ──────────────────────────────
 

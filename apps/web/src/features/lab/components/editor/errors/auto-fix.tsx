@@ -1,23 +1,23 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtomValue, useSetAtom, useStore } from "jotai";
-import { ChevronDownIcon, SparklesIcon, WrenchIcon } from "lucide-react";
-import { Button } from "@/features/lab/components/ui/button";
+import { useAtomValue, useSetAtom, useStore } from 'jotai';
+import { ChevronDownIcon, SparklesIcon, WrenchIcon } from 'lucide-react';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/features/lab/components/ui/dropdown-menu";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import { aiCompletionCellAtom } from "@/features/lab/core/ai/state";
-import { notebookAtom, useCellActions } from "@/features/lab/core/cells/cells";
-import type { CellId } from "@/features/lab/core/cells/ids";
-import { aiEnabledAtom } from "@/features/lab/core/config/config";
-import { getAutoFixes } from "@/features/lab/core/errors/errors";
-import type { MarimoError } from "@/features/lab/core/kernel/messages";
-import { cn } from "@/features/lab/utils/cn";
-import { type FixMode, useFixMode } from "./fix-mode";
+} from '@/components/ui/dropdown-menu';
+import { Tooltip } from '@/components/ui/tooltip';
+import { aiCompletionCellAtom } from '@/features/lab/core/ai/state';
+import { notebookAtom, useCellActions } from '@/features/lab/core/cells/cells';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { aiEnabledAtom } from '@/features/lab/core/config/config';
+import { getAutoFixes } from '@/features/lab/core/errors/errors';
+import type { MarimoError } from '@/features/lab/core/kernel/messages';
+import { cn } from '@/features/lab/utils/cn';
+import { type FixMode, useFixMode } from './fix-mode';
 
 export const AutoFixButton = ({
   errors,
@@ -68,8 +68,8 @@ export const AutoFixButton = ({
   };
 
   return (
-    <div className={cn("my-2", className)}>
-      {firstFix.fixType === "ai" ? (
+    <div className={cn('my-2', className)}>
+      {firstFix.fixType === 'ai' ? (
         <AIFixButton
           tooltip={firstFix.description}
           openPrompt={() => handleFix(false)}
@@ -95,8 +95,8 @@ export const AutoFixButton = ({
 const PromptIcon = SparklesIcon;
 const AutofixIcon = WrenchIcon;
 
-const PromptTitle = "Suggest a prompt";
-const AutofixTitle = "Fix with AI";
+const PromptTitle = 'Suggest a prompt';
+const AutofixTitle = 'Fix with AI';
 
 export const AIFixButton = ({
   tooltip,
@@ -116,14 +116,14 @@ export const AIFixButton = ({
           size="xs"
           variant="outline"
           className="font-normal rounded-r-none border-r-0"
-          onClick={fixMode === "prompt" ? openPrompt : applyAutofix}
+          onClick={fixMode === 'prompt' ? openPrompt : applyAutofix}
         >
-          {fixMode === "prompt" ? (
+          {fixMode === 'prompt' ? (
             <PromptIcon className="h-3 w-3 mr-2 mb-0.5" />
           ) : (
             <AutofixIcon className="h-3 w-3 mr-2 mb-0.5" />
           )}
-          {fixMode === "prompt" ? PromptTitle : AutofixTitle}
+          {fixMode === 'prompt' ? PromptTitle : AutofixTitle}
         </Button>
       </Tooltip>
       <DropdownMenu>
@@ -141,10 +141,10 @@ export const AIFixButton = ({
           <DropdownMenuItem
             className="flex items-center gap-2"
             onClick={() => {
-              setFixMode(fixMode === "prompt" ? "autofix" : "prompt");
+              setFixMode(fixMode === 'prompt' ? 'autofix' : 'prompt');
             }}
           >
-            <AiModeItem mode={fixMode === "prompt" ? "autofix" : "prompt"} />
+            <AiModeItem mode={fixMode === 'prompt' ? 'autofix' : 'prompt'} />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -154,23 +154,23 @@ export const AIFixButton = ({
 
 const AiModeItem = ({ mode }: { mode: FixMode }) => {
   const icon =
-    mode === "prompt" ? (
+    mode === 'prompt' ? (
       <PromptIcon className="h-4 w-4" />
     ) : (
       <AutofixIcon className="h-4 w-4" />
     );
-  const title = mode === "prompt" ? PromptTitle : AutofixTitle;
+  const title = mode === 'prompt' ? PromptTitle : AutofixTitle;
   const description =
-    mode === "prompt"
-      ? "Edit the prompt before applying"
-      : "Apply AI fixes automatically";
+    mode === 'prompt'
+      ? 'Edit the prompt before applying'
+      : 'Apply AI fixes automatically';
 
   return (
     <div className="flex items-center gap-2">
       {icon}
       <div className="flex flex-col">
         <span className="font-medium">{title}</span>
-        <span className="text-xs text-muted-foreground">{description}</span>
+        <span className="text-xs text-mine-muted">{description}</span>
       </div>
     </div>
   );

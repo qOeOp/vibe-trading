@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { cva, type VariantProps } from "class-variance-authority";
-import { useState } from "react";
+import { cva, type VariantProps } from 'class-variance-authority';
+import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,10 +10,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/features/lab/components/ui/alert-dialog";
-import { cn } from "@/features/lab/utils/cn";
-import { prettyError } from "@/features/lab/utils/errors";
-import { Logger } from "@/features/lab/utils/Logger";
+} from '@/features/lab/components/ui/alert-dialog';
+import { cn } from '@/features/lab/utils/cn';
+import { prettyError } from '@/features/lab/utils/errors';
+import { Logger } from '@/features/lab/utils/Logger';
 
 export const ErrorBanner = ({
   error,
@@ -67,38 +67,38 @@ export const ErrorBanner = ({
 };
 
 const bannerStyle = cva(
-  "text-sm p-2 border whitespace-pre-wrap overflow-hidden",
+  'text-sm p-2 border whitespace-pre-wrap overflow-hidden',
   {
     variants: {
       kind: {
         danger:
-          "text-error border-(--red-6) shadow-md-solid shadow-error bg-(--red-1)",
-        info: "text-primary border-(--blue-6) shadow-md-solid shadow-accent bg-(--blue-1)",
-        warn: "border-(--yellow-6) bg-(--yellow-2) dark:bg-(--yellow-4) text-(--yellow-11) dark:text-(--yellow-12)",
+          'text-error border-(--red-6) shadow-md-solid shadow-error bg-(--red-1)',
+        info: 'text-primary border-(--blue-6) shadow-md-solid shadow-accent bg-(--blue-1)',
+        warn: 'border-(--yellow-6) bg-(--yellow-2) text-(--yellow-11)',
       },
       clickable: {
-        true: "cursor-pointer",
+        true: 'cursor-pointer',
       },
     },
     compoundVariants: [
       {
         clickable: true,
-        kind: "danger",
-        className: "hover:bg-(--red-3)",
+        kind: 'danger',
+        className: 'hover:bg-(--red-3)',
       },
       {
         clickable: true,
-        kind: "info",
-        className: "hover:bg-(--blue-3)",
+        kind: 'info',
+        className: 'hover:bg-(--blue-3)',
       },
       {
         clickable: true,
-        kind: "warn",
-        className: "hover:bg-(--yellow-3)",
+        kind: 'warn',
+        className: 'hover:bg-(--yellow-3)',
       },
     ],
     defaultVariants: {
-      kind: "info",
+      kind: 'info',
     },
   },
 );

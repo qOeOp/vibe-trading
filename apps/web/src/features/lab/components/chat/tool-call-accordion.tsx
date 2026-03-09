@@ -1,28 +1,28 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { ToolUIPart } from "ai";
-import { isEmpty } from "lodash-es";
+import type { ToolUIPart } from 'ai';
+import { isEmpty } from 'lodash-es';
 import {
   CheckCircleIcon,
   InfoIcon,
   Loader2,
   WrenchIcon,
   XCircleIcon,
-} from "lucide-react";
-import React from "react";
-import { z } from "zod";
+} from 'lucide-react';
+import React from 'react';
+import { z } from 'zod';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "../ui/accordion";
-import { cn } from "@/features/lab/utils/cn";
+} from '../ui/accordion';
+import { cn } from '@/features/lab/utils/cn';
 
 // Zod schema matching the Python SuccessResult dataclass
 const SuccessResultSchema = z
   .object({
-    status: z.string().default("success"),
+    status: z.string().default('success'),
     auth_required: z.boolean().default(false),
     action_url: z.any(),
     next_steps: z.any(),
@@ -47,7 +47,7 @@ const PrettySuccessResult: React.FC<{ data: SuccessResult }> = ({ data }) => {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-muted-foreground">
+        <h3 className="text-xs font-semibold text-mine-muted">
           Tool Result
         </h3>
         <div className="flex items-center gap-2">
@@ -66,7 +66,7 @@ const PrettySuccessResult: React.FC<{ data: SuccessResult }> = ({ data }) => {
       {message && (
         <div className="flex items-start gap-2">
           <InfoIcon className="h-3 w-3 text-[var(--blue-11)] mt-0.5 flex-shrink-0" />
-          <div className="text-xs text-foreground">{message}</div>
+          <div className="text-xs text-mine-text">{message}</div>
         </div>
       )}
 
@@ -79,11 +79,11 @@ const PrettySuccessResult: React.FC<{ data: SuccessResult }> = ({ data }) => {
             }
             return (
               <div key={key} className="space-y-1.5">
-                <div className="text-xs font-medium text-muted-foreground capitalize flex items-center gap-2">
+                <div className="text-xs font-medium text-mine-muted capitalize flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-[var(--blue-9)] rounded-full" />
                   {key}
                 </div>
-                <pre className="bg-[var(--slate-2)] p-2 text-muted-foreground border border-[var(--slate-4)] rounded text-xs overflow-auto scrollbar-thin max-h-64">
+                <pre className="bg-[var(--slate-2)] p-2 text-mine-muted border border-[var(--slate-4)] rounded text-xs overflow-auto scrollbar-thin max-h-64">
                   {JSON.stringify(value, null, 2)}
                 </pre>
               </div>
@@ -106,8 +106,8 @@ const ResultRenderer: React.FC<{ result: unknown }> = ({ result }) => {
 
   // Otherwise, fall back to the current JSON viewer
   return (
-    <div className="text-xs font-medium text-muted-foreground mb-1 max-h-64 overflow-y-auto scrollbar-thin">
-      {typeof result === "string" ? result : JSON.stringify(result, null, 2)}
+    <div className="text-xs font-medium text-mine-muted mb-1 max-h-64 overflow-y-auto scrollbar-thin">
+      {typeof result === 'string' ? result : JSON.stringify(result, null, 2)}
     </div>
   );
 };
@@ -122,17 +122,17 @@ const ToolArgsRenderer: React.FC<{ input: unknown }> = ({ input }) => {
   const isEmptyInput = isEmpty(input);
 
   const isObject =
-    typeof input === "object" &&
+    typeof input === 'object' &&
     Object.keys(input as Record<string, unknown>).length > 0;
 
   return (
     <div className="space-y-2">
-      <h3 className="text-xs font-semibold text-muted-foreground">
+      <h3 className="text-xs font-semibold text-mine-muted">
         Tool Request
       </h3>
-      <pre className="bg-[var(--slate-2)] p-2 text-muted-foreground border border-[var(--slate-4)] rounded text-xs overflow-auto scrollbar-thin max-h-64">
+      <pre className="bg-[var(--slate-2)] p-2 text-mine-muted border border-[var(--slate-4)] rounded text-xs overflow-auto scrollbar-thin max-h-64">
         {isEmptyInput
-          ? "{}"
+          ? '{}'
           : isObject
             ? JSON.stringify(input, null, 2)
             : String(input)}
@@ -146,7 +146,7 @@ interface ToolCallAccordionProps {
   result: unknown;
   error?: string;
   index?: number;
-  state?: ToolUIPart["state"];
+  state?: ToolUIPart['state'];
   className?: string;
   input?: unknown;
 }
@@ -160,16 +160,16 @@ export const ToolCallAccordion: React.FC<ToolCallAccordionProps> = ({
   className,
   input,
 }) => {
-  const hasResult = state === "output-available" && (result || error);
-  const status = error ? "error" : hasResult ? "success" : "loading";
+  const hasResult = state === 'output-available' && (result || error);
+  const status = error ? 'error' : hasResult ? 'success' : 'loading';
 
   const getStatusIcon = () => {
     switch (status) {
-      case "loading":
+      case 'loading':
         return <Loader2 className="h-3 w-3 animate-spin" />;
-      case "error":
+      case 'error':
         return <XCircleIcon className="h-3 w-3 text-[var(--red-11)]" />;
-      case "success":
+      case 'success':
         return <CheckCircleIcon className="h-3 w-3 text-[var(--grass-11)]" />;
       default:
         return <WrenchIcon className="h-3 w-3" />;
@@ -177,31 +177,32 @@ export const ToolCallAccordion: React.FC<ToolCallAccordionProps> = ({
   };
 
   const getStatusText = () => {
-    if (status === "loading") {
-      return "Running";
+    if (status === 'loading') {
+      return 'Running';
     }
     if (error) {
-      return "Failed";
+      return 'Failed';
     }
     if (hasResult) {
-      return "Done";
+      return 'Done';
     }
-    return "Tool call";
+    return 'Tool call';
   };
 
   return (
     <Accordion
       key={`tool-${index}`}
+      data-slot="tool-call-accordion"
       type="single"
       collapsible={true}
-      className={cn("w-full", className)}
+      className={cn('w-full', className)}
     >
       <AccordionItem value="tool-call" className="border-0">
         <AccordionTrigger
           className={cn(
-            "h-6 text-xs border-border shadow-none! ring-0! bg-muted/60 hover:bg-muted py-0 px-2 gap-1 rounded-sm [&[data-state=open]>svg]:rotate-180 hover:no-underline",
-            status === "error" && "text-[var(--red-11)]/80",
-            status === "success" && "text-[var(--grass-11)]/80",
+            'h-6 text-xs border-mine-border shadow-none! ring-0! bg-mine-hover/60 hover:bg-mine-hover py-0 px-2 gap-1 rounded-sm [&[data-state=open]>svg]:rotate-180 hover:no-underline',
+            status === 'error' && 'text-[var(--red-11)]/80',
+            status === 'success' && 'text-[var(--grass-11)]/80',
           )}
         >
           <span className="flex items-center gap-1">
@@ -242,5 +243,5 @@ export const ToolCallAccordion: React.FC<ToolCallAccordionProps> = ({
 };
 
 function formatToolName(toolName: string) {
-  return toolName.replace("tool-", "");
+  return toolName.replace('tool-', '');
 }

@@ -33,7 +33,7 @@ export const AppContainer: React.FC<PropsWithChildren<Props>> = ({
           className={cn(
             'mathjax_ignore',
             isAppClosed(connectionState) && 'disconnected',
-            isLabActive ? 'bg-transparent' : 'bg-background',
+            isLabActive ? 'bg-transparent' : 'bg-mine-page-bg',
             'w-full h-full text-textColor',
             'flex flex-col overflow-y-auto',
             isLabActive && 'scrollbar-none',

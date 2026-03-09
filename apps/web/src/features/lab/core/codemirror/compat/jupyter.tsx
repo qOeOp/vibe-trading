@@ -3,7 +3,7 @@ import type { Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { focusPackagesInput } from '@/features/lab/components/editor/chrome/panels/packages-utils';
 import { useLabChromeStore } from '@/features/lab/store/use-lab-chrome-store';
-import { Kbd } from '@/features/lab/components/ui/kbd';
+import { Kbd } from '@/components/ui/kbd';
 import { userConfigAtom } from '@/features/lab/core/config/config';
 import { getRequestClient } from '@/features/lab/core/network/requests';
 import { store } from '@/features/lab/core/state/jotai';

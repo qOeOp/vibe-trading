@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { PinLeftIcon, PinRightIcon } from "@radix-ui/react-icons";
-import type { Column, SortDirection, Table } from "@tanstack/react-table";
+import { PinLeftIcon, PinRightIcon } from '@radix-ui/react-icons';
+import type { Column, SortDirection, Table } from '@tanstack/react-table';
 import {
   AlignJustifyIcon,
   ArrowDownWideNarrowIcon,
@@ -14,7 +14,7 @@ import {
   ListFilterPlusIcon,
   PinOffIcon,
   WrapTextIcon,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   DropdownMenuItem,
   DropdownMenuPortal,
@@ -22,15 +22,15 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-} from "../ui/dropdown-menu";
-import type { DataType } from "@/features/lab/core/kernel/messages";
-import { cn } from "@/features/lab/utils/cn";
-import { copyToClipboard } from "@/features/lab/utils/copy";
-import { DATA_TYPE_ICON } from "../datasets/icons";
-import { Button } from "../ui/button";
-import { formattingExample } from "./column-formatting/feature";
-import { formatOptions } from "./column-formatting/types";
-import { NAMELESS_COLUMN_PREFIX } from "./columns";
+} from '@/components/ui/dropdown-menu';
+import type { DataType } from '@/features/lab/core/kernel/messages';
+import { cn } from '@/features/lab/utils/cn';
+import { copyToClipboard } from '@/features/lab/utils/copy';
+import { DATA_TYPE_ICON } from '../datasets/icons';
+import { Button } from '@/components/ui/button';
+import { formattingExample } from './column-formatting/feature';
+import { formatOptions } from './column-formatting/types';
+import { NAMELESS_COLUMN_PREFIX } from './columns';
 
 export function renderFormatOptions<TData, TValue>(
   column: Column<TData, TValue>,
@@ -42,7 +42,7 @@ export function renderFormatOptions<TData, TValue>(
   if (columnFormatOptions.length === 0 || !column.getCanFormat?.()) {
     return null;
   }
-  const FormatIcon = DATA_TYPE_ICON[dataType || "unknown"];
+  const FormatIcon = DATA_TYPE_ICON[dataType || 'unknown'];
   const currentFormat = column.getColumnFormatting?.();
   return (
     <DropdownMenuSub>
@@ -52,14 +52,14 @@ export function renderFormatOptions<TData, TValue>(
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>
         <DropdownMenuSubContent>
-          <div className="text-xs text-muted-foreground px-2 py-1">
+          <div className="text-xs text-mine-muted px-2 py-1">
             Locale: {locale}
           </div>
           {Boolean(currentFormat) && (
             <>
               <DropdownMenuItem
-                key={"clear"}
-                variant={"danger"}
+                key={'clear'}
+                variant={'danger'}
                 onClick={() => column.setColumnFormatting(undefined)}
               >
                 Clear
@@ -72,10 +72,10 @@ export function renderFormatOptions<TData, TValue>(
               key={option}
               onClick={() => column.setColumnFormatting(option)}
             >
-              <span className={cn(currentFormat === option && "font-semibold")}>
+              <span className={cn(currentFormat === option && 'font-semibold')}>
                 {option}
               </span>
-              <span className="ml-auto pl-5 text-xs text-muted-foreground">
+              <span className="ml-auto pl-5 text-xs text-mine-muted">
                 {formattingExample(option, locale)}
               </span>
             </DropdownMenuItem>
@@ -94,9 +94,9 @@ export function renderColumnWrapping<TData, TValue>(
   }
 
   const wrap = column.getColumnWrapping();
-  if (wrap === "wrap") {
+  if (wrap === 'wrap') {
     return (
-      <DropdownMenuItem onClick={() => column.toggleColumnWrapping("nowrap")}>
+      <DropdownMenuItem onClick={() => column.toggleColumnWrapping('nowrap')}>
         <AlignJustifyIcon className="mo-dropdown-icon" />
         No wrap text
       </DropdownMenuItem>
@@ -104,7 +104,7 @@ export function renderColumnWrapping<TData, TValue>(
   }
 
   return (
-    <DropdownMenuItem onClick={() => column.toggleColumnWrapping("wrap")}>
+    <DropdownMenuItem onClick={() => column.toggleColumnWrapping('wrap')}>
       <WrapTextIcon className="mo-dropdown-icon" />
       Wrap text
     </DropdownMenuItem>
@@ -131,11 +131,11 @@ export function renderColumnPinning<TData, TValue>(
 
   return (
     <>
-      <DropdownMenuItem onClick={() => column.pin("left")}>
+      <DropdownMenuItem onClick={() => column.pin('left')}>
         <PinLeftIcon className="mo-dropdown-icon" />
         Freeze left
       </DropdownMenuItem>
-      <DropdownMenuItem onClick={() => column.pin("right")}>
+      <DropdownMenuItem onClick={() => column.pin('right')}>
         <PinRightIcon className="mo-dropdown-icon" />
         Freeze right
       </DropdownMenuItem>
@@ -213,7 +213,7 @@ export function renderSorts<TData, TValue>(
       column.clearSorting();
     } else {
       // Toggle sort direction
-      const descending = direction === "desc";
+      const descending = direction === 'desc';
       column.toggleSorting(descending, true);
     }
   };
@@ -221,20 +221,20 @@ export function renderSorts<TData, TValue>(
   return (
     <>
       <DropdownMenuItem
-        onClick={() => toggleSort("asc")}
-        className={sortDirection === "asc" ? "bg-accent" : ""}
+        onClick={() => toggleSort('asc')}
+        className={sortDirection === 'asc' ? 'bg-mine-hover' : ''}
       >
         <AscIcon className="mo-dropdown-icon" />
         Asc
-        {sortDirection === "asc" && renderSortIndex()}
+        {sortDirection === 'asc' && renderSortIndex()}
       </DropdownMenuItem>
       <DropdownMenuItem
-        onClick={() => toggleSort("desc")}
-        className={sortDirection === "desc" ? "bg-accent" : ""}
+        onClick={() => toggleSort('desc')}
+        className={sortDirection === 'desc' ? 'bg-mine-hover' : ''}
       >
         <DescIcon className="mo-dropdown-icon" />
         Desc
-        {sortDirection === "desc" && renderSortIndex()}
+        {sortDirection === 'desc' && renderSortIndex()}
       </DropdownMenuItem>
       {renderClearSort()}
       <DropdownMenuSeparator />
@@ -258,7 +258,7 @@ export function renderSortFilterIcon<TData, TValue>(
   } else if (isFiltered) {
     Icon = FunnelPlusIcon;
   } else if (isSorted) {
-    Icon = isSorted === "desc" ? DescIcon : AscIcon;
+    Icon = isSorted === 'desc' ? DescIcon : AscIcon;
   } else {
     Icon = ChevronsUpDown;
   }
@@ -274,7 +274,7 @@ export function renderDataType<TData, TValue>(column: Column<TData, TValue>) {
 
   return (
     <>
-      <div className="flex-1 px-2 text-xs text-muted-foreground font-bold">
+      <div className="flex-1 px-2 text-xs text-mine-muted font-bold">
         {dtype}
       </div>
       <DropdownMenuSeparator />
@@ -304,7 +304,7 @@ export function renderFilterByValues<TData, TValue>(
 
   const columnType = column.columnDef.meta?.dataType;
   // skip boolean as this can be easily filtered through normal filters
-  if (columnType === "boolean") {
+  if (columnType === 'boolean') {
     return null;
   }
 

@@ -149,7 +149,7 @@ export class CellOutputContextProvider extends AIContextProvider<CellOutputConte
         headerDiv.append(nameDiv);
 
         const descriptionDiv = document.createElement("div");
-        descriptionDiv.classList.add("text-sm", "text-muted-foreground");
+        descriptionDiv.classList.add("text-sm", "text-mine-muted");
         headerDiv.append(descriptionDiv);
 
         infoContainer.append(headerDiv);
@@ -160,7 +160,7 @@ export class CellOutputContextProvider extends AIContextProvider<CellOutputConte
           codeHeaderDiv.classList.add(
             "text-xs",
             "font-medium",
-            "text-muted-foreground",
+            "text-mine-muted",
           );
           codeHeaderDiv.textContent = "Code:";
           infoContainer.append(codeHeaderDiv);
@@ -169,7 +169,7 @@ export class CellOutputContextProvider extends AIContextProvider<CellOutputConte
           codeDiv.classList.add(
             "text-xs",
             "font-mono",
-            "bg-muted",
+            "bg-mine-hover",
             "p-2",
             "rounded",
             "max-h-20",
@@ -186,7 +186,7 @@ export class CellOutputContextProvider extends AIContextProvider<CellOutputConte
           outputHeaderDiv.classList.add(
             "text-xs",
             "font-medium",
-            "text-muted-foreground",
+            "text-mine-muted",
             "mt-2",
           );
           outputHeaderDiv.textContent = "Output Preview:";
@@ -195,7 +195,7 @@ export class CellOutputContextProvider extends AIContextProvider<CellOutputConte
           const outputDiv = document.createElement("div");
           outputDiv.classList.add(
             "text-xs",
-            "bg-muted",
+            "bg-mine-hover",
             "p-2",
             "rounded",
             "max-h-24",
@@ -212,7 +212,7 @@ export class CellOutputContextProvider extends AIContextProvider<CellOutputConte
           const mediaDiv = document.createElement("div");
           mediaDiv.classList.add(
             "text-xs",
-            "text-muted-foreground",
+            "text-mine-muted",
             "italic",
             "mb-2",
           );

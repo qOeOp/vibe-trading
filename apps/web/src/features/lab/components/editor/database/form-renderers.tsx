@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { partition } from "lodash-es";
-import { KeyIcon, PlusCircleIcon } from "lucide-react";
-import { createContext, type ReactNode, use } from "react";
-import { z } from "zod";
-import type { FormRenderer } from "@/features/lab/components/forms/form";
-import { FieldOptions } from "@/features/lab/components/forms/options";
-import { useImperativeModal } from "@/features/lab/components/modal/ImperativeModal";
-import { Button } from "@/features/lab/components/ui/button";
+import { partition } from 'lodash-es';
+import { KeyIcon, PlusCircleIcon } from 'lucide-react';
+import { createContext, type ReactNode, use } from 'react';
+import { z } from 'zod';
+import type { FormRenderer } from '@/features/lab/components/forms/form';
+import { FieldOptions } from '@/features/lab/components/forms/options';
+import { useImperativeModal } from '@/features/lab/components/modal/ImperativeModal';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/features/lab/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   FormControl,
   FormDescription,
@@ -23,18 +23,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/features/lab/components/ui/form";
-import { Input } from "@/features/lab/components/ui/input";
-import { NumberField } from "@/features/lab/components/ui/number-field";
-import { SECRETS_REGISTRY } from "@/features/lab/core/secrets/request-registry";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { cn } from "@/features/lab/utils/cn";
-import { Functions } from "@/features/lab/utils/functions";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { NumberField } from '@/features/lab/components/ui/number-field';
+import { SECRETS_REGISTRY } from '@/features/lab/core/secrets/request-registry';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { cn } from '@/features/lab/utils/cn';
+import { Functions } from '@/features/lab/utils/functions';
 import {
   sortProviders,
   WriteSecretModal,
-} from "../chrome/panels/write-secret-modal";
-import { displaySecret, isSecret, prefixSecret } from "./secrets";
+} from '../chrome/panels/write-secret-modal';
+import { displaySecret, isSecret, prefixSecret } from './secrets';
 
 interface SecretsContextType {
   providerNames: string[];
@@ -68,7 +68,7 @@ export const SecretsProvider = ({ children }: SecretsProviderProps) => {
     const result = await SECRETS_REGISTRY.request({});
     // Provider names without 'env' provider
     const providerNames = sortProviders(result.secrets)
-      .filter((provider) => provider.provider !== "env")
+      .filter((provider) => provider.provider !== 'env')
       .map((provider) => provider.name);
 
     return {
@@ -96,7 +96,7 @@ export const ENV_RENDERER: FormRenderer<z.ZodString | z.ZodNumber> = {
   isMatch: (schema: z.ZodType): schema is z.ZodString | z.ZodNumber => {
     // string or number with optionsRegex
     if (schema instanceof z.ZodString || schema instanceof z.ZodNumber) {
-      const { optionRegex } = FieldOptions.parse(schema.description || "");
+      const { optionRegex } = FieldOptions.parse(schema.description || '');
       return Boolean(optionRegex);
     }
 
@@ -109,11 +109,11 @@ export const ENV_RENDERER: FormRenderer<z.ZodString | z.ZodNumber> = {
     const {
       label,
       description,
-      optionRegex = "",
-    } = FieldOptions.parse(schema.description || "");
+      optionRegex = '',
+    } = FieldOptions.parse(schema.description || '');
 
     const [recommendedKeys, otherKeys] = partition(secretKeys, (key) =>
-      new RegExp(optionRegex, "i").test(key),
+      new RegExp(optionRegex, 'i').test(key),
     );
 
     return (
@@ -131,7 +131,7 @@ export const ENV_RENDERER: FormRenderer<z.ZodString | z.ZodNumber> = {
                     {...field}
                     value={displaySecret(field.value as string)}
                     onChange={field.onChange}
-                    className={cn("flex-1")}
+                    className={cn('flex-1')}
                   />
                 ) : (
                   <NumberField
@@ -147,7 +147,7 @@ export const ENV_RENDERER: FormRenderer<z.ZodString | z.ZodNumber> = {
                       variant="outline"
                       size="icon"
                       className={cn(
-                        isSecret(field.value as string) && "bg-accent",
+                        isSecret(field.value as string) && 'bg-mine-hover',
                       )}
                     >
                       <KeyIcon className="h-3 w-3" />

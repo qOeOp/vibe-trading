@@ -46,7 +46,7 @@ export const SearchBar = ({
         hidden && "h-0 border-none opacity-0",
       )}
     >
-      <SearchIcon className="w-4 h-4 text-muted-foreground" />
+      <SearchIcon className="w-4 h-4 text-mine-muted" />
       <input
         type="text"
         ref={ref}

@@ -40,9 +40,9 @@ import { processMimeBundle } from '@/features/lab/utils/mime-types';
 import { Objects } from '@/features/lab/utils/objects';
 import { LazyVegaEmbed } from '@/components/charts/lazy';
 import { ChartLoadingState } from '../data-table/charts/components/chart-states';
-import { Button } from '../ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Tooltip } from '../ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip } from '@/components/ui/tooltip';
 import { CsvViewer } from './file-tree/renderers';
 import { MarimoTracebackOutput } from './output/MarimoTracebackOutput';
 import { renderMimeIcon } from './renderMimeIcon';
@@ -457,7 +457,7 @@ const ExpandableOutput = React.memo(
                 <Tooltip content="Fullscreen" side="left">
                   <Button
                     data-testid="fullscreen-output-button"
-                    className="hover-action hover:bg-muted p-1 hover:border-border border border-transparent"
+                    className="hover-action hover:bg-mine-hover p-1 hover:border-mine-border border border-transparent"
                     onClick={async () => {
                       await containerRef.current?.requestFullscreen();
                     }}
@@ -476,7 +476,7 @@ const ExpandableOutput = React.memo(
                 <Button
                   data-testid="expand-output-button"
                   className={cn(
-                    'hover:border-border border border-transparent hover:bg-muted',
+                    'hover:border-mine-border border border-transparent hover:bg-mine-hover',
                     // Force show button if expanded
                     !isExpanded && 'hover-action',
                   )}
@@ -501,7 +501,7 @@ const ExpandableOutput = React.memo(
             {...props}
             data-cell-role="output"
             className={cn(
-              'relative fullscreen:bg-background fullscreen:flex fullscreen:items-center fullscreen:justify-center',
+              'relative fullscreen:bg-mine-page-bg fullscreen:flex fullscreen:items-center fullscreen:justify-center',
               'fullscreen:items-center-safe',
               props.className,
             )}

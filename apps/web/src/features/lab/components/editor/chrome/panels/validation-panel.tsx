@@ -58,7 +58,7 @@ function StepContent({
   }
 }
 
-const ValidationPanel: React.FC = () => {
+export const ValidationPanel: React.FC = () => {
   const result = useValidationResult();
   const [activeStep, setActiveStep] = useState<StepKey>('ic-stats');
 
@@ -83,8 +83,8 @@ const ValidationPanel: React.FC = () => {
             onClick={() => setActiveStep(step.key)}
             className={`px-2 py-1 text-[11px] rounded-md whitespace-nowrap transition-colors ${
               activeStep === step.key
-                ? 'bg-muted font-medium text-foreground'
-                : 'text-muted-foreground hover:bg-muted/50'
+                ? 'bg-mine-hover font-medium text-mine-text'
+                : 'text-mine-muted hover:bg-mine-hover/50'
             }`}
           >
             {step.label}
@@ -104,5 +104,3 @@ const ValidationPanel: React.FC = () => {
     </div>
   );
 };
-
-export default ValidationPanel;

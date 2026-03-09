@@ -5,7 +5,7 @@ import { startCase } from "lodash-es";
 import { AlertCircleIcon, CheckCircle2Icon, PowerOffIcon } from "lucide-react";
 import type React from "react";
 import { Spinner } from "@/features/lab/components/icons/spinner";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { connectionAtom } from "@/features/lab/core/network/connection";
 import { useConnectToRuntime, useRuntimeManager } from "@/features/lab/core/runtime/config";
 import { store } from "@/features/lab/core/state/jotai";
@@ -135,7 +135,7 @@ export const BackendConnectionStatus: React.FC = () => {
         <div className="text-sm whitespace-pre-line">
           {getStatusInfo()}
           {isAppConnected(connection) && (
-            <div className="mt-2 text-xs text-muted-foreground">
+            <div className="mt-2 text-xs text-mine-muted">
               Click to refresh health status
             </div>
           )}
@@ -146,7 +146,7 @@ export const BackendConnectionStatus: React.FC = () => {
       <button
         type="button"
         onClick={handleClick}
-        className="p-1 hover:bg-accent rounded flex items-center gap-1.5 text-xs text-muted-foreground"
+        className="p-1 hover:bg-mine-hover rounded flex items-center gap-1.5 text-xs text-mine-muted"
         data-testid="backend-status"
       >
         {getStatusIcon()}

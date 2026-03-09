@@ -19,11 +19,11 @@ export const PanelEmptyState = ({
       <div className="flex flex-row gap-2 items-center">
         {icon &&
           React.cloneElement(icon, {
-            className: "text-accent-foreground flex-shrink-0",
+            className: "text-mine-text flex-shrink-0",
           })}
-        <span className="mt-1 text-accent-foreground">{title}</span>
+        <span className="mt-1 text-mine-text">{title}</span>
       </div>
-      <span className="text-muted-foreground text-sm">{description}</span>
+      <span className="text-mine-muted text-sm">{description}</span>
       {action && <div className="mt-2">{action}</div>}
     </div>
   );

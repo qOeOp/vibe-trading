@@ -19,7 +19,9 @@ import { PanelContent, getPanelHeaderRight } from './panel-content';
 //   - Other bottom panels (Logs): PanelFrame.
 // All slots support drag-to-resize via edge handles.
 
-const LazyTerminal = lazy(() => import('../terminal/terminal'));
+const LazyTerminal = lazy(() =>
+  import('../terminal/terminal').then((m) => ({ default: m.LabTerminal })),
+);
 
 const PANEL_EASE = [0.25, 0.1, 0.25, 1] as const;
 const PANEL_DURATION = 0.25;

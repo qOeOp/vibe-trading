@@ -142,7 +142,7 @@ const SortableCellInternal = React.forwardRef(
         {...listeners}
         onMouseDown={Events.preventFocus}
         data-testid="drag-button"
-        className="py-px cursor-grab opacity-50 hover:opacity-100 hover-action hover:bg-muted rounded border border-transparent hover:border-border active:bg-accent"
+        className="py-px cursor-grab opacity-50 hover:opacity-100 hover-action hover:bg-mine-hover rounded border border-transparent hover:border-mine-border active:bg-mine-hover"
       >
         <GripVerticalIcon strokeWidth={1} size={20} />
       </div>

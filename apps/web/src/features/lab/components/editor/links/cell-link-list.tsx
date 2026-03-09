@@ -1,14 +1,14 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type React from "react";
+import type React from 'react';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/features/lab/components/ui/popover";
-import { useCellIds } from "@/features/lab/core/cells/cells";
-import type { CellId } from "@/features/lab/core/cells/ids";
-import { CellLink } from "./cell-link";
+} from '@/components/ui/popover';
+import { useCellIds } from '@/features/lab/core/cells/cells';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { CellLink } from './cell-link';
 
 interface Props {
   maxCount: number;
@@ -29,7 +29,7 @@ export const CellLinkList: React.FC<Props> = ({
   });
 
   if (cellIds.length === 0) {
-    return <div className="text-muted-foreground">--</div>;
+    return <div className="text-mine-muted">--</div>;
   }
 
   return (
@@ -44,13 +44,13 @@ export const CellLinkList: React.FC<Props> = ({
             className="whitespace-nowrap"
             onClick={onClick ? () => onClick(cellId) : undefined}
           />
-          {idx < cellIds.length - 1 && ", "}
+          {idx < cellIds.length - 1 && ', '}
         </span>
       ))}
       {cellIds.length > maxCount && (
         <Popover>
           <PopoverTrigger asChild={true}>
-            <span className="whitespace-nowrap text-muted-foreground text-xs hover:underline cursor-pointer">
+            <span className="whitespace-nowrap text-mine-muted text-xs hover:underline cursor-pointer">
               +{cellIds.length - maxCount} more
             </span>
           </PopoverTrigger>

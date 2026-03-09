@@ -1,47 +1,47 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useState } from "react";
-import { useLocale } from "react-aria";
+import { useState } from 'react';
+import { useLocale } from 'react-aria';
 import {
   AddDataframeChart,
   renderChart,
   renderPreviewError,
   renderStats,
-} from "@/features/lab/components/datasources/column-preview";
+} from '@/features/lab/components/datasources/column-preview';
 import {
   ColumnName,
   ColumnPreviewContainer,
   EmptyState,
   ErrorState,
   LoadingState,
-} from "@/features/lab/components/datasources/components";
-import { ErrorBoundary } from "@/features/lab/components/editor/boundary/ErrorBoundary";
-import { CopyClipboardIcon } from "@/features/lab/components/icons/copy-icon";
-import { Button } from "@/features/lab/components/ui/button";
+} from '@/features/lab/components/datasources/components';
+import { ErrorBoundary } from '@/features/lab/components/editor/boundary/ErrorBoundary';
+import { CopyClipboardIcon } from '@/features/lab/components/icons/copy-icon';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/features/lab/components/ui/command";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import type { DataType } from "@/features/lab/core/kernel/messages";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import type { PreviewColumn } from "@/features/lab/plugins/impl/DataTablePlugin";
-import { useTheme } from "@/features/lab/theme/useTheme";
-import { NAMELESS_COLUMN_PREFIX } from "../columns";
-import { prettifyRowColumnCount } from "../pagination";
+} from '@/components/ui/command';
+import { Tooltip } from '@/components/ui/tooltip';
+import type { DataType } from '@/features/lab/core/kernel/messages';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import type { PreviewColumn } from '@/features/lab/plugins/impl/DataTablePlugin';
+import { useTheme } from '@/features/lab/theme/useTheme';
+import { NAMELESS_COLUMN_PREFIX } from '../columns';
+import { prettifyRowColumnCount } from '../pagination';
 import {
   type FieldTypesWithExternalType,
   INDEX_COLUMN_NAME,
   SELECT_COLUMN_ID,
-} from "../types";
+} from '../types';
 
 interface ColumnExplorerPanelProps {
   previewColumn: PreviewColumn;
   fieldTypes: FieldTypesWithExternalType | undefined | null;
-  totalRows: number | "too_many";
+  totalRows: number | 'too_many';
   totalColumns: number;
   tableId: string;
 }
@@ -53,7 +53,7 @@ export const ColumnExplorerPanel = ({
   totalColumns,
   tableId,
 }: ColumnExplorerPanelProps) => {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const { locale } = useLocale();
   const columns = fieldTypes?.filter(([columnName]) => {
     if (
@@ -76,11 +76,11 @@ export const ColumnExplorerPanel = ({
         {prettifyRowColumnCount(totalRows, totalColumns, locale)}
         <CopyClipboardIcon
           tooltip="Copy column names"
-          value={columns?.map(([columnName]) => columnName).join(",\n") || ""}
+          value={columns?.map(([columnName]) => columnName).join(',\n') || ''}
           className="h-3 w-3 ml-1 mt-0.5"
         />
       </span>
-      <Command className="h-5/6 bg-background" shouldFilter={false}>
+      <Command className="h-5/6 bg-mine-page-bg" shouldFilter={false}>
         <CommandInput
           placeholder="Search columns..."
           value={searchValue}
@@ -120,7 +120,7 @@ const ColumnItem = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const columnText = (
-    <span className={isExpanded ? "font-semibold" : ""}>{columnName}</span>
+    <span className={isExpanded ? 'font-semibold' : ''}>{columnName}</span>
   );
 
   return (
@@ -136,7 +136,7 @@ const ColumnItem = ({
             <Button
               variant="text"
               size="icon"
-              className="group-hover:opacity-100 opacity-0 hover:bg-muted text-muted-foreground hover:text-foreground"
+              className="group-hover:opacity-100 opacity-0 hover:bg-mine-hover text-mine-muted hover:text-mine-text"
             >
               <CopyClipboardIcon
                 tooltip={false}
@@ -145,7 +145,7 @@ const ColumnItem = ({
               />
             </Button>
           </Tooltip>
-          <span className="text-xs text-muted-foreground">{externalType}</span>
+          <span className="text-xs text-mine-muted">{externalType}</span>
         </div>
       </CommandItem>
       {isExpanded && (

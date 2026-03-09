@@ -4,7 +4,7 @@ import type {
   Column,
   OnChangeFn,
   RowSelectionState,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 import {
   AlertTriangle,
   ChevronLeft,
@@ -13,15 +13,15 @@ import {
   ChevronsRight,
   Info,
   SearchIcon,
-} from "lucide-react";
-import { useRef, useState } from "react";
-import { useLocale } from "react-aria";
-import { ColumnName } from "@/features/lab/components/datasources/components";
-import { CopyClipboardIcon } from "@/features/lab/components/icons/copy-icon";
-import { Spinner } from "@/features/lab/components/icons/spinner";
-import { KeyboardHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
-import { Button } from "@/features/lab/components/ui/button";
-import { Input } from "@/features/lab/components/ui/input";
+} from 'lucide-react';
+import { useRef, useState } from 'react';
+import { useLocale } from 'react-aria';
+import { ColumnName } from '@/features/lab/components/datasources/components';
+import { CopyClipboardIcon } from '@/features/lab/components/icons/copy-icon';
+import { Spinner } from '@/features/lab/components/icons/spinner';
+import { KeyboardHotkeys } from '@/features/lab/components/shortcuts/renderShortcut';
+import { Button } from '@/features/lab/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -29,21 +29,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/features/lab/components/ui/table";
-import { DelayMount } from "@/features/lab/components/utils/delay-mount";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { useKeydownOnElement } from "@/features/lab/hooks/useHotkey";
-import { Banner, ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
-import type { GetRowResult } from "@/features/lab/plugins/impl/DataTablePlugin";
-import { NAMELESS_COLUMN_PREFIX, renderCellValue } from "../columns";
-import { prettifyRowCount } from "../pagination";
+} from '@/components/ui/table';
+import { DelayMount } from '@/features/lab/components/utils/delay-mount';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { useKeydownOnElement } from '@/features/lab/hooks/useHotkey';
+import {
+  Banner,
+  ErrorBanner,
+} from '@/features/lab/plugins/impl/common/error-banner';
+import type { GetRowResult } from '@/features/lab/plugins/impl/DataTablePlugin';
+import { NAMELESS_COLUMN_PREFIX, renderCellValue } from '../columns';
+import { prettifyRowCount } from '../pagination';
 import {
   type FieldTypesWithExternalType,
   INDEX_COLUMN_NAME,
   SELECT_COLUMN_ID,
   TOO_MANY_ROWS,
   type TooManyRows,
-} from "../types";
+} from '../types';
 
 export interface RowViewerPanelProps {
   rowIdx: number;
@@ -66,7 +69,7 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
   isRowSelected,
   handleRowSelectionChange,
 }: RowViewerPanelProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const panelRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { locale } = useLocale();
@@ -79,7 +82,7 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
   }, [getRow, rowIdx, totalRows]);
 
   const setRow = (rowIdx: number) => {
-    if (rowIdx < 0 || (typeof totalRows === "number" && rowIdx >= totalRows)) {
+    if (rowIdx < 0 || (typeof totalRows === 'number' && rowIdx >= totalRows)) {
       return;
     }
     setRowIdx(rowIdx);
@@ -123,7 +126,7 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
     },
   });
 
-  const buttonStyles = "h-6 w-6 p-0.5";
+  const buttonStyles = 'h-6 w-6 p-0.5';
 
   const renderTable = () => {
     if (error) {
@@ -146,7 +149,7 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
 
     if (rows.length !== 1) {
       const message = tooManyRows
-        ? "LazyFrame, no data available."
+        ? 'LazyFrame, no data available.'
         : `Expected 1 row, got ${rows.length} rows. Please report the issue.`;
       return (
         <SimpleBanner kind="warn" Icon={AlertTriangle} message={message} />
@@ -154,7 +157,7 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
     }
 
     const currentRow = rows[0];
-    if (typeof currentRow !== "object" || currentRow === null) {
+    if (typeof currentRow !== 'object' || currentRow === null) {
       return (
         <SimpleBanner
           kind="warn"
@@ -210,11 +213,11 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
               renderValue: () => columnValue,
               getValue: () => columnValue,
               selectCell: undefined,
-              cellStyles: "text-left break-word",
+              cellStyles: 'text-left break-word',
             });
 
             const copyValue =
-              typeof columnValue === "object"
+              typeof columnValue === 'object'
                 ? JSON.stringify(columnValue)
                 : String(columnValue);
 
@@ -231,7 +234,7 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
                     {cellContent}
                     <CopyClipboardIcon
                       value={copyValue}
-                      className="w-3 h-3 mr-1 text-muted-foreground cursor-pointer opacity-0 group-hover:opacity-100"
+                      className="w-3 h-3 mr-1 text-mine-muted cursor-pointer opacity-0 group-hover:opacity-100"
                     />
                   </div>
                 </TableCell>
@@ -258,7 +261,7 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
               className="pr-0"
               onClick={toggleRowSelection}
             >
-              {isRowSelected ? "Deselect row" : "Select row"}
+              {isRowSelected ? 'Deselect row' : 'Select row'}
             </Button>
             <KeyboardHotkeys shortcut="Space" />
           </div>
@@ -322,7 +325,7 @@ export const RowViewerPanel: React.FC<RowViewerPanelProps> = ({
           placeholder="Search"
           onChange={(e) => setSearchQuery(e.target.value)}
           icon={<SearchIcon className="w-4 h-4" />}
-          className="mb-0 border-border"
+          className="mb-0 border-mine-border"
           data-testid="selection-panel-search-input"
         />
       </div>
@@ -344,7 +347,7 @@ export function inSearchQuery({
   const searchQueryLower = searchQuery.toLowerCase();
 
   let columnValueString =
-    typeof columnValue === "object"
+    typeof columnValue === 'object'
       ? JSON.stringify(columnValue)
       : String(columnValue);
   columnValueString = columnValueString.toLowerCase();
@@ -356,7 +359,7 @@ export function inSearchQuery({
 }
 
 const SimpleBanner: React.FC<{
-  kind: "info" | "warn" | "danger";
+  kind: 'info' | 'warn' | 'danger';
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
   message: string;
 }> = ({ kind, Icon, message }) => {

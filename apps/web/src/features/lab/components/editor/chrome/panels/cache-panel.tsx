@@ -1,22 +1,22 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtomValue } from "jotai";
-import { DatabaseZapIcon, RefreshCwIcon, Trash2Icon } from "lucide-react";
-import React, { useState } from "react";
-import { useLocale } from "react-aria";
-import { Spinner } from "@/features/lab/components/icons/spinner";
-import { Button } from "@/features/lab/components/ui/button";
-import { ConfirmationButton } from "@/features/lab/components/ui/confirmation-button";
-import { toast } from "@/features/lab/components/ui/use-toast";
-import { cacheInfoAtom } from "@/features/lab/core/cache/requests";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { cn } from "@/features/lab/utils/cn";
-import { formatBytes, formatTime } from "@/features/lab/utils/formatting";
-import { prettyNumber } from "@/features/lab/utils/numbers";
-import { PanelEmptyState } from "./empty-state";
+import { useAtomValue } from 'jotai';
+import { DatabaseZapIcon, RefreshCwIcon, Trash2Icon } from 'lucide-react';
+import React, { useState } from 'react';
+import { useLocale } from 'react-aria';
+import { Spinner } from '@/features/lab/components/icons/spinner';
+import { Button } from '@/features/lab/components/ui/button';
+import { ConfirmationButton } from '@/features/lab/components/ui/confirmation-button';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { cacheInfoAtom } from '@/features/lab/core/cache/requests';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { cn } from '@/features/lab/utils/cn';
+import { formatBytes, formatTime } from '@/features/lab/utils/formatting';
+import { prettyNumber } from '@/features/lab/utils/numbers';
+import { PanelEmptyState } from './empty-state';
 
-const CachePanel = () => {
+export const CachePanel = () => {
   const { clearCache, getCacheInfo } = useRequestClient();
   const cacheInfo = useAtomValue(cacheInfoAtom);
   const [purging, setPurging] = useState(false);
@@ -33,17 +33,17 @@ const CachePanel = () => {
       setPurging(true);
       await clearCache();
       toast({
-        title: "Cache purged",
-        description: "All cached data has been cleared",
+        title: 'Cache purged',
+        description: 'All cached data has been cleared',
       });
       // Request updated cache info after purge
       refetch();
     } catch (error) {
       toast({
-        title: "Error",
+        title: 'Error',
         description:
-          error instanceof Error ? error.message : "Failed to purge cache",
-        variant: "danger",
+          error instanceof Error ? error.message : 'Failed to purge cache',
+        variant: 'danger',
       });
     } finally {
       setPurging(false);
@@ -112,8 +112,8 @@ const CachePanel = () => {
           >
             <RefreshCwIcon
               className={cn(
-                "h-4 w-4 text-muted-foreground hover:text-foreground",
-                isFetching && "animate-[spin_0.5s]",
+                'h-4 w-4 text-mine-muted hover:text-mine-text',
+                isFetching && 'animate-[spin_0.5s]',
               )}
             />
           </Button>
@@ -121,7 +121,7 @@ const CachePanel = () => {
 
         {/* Statistics Section */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Statistics</h3>
+          <h3 className="text-sm font-semibold text-mine-text">Statistics</h3>
           <div className="grid grid-cols-2 gap-3">
             <StatCard
               label="Time saved"
@@ -131,7 +131,7 @@ const CachePanel = () => {
             <StatCard
               label="Hit rate"
               value={
-                totalRequests > 0 ? `${prettyNumber(hitRate, locale)}%` : "—"
+                totalRequests > 0 ? `${prettyNumber(hitRate, locale)}%` : '—'
               }
               description={`${prettyNumber(totalHits, locale)} hits / ${prettyNumber(totalRequests, locale)} total`}
             />
@@ -151,7 +151,7 @@ const CachePanel = () => {
         {/* Storage Section */}
         {diskTotal > 0 && (
           <div className="space-y-3 pt-2 border-t">
-            <h3 className="text-sm font-semibold text-foreground">Storage</h3>
+            <h3 className="text-sm font-semibold text-mine-text">Storage</h3>
             <div className="grid grid-cols-1 gap-3">
               <StatCard
                 label="Disk usage"
@@ -159,7 +159,7 @@ const CachePanel = () => {
                 description={
                   diskToFree > 0
                     ? `${formatBytes(diskToFree, locale)} can be freed`
-                    : "Cache storage on disk"
+                    : 'Cache storage on disk'
                 }
               />
             </div>
@@ -203,14 +203,12 @@ const StatCard: React.FC<{
   description?: string;
 }> = ({ label, value, description }) => {
   return (
-    <div className="flex flex-col gap-1 p-3 rounded-lg border bg-card">
-      <span className="text-xs text-muted-foreground">{label}</span>
+    <div className="flex flex-col gap-1 p-3 rounded-lg border bg-mine-card">
+      <span className="text-xs text-mine-muted">{label}</span>
       <span className="text-lg font-semibold">{value}</span>
       {description && (
-        <span className="text-xs text-muted-foreground">{description}</span>
+        <span className="text-xs text-mine-muted">{description}</span>
       )}
     </div>
   );
 };
-
-export default CachePanel;

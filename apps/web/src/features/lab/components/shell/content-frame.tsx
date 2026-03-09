@@ -61,7 +61,7 @@ function ContentFrame({
     <div
       data-slot="content-frame"
       className={cn(
-        'flex flex-col overflow-hidden bg-[#f2f2f2] rounded-[20px]',
+        'flex flex-col overflow-hidden bg-mine-panel-bg rounded-[20px]',
         className,
       )}
       style={{
@@ -94,7 +94,7 @@ function FrameCloseButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       data-slot="frame-close-button"
-      className="w-5 h-5 flex items-center justify-center rounded-full bg-[#FF5F57] text-white hover:brightness-90 transition-all"
+      className="w-5 h-5 flex items-center justify-center rounded-full bg-mine-macos-close text-white hover:brightness-90 transition-all"
       style={{ boxShadow: BUTTON_SHADOW }}
       onClick={onClick}
     >

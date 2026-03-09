@@ -4,10 +4,10 @@ import { useAtomValue } from "jotai";
 import { get } from "lodash-es";
 import { FolderCog2 } from "lucide-react";
 import type { FieldPath } from "react-hook-form";
-import { Tooltip } from "../ui/tooltip";
+import { Tooltip } from '@/components/ui/tooltip';
 import { configOverridesAtom, useUserConfig } from "@/features/lab/core/config/config";
 import type { UserConfig } from "@/features/lab/core/config/config-schema";
-import { Kbd } from "../ui/kbd";
+import { Kbd } from '@/components/ui/kbd';
 
 /**
  * Hook to determine if a user config value is overridden by project config.
@@ -61,7 +61,7 @@ export const DisableIfOverridden = ({
         </div>
       }
     >
-      <div className="text-muted-foreground opacity-80 cursor-not-allowed *:pointer-events-none">
+      <div className="text-mine-muted opacity-80 cursor-not-allowed *:pointer-events-none">
         {children}
       </div>
     </Tooltip>

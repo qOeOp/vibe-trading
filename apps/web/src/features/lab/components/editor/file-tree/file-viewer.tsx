@@ -14,7 +14,7 @@ import type React from "react";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { renderShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
 import { Alert, AlertDescription } from "@/features/lab/components/ui/alert";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { disableFileDownloadsAtom, hotkeysAtom } from "@/features/lab/core/config/config";
 import { useRequestClient } from "@/features/lab/core/network/requests";
 import type { FileInfo } from "@/features/lab/core/network/types";
@@ -118,9 +118,9 @@ export const FileViewer: React.FC<Props> = ({ file, onOpenNotebook }) => {
     // Show details instead of contents
     return (
       <div className="grid grid-cols-2 gap-2 p-6">
-        <div className="font-bold text-muted-foreground">Name</div>
+        <div className="font-bold text-mine-muted">Name</div>
         <div>{data.file.name}</div>
-        <div className="font-bold text-muted-foreground">Type</div>
+        <div className="font-bold text-mine-muted">Type</div>
         <div>{mimeType}</div>
       </div>
     );
@@ -140,7 +140,7 @@ export const FileViewer: React.FC<Props> = ({ file, onOpenNotebook }) => {
   };
 
   const header = (
-    <div className="text-xs text-muted-foreground p-1 flex justify-end gap-2 border-b">
+    <div className="text-xs text-mine-muted p-1 flex justify-end gap-2 border-b">
       <Tooltip content="Refresh">
         <Button size="small" onClick={refetch}>
           <RefreshCwIcon />

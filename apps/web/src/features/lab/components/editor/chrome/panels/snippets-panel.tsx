@@ -1,40 +1,40 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { CommandList } from "cmdk";
-import { BetweenHorizontalStartIcon, PlusIcon, XIcon } from "lucide-react";
-import React from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { CommandList } from 'cmdk';
+import { BetweenHorizontalStartIcon, PlusIcon, XIcon } from 'lucide-react';
+import React from 'react';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
-} from "@/features/lab/components/ui/command";
-import type { Snippet } from "@/features/lab/core/network/types";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { renderHTML } from "@/features/lab/plugins/core/RenderHTML";
-import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
-import { PanelEmptyState } from "./empty-state";
+} from '@/features/lab/components/ui/command';
+import type { Snippet } from '@/features/lab/core/network/types';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { renderHTML } from '@/features/lab/plugins/core/RenderHTML';
+import { ErrorBanner } from '@/features/lab/plugins/impl/common/error-banner';
+import { PanelEmptyState } from './empty-state';
 
-import "./snippets-panel.css";
-import { EditorView } from "@codemirror/view";
-import { Suspense } from "react";
-import { Spinner } from "@/features/lab/components/icons/spinner";
-import { Button } from "@/features/lab/components/ui/button";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import { useCellActions } from "@/features/lab/core/cells/cells";
-import { useLastFocusedCellId } from "@/features/lab/core/cells/focus";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import { LazyAnyLanguageCodeMirror } from "@/features/lab/plugins/impl/code/LazyAnyLanguageCodeMirror";
-import { useTheme } from "@/features/lab/theme/useTheme";
-import { cn } from "@/features/lab/utils/cn";
-import { HideInKioskMode } from "@/features/lab/components/editor/kiosk-mode";
-import { ContributeSnippetButton } from "../components/contribute-snippet-button";
-import { usePanelOrientation, usePanelSection } from "./panel-context";
+import './snippets-panel.css';
+import { EditorView } from '@codemirror/view';
+import { Suspense } from 'react';
+import { Spinner } from '@/features/lab/components/icons/spinner';
+import { Button } from '@/features/lab/components/ui/button';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { useLastFocusedCellId } from '@/features/lab/core/cells/focus';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { LazyAnyLanguageCodeMirror } from '@/features/lab/plugins/impl/code/LazyAnyLanguageCodeMirror';
+import { useTheme } from '@/features/lab/theme/useTheme';
+import { cn } from '@/features/lab/utils/cn';
+import { HideInKioskMode } from '@/features/lab/components/editor/kiosk-mode';
+import { ContributeSnippetButton } from '../components/contribute-snippet-button';
+import { usePanelOrientation, usePanelSection } from './panel-context';
 
 const extensions = [EditorView.lineWrapping];
 
-const SnippetsPanel: React.FC = () => {
+export const SnippetsPanel: React.FC = () => {
   const { readSnippets } = useRequestClient();
   const [selectedSnippet, setSelectedSnippet] = React.useState<Snippet>();
   const orientation = usePanelOrientation();
@@ -55,7 +55,7 @@ const SnippetsPanel: React.FC = () => {
     return <Spinner size="medium" centered={true} />;
   }
 
-  const isVertical = orientation === "vertical";
+  const isVertical = orientation === 'vertical';
 
   return (
     <div className="flex-1 overflow-hidden h-full">
@@ -70,7 +70,7 @@ const SnippetsPanel: React.FC = () => {
                 rootClassName="flex-1 border-r"
               />
               <ContributeSnippetButton>
-                <button className="float-right px-2 m-0 h-full hover:bg-accent hover:text-accent-foreground">
+                <button className="float-right px-2 m-0 h-full hover:bg-mine-hover hover:text-mine-text">
                   <PlusIcon className="h-4 w-4" />
                 </button>
               </ContributeSnippetButton>
@@ -85,8 +85,8 @@ const SnippetsPanel: React.FC = () => {
         </Panel>
         <PanelResizeHandle
           className={cn(
-            "bg-border hover:bg-primary/50 transition-colors",
-            isVertical ? "h-1" : "w-1",
+            'bg-border hover:bg-primary/50 transition-colors',
+            isVertical ? 'h-1' : 'w-1',
           )}
         />
         {/* Snippet viewer panel */}
@@ -113,8 +113,6 @@ const SnippetsPanel: React.FC = () => {
   );
 };
 
-export default SnippetsPanel;
-
 const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
   snippet,
   onClose,
@@ -130,7 +128,7 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
         createNewCell({
           code: section.code,
           before: false,
-          cellId: lastFocusedCellId ?? "__end__",
+          cellId: lastFocusedCellId ?? '__end__',
           // If the code already exists, skip creation
           skipIfCodeExists: true,
         });
@@ -142,19 +140,19 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
     createNewCell({
       code,
       before: false,
-      cellId: lastFocusedCellId ?? "__end__",
+      cellId: lastFocusedCellId ?? '__end__',
     });
   };
 
   return (
     <>
-      <div className="text-sm font-semibold bg-muted border-y px-2 py-1 flex justify-between items-center">
+      <div className="text-sm font-semibold bg-mine-hover border-y px-2 py-1 flex justify-between items-center">
         <span>{snippet.title}</span>
         <Button
           size="sm"
           variant="ghost"
           onClick={onClose}
-          className="h-6 w-6 p-0 hover:bg-muted-foreground/10"
+          className="h-6 w-6 p-0 hover:bg-mine-hover-foreground/10"
         >
           <XIcon className="h-4 w-4" />
         </Button>
@@ -195,7 +193,7 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
               <HideInKioskMode>
                 <Tooltip content="Insert snippet">
                   <Button
-                    className="absolute -top-2 -right-1 z-10 hover-action px-2 bg-background"
+                    className="absolute -top-2 -right-1 z-10 hover-action px-2 bg-mine-page-bg"
                     size="sm"
                     variant="outline"
                     onClick={() => {
@@ -209,7 +207,7 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
               <Suspense>
                 <LazyAnyLanguageCodeMirror
                   key={`${snippet.title}-${id}`}
-                  theme={theme === "dark" ? "dark" : "light"}
+                  theme={theme === 'dark' ? 'dark' : 'light'}
                   language="python"
                   className="cm border rounded overflow-hidden"
                   extensions={extensions}
@@ -238,7 +236,7 @@ const SnippetList: React.FC<{
           onSelect={() => onSelect(snippet)}
         >
           <div className="flex flex-row gap-2 items-center">
-            <span className="mt-1 text-accent-foreground">{snippet.title}</span>
+            <span className="mt-1 text-mine-text">{snippet.title}</span>
           </div>
         </CommandItem>
       ))}

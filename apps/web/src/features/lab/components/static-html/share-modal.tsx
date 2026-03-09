@@ -2,22 +2,22 @@
 
 import { CopyIcon } from "lucide-react";
 import React, { useMemo, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from '@/components/ui/dialog';
 import { toast } from "../ui/use-toast";
 import { Constants } from "@/features/lab/core/constants";
 import { useRequestClient } from "@/features/lab/core/network/requests";
 import { VirtualFileTracker } from "@/features/lab/core/static/virtual-file-tracker";
 import { copyToClipboard } from "@/features/lab/utils/copy";
 import { Events } from "@/features/lab/utils/events";
-import { Input } from "../ui/input";
-import { Tooltip } from "../ui/tooltip";
+import { Input } from '@/components/ui/input';
+import { Tooltip } from '@/components/ui/tooltip';
 
 const BASE_URL = "https://static.marimo.app";
 
@@ -123,7 +123,7 @@ export const ShareStaticNotebookModal: React.FC<{
             autoComplete="off"
           />
 
-          <div className="font-semibold text-sm text-muted-foreground gap-2 flex flex-col">
+          <div className="font-semibold text-sm text-mine-muted gap-2 flex flex-col">
             Anyone will be able to access your notebook at this URL:
             <div className="flex items-center gap-2">
               <CopyButton text={url} />

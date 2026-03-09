@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { BoxIcon, XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useEvent } from "react-use-event-hook";
-import { useAlertActions, useAlerts } from "@/features/lab/core/alerts/state";
-import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
-import { Button } from "@/features/lab/components/ui/button";
+import { BoxIcon, XIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useEvent } from 'react-use-event-hook';
+import { useAlertActions, useAlerts } from '@/features/lab/core/alerts/state';
+import { Banner } from '@/features/lab/plugins/impl/common/error-banner';
+import { Button } from '@/features/lab/components/ui/button';
 
 export const StartupLogsAlert: React.FC = () => {
   const { startupLogsAlert } = useAlerts();
@@ -17,8 +17,8 @@ export const StartupLogsAlert: React.FC = () => {
     setHasCleared(true);
   });
 
-  const isDone = status === "done";
-  const isRunning = status === "start" || status === "append";
+  const isDone = status === 'done';
+  const isRunning = status === 'start' || status === 'append';
 
   useEffect(() => {
     let timeout: number | undefined;
@@ -40,7 +40,10 @@ export const StartupLogsAlert: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col gap-4 mb-5 fixed top-5 left-12 min-w-[400px] max-w-[600px] z-200 opacity-95">
+    <div
+      data-slot="startup-logs-alert"
+      className="flex flex-col gap-4 mb-5 fixed top-5 left-12 min-w-[400px] max-w-[600px] z-200 opacity-95"
+    >
       <Banner
         kind="info"
         className="flex flex-col rounded py-3 px-5 animate-in slide-in-from-left"
@@ -48,7 +51,7 @@ export const StartupLogsAlert: React.FC = () => {
         <div className="flex justify-between">
           <span className="font-bold text-lg flex items-center mb-2">
             <BoxIcon className="w-5 h-5 inline-block mr-2" />
-            {isRunning ? "Initializing..." : "Initialized"}
+            {isRunning ? 'Initializing...' : 'Initialized'}
           </span>
           <Button
             variant="text"
@@ -59,10 +62,10 @@ export const StartupLogsAlert: React.FC = () => {
             <XIcon className="w-5 h-5" />
           </Button>
         </div>
-        <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
+        <div className="flex flex-col gap-4 justify-between items-start text-mine-muted text-base">
           <div className="w-full">
-            <pre className="bg-muted p-3 rounded text-sm font-mono overflow-auto max-h-64 whitespace-pre-wrap">
-              {startupLogsAlert.content || "Starting startup script..."}
+            <pre className="bg-mine-hover p-3 rounded text-sm font-mono overflow-auto max-h-64 whitespace-pre-wrap">
+              {startupLogsAlert.content || 'Starting startup script...'}
             </pre>
           </div>
         </div>

@@ -10,6 +10,7 @@ import { ErrorBoundary } from '@/features/lab/components/editor/boundary/ErrorBo
 import { PanelSectionProvider } from '../panels/panel-context';
 import { LazyActivity } from '@/features/lab/components/utils/lazy-mount';
 import { PANEL_MAP, type PanelDescriptor, type PanelType } from '../types';
+import { Card } from '@/components/ui/card';
 import { useLabChromeStore } from '@/features/lab/store/use-lab-chrome-store';
 import { handleDragging } from './utils';
 
@@ -109,10 +110,10 @@ function FloatingPanels({ sidebarPanels }: FloatingPanelsProps) {
   if (visibleDescriptors.length === 0) return null;
 
   const renderCard = (descriptor: PanelDescriptor) => (
-    <div
+    <Card
       key={descriptor.type}
       data-slot="floating-panel-card"
-      className="flex flex-col bg-white shadow-sm border border-mine-border rounded-xl overflow-hidden h-full"
+      className="h-full"
     >
       <PanelCardHeader
         panel={descriptor}
@@ -136,7 +137,7 @@ function FloatingPanels({ sidebarPanels }: FloatingPanelsProps) {
           </PanelSectionProvider>
         </ErrorBoundary>
       </div>
-    </div>
+    </Card>
   );
 
   return (

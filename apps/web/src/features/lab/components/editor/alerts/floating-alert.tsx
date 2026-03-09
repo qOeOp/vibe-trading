@@ -1,15 +1,15 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { ReactNode } from "react";
-import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
-import { DelayMount } from "@/features/lab/components/utils/delay-mount";
+import type { ReactNode } from 'react';
+import { Banner } from '@/features/lab/plugins/impl/common/error-banner';
+import { DelayMount } from '@/features/lab/components/utils/delay-mount';
 
 interface FloatingAlertProps {
   title?: string;
   children: ReactNode;
   show: boolean;
   delayMs?: number;
-  kind?: "info" | "warn" | "danger";
+  kind?: 'info' | 'warn' | 'danger';
 }
 
 export const FloatingAlert: React.FC<FloatingAlertProps> = ({
@@ -17,14 +17,17 @@ export const FloatingAlert: React.FC<FloatingAlertProps> = ({
   children,
   show,
   delayMs = 2000,
-  kind = "info",
+  kind = 'info',
 }) => {
   if (!show) {
     return null;
   }
 
   const body = (
-    <div className="flex flex-col gap-4 mb-5 fixed top-5 left-1/2 transform -translate-x-1/2 z-200 opacity-95">
+    <div
+      data-slot="floating-alert"
+      className="flex flex-col gap-4 mb-5 fixed top-5 left-1/2 transform -translate-x-1/2 z-200 opacity-95"
+    >
       <Banner
         kind={kind}
         className="flex flex-col rounded py-2 px-4 animate-in slide-in-from-top w-fit"
@@ -36,7 +39,7 @@ export const FloatingAlert: React.FC<FloatingAlertProps> = ({
             </span>
           </div>
         )}
-        <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
+        <div className="flex flex-col gap-4 justify-between items-start text-mine-muted text-base">
           <div>{children}</div>
         </div>
       </Banner>

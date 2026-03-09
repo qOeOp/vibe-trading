@@ -24,7 +24,7 @@ import type { Variable, Variables } from "@/features/lab/core/variables/types";
 import { cn } from "@/features/lab/utils/cn";
 import { DataTableColumnHeader } from "../data-table/column-header";
 import { CellLinkList } from "../editor/links/cell-link-list";
-import { SearchInput } from "../ui/input";
+import { SearchInput } from '../ui/input';
 import {
   Table,
   TableBody,
@@ -32,7 +32,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from '@/components/ui/table';
 import { VariableName } from "./common";
 
 interface Props {
@@ -95,7 +95,7 @@ const COLUMNS = [
       const [dataType, value] = getValue();
       return (
         <div className="max-w-[150px]">
-          <div className="text-ellipsis overflow-hidden whitespace-nowrap text-muted-foreground font-mono text-xs">
+          <div className="text-ellipsis overflow-hidden whitespace-nowrap text-mine-muted font-mono text-xs">
             {dataType}
           </div>
           <div
@@ -147,7 +147,7 @@ const COLUMNS = [
         <div className="flex flex-col gap-1 py-1">
           <div className="flex flex-row overflow-auto gap-2 items-center">
             <span title="Declared by">
-              <SquareEqualIcon className="w-3.5 h-3.5 text-muted-foreground" />
+              <SquareEqualIcon className="w-3.5 h-3.5 text-mine-muted" />
             </span>
 
             {declaredBy.length === 1 ? (
@@ -177,7 +177,7 @@ const COLUMNS = [
           </div>
           <div className="flex flex-row overflow-auto gap-2 items-baseline">
             <span title="Used by">
-              <WorkflowIcon className="w-3.5 h-3.5 text-muted-foreground" />
+              <WorkflowIcon className="w-3.5 h-3.5 text-mine-muted" />
             </span>
 
             <CellLinkList
@@ -309,7 +309,7 @@ export const VariableTable: React.FC<Props> = memo(
               {table.getFlatHeaders().map((header) => (
                 <TableHead
                   key={header.id}
-                  className="sticky top-0 bg-background border-b"
+                  className="sticky top-0 bg-mine-page-bg border-b"
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -321,7 +321,7 @@ export const VariableTable: React.FC<Props> = memo(
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-accent">
+              <TableRow key={row.id} className="hover:bg-mine-hover">
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="border-b">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

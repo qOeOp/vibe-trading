@@ -1,17 +1,17 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-"use no memo";
+'use no memo';
 
 import type {
   ColumnFilter,
   ColumnFiltersState,
   Table,
-} from "@tanstack/react-table";
-import { XIcon } from "lucide-react";
-import { type DateFormatter, useDateFormatter } from "react-aria";
-import { logNever } from "@/features/lab/utils/assertNever";
-import { Badge } from "../ui/badge";
-import type { ColumnFilterValue } from "./filters";
-import { stringifyUnknownValue } from "./utils";
+} from '@tanstack/react-table';
+import { XIcon } from 'lucide-react';
+import { type DateFormatter, useDateFormatter } from 'react-aria';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { Badge } from '../ui/badge';
+import type { ColumnFilterValue } from './filters';
+import { stringifyUnknownValue } from './utils';
 
 interface Props<TData> {
   filters: ColumnFiltersState | undefined;
@@ -20,9 +20,9 @@ interface Props<TData> {
 
 export const FilterPills = <TData,>({ filters, table }: Props<TData>) => {
   const timeFormatter = useDateFormatter({
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
   });
 
   if (!filters || filters.length === 0) {
@@ -39,8 +39,8 @@ export const FilterPills = <TData,>({ filters, table }: Props<TData>) => {
     }
 
     return (
-      <Badge key={filter.id} variant="secondary" className="dark:invert">
-        {filter.id} {formattedValue}{" "}
+      <Badge key={filter.id} variant="secondary" className="">
+        {filter.id} {formattedValue}{' '}
         <span
           className="cursor-pointer opacity-60 hover:opacity-100 pl-1 py-[2px]"
           onClick={() => {
@@ -63,43 +63,43 @@ export const FilterPills = <TData,>({ filters, table }: Props<TData>) => {
 };
 
 function formatValue(value: ColumnFilterValue, timeFormatter: DateFormatter) {
-  if (!("type" in value)) {
+  if (!('type' in value)) {
     return;
   }
 
-  if (value.operator === "is_null") {
-    return "is null";
+  if (value.operator === 'is_null') {
+    return 'is null';
   }
-  if (value.operator === "is_not_null") {
-    return "is not null";
+  if (value.operator === 'is_not_null') {
+    return 'is not null';
   }
 
-  if (value.type === "number") {
+  if (value.type === 'number') {
     return formatMinMax(value.min, value.max);
   }
-  if (value.type === "date") {
+  if (value.type === 'date') {
     return formatMinMax(value.min?.toISOString(), value.max?.toISOString());
   }
-  if (value.type === "time") {
+  if (value.type === 'time') {
     return formatMinMax(
       value.min ? timeFormatter.format(value.min) : undefined,
       value.max ? timeFormatter.format(value.max) : undefined,
     );
   }
-  if (value.type === "datetime") {
+  if (value.type === 'datetime') {
     return formatMinMax(value.min?.toISOString(), value.max?.toISOString());
   }
-  if (value.type === "boolean") {
-    return `is ${value.value ? "True" : "False"}`;
+  if (value.type === 'boolean') {
+    return `is ${value.value ? 'True' : 'False'}`;
   }
-  if (value.type === "select") {
+  if (value.type === 'select') {
     const stringifiedOptions = value.options.map((o) =>
       stringifyUnknownValue({ value: o }),
     );
-    const operator = value.operator === "in" ? "is in" : "not in";
-    return `${operator} [${stringifiedOptions.join(", ")}]`;
+    const operator = value.operator === 'in' ? 'is in' : 'not in';
+    return `${operator} [${stringifiedOptions.join(', ')}]`;
   }
-  if (value.type === "text") {
+  if (value.type === 'text') {
     return `contains "${value.text}"`;
   }
   logNever(value);

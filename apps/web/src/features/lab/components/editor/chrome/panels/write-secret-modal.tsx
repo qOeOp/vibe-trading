@@ -159,7 +159,7 @@ export const WriteSecretModal: React.FC<{
           <div className="grid gap-2">
             <Label htmlFor="location">Location</Label>
             {providerNames.length === 0 && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-mine-muted">
                 No dotenv locations configured.
               </p>
             )}

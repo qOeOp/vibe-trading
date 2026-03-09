@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useRef, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import type { CellOutput as CellOutputType } from "@/features/lab/types";
+import { useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import type { CellOutput as CellOutputType } from '@/features/lab/types';
 
 interface CellOutputProps {
   outputs: CellOutputType[];
@@ -31,9 +31,9 @@ export function CellOutput({ outputs, className }: CellOutputProps) {
     <div
       data-slot="cell-output"
       className={cn(
-        "bg-[#1e1e1e] rounded-b-[10px] max-h-[200px] overflow-y-auto",
-        "font-mono text-xs leading-relaxed",
-        "scrollbar-thin",
+        'bg-mine-terminal-bg rounded-b-[10px] max-h-[200px] overflow-y-auto',
+        'font-mono text-xs leading-relaxed',
+        'scrollbar-thin',
         className,
       )}
       ref={scrollRef}
@@ -43,14 +43,14 @@ export function CellOutput({ outputs, className }: CellOutputProps) {
           <div
             key={i}
             className={cn(
-              "whitespace-pre-wrap break-all",
-              output.stream === "stdout" && "text-gray-300",
-              output.stream === "stderr" && "text-red-400",
-              output.stream === "result" && "text-green-400",
+              'whitespace-pre-wrap break-all',
+              output.stream === 'stdout' && 'text-gray-300',
+              output.stream === 'stderr' && 'text-red-400',
+              output.stream === 'result' && 'text-green-400',
             )}
           >
-            {output.stream === "result" && (
-              <span className="text-gray-500 select-none">{">>> "}</span>
+            {output.stream === 'result' && (
+              <span className="text-gray-500 select-none">{'>>> '}</span>
             )}
             {output.text}
           </div>

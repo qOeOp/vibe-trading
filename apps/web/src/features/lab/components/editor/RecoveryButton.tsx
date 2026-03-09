@@ -4,7 +4,7 @@ import type { Notebook } from '@/features/lab/core/marimo-api';
 import { SaveIcon } from 'lucide-react';
 import type { JSX } from 'react';
 import { Button as EditorButton } from './inputs/Inputs';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { getNotebook } from '@/features/lab/core/cells/cells';
 import { notebookCells } from '@/features/lab/core/cells/utils';
 import { getMarimoVersion } from '@/features/lab/core/meta/globals';
@@ -19,8 +19,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTitle,
-} from '../ui/dialog';
-import { Tooltip } from '../ui/tooltip';
+} from '@/components/ui/dialog';
+import { Tooltip } from '@/components/ui/tooltip';
 
 const RecoveryModal = (props: {
   proposedName: string;
@@ -72,14 +72,14 @@ const RecoveryModal = (props: {
           }
         }}
       >
-        <DialogTitle className="text-accent-foreground mb-6">
+        <DialogTitle className="text-mine-text mb-6">
           Download unsaved changes?
         </DialogTitle>
         <DialogDescription
           className="markdown break-words"
           style={{ wordBreak: 'break-word' }}
         >
-          <div className="prose dark:prose-invert">
+          <div className="prose">
             <p>This app has unsaved changes. To recover:</p>
 
             <ol>

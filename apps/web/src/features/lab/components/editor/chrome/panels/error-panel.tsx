@@ -12,7 +12,7 @@ import { useErrorDetailsActions } from '@/features/lab/core/errors/state';
 import { useLabModeStore } from '@/features/lab/store/use-lab-mode-store';
 import { PanelEmptyState } from './empty-state';
 
-const ErrorsPanel: React.FC = () => {
+export const ErrorsPanel: React.FC = () => {
   const summaries = useCellErrorSummaries();
   const { showCellIfHidden } = useCellActions();
   const { openCellErrorDetails } = useErrorDetailsActions();
@@ -46,14 +46,14 @@ const ErrorsPanel: React.FC = () => {
         <button
           type="button"
           key={`${summary.cellId}:${summary.errorType}`}
-          className="w-full text-left rounded-md border bg-background px-3 py-2 hover:bg-muted/70 transition-colors"
+          className="w-full text-left rounded-md border bg-mine-page-bg px-3 py-2 hover:bg-mine-hover/70 transition-colors"
           onClick={() => onClickSummary(summary.cellId)}
         >
           <div className="flex items-center justify-between gap-2">
-            <div className="text-xs font-mono font-semibold text-muted-foreground">
+            <div className="text-xs font-mono font-semibold text-mine-muted">
               {summary.cellName || summary.cellId}
             </div>
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            <div className="text-[10px] uppercase tracking-wide text-mine-muted">
               {summary.errorType}
             </div>
           </div>
@@ -61,7 +61,7 @@ const ErrorsPanel: React.FC = () => {
             {summary.headline}
           </div>
           <div className="flex items-center justify-between mt-1">
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-mine-muted">
               {summary.lineHint != null
                 ? `Line ${summary.lineHint}`
                 : 'No line info'}
@@ -81,5 +81,3 @@ const ErrorsPanel: React.FC = () => {
     </div>
   );
 };
-
-export default ErrorsPanel;

@@ -18,7 +18,7 @@ import {
   ContextMenuTrigger,
 } from "@/features/lab/components/ui/context-menu";
 import { menuItemVariants } from "@/features/lab/components/ui/menu-items";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/features/lab/components/ui/use-toast";
 import { useCellData, useCellRuntime } from "@/features/lab/core/cells/cells";
 import { CellOutputId } from "@/features/lab/core/cells/ids";
@@ -199,7 +199,7 @@ export const CellActionsContextMenu = ({
               let body = (
                 <div className="flex items-center flex-1">
                   {action.icon && (
-                    <div className="mr-2 w-5 text-muted-foreground">
+                    <div className="mr-2 w-5 text-mine-muted">
                       {action.icon}
                     </div>
                   )}

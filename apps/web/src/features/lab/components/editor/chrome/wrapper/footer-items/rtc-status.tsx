@@ -1,18 +1,18 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtom, useAtomValue } from "jotai";
-import { UsersIcon } from "lucide-react";
-import type React from "react";
-import { useState } from "react";
-import { Input } from "@/features/lab/components/ui/input";
+import { useAtom, useAtomValue } from 'jotai';
+import { UsersIcon } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/features/lab/components/ui/popover";
-import { connectedDocAtom } from "@/features/lab/core/codemirror/rtc/extension";
-import { isRtcEnabled, usernameAtom } from "@/features/lab/core/rtc/state";
-import { FooterItem } from "../footer-item";
+} from '@/components/ui/popover';
+import { connectedDocAtom } from '@/features/lab/core/codemirror/rtc/extension';
+import { isRtcEnabled, usernameAtom } from '@/features/lab/core/rtc/state';
+import { FooterItem } from '../footer-item';
 
 export const RTCStatus: React.FC = () => {
   const connectedDoc = useAtomValue(connectedDocAtom);
@@ -23,13 +23,13 @@ export const RTCStatus: React.FC = () => {
     return null;
   }
 
-  if (connectedDoc === "disabled") {
+  if (connectedDoc === 'disabled') {
     return null;
   }
 
   const tooltip = connectedDoc
-    ? "Real-time collaboration active"
-    : "Connecting to real-time collaboration";
+    ? 'Real-time collaboration active'
+    : 'Connecting to real-time collaboration';
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -46,7 +46,7 @@ export const RTCStatus: React.FC = () => {
         <div className="space-y-4">
           <div className="space-y-2">
             <h4 className="font-medium leading-none">Username</h4>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-mine-muted">
               Set your username for real-time collaboration
             </p>
           </div>

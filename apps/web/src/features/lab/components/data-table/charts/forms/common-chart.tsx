@@ -4,7 +4,7 @@ import { capitalize } from "lodash-es";
 import { InfoIcon, TriangleAlert } from "lucide-react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { Accordion } from "@/features/lab/components/ui/accordion";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { isFieldSet } from "../chart-spec/spec";
 import { ColorByAxis, Facet, XAxis, YAxis } from "../components/chart-items";
 import {
@@ -49,8 +49,8 @@ export const CommonChartForm: React.FC = () => {
         content="To persist a chart, add the generated Python code to a new cell."
       >
         <div className="flex items-center gap-1">
-          <TriangleAlert className="h-3.5 w-3.5 mb-0.5 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Charts are not saved.</p>
+          <TriangleAlert className="h-3.5 w-3.5 mb-0.5 text-mine-muted" />
+          <p className="text-sm text-mine-muted">Charts are not saved.</p>
         </div>
       </Tooltip>
 

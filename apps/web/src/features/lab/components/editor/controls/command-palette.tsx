@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from 'jotai';
 import {
   CommandDialog,
   CommandEmpty,
@@ -10,27 +10,30 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "@/features/lab/components/ui/command";
-import { lastFocusedCellAtom } from "@/features/lab/core/cells/focus";
-import { hotkeysAtom } from "@/features/lab/core/config/config";
-import { type HotkeyAction, isHotkeyAction } from "@/features/lab/core/hotkeys/hotkeys";
-import { parseShortcut } from "@/features/lab/core/hotkeys/shortcuts";
-import { useEventListener } from "@/features/lab/hooks/useEventListener";
-import { Objects } from "@/features/lab/utils/objects";
-import { useRegisteredActions } from "@/features/lab/core/hotkeys/actions";
-import { useRecentCommands } from "@/features/lab/hooks/useRecentCommands";
-import { KeyboardHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
+} from '@/features/lab/components/ui/command';
+import { lastFocusedCellAtom } from '@/features/lab/core/cells/focus';
+import { hotkeysAtom } from '@/features/lab/core/config/config';
+import {
+  type HotkeyAction,
+  isHotkeyAction,
+} from '@/features/lab/core/hotkeys/hotkeys';
+import { parseShortcut } from '@/features/lab/core/hotkeys/shortcuts';
+import { useEventListener } from '@/features/lab/hooks/useEventListener';
+import { Objects } from '@/features/lab/utils/objects';
+import { useRegisteredActions } from '@/features/lab/core/hotkeys/actions';
+import { useRecentCommands } from '@/features/lab/hooks/useRecentCommands';
+import { KeyboardHotkeys } from '@/features/lab/components/shortcuts/renderShortcut';
 import {
   type ActionButton,
   flattenActions,
   isParentAction,
-} from "../actions/types";
-import { useCellActionButtons } from "../actions/useCellActionButton";
-import { useConfigActions } from "../actions/useConfigActions";
-import { useNotebookActions } from "../actions/useNotebookActions";
-import { commandPaletteAtom } from "./state";
+} from '../actions/types';
+import { useCellActionButtons } from '../actions/useCellActionButton';
+import { useConfigActions } from '../actions/useConfigActions';
+import { useNotebookActions } from '../actions/useNotebookActions';
+import { commandPaletteAtom } from './state';
 
-const CommandPalette = () => {
+export const CommandPalette = () => {
   const [open, setOpen] = useAtom(commandPaletteAtom);
   const registeredActions = useRegisteredActions();
   const lastFocusedCell = useAtomValue(lastFocusedCellAtom);
@@ -55,8 +58,8 @@ const CommandPalette = () => {
   const { recentCommands, addRecentCommand } = useRecentCommands();
   const recentCommandsSet = new Set(recentCommands);
 
-  useEventListener(document, "keydown", (e) => {
-    if (parseShortcut(hotkeys.getHotkey("global.commandPalette").key)(e)) {
+  useEventListener(document, 'keydown', (e) => {
+    if (parseShortcut(hotkeys.getHotkey('global.commandPalette').key)(e)) {
       e.preventDefault();
       setOpen((open) => !open);
     }
@@ -207,5 +210,3 @@ const CommandPalette = () => {
     </CommandDialog>
   );
 };
-
-export default CommandPalette;

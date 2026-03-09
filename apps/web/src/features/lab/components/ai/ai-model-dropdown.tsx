@@ -10,14 +10,20 @@ import {
   CircleHelpIcon,
 } from 'lucide-react';
 import React from 'react';
-import { type SupportedRole, useModelChange } from '@/features/lab/core/ai/config';
+import {
+  type SupportedRole,
+  useModelChange,
+} from '@/features/lab/core/ai/config';
 import {
   AiModelId,
   isKnownAIProvider,
   type ProviderId,
   type QualifiedModelId,
 } from '@/features/lab/core/ai/ids/ids';
-import { type AiModel, AiModelRegistry } from '@/features/lab/core/ai/model-registry';
+import {
+  type AiModel,
+  AiModelRegistry,
+} from '@/features/lab/core/ai/model-registry';
 import { aiAtom, completionAtom } from '@/features/lab/core/config/config';
 import { useOpenSettingsToTab } from '../app-config/state';
 import {
@@ -30,8 +36,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Tooltip } from '../ui/tooltip';
+} from '@/components/ui/dropdown-menu';
+import { Tooltip } from '@/components/ui/tooltip';
 import { AiProviderIcon } from './ai-provider-icon';
 import { getCurrentRoleTooltip, getTagColour } from './display-helpers';
 
@@ -113,7 +119,7 @@ export const AIModelDropdown = ({
         />
         <div className="flex flex-col">
           <span>{maybeModelMatch?.name || modelId.shortModelId}</span>
-          <span className="text-xs text-muted-foreground">{modelId.id}</span>
+          <span className="text-xs text-mine-muted">{modelId.id}</span>
         </div>
 
         <div className="ml-auto flex gap-1">
@@ -143,7 +149,7 @@ export const AIModelDropdown = ({
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger
         className={`flex items-center justify-between px-2 py-0.5 border rounded-md
-            hover:bg-accent hover:text-accent-foreground ${triggerClassName}`}
+            hover:bg-mine-hover hover:text-mine-text ${triggerClassName}`}
       >
         <div className="flex items-center gap-2 truncate">
           {currentValue ? (
@@ -161,7 +167,7 @@ export const AIModelDropdown = ({
               )}
             </>
           ) : (
-            <span className="text-muted-foreground truncate">
+            <span className="text-mine-muted truncate">
               {placeholder}
             </span>
           )}
@@ -241,12 +247,12 @@ const ProviderDropdownContent = ({
         >
           {maybeProviderInfo && (
             <>
-              <p className="text-sm text-muted-foreground p-2 max-w-[300px]">
+              <p className="text-sm text-mine-muted p-2 max-w-[300px]">
                 {maybeProviderInfo.description}
                 <br />
               </p>
 
-              <p className="text-sm text-muted-foreground p-2 pt-0">
+              <p className="text-sm text-mine-muted p-2 pt-0">
                 For more information, see the{' '}
                 <a
                   href={maybeProviderInfo.url}
@@ -333,19 +339,19 @@ export const AiModelInfoDisplay = ({
   return (
     <div className="space-y-3">
       <div>
-        <h4 className="font-semibold text-base text-foreground">
+        <h4 className="font-semibold text-base text-mine-text">
           {model.name}
         </h4>
-        <p className="text-xs text-muted-foreground font-mono">{model.model}</p>
+        <p className="text-xs text-mine-muted font-mono">{model.model}</p>
       </div>
 
-      <p className="text-sm text-muted-foreground leading-relaxed">
+      <p className="text-sm text-mine-muted leading-relaxed">
         {model.description}
       </p>
 
       {model.roles.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-muted-foreground mb-2">
+          <p className="text-xs font-medium text-mine-muted mb-2">
             Capabilities:
           </p>
           <div className="flex flex-wrap gap-1">
@@ -365,15 +371,15 @@ export const AiModelInfoDisplay = ({
       {model.thinking && (
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-mine-muted">
             Supports thinking mode
           </span>
         </div>
       )}
 
-      <div className="flex items-center gap-2 pt-2 border-t border-border">
+      <div className="flex items-center gap-2 pt-2 border-t border-mine-border">
         <AiProviderIcon provider={provider} className="h-4 w-4" />
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-mine-muted">
           {getProviderLabel(provider)}
         </span>
       </div>

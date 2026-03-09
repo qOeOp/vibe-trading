@@ -12,40 +12,62 @@ import { StaticFileTreeContent } from './mine-file-tree';
 
 // ─── Lazy panel imports (connected mode) ─────────────────
 
-const ConnectedFileTreeInner = lazy(() => import('./connected-file-tree'));
+const ConnectedFileTreeInner = lazy(() =>
+  import('./connected-file-tree').then((m) => ({
+    default: m.ConnectedFileTreeContent,
+  })),
+);
 
-const LazyVariablesPanel = lazy(
-  () => import('../editor/chrome/panels/variables-panel'),
+const LazyVariablesPanel = lazy(() =>
+  import('../editor/chrome/panels/variables-panel').then((m) => ({
+    default: m.VariablesPanel,
+  })),
 );
-const LazyDataSourcesPanel = lazy(
-  () => import('../editor/chrome/panels/datasources-panel'),
+const LazyDataSourcesPanel = lazy(() =>
+  import('../editor/chrome/panels/datasources-panel').then((m) => ({
+    default: m.DataSourcesPanel,
+  })),
 );
-const LazyPackagesPanel = lazy(
-  () => import('../editor/chrome/panels/packages-panel'),
+const LazyPackagesPanel = lazy(() =>
+  import('../editor/chrome/panels/packages-panel').then((m) => ({
+    default: m.PackagesPanel,
+  })),
 );
 const LazyDataCatalogPanel = lazy(() =>
   import('../editor/chrome/panels/data-catalog/data-catalog-panel').then(
     (m) => ({ default: m.DataCatalogPanel }),
   ),
 );
-const LazyErrorsPanel = lazy(
-  () => import('../editor/chrome/panels/error-panel'),
+const LazyErrorsPanel = lazy(() =>
+  import('../editor/chrome/panels/error-panel').then((m) => ({
+    default: m.ErrorsPanel,
+  })),
 );
-const LazyValidationPanel = lazy(
-  () => import('../editor/chrome/panels/validation-panel'),
+const LazyValidationPanel = lazy(() =>
+  import('../editor/chrome/panels/validation-panel').then((m) => ({
+    default: m.ValidationPanel,
+  })),
 );
-const LazyChatPanel = lazy(() => import('../chat/chat-panel'));
-const LazyLogsPanel = lazy(() => import('./vt-logs-panel'));
-const LazyDependencyGraphPanel = lazy(
-  () => import('../editor/chrome/panels/dependency-graph-panel'),
+const LazyChatPanel = lazy(() =>
+  import('../chat/chat-panel').then((m) => ({ default: m.ChatPanel })),
+);
+const LazyLogsPanel = lazy(() =>
+  import('./vt-logs-panel').then((m) => ({ default: m.VTLogsPanel })),
+);
+const LazyDependencyGraphPanel = lazy(() =>
+  import('../editor/chrome/panels/dependency-graph-panel').then((m) => ({
+    default: m.DependencyGraphPanel,
+  })),
 );
 const LazySecretsPanel = lazy(() =>
   import('../editor/chrome/panels/secrets-panel').then((m) => ({
     default: m.SecretsPanel,
   })),
 );
-const LazyOutlinePanel = lazy(
-  () => import('../editor/chrome/panels/outline-panel'),
+const LazyOutlinePanel = lazy(() =>
+  import('../editor/chrome/panels/outline-panel').then((m) => ({
+    default: m.OutlinePanel,
+  })),
 );
 
 // ─── Lazy panel imports (disconnected mode) ──────────────

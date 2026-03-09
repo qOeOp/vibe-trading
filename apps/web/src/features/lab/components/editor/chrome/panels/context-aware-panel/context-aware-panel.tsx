@@ -61,7 +61,7 @@ export const ContextAwarePanel: React.FC = () => {
             isCellAware ? (
               <div className="flex flex-col gap-1">
                 <span>Follow focused table</span>
-                <span className="text-xs text-muted-foreground w-64">
+                <span className="text-xs text-mine-muted w-64">
                   The panel updates as cells that output tables are focused.
                   Click to fix to the current cell.
                 </span>
@@ -69,7 +69,7 @@ export const ContextAwarePanel: React.FC = () => {
             ) : (
               <div className="flex flex-col gap-1">
                 <span>Focus on current table</span>
-                <span className="text-xs text-muted-foreground w-64">
+                <span className="text-xs text-mine-muted w-64">
                   The panel is focused on the current table. Click to update
                   based on which cell is focused.
                 </span>
@@ -123,7 +123,7 @@ export const ContextAwarePanel: React.FC = () => {
     <>
       <PanelResizeHandle
         onDragging={handleDragging}
-        className="resize-handle border-border z-20 print:hidden border-l"
+        className="resize-handle border-mine-border z-20 print:hidden border-l"
       />
       <Panel defaultSize={20} minSize={15} maxSize={80}>
         {renderBody()}
@@ -154,7 +154,7 @@ const ResizableComponent = ({ children }: ResizableComponentProps) => {
   });
 
   return (
-    <div className="absolute z-40 right-0 h-full bg-background flex flex-row">
+    <div className="absolute z-40 right-0 h-full bg-mine-page-bg flex flex-row">
       <div
         ref={handleRefs.left}
         className="w-1 h-full cursor-col-resize border-l"

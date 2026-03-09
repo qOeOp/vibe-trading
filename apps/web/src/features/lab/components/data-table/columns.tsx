@@ -18,10 +18,10 @@ import { parseContent } from "@/features/lab/utils/url-parser";
 import { EmotionCacheProvider } from "../editor/output/EmotionCacheProvider";
 import { JsonOutput } from "../editor/output/JsonOutput";
 import { CopyClipboardIcon } from "../icons/copy-icon";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Tooltip } from "../ui/tooltip";
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip } from '@/components/ui/tooltip';
 import { DataTableColumnHeader } from "./column-header";
 import type { ColumnChartSpecModel } from "./column-summary/chart-spec-model";
 import { TableColumnSummary } from "./column-summary/column-summary";
@@ -177,9 +177,9 @@ export function generateColumns<T>({
         const dtypeHeader =
           showDataTypes && dtype ? (
             <div className="flex flex-row gap-1">
-              <span className="text-xs text-muted-foreground">{dtype}</span>
+              <span className="text-xs text-mine-muted">{dtype}</span>
               {stats && typeof stats.nulls === "number" && stats.nulls > 0 && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-mine-muted">
                   (nulls: {stats.nulls})
                 </span>
               )}

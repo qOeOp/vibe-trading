@@ -1,9 +1,20 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import type { ConditionalICAnalysis, ConditionalICGroup } from "@/features/lab/types";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ReferenceLine,
+  ResponsiveContainer,
+} from 'recharts';
+import { cn } from '@/lib/utils';
+import type {
+  ConditionalICAnalysis,
+  ConditionalICGroup,
+} from '@/features/lab/types';
 
-// ─── Grouped Bar Chart (SVG) ────────────────────────────
+// ─── Grouped Bar Chart (Recharts) ────────────────────────
 
 function ConditionBarChart({
   title,
@@ -12,82 +23,50 @@ function ConditionBarChart({
   title: string;
   groups: ConditionalICGroup[];
 }) {
-  const barWidth = 48;
-  const gap = 12;
-  const chartHeight = 80;
-  const svgWidth = groups.length * (barWidth + gap) - gap;
-  const maxIC = Math.max(...groups.map((g) => Math.abs(g.icMean)), 0.001);
-  const midY = chartHeight / 2;
+  const data = groups.map((g) => ({
+    name: g.condition,
+    icMean: g.icMean,
+  }));
 
   return (
-    <div className="bg-mine-bg rounded-md p-2">
+    <div data-slot="condition-bar-chart" className="bg-mine-bg rounded-md p-2">
       <div className="text-[10px] text-mine-muted mb-1">{title}</div>
-      <svg
-        viewBox={`0 0 ${svgWidth} ${chartHeight + 24}`}
-        className="w-full h-[100px]"
-      >
-        {/* Zero line */}
-        <line
-          x1={0}
-          y1={midY}
-          x2={svgWidth}
-          y2={midY}
-          stroke="#a8b2c7"
-          strokeWidth={0.5}
-          strokeDasharray="4"
-        />
-        {groups.map((g, i) => {
-          const x = i * (barWidth + gap);
-          const barH = (Math.abs(g.icMean) / maxIC) * (chartHeight / 2) * 0.85;
-          const isPositive = g.icMean >= 0;
-          const y = isPositive ? midY - barH : midY;
-
-          return (
-            <g key={g.condition}>
-              <rect
-                x={x}
-                y={y}
-                width={barWidth}
-                height={barH}
-                fill="#26a69a"
-                rx={3}
-                opacity={0.6 + (i * 0.15)}
-              />
-              {/* Label */}
-              <text
-                x={x + barWidth / 2}
-                y={chartHeight + 12}
-                textAnchor="middle"
-                className="text-[9px] fill-mine-muted"
-              >
-                {g.condition}
-              </text>
-              {/* IC value */}
-              <text
-                x={x + barWidth / 2}
-                y={isPositive ? y - 4 : y + barH + 11}
-                textAnchor="middle"
-                className="text-[8px] fill-mine-muted font-mono"
-              >
-                {g.icMean.toFixed(4)}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+      <ResponsiveContainer width="100%" height={100}>
+        <BarChart
+          data={data}
+          margin={{ top: 4, right: 4, bottom: 16, left: 4 }}
+        >
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 9, fill: 'var(--color-mine-muted)' }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis hide />
+          <ReferenceLine
+            y={0}
+            stroke="var(--color-mine-border)"
+            strokeWidth={0.5}
+            strokeDasharray="4"
+          />
+          <Bar
+            dataKey="icMean"
+            fill="var(--color-mine-accent-teal)"
+            radius={[3, 3, 0, 0]}
+            opacity={0.7}
+            isAnimationActive={false}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
 
 // ─── Condition Table ────────────────────────────────────
 
-function ConditionTable({
-  groups,
-}: {
-  groups: ConditionalICGroup[];
-}) {
+function ConditionTable({ groups }: { groups: ConditionalICGroup[] }) {
   return (
-    <div className="space-y-1">
+    <div data-slot="condition-table" className="space-y-1">
       {groups.map((g) => (
         <div
           key={g.condition}
@@ -118,10 +97,10 @@ export function StepConditionalIC({
 }) {
   const stabilityColor =
     conditionalIC.stabilityScore > 0.7
-      ? "green"
+      ? 'green'
       : conditionalIC.stabilityScore > 0.4
-        ? "yellow"
-        : "red";
+        ? 'yellow'
+        : 'red';
 
   return (
     <div data-slot="step-conditional-ic" className="space-y-3">
@@ -130,20 +109,20 @@ export function StepConditionalIC({
         <span className="text-xs text-mine-muted">稳定性评分:</span>
         <span
           className={cn(
-            "text-sm font-bold font-mono tabular-nums",
-            stabilityColor === "green" && "text-mine-accent-green",
-            stabilityColor === "yellow" && "text-mine-accent-yellow",
-            stabilityColor === "red" && "text-mine-accent-red",
+            'text-sm font-bold font-mono tabular-nums',
+            stabilityColor === 'green' && 'text-mine-accent-green',
+            stabilityColor === 'yellow' && 'text-mine-accent-yellow',
+            stabilityColor === 'red' && 'text-mine-accent-red',
           )}
         >
           {conditionalIC.stabilityScore.toFixed(2)}
         </span>
         <span className="text-[10px] text-mine-muted">
           {conditionalIC.stabilityScore > 0.7
-            ? "— 不同市场环境下表现稳定"
+            ? '— 不同市场环境下表现稳定'
             : conditionalIC.stabilityScore > 0.4
-              ? "— 部分环境下波动较大"
-              : "— 对市场环境高度敏感"}
+              ? '— 部分环境下波动较大'
+              : '— 对市场环境高度敏感'}
         </span>
       </div>
 
@@ -160,10 +139,7 @@ export function StepConditionalIC({
       </div>
 
       {/* Liquidity (smaller) */}
-      <ConditionBarChart
-        title="按流动性"
-        groups={conditionalIC.byLiquidity}
-      />
+      <ConditionBarChart title="按流动性" groups={conditionalIC.byLiquidity} />
 
       {/* Detailed breakdown */}
       <div className="space-y-3">

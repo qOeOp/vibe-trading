@@ -1,17 +1,17 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { SelectTriggerProps } from "@radix-ui/react-select";
-import { useAtomValue } from "jotai";
+import type { SelectTriggerProps } from '@radix-ui/react-select';
+import { useAtomValue } from 'jotai';
 import {
   AlertCircle,
   CircleHelpIcon,
   DatabaseBackup,
   SearchCheck,
-} from "lucide-react";
-import { getCellForDomProps } from "@/features/lab/components/data-table/cell-utils";
-import { transformDisplayName } from "@/features/lab/components/databases/display";
-import { DatabaseLogo } from "@/features/lab/components/databases/icon";
-import { Button } from "@/features/lab/components/ui/button";
+} from 'lucide-react';
+import { getCellForDomProps } from '@/features/lab/components/data-table/cell-utils';
+import { transformDisplayName } from '@/features/lab/components/databases/display';
+import { DatabaseLogo } from '@/features/lab/components/databases/icon';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -21,21 +21,21 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@/features/lab/components/ui/select";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import type { CellId } from "@/features/lab/core/cells/ids";
+} from '@/components/ui/select';
+import { Tooltip } from '@/components/ui/tooltip';
+import type { CellId } from '@/features/lab/core/cells/ids';
 import {
   dataConnectionsMapAtom,
   setLatestEngineSelected,
-} from "@/features/lab/core/datasets/data-source-connections";
+} from '@/features/lab/core/datasets/data-source-connections';
 import {
   type ConnectionName,
   INTERNAL_SQL_ENGINES,
-} from "@/features/lab/core/datasets/engines";
-import type { DataSourceConnection } from "@/features/lab/core/kernel/messages";
-import { useNonce } from "@/features/lab/hooks/useNonce";
-import { clearAllSqlValidationErrors } from "../languages/sql/banner-validation-errors";
-import { type SQLMode, useSQLMode } from "../languages/sql/sql-mode";
+} from '@/features/lab/core/datasets/engines';
+import type { DataSourceConnection } from '@/features/lab/core/kernel/messages';
+import { useNonce } from '@/features/lab/hooks/useNonce';
+import { clearAllSqlValidationErrors } from '../languages/sql/banner-validation-errors';
+import { type SQLMode, useSQLMode } from '../languages/sql/sql-mode';
 
 interface SelectProps {
   selectedEngine: ConnectionName;
@@ -67,7 +67,7 @@ export const SQLEngineSelect: React.FC<SelectProps> = ({
 
   const handleSelectEngine = (value: string) => {
     if (value === HELP_KEY) {
-      window.open(HELP_URL, "_blank");
+      window.open(HELP_URL, '_blank');
       return;
     }
 
@@ -84,7 +84,7 @@ export const SQLEngineSelect: React.FC<SelectProps> = ({
     // HACK: Ignore iceberg connections
     // Ideally source_type should be on the DataSourceConnection object
     connections = connections.filter(
-      (connection) => connection.source !== "iceberg",
+      (connection) => connection.source !== 'iceberg',
     );
 
     return connections.map((connection) => (
@@ -123,7 +123,7 @@ export const SQLEngineSelect: React.FC<SelectProps> = ({
             {userDefinedConnections.length > 0 && <SelectSeparator />}
             {renderConnections(internalEngineConnections)}
             <SelectSeparator />
-            <SelectItem className="text-muted-foreground" value={HELP_KEY}>
+            <SelectItem className="text-mine-muted" value={HELP_KEY}>
               <a
                 className="flex items-center gap-1"
                 href={HELP_URL}
@@ -141,23 +141,23 @@ export const SQLEngineSelect: React.FC<SelectProps> = ({
   );
 };
 
-const HELP_KEY = "__help__";
+const HELP_KEY = '__help__';
 const HELP_URL =
-  "http://docs.marimo.io/guides/working_with_data/sql/#connecting-to-a-custom-database";
+  'http://docs.marimo.io/guides/working_with_data/sql/#connecting-to-a-custom-database';
 
 export const SQLModeSelect: React.FC = () => {
   const { sqlMode, setSQLMode } = useSQLMode();
 
   const handleToggleMode = () => {
-    const nextMode = sqlMode === "validate" ? "default" : "validate";
-    if (nextMode === "default") {
+    const nextMode = sqlMode === 'validate' ? 'default' : 'validate';
+    if (nextMode === 'default') {
       clearAllSqlValidationErrors();
     }
     setSQLMode(nextMode);
   };
 
   const getModeIcon = (mode: SQLMode) => {
-    return mode === "validate" ? (
+    return mode === 'validate' ? (
       <SearchCheck className="h-3 w-3" />
     ) : (
       <DatabaseBackup className="h-3 w-3" />
@@ -165,7 +165,7 @@ export const SQLModeSelect: React.FC = () => {
   };
 
   const getTooltipContent = (mode: SQLMode) => {
-    return mode === "validate" ? (
+    return mode === 'validate' ? (
       <div className="text-xs">
         <div className="font-semibold mb-1 flex flex-row items-center gap-1">
           <SearchCheck className="h-3 w-3" />
@@ -191,11 +191,11 @@ export const SQLModeSelect: React.FC = () => {
           variant="ghost"
           size="sm"
           onClick={handleToggleMode}
-          className="h-5 px-1.5 text-xs border-border shadow-none hover:bg-accent"
+          className="h-5 px-1.5 text-xs border-mine-border shadow-none hover:bg-mine-hover"
         >
           {getModeIcon(sqlMode)}
           <span className="ml-1">
-            {sqlMode === "validate" ? "Validate" : "Default"}
+            {sqlMode === 'validate' ? 'Validate' : 'Default'}
           </span>
         </Button>
       </Tooltip>
@@ -209,7 +209,7 @@ const SQLSelectTrigger: React.FC<SelectTriggerProps> = ({
 }) => {
   return (
     <SelectTrigger
-      className="text-xs border-border shadow-none! ring-0! h-5 px-1.5 hover:bg-accent transition-colors"
+      className="text-xs border-mine-border shadow-none! ring-0! h-5 px-1.5 hover:bg-mine-hover transition-colors"
       {...props}
     >
       {children}
