@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 export function KLineChart() {
   return (
     <div
       role="img"
       aria-label="Market K-Line Chart (Placeholder)"
-      className="flex aspect-video items-center justify-center rounded-xl bg-muted/50 border border-dashed"
+      className="flex aspect-video items-center justify-center rounded-xl bg-mine-hover/50 border border-dashed"
     >
-      <p className="text-muted-foreground">K-Line Chart Placeholder</p>
+      <p className="text-mine-muted">K-Line Chart Placeholder</p>
     </div>
   );
 }

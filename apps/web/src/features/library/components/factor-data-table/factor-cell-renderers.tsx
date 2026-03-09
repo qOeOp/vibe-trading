@@ -41,10 +41,10 @@ export function NameCell({
   return (
     <div className="flex items-center gap-2 min-w-0">
       <div className="flex flex-col min-w-0">
-        <span className="text-sm font-medium text-foreground truncate">
+        <span className="text-sm font-medium text-mine-text truncate">
           {factor.name}
         </span>
-        <span className="text-xs text-muted-foreground font-mono truncate">
+        <span className="text-xs text-mine-muted font-mono truncate">
           {factor.version}
         </span>
       </div>
@@ -155,11 +155,11 @@ export function PeakCell({ factor }: { factor: Factor }) {
 
   return (
     <div className="flex flex-col items-center gap-0 min-w-0">
-      <span className="text-[11px] text-muted-foreground leading-tight truncate max-w-full">
+      <span className="text-[11px] text-mine-muted leading-tight truncate max-w-full">
         {best.universe}
       </span>
       <span
-        className={`text-sm font-mono tabular-nums leading-tight ${
+        className={`text-sm numeric leading-tight ${
           best.ic >= 0 ? 'text-market-down-medium' : 'text-market-up-medium'
         }`}
       >

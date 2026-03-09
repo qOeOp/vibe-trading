@@ -5,7 +5,10 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table';
 import { Box, Boxes } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Factor, FactorType } from '@/features/library/types';
-import { FACTOR_CATEGORIES, FACTOR_LIFECYCLE_STATUSES } from '@/features/library/types';
+import {
+  FACTOR_CATEGORIES,
+  FACTOR_LIFECYCLE_STATUSES,
+} from '@/features/library/types';
 import { SparklineSVG } from '../sparkline-svg';
 import { DataTableColumnHeader } from '@/lib/data-table/components/data-table-column-header';
 import {
@@ -89,7 +92,7 @@ function TypeIconCell({
     >
       {/* Icon: visible by default, hidden on row hover */}
       <Icon
-        className={`size-4 text-muted-foreground transition-opacity ${
+        className={`size-4 text-mine-muted transition-opacity ${
           isSelected ? 'hidden' : 'group-hover/row:hidden'
         }`}
       />
@@ -180,7 +183,7 @@ export function useFactorColumns() {
           const v = row.original.ic;
           return (
             <span
-              className={`font-mono tabular-nums ${
+              className={`numeric ${
                 v >= 0 ? 'text-market-up-medium' : 'text-market-down-medium'
               }`}
             >
@@ -222,11 +225,7 @@ export function useFactorColumns() {
               : absV >= 0.5
                 ? 'text-market-up-medium'
                 : 'text-market-down-medium';
-          return (
-            <span className={`font-mono tabular-nums ${cls}`}>
-              {formatNum2(v)}
-            </span>
-          );
+          return <span className={`numeric ${cls}`}>{formatNum2(v)}</span>;
         },
         meta: { label: 'IR', align: 'center' as const },
       },
@@ -241,7 +240,7 @@ export function useFactorColumns() {
         enableColumnFilter: false,
         aggregationFn: 'mean',
         cell: ({ row }) => (
-          <span className="font-mono tabular-nums text-mine-text">
+          <span className="numeric text-mine-text">
             {formatPct(row.original.winRate)}
           </span>
         ),
@@ -257,7 +256,7 @@ export function useFactorColumns() {
         enableGrouping: false,
         enableColumnFilter: false,
         cell: ({ row }) => (
-          <span className="font-mono tabular-nums text-mine-text">
+          <span className="numeric text-mine-text">
             {formatPct(row.original.turnover)}
           </span>
         ),
@@ -273,7 +272,7 @@ export function useFactorColumns() {
         enableGrouping: false,
         enableColumnFilter: false,
         cell: ({ row }) => (
-          <span className="font-mono tabular-nums text-mine-text">
+          <span className="numeric text-mine-text">
             {formatCapacity(row.original.capacity)}
           </span>
         ),
@@ -334,11 +333,7 @@ export function useFactorColumns() {
         cell: ({ row }) => {
           const date = new Date(row.original.createdAt);
           const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-          return (
-            <span className="font-mono tabular-nums text-mine-muted">
-              {formatted}
-            </span>
-          );
+          return <span className="numeric text-mine-muted">{formatted}</span>;
         },
       },
       // ── Actions (center-aligned outline icon buttons) ──

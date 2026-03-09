@@ -14,7 +14,10 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -43,16 +46,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="flex min-h-screen items-center justify-center p-4 bg-background">
+        <div className="flex min-h-screen items-center justify-center p-4 bg-mine-page-bg">
           <div className="text-center space-y-4 max-w-md">
             <div className="space-y-2">
-              <h1 className="text-4xl font-bold text-foreground">Something went wrong</h1>
-              <p className="text-muted-foreground">
-                We encountered an unexpected error. Please refresh the page to try again.
+              <h1 className="text-4xl font-bold text-mine-text">
+                Something went wrong
+              </h1>
+              <p className="text-mine-muted">
+                We encountered an unexpected error. Please refresh the page to
+                try again.
               </p>
             </div>
             {process.env.NODE_ENV === 'development' && (
-              <details className="text-left mt-4 p-4 bg-muted rounded-lg">
+              <details className="text-left mt-4 p-4 bg-mine-hover rounded-lg">
                 <summary className="cursor-pointer font-medium text-sm">
                   Error Details (Development Only)
                 </summary>
@@ -66,7 +72,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <div className="flex gap-2 justify-center">
               <button
                 onClick={this.handleReset}
-                className="px-6 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors"
+                className="px-6 py-2 bg-mine-hover text-mine-text rounded-lg hover:bg-mine-hover/90 transition-colors"
               >
                 Try Again
               </button>
@@ -112,10 +118,10 @@ export function FeatureErrorFallback({
           />
         </svg>
       </div>
-      <h3 className="font-semibold text-foreground mb-1">
+      <h3 className="font-semibold text-mine-text mb-1">
         {featureName} failed to load
       </h3>
-      <p className="text-sm text-muted-foreground mb-3">
+      <p className="text-sm text-mine-muted mb-3">
         An error occurred while loading this feature.
       </p>
       {process.env.NODE_ENV === 'development' && (

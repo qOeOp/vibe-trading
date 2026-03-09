@@ -233,7 +233,7 @@ export function DataTableFilterList<TData>({
             onKeyDown={onTriggerKeyDown}
             disabled={disabled}
           >
-            <ListFilter className="text-muted-foreground" />
+            <ListFilter className="text-mine-muted" />
             Filter
             {filters.length > 0 && (
               <Badge
@@ -258,7 +258,7 @@ export function DataTableFilterList<TData>({
             <p
               id={descriptionId}
               className={cn(
-                'text-muted-foreground text-sm',
+                'text-mine-muted text-sm',
                 filters.length > 0 && 'sr-only',
               )}
             >
@@ -403,7 +403,7 @@ function DataTableFilterItem<TData>({
       >
         <div className="min-w-[72px] text-center">
           {index === 0 ? (
-            <span className="text-muted-foreground text-sm">Where</span>
+            <span className="text-mine-muted text-sm">Where</span>
           ) : index === 1 ? (
             <Select
               value={joinOperator}
@@ -430,9 +430,7 @@ function DataTableFilterItem<TData>({
               </SelectContent>
             </Select>
           ) : (
-            <span className="text-muted-foreground text-sm">
-              {joinOperator}
-            </span>
+            <span className="text-mine-muted text-sm">{joinOperator}</span>
           )}
         </div>
         <Popover open={showFieldSelector} onOpenChange={setShowFieldSelector}>
@@ -772,7 +770,7 @@ function onFilterInputRender<TData>({
               size="sm"
               className={cn(
                 'w-full justify-start rounded text-left font-normal',
-                !filter.value && 'text-muted-foreground',
+                !filter.value && 'text-mine-muted',
               )}
             >
               <CalendarIcon />
