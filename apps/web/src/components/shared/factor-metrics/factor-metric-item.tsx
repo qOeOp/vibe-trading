@@ -177,7 +177,7 @@ function FactorMetricItem({
             )}
           >
             {/* Value */}
-            <span className="text-sm font-bold font-mono tabular-nums text-mine-text">
+            <span className="text-sm font-bold numeric text-mine-text">
               {formattedValue}
             </span>
             {/* Bar */}

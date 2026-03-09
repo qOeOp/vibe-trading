@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import type { LucideIcon } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { NAV_CONFIG } from "@/lib/navigation";
+import type { LucideIcon } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { NAV_CONFIG } from '@/lib/navigation';
 
 export interface SidebarItem {
   icon: LucideIcon;
@@ -43,7 +43,7 @@ export function LeftIconSidebar({
   const isActive = (item: SidebarItem) => {
     if (activeId !== undefined) return item.id === activeId;
     if (!item.href) return false;
-    if (item.href === "/dashboard") return pathname === "/dashboard";
+    if (item.href === '/dashboard') return pathname === '/dashboard';
     return pathname.startsWith(item.href);
   };
 
@@ -57,11 +57,12 @@ export function LeftIconSidebar({
 
   return (
     <div className="flex flex-col w-[52px] flex-1 min-h-0 items-center justify-center">
-      <div className="flex flex-col items-center gap-1 py-1 px-1.5 rounded-full bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] max-h-full overflow-y-auto scrollbar-none">
+      <div className="flex flex-col items-center gap-1 py-1 px-1.5 rounded-full glass-heavy max-h-full overflow-y-auto scrollbar-none">
         {displayItems.map((item, index) => {
           const { icon: Icon, label } = item;
           const active = isActive(item);
-          const isDisabled = item.disabled ?? (!item.href && !onItemClick && !item.id);
+          const isDisabled =
+            item.disabled ?? (!item.href && !onItemClick && !item.id);
           return (
             <button
               type="button"
@@ -72,12 +73,12 @@ export function LeftIconSidebar({
                 itemClassName
                   ? itemClassName(item, active)
                   : cn(
-                      "flex items-center justify-center w-10 h-10 rounded-full transition-all",
+                      'flex items-center justify-center w-10 h-10 rounded-full transition-all',
                       active
-                        ? "bg-mine-nav-active text-white shadow-sm"
+                        ? 'bg-mine-nav-active text-white shadow-sm'
                         : !isDisabled
-                          ? "text-mine-text hover:bg-white/80 cursor-pointer"
-                          : "text-mine-muted/50 cursor-default",
+                          ? 'text-mine-text hover:bg-white/80 cursor-pointer'
+                          : 'text-mine-muted/50 cursor-default',
                     )
               }
               title={label}

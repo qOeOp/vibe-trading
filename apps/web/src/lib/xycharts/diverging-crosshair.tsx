@@ -200,7 +200,7 @@ function CrosshairTooltip({
       className="backdrop-blur-xl bg-mine-card/85 border border-mine-border/50 rounded-lg px-2.5 py-2 text-[10px] shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
       style={{ minWidth: 100, pointerEvents: 'none' }}
     >
-      <div className="text-mine-muted font-mono tabular-nums mb-1">
+      <div className="text-mine-muted numeric mb-1">
         T{datum.t}
       </div>
       <div className="space-y-0.5">
@@ -214,7 +214,7 @@ function CrosshairTooltip({
               <span className="text-mine-muted">{labels[i]}</span>
             </span>
             <span
-              className="font-mono tabular-nums"
+              className="numeric"
               style={{
                 color:
                   d >= 0

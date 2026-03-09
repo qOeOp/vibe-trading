@@ -11,7 +11,7 @@ function PanelFrame({ className, style, ...props }: PanelFrameProps) {
     <div
       data-slot="panel-frame"
       className={cn(
-        'flex flex-col overflow-hidden bg-[#f2f2f2] rounded-[20px]',
+        'flex flex-col overflow-hidden bg-mine-panel-bg rounded-[20px]',
         className,
       )}
       style={{

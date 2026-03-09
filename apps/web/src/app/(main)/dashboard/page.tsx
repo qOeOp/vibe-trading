@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 
 export default function DashboardVisionPage() {
   return (
-    <div className="flex-1 flex items-center justify-center text-mine-muted text-sm">
+    <div className="placeholder-center">
       Dashboard / Vision — Coming Soon
     </div>
   );

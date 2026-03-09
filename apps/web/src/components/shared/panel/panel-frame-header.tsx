@@ -24,7 +24,7 @@ function FrameCloseButton({
       type="button"
       aria-label="Close panel"
       className={cn(
-        'flex items-center justify-center w-5 h-5 rounded-full bg-[#FF5F57] text-white/90 transition-opacity hover:opacity-80',
+        'flex items-center justify-center w-5 h-5 rounded-full bg-chrome-close text-white/90 transition-opacity hover:opacity-80',
         className,
       )}
       style={{

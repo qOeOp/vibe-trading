@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 
 export default function TradingHistoryPage() {
   return (
-    <div className="flex-1 flex items-center justify-center text-mine-muted text-sm">
+    <div className="placeholder-center">
       Trading / History — Coming Soon
     </div>
   );
