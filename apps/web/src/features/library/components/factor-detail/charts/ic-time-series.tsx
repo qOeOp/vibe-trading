@@ -13,9 +13,9 @@ const IC_PROBATION_THRESHOLD = 0.01;
 
 /** Three-window rolling MA colors: shorter→longer = blue→indigo→purple */
 const ROLLING_COLORS: Array<{ name: string; value: string }> = [
-  { name: '20D MA', value: '#3b82f6' },
-  { name: '60D MA', value: '#6366f1' },
-  { name: '120D MA', value: '#8b5cf6' },
+  { name: '20D MA', value: 'var(--color-mine-accent-blue)' },
+  { name: '60D MA', value: 'var(--color-mine-accent-indigo)' },
+  { name: '120D MA', value: 'var(--color-mine-accent-purple)' },
 ];
 
 /** Per-series rendering config
@@ -97,15 +97,15 @@ export function ICTimeSeriesSection({ factor }: ICTimeSeriesSectionProps) {
         <span className="text-xs font-medium text-mine-muted">IC 滚动均线</span>
         <span className="flex items-center gap-3">
           <span className="flex items-center gap-1 text-[8px] text-mine-muted">
-            <span className="inline-block w-3 h-[1.5px] bg-[#3b82f6]" />
+            <span className="inline-block w-3 h-[1.5px] bg-blue-500" />
             20D
           </span>
           <span className="flex items-center gap-1 text-[8px] text-mine-muted">
-            <span className="inline-block w-3 h-[1.5px] bg-[#6366f1]" />
+            <span className="inline-block w-3 h-[1.5px] bg-indigo-500" />
             60D
           </span>
           <span className="flex items-center gap-1 text-[8px] text-mine-muted">
-            <span className="inline-block w-3 h-2 rounded-sm bg-[#8b5cf6]/10 border border-[#8b5cf6]/30" />
+            <span className="inline-block w-3 h-2 rounded-sm bg-violet-500/10 border border-violet-500/30" />
             120D
           </span>
           <span className="flex items-center gap-1 text-[8px] text-mine-muted">

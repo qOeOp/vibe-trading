@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { DateTimePicker } from '@/features/journal/components/date-time-picker';
 import {
   Form,
   FormControl,

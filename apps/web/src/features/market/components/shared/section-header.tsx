@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { memo } from "react";
-import type { ReactNode } from "react";
+import { memo } from 'react';
+import type { ReactNode } from 'react';
 
 export interface SectionHeaderProps {
   /** 标题文字 */
@@ -24,11 +24,14 @@ export const SectionHeader = memo(function SectionHeader({
   title,
   suffix,
   showMore,
-  moreText = "更多",
+  moreText = '更多',
   onMoreClick,
 }: SectionHeaderProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div
+      data-slot="section-header"
+      className="flex items-center justify-between"
+    >
       <span className="text-xs font-medium text-mine-muted uppercase tracking-wide">
         {title}
       </span>

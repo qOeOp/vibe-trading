@@ -1,30 +1,34 @@
-"use client";
+'use client';
 
-import { Suspense } from "react";
-import { ArrowLeftRight, ArrowRight, Info } from "lucide-react";
+import { Suspense } from 'react';
+import { ArrowLeftRight, ArrowRight, Info } from 'lucide-react';
 
-import { MineCard } from "./mine-card";
-import { Markdown } from "./markdown";
-import { PlaceholderVisual } from "./placeholder-visual";
-import { resolveIcon } from "../lib/icon-map";
-import { COMPONENT_REGISTRY } from "../lib/component-registry";
-import type { BlueprintDoc, CardMeta, CardContent } from "../lib/parse-blueprint-doc";
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Markdown } from './markdown';
+import { PlaceholderVisual } from './placeholder-visual';
+import { resolveIcon } from '../lib/icon-map';
+import { COMPONENT_REGISTRY } from '../lib/component-registry';
+import type {
+  BlueprintDoc,
+  CardMeta,
+  CardContent as CardContentData,
+} from '../lib/parse-blueprint-doc';
 
 /* ================================================================ */
 /*  Badge                                                           */
 /* ================================================================ */
 
 const BADGE_COLORS: Record<string, string> = {
-  teal: "bg-mine-accent-teal/10 text-mine-accent-teal",
-  green: "bg-[#4caf50]/10 text-[#4caf50]",
-  blue: "bg-[#3b82f6]/10 text-[#3b82f6]",
-  purple: "bg-[#8b5cf6]/10 text-[#8b5cf6]",
-  yellow: "bg-[#f5a623]/10 text-[#f5a623]",
-  red: "bg-[#e74c3c]/10 text-[#e74c3c]",
-  gray: "bg-mine-muted/10 text-mine-muted",
+  teal: 'bg-mine-accent-teal/10 text-mine-accent-teal',
+  green: 'bg-mine-accent-green/10 text-mine-accent-green',
+  blue: 'bg-blue-500/10 text-blue-500',
+  purple: 'bg-violet-500/10 text-violet-500',
+  yellow: 'bg-mine-accent-yellow/10 text-mine-accent-yellow',
+  red: 'bg-mine-accent-red/10 text-mine-accent-red',
+  gray: 'bg-mine-muted/10 text-mine-muted',
 };
 
-function Badge({ badge }: { badge: CardMeta["badge"] }) {
+function Badge({ badge }: { badge: CardMeta['badge'] }) {
   if (!badge) return null;
   const Icon = resolveIcon(badge.icon);
   const color = BADGE_COLORS[badge.color] ?? BADGE_COLORS.gray;
@@ -48,12 +52,12 @@ function CardBody({
   cardContent,
 }: {
   cardMeta: CardMeta;
-  cardContent: CardContent;
+  cardContent: CardContentData;
 }) {
-  const renderMode = cardMeta.render ?? "markdown";
+  const renderMode = cardMeta.render ?? 'markdown';
 
   switch (renderMode) {
-    case "placeholder":
+    case 'placeholder':
       return (
         <PlaceholderVisual
           type={cardMeta.placeholderType}
@@ -61,8 +65,8 @@ function CardBody({
         />
       );
 
-    case "component": {
-      const Component = COMPONENT_REGISTRY[cardMeta.component ?? ""];
+    case 'component': {
+      const Component = COMPONENT_REGISTRY[cardMeta.component ?? ''];
       if (!Component) {
         return (
           <PlaceholderVisual
@@ -84,7 +88,7 @@ function CardBody({
       );
     }
 
-    case "markdown":
+    case 'markdown':
     default:
       return (
         <div className="px-3 pb-3">
@@ -96,19 +100,20 @@ function CardBody({
 
 function buildExpandContent(
   cardMeta: CardMeta,
-  cardContent: CardContent,
-  links?: BlueprintDoc["meta"]["links"],
+  cardContent: CardContentData,
+  links?: BlueprintDoc['meta']['links'],
 ) {
-  const renderMode = cardMeta.render ?? "markdown";
+  const renderMode = cardMeta.render ?? 'markdown';
   const hasExpand = Boolean(cardContent.expand);
   const hasLinks = links && links.length > 0;
 
   // For markdown mode, expand shows the expand section
   // For placeholder/component modes, expand shows the full markdown as documentation
   const expandMarkdown =
-    renderMode === "markdown"
+    renderMode === 'markdown'
       ? cardContent.expand
-      : cardContent.body + (cardContent.expand ? "\n\n" + cardContent.expand : "");
+      : cardContent.body +
+        (cardContent.expand ? '\n\n' + cardContent.expand : '');
 
   if (!expandMarkdown && !hasLinks) return undefined;
 
@@ -133,7 +138,7 @@ function buildExpandContent(
                   {link.from}
                 </span>
                 <ArrowRight className="w-2.5 h-2.5 text-mine-muted shrink-0" />
-                <span className="px-1.5 py-0.5 rounded bg-[#8b5cf6]/10 text-[#8b5cf6] font-medium shrink-0">
+                <span className="px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-500 font-medium shrink-0">
                   {link.to}
                 </span>
                 <span className="text-mine-muted truncate">{link.desc}</span>
@@ -157,7 +162,7 @@ interface BlueprintSectionProps {
 /**
  * Generic renderer for a BlueprintDoc parsed from a .md file.
  *
- * Renders: page title → rows of MineCards → footer.
+ * Renders: page title → rows of Cards → footer.
  * Each card supports three render modes (markdown/placeholder/component).
  */
 export function BlueprintSection({ doc }: BlueprintSectionProps) {
@@ -165,14 +170,17 @@ export function BlueprintSection({ doc }: BlueprintSectionProps) {
   const PageIcon = resolveIcon(meta.icon);
 
   // Group cards by row number
-  const rowGroups = new Map<number, { cardMeta: CardMeta; cardContent: CardContent }[]>();
+  const rowGroups = new Map<
+    number,
+    { cardMeta: CardMeta; cardContent: CardContentData }[]
+  >();
   for (const cardMeta of meta.cards) {
     const row = cardMeta.row ?? 1;
     if (!rowGroups.has(row)) rowGroups.set(row, []);
     const content = cards.find((c) => c.id === cardMeta.id) ?? {
       id: cardMeta.id,
-      body: "",
-      expand: "",
+      body: '',
+      expand: '',
     };
     rowGroups.get(row)!.push({ cardMeta, cardContent: content });
   }
@@ -199,8 +207,8 @@ export function BlueprintSection({ doc }: BlueprintSectionProps) {
       <div className="flex-1 flex flex-col gap-3 min-h-0">
         {sortedRows.map(([rowNum, rowCards], rowIdx) => {
           const rowStyle = meta.rows?.[rowIdx];
-          const heightConfig = rowStyle?.height ?? "520px";
-          const isFullHeight = heightConfig === "h-full";
+          const heightConfig = rowStyle?.height ?? '520px';
+          const isFullHeight = heightConfig === 'h-full';
 
           return (
             <div
@@ -218,14 +226,12 @@ export function BlueprintSection({ doc }: BlueprintSectionProps) {
                     className="min-w-0"
                     style={{ flex: cardMeta.flex ?? 1 }}
                   >
-                    <MineCard
-                      title={cardMeta.title}
-                      subtitle={cardMeta.subtitle}
+                    <Card
                       expandable={
                         Boolean(cardContent.expand) ||
                         Boolean(linksForCard?.length) ||
-                        cardMeta.render === "placeholder" ||
-                        cardMeta.render === "component"
+                        cardMeta.render === 'placeholder' ||
+                        cardMeta.render === 'component'
                       }
                       expandTitle={cardMeta.expandTitle}
                       expandSubtitle={cardMeta.expandSubtitle}
@@ -235,13 +241,19 @@ export function BlueprintSection({ doc }: BlueprintSectionProps) {
                         linksForCard,
                       )}
                       className="h-full"
-                      actions={<Badge badge={cardMeta.badge} />}
                     >
-                      <CardBody
-                        cardMeta={cardMeta}
-                        cardContent={cardContent}
+                      <CardHeader
+                        title={cardMeta.title}
+                        subtitle={cardMeta.subtitle}
+                        actions={<Badge badge={cardMeta.badge} />}
                       />
-                    </MineCard>
+                      <CardContent>
+                        <CardBody
+                          cardMeta={cardMeta}
+                          cardContent={cardContent}
+                        />
+                      </CardContent>
+                    </Card>
                   </div>
                 );
               })}

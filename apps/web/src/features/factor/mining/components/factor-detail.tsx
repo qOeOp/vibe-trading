@@ -104,7 +104,7 @@ function FactorDetail({
       {/* Section 1: 因子信息 */}
       <PanelSection title="因子信息">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm font-bold font-mono tabular-nums text-mine-text">
+          <span className="text-sm font-bold numeric text-mine-text">
             {factor.name}
           </span>
           <PanelBadgeTag color={factor.accepted ? 'teal' : 'red'}>

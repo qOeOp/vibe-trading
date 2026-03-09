@@ -25,7 +25,6 @@ function getYear(d: string): number {
  * - Year/month view (<= 18 months): alternating month stripe fills
  */
 export function MonthStripes({ xScale, height, data }: MonthStripesProps) {
-
   // Determine time span to decide mode
   const isFullPeriod = useMemo(() => {
     if (data.length < 2) return false;
@@ -69,9 +68,10 @@ export function MonthStripes({ xScale, height, data }: MonthStripesProps) {
       const m = i < data.length ? getMonth(data[i]) : -1;
       if (m !== blockMonth || i === data.length) {
         const startX = xScale(data[blockStart]) ?? 0;
-        const endX = i < data.length
-          ? (xScale(data[i]) ?? 0)
-          : startX + (data.length - blockStart) * xScale.step();
+        const endX =
+          i < data.length
+            ? (xScale(data[i]) ?? 0)
+            : startX + (data.length - blockStart) * xScale.step();
 
         blocks.push({ x: startX, width: endX - startX, month: blockMonth });
 
@@ -95,21 +95,22 @@ export function MonthStripes({ xScale, height, data }: MonthStripesProps) {
               y1={0}
               x2={d.x}
               y2={height}
-              stroke="#e0ddd8"
+              stroke="var(--color-mine-border)"
               strokeWidth={0.5}
             />
           ))
-        : monthStripes.map((block, i) =>
-            block.month % 2 === 0 && (
-              <rect
-                key={i}
-                x={block.x}
-                y={0}
-                width={block.width}
-                height={height}
-                fill="rgba(0, 0, 0, 0.015)"
-              />
-            )
+        : monthStripes.map(
+            (block, i) =>
+              block.month % 2 === 0 && (
+                <rect
+                  key={i}
+                  x={block.x}
+                  y={0}
+                  width={block.width}
+                  height={height}
+                  fill="rgba(0, 0, 0, 0.015)"
+                />
+              ),
           )}
     </g>
   );

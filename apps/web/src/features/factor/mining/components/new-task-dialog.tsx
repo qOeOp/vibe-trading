@@ -1,8 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import type { CreateTaskConfig, MiningMode } from '../types';
 
 const MODE_OPTIONS: Array<{
@@ -91,19 +97,13 @@ function TextInput({
       className={cn(
         'h-8 px-2.5 text-xs bg-mine-bg border border-mine-border rounded-md',
         'text-mine-text focus:outline-none focus:ring-1 focus:ring-mine-accent-teal',
-        'font-mono tabular-nums',
+        'numeric',
       )}
     />
   );
 }
 
-export function NewTaskDialog({
-  open,
-  onClose,
-  onSubmit,
-  className,
-  ...props
-}: NewTaskDialogProps & Omit<React.ComponentProps<'div'>, 'onSubmit'>) {
+export function NewTaskDialog({ open, onClose, onSubmit }: NewTaskDialogProps) {
   const [config, setConfig] = useState<CreateTaskConfig>(DEFAULT_CONFIG);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,8 +111,6 @@ export function NewTaskDialog({
   useEffect(() => {
     if (open) setConfig(DEFAULT_CONFIG);
   }, [open]);
-
-  if (!open) return null;
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -128,25 +126,11 @@ export function NewTaskDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div
-        data-slot="new-task-dialog"
-        className={cn(
-          'w-120 bg-white rounded-xl shadow-md border border-mine-border overflow-hidden',
-          className,
-        )}
-        {...props}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-mine-border/50">
-          <h2 className="text-sm font-semibold text-mine-text">新建挖掘任务</h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded hover:bg-mine-bg text-mine-muted hover:text-mine-text transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="sm:max-w-[480px] p-0 gap-0">
+        <DialogHeader className="px-4 py-3 border-b border-mine-border/50">
+          <DialogTitle className="text-sm">新建挖掘任务</DialogTitle>
+        </DialogHeader>
 
         {/* Body */}
         <div className="px-4 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
@@ -318,7 +302,7 @@ export function NewTaskDialog({
         {error && (
           <p className="text-xs text-market-up-medium px-4 pb-2">{error}</p>
         )}
-        <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-mine-border/50">
+        <DialogFooter className="px-4 py-3 border-t border-mine-border/50">
           <button
             onClick={onClose}
             className="px-3 py-1.5 text-xs text-mine-muted hover:text-mine-text rounded-lg hover:bg-mine-bg transition-colors"
@@ -336,8 +320,8 @@ export function NewTaskDialog({
           >
             {submitting ? '提交中...' : '开始挖掘'}
           </button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

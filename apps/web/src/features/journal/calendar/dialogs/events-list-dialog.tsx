@@ -1,19 +1,19 @@
-import { format } from "date-fns";
-import type { ReactNode } from "react";
+import { format } from 'date-fns';
+import type { ReactNode } from 'react';
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalTitle,
   ModalTrigger,
-} from "@/components/ui/responsive-modal";
-import { cn } from "@/lib/utils";
-import { useCalendar } from "../contexts/calendar-context";
-import { formatTime } from "../helpers";
-import type { IEvent } from "../interfaces";
-import { dayCellVariants } from "../views/month-view/day-cell";
-import { EventBullet } from "../views/month-view/event-bullet";
-import { EventDetailsDialog } from "./event-details-dialog";
+} from '@/components/ui/responsive-modal';
+import { cn } from '@/lib/utils';
+import { useCalendar } from '../contexts/calendar-context';
+import { formatTime } from '../helpers';
+import type { IEvent } from '../interfaces';
+import { dayCellVariants } from '../views/month-view/day-cell';
+import { EventBullet } from '../views/month-view/event-bullet';
+import { EventDetailsDialog } from './event-details-dialog';
 
 interface EventListDialogProps {
   date: Date;
@@ -33,7 +33,7 @@ function EventListDialog({
   const { badgeVariant, use24HourFormat } = useCalendar();
 
   const defaultTrigger = (
-    <span className="cursor-pointer">
+    <span className="cursor-pointer hover:opacity-70 transition-opacity">
       <span className="sm:hidden">+{hiddenEventsCount}</span>
       <span className="hidden sm:inline py-0.5 px-2 my-1 rounded-xl border border-mine-border">
         {hiddenEventsCount}
@@ -51,7 +51,7 @@ function EventListDialog({
             <div className="flex items-center gap-2">
               <EventBullet color={cellEvents[0]?.color} className="" />
               <p className="text-sm font-medium">
-                Events on {format(date, "EEEE, MMMM d, yyyy")}
+                Events on {format(date, 'EEEE, MMMM d, yyyy')}
               </p>
             </div>
           </ModalTitle>
@@ -62,10 +62,10 @@ function EventListDialog({
               <EventDetailsDialog event={event} key={event.id}>
                 <div
                   className={cn(
-                    "flex items-center gap-2 p-2 border border-mine-border rounded-md hover:bg-mine-bg cursor-pointer",
+                    'flex items-center gap-2 p-2 border border-mine-border rounded-md hover:bg-mine-bg cursor-pointer',
                     {
                       [dayCellVariants({ color: event.color })]:
-                        badgeVariant === "colored",
+                        badgeVariant === 'colored',
                     },
                   )}
                 >
@@ -80,9 +80,7 @@ function EventListDialog({
               </EventDetailsDialog>
             ))
           ) : (
-            <p className="text-sm text-mine-muted">
-              No events for this date.
-            </p>
+            <p className="text-sm text-mine-muted">No events for this date.</p>
           )}
         </div>
       </ModalContent>

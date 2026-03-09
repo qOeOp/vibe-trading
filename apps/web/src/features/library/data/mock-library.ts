@@ -13,6 +13,7 @@
 import type {
   Factor,
   BenchmarkConfig,
+  ConfigSliceStatus,
   FactorCategory,
   FactorLifecycleStatus,
   FactorType,
@@ -21,7 +22,7 @@ import type {
   UniverseIC,
   UniversePool,
 } from '../types';
-import { UNIVERSE_POOLS } from '../types';
+import { UNIVERSE_POOLS, HORIZON_KEYS, getConfigKey } from '../types';
 import { computeICStats } from '../utils/compute-ic-stats';
 
 // ─── Seeded PRNG ─────────────────────────────────────────
@@ -1630,6 +1631,37 @@ const PENDING_PROPOSALS: Record<
   },
 };
 
+// ─── Config Status (Pool × Horizon 16-combo states) ─────
+
+function generateConfigStatus(
+  status: FactorLifecycleStatus,
+  seed: number,
+): Record<string, ConfigSliceStatus> {
+  const rand = createSeededRandom(seed);
+  const result: Record<string, ConfigSliceStatus> = {};
+
+  for (const pool of UNIVERSE_POOLS) {
+    for (const hz of HORIZON_KEYS) {
+      const key = getConfigKey(pool, hz);
+      const r = rand();
+
+      if (status === 'INCUBATING' && r < 0.15) {
+        // 15% chance still computing for incubating factors
+        result[key] = { signalStatus: 'loading', portfolioStatus: 'loading' };
+      } else if (r < 0.03) {
+        // 3% chance of error
+        result[key] = { signalStatus: 'ready', portfolioStatus: 'error' };
+      } else if (r < 0.08) {
+        // 5% chance portfolio still computing
+        result[key] = { signalStatus: 'ready', portfolioStatus: 'loading' };
+      } else {
+        result[key] = { signalStatus: 'ready', portfolioStatus: 'ready' };
+      }
+    }
+  }
+  return result;
+}
+
 // ─── Build Full Factor Objects ───────────────────────────
 
 function buildFactor(seed: FactorSeed, index: number): Factor {
@@ -1701,6 +1733,7 @@ function buildFactor(seed: FactorSeed, index: number): Factor {
       index * 4871 + 23,
     ),
     statusHistory: [],
+    configStatus: generateConfigStatus(seed.status, index * 9091 + 37),
   };
 }
 

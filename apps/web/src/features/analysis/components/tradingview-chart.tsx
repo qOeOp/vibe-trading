@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, memo } from "react";
+import { useEffect, useRef, memo } from 'react';
 
 interface TradingViewChartProps {
   symbol?: string;
@@ -8,13 +8,15 @@ interface TradingViewChartProps {
 
 // TradingView widget always uses dark theme (inverted from the app's light visual theme)
 const WIDGET_CONFIG = {
-  theme: "dark",
-  backgroundColor: "#1a1a1a",
-  gridColor: "rgba(255, 255, 255, 0.06)",
-  containerBg: "bg-[#1a1a1a]",
+  theme: 'dark',
+  backgroundColor: '#1a1a1a',
+  gridColor: 'rgba(255, 255, 255, 0.06)',
+  containerBg: 'bg-mine-text',
 } as const;
 
-function TradingViewChartComponent({ symbol = "NASDAQ:AAPL" }: TradingViewChartProps) {
+function TradingViewChartComponent({
+  symbol = 'NASDAQ:AAPL',
+}: TradingViewChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,19 +24,20 @@ function TradingViewChartComponent({ symbol = "NASDAQ:AAPL" }: TradingViewChartP
     if (!container) return;
 
     // Clear previous widget
-    container.innerHTML = "";
+    container.innerHTML = '';
 
     // Create widget container
-    const widgetContainer = document.createElement("div");
-    widgetContainer.className = "tradingview-widget-container__widget";
-    widgetContainer.style.height = "100%";
-    widgetContainer.style.width = "100%";
+    const widgetContainer = document.createElement('div');
+    widgetContainer.className = 'tradingview-widget-container__widget';
+    widgetContainer.style.height = '100%';
+    widgetContainer.style.width = '100%';
     container.appendChild(widgetContainer);
 
     // Create and append script
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.type = "text/javascript";
+    const script = document.createElement('script');
+    script.src =
+      'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.type = 'text/javascript';
     script.async = true;
     script.innerHTML = JSON.stringify({
       symbol,
@@ -46,25 +49,25 @@ function TradingViewChartComponent({ symbol = "NASDAQ:AAPL" }: TradingViewChartP
       hide_legend: false,
       hide_volume: false,
       hotlist: false,
-      interval: "D",
-      locale: "en",
+      interval: 'D',
+      locale: 'en',
       save_image: true,
-      style: "1",
+      style: '1',
       theme: WIDGET_CONFIG.theme,
-      timezone: "Asia/Shanghai",
+      timezone: 'Asia/Shanghai',
       backgroundColor: WIDGET_CONFIG.backgroundColor,
       gridColor: WIDGET_CONFIG.gridColor,
       watchlist: [],
       withdateranges: true,
-      range: "3M",
+      range: '3M',
       compareSymbols: [],
-      studies: ["STD;SMA"],
+      studies: ['STD;SMA'],
       autosize: true,
     });
     container.appendChild(script);
 
     return () => {
-      container.innerHTML = "";
+      container.innerHTML = '';
     };
   }, [symbol]);
 
@@ -72,7 +75,7 @@ function TradingViewChartComponent({ symbol = "NASDAQ:AAPL" }: TradingViewChartP
     <div
       ref={containerRef}
       className={`tradingview-widget-container flex-1 rounded-xl overflow-hidden ${WIDGET_CONFIG.containerBg}`}
-      style={{ height: "100%", width: "100%" }}
+      style={{ height: '100%', width: '100%' }}
     />
   );
 }

@@ -149,7 +149,7 @@ function DefaultBandTooltip({ info }: { info: BandTooltipInfo }) {
       className="backdrop-blur-xl bg-white/75 border border-mine-border/50 rounded-xl px-3 py-2.5 text-xs shadow-[0_4px_24px_rgba(0,0,0,0.08)]"
       style={{ minWidth: 140, pointerEvents: 'none' }}
     >
-      <div className="text-mine-muted font-mono tabular-nums text-[10px] mb-1.5">
+      <div className="text-mine-muted numeric text-[10px] mb-1.5">
         {info.date}
       </div>
 
@@ -159,7 +159,7 @@ function DefaultBandTooltip({ info }: { info: BandTooltipInfo }) {
             {info.closestStrategy.id}
           </span>
           <span
-            className={`font-mono tabular-nums text-right ${info.closestStrategy.value >= 0 ? 'text-market-up' : 'text-market-down'}`}
+            className={`numeric text-right ${info.closestStrategy.value >= 0 ? 'text-market-up' : 'text-market-down'}`}
           >
             {info.closestStrategy.value > 0 ? '+' : ''}
             {info.closestStrategy.value.toFixed(1)}%
@@ -199,7 +199,7 @@ function BandRow({
         {label}
       </span>
       <span
-        className={`font-mono tabular-nums text-right ${value >= 0 ? 'text-market-up' : 'text-market-down'}`}
+        className={`numeric text-right ${value >= 0 ? 'text-market-up' : 'text-market-down'}`}
       >
         {value > 0 ? '+' : ''}
         {value.toFixed(1)}%

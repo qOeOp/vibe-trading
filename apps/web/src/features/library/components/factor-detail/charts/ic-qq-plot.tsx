@@ -10,9 +10,9 @@ import type { Factor } from '@/features/library/types';
 
 /* ── Visual constants ──────────────────────────────────────── */
 
-const DOT_COLOR = '#6366f1';
+const DOT_COLOR = 'var(--color-mine-accent-indigo)';
 const DOT_RADIUS = 1.5;
-const REF_LINE_COLOR = '#e0ddd8';
+const REF_LINE_COLOR = 'var(--color-mine-border)';
 const MARGINS = { top: 8, right: 8, bottom: 20, left: 0 };
 
 /* ── Chart Component ──────────────────────────────────────── */
@@ -73,7 +73,7 @@ function QQPlotContent({
           x={plotW / 2}
           y={plotH + 14}
           textAnchor="middle"
-          fill="#666"
+          fill="var(--color-mine-muted)"
           fontSize={9}
           fontFamily="var(--font-chart)"
           fontWeight={300}

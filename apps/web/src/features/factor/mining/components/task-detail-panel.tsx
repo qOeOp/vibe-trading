@@ -97,7 +97,7 @@ function TaskDetailPanel({
         <TabsTrigger value="factors" className="text-xs">
           因子
           {task.factors.length > 0 && (
-            <span className="ml-1 text-[9px] text-mine-muted font-mono tabular-nums">
+            <span className="ml-1 text-[9px] text-mine-muted numeric">
               {task.factors.length}
             </span>
           )}

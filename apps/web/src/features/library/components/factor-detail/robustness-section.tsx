@@ -4,15 +4,15 @@ import { PanelSection } from '@/components/shared/panel';
 import type { Factor } from '@/features/library/types';
 
 function retentionColorClass(pct: number): string {
-  if (pct >= 70) return 'text-market-down-medium';
+  if (pct >= 70) return 'text-market-up-medium';
   if (pct >= 30) return 'text-market-flat';
-  return 'text-market-up-medium';
+  return 'text-market-down-medium';
 }
 
 function retentionBgClass(pct: number): string {
-  if (pct >= 70) return 'bg-market-down-medium/8 text-market-down-medium';
+  if (pct >= 70) return 'bg-market-up-medium/8 text-market-up-medium';
   if (pct >= 30) return 'bg-market-flat/8 text-market-flat';
-  return 'bg-market-up-medium/8 text-market-up-medium';
+  return 'bg-market-down-medium/8 text-market-down-medium';
 }
 
 function retentionLabel(pct: number): string {
@@ -42,7 +42,7 @@ export function RobustnessSection({ factor }: RobustnessSectionProps) {
           </div>
           <div className="flex items-center gap-2">
             <span
-              className={`text-[11px] font-bold font-mono tabular-nums ${retentionColorClass(rankPct)}`}
+              className={`text-[11px] font-bold numeric ${retentionColorClass(rankPct)}`}
             >
               {rankPct}%
             </span>
@@ -61,7 +61,7 @@ export function RobustnessSection({ factor }: RobustnessSectionProps) {
           </div>
           <div className="flex items-center gap-2">
             <span
-              className={`text-[11px] font-bold font-mono tabular-nums ${retentionColorClass(binaryPct)}`}
+              className={`text-[11px] font-bold numeric ${retentionColorClass(binaryPct)}`}
             >
               {binaryPct}%
             </span>

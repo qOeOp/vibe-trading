@@ -1,20 +1,14 @@
-"use client";
+'use client';
 
-import React, { useRef } from "react";
-import {
-  FlaskConical,
-  ScrollText,
-  Zap,
-  Eye,
-  Archive,
-} from "lucide-react";
-import { AnimatedBeam } from "@/components/ui/animated-beam";
+import React, { useRef } from 'react';
+import { FlaskConical, ScrollText, Zap, Eye, Archive } from 'lucide-react';
+import { AnimatedBeam } from '@/components/ui/animated-beam';
 import {
   FACTOR_LIFECYCLE_STATUSES,
   STATUS_COLORS,
   STATUS_LABELS,
-} from "../types";
-import type { FactorLifecycleStatus } from "../types";
+} from '../types';
+import type { FactorLifecycleStatus } from '../types';
 
 // ─── Status Icons ───────────────────────────────────────
 
@@ -27,8 +21,8 @@ const STATUS_ICONS: Record<FactorLifecycleStatus, React.ElementType> = {
 };
 
 /** Beam color for reached segments — green energy flow */
-const BEAM_START = "#4caf50";
-const BEAM_END = "#2EBD85";
+const BEAM_START = 'var(--color-mine-accent-green)';
+const BEAM_END = 'var(--color-market-down-medium)';
 
 // ─── Lifecycle Timeline with Animated Beams ─────────────
 
@@ -68,7 +62,7 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
                   ? {
                       width: 22,
                       height: 22,
-                      backgroundColor: "white",
+                      backgroundColor: 'white',
                       border: `1.5px solid ${color}`,
                       boxShadow: isCurrent
                         ? `0 0 0 2px white, 0 0 0 3.5px ${color}40`
@@ -77,8 +71,8 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
                   : {
                       width: 22,
                       height: 22,
-                      border: "1.5px solid #e0ddd8",
-                      backgroundColor: "white",
+                      border: '1.5px solid var(--color-mine-border)',
+                      backgroundColor: 'white',
                     }
               }
             >
@@ -87,7 +81,7 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
                 style={{
                   width: 11,
                   height: 11,
-                  color: isReached ? color : "#c0bdb8",
+                  color: isReached ? color : 'var(--color-mine-border)',
                 }}
                 strokeWidth={isReached ? 2 : 1.5}
               />
@@ -114,15 +108,12 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
             >
               <span
                 className="text-[8px] font-medium whitespace-nowrap"
-                style={{ color: isReached ? color : "#8a8a8a" }}
+                style={{ color: isReached ? color : 'var(--color-mine-muted)' }}
               >
                 {label}
               </span>
               {isCurrent && (
-                <span
-                  className="text-[7px] leading-none"
-                  style={{ color }}
-                >
+                <span className="text-[7px] leading-none" style={{ color }}>
                   ▲
                 </span>
               )}
@@ -143,7 +134,7 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
               containerRef={containerRef}
               fromRef={nodeRefs[i]}
               toRef={nodeRefs[i + 1]}
-              pathColor="#4caf50"
+              pathColor="var(--color-mine-accent-green)"
               pathOpacity={0.12}
               pathWidth={2}
               gradientStartColor={BEAM_START}
@@ -161,7 +152,7 @@ export function LifecycleTimeline({ status }: LifecycleTimelineProps) {
             containerRef={containerRef}
             fromRef={nodeRefs[i]}
             toRef={nodeRefs[i + 1]}
-            pathColor="#e0ddd8"
+            pathColor="var(--color-mine-border)"
             pathOpacity={0.5}
             pathWidth={1.5}
             gradientStartColor="transparent"

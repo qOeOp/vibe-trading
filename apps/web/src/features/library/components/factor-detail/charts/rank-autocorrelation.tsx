@@ -9,7 +9,7 @@ import type { Factor } from '@/features/library/types';
 /* ── Visual constants ──────────────────────────────────────── */
 
 const AUTOCORR_COLORS: Array<{ name: string; value: string }> = [
-  { name: '自相关', value: '#f59e0b' },
+  { name: '自相关', value: 'var(--color-mine-accent-amber)' },
 ];
 
 const SERIES_CONFIG = {

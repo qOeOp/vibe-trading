@@ -1,20 +1,18 @@
-"use client";
+'use client';
 
-import { MarketBreadth } from "./detail/market-breadth";
-import { HotConcepts } from "./detail/hot-concepts";
-import { CapitalFlow } from "./detail/capital-flow";
-import { LimitAnalysis } from "./detail/limit-analysis";
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { MarketBreadth } from './detail/market-breadth';
+import { HotConcepts } from './detail/hot-concepts';
+import { CapitalFlow } from './detail/capital-flow';
+import { LimitAnalysis } from './detail/limit-analysis';
 
 export function MarketDetailPanel() {
   return (
-    <div className="w-[360px] min-w-0 max-w-full flex flex-col gap-0 rounded-xl bg-white shadow-sm border border-mine-border overflow-hidden">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-mine-border/50">
-        <h2 className="text-sm font-semibold text-mine-text">市场概览</h2>
-      </div>
+    <Card className="w-[360px] min-w-0 max-w-full">
+      <CardHeader title="市场概览" className="px-4 py-3" />
 
       {/* Content sections */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-5">
+      <CardContent className="flex-1 overflow-y-auto p-4 space-y-5">
         {/* 市场宽度 */}
         <MarketBreadth />
 
@@ -32,7 +30,7 @@ export function MarketDetailPanel() {
 
         {/* 涨跌停分析 */}
         <LimitAnalysis />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

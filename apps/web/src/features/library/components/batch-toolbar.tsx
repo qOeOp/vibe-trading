@@ -1,13 +1,24 @@
-"use client";
+'use client';
 
-import { useState, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronDown, ArrowRightLeft, GitCompare, Download } from "lucide-react";
-import type { Factor, FactorLifecycleStatus } from "../types";
-import { useLibraryStore } from "../store/use-library-store";
-import { StatusChangeDialog } from "./status-change-dialog";
-import { ComparisonPanel } from "./comparison-panel";
-import { exportAsCSV, exportAsJSON } from "../utils/export-factors";
+import { useState, useMemo, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, ArrowRightLeft, GitCompare, Download } from 'lucide-react';
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarSeparator,
+} from '@/components/ui/toolbar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import type { Factor, FactorLifecycleStatus } from '../types';
+import { useLibraryStore } from '../store/use-library-store';
+import { StatusChangeDialog } from './status-change-dialog';
+import { ComparisonPanel } from './comparison-panel';
+import { exportAsCSV, exportAsJSON } from '../utils/export-factors';
 
 interface BatchToolbarProps {
   factors: Factor[];
@@ -19,7 +30,6 @@ export function BatchToolbar({ factors }: BatchToolbarProps) {
   const toggleFactorSelection = useLibraryStore((s) => s.toggleFactorSelection);
   const batchUpdateStatus = useLibraryStore((s) => s.batchUpdateStatus);
 
-  const [exportOpen, setExportOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
 
@@ -35,21 +45,15 @@ export function BatchToolbar({ factors }: BatchToolbarProps) {
 
   const handleExportCSV = useCallback(() => {
     exportAsCSV(selectedFactors);
-    setExportOpen(false);
   }, [selectedFactors]);
 
   const handleExportJSON = useCallback(() => {
     exportAsJSON(selectedFactors);
-    setExportOpen(false);
   }, [selectedFactors]);
 
   const handleStatusConfirm = useCallback(
     (targetStatus: FactorLifecycleStatus, reason: string) => {
-      batchUpdateStatus(
-        Array.from(selectedFactorIds),
-        targetStatus,
-        reason,
-      );
+      batchUpdateStatus(Array.from(selectedFactorIds), targetStatus, reason);
       setStatusDialogOpen(false);
     },
     [batchUpdateStatus, selectedFactorIds],
@@ -75,78 +79,67 @@ export function BatchToolbar({ factors }: BatchToolbarProps) {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 20, opacity: 0 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-white shadow-lg border border-mine-border rounded-xl px-4 py-2.5 flex items-center gap-3"
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40"
         >
-          {/* Count label */}
-          <span className="text-[11px] text-mine-muted whitespace-nowrap">
-            已选中 <span className="font-mono tabular-nums font-semibold text-mine-text">{count}</span> 个因子
-          </span>
-
-          <div className="w-px h-4 bg-mine-border" />
-
-          {/* Compare button */}
-          <button
-            type="button"
-            disabled={count < 2}
-            onClick={() => setCompareOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-lg border border-mine-border transition-all disabled:opacity-40 disabled:cursor-not-allowed text-mine-text hover:bg-mine-bg"
+          <Toolbar
+            data-slot="batch-toolbar"
+            className="bg-white shadow-lg border border-mine-border rounded-xl px-4 py-2.5 gap-3"
           >
-            <GitCompare className="w-3.5 h-3.5" />
-            对比
-          </button>
+            {/* Count label */}
+            <span className="text-[11px] text-mine-muted whitespace-nowrap">
+              已选中{' '}
+              <span className="numeric font-semibold text-mine-text">
+                {count}
+              </span>{' '}
+              个因子
+            </span>
 
-          {/* Export dropdown */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setExportOpen(!exportOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-lg border border-mine-border transition-all text-mine-text hover:bg-mine-bg"
+            <ToolbarSeparator />
+
+            {/* Compare button */}
+            <ToolbarButton
+              disabled={count < 2}
+              onClick={() => setCompareOpen(true)}
             >
-              <Download className="w-3.5 h-3.5" />
-              导出
-              <ChevronDown className="w-3 h-3" />
-            </button>
-            {exportOpen && (
-              <div className="absolute bottom-full left-0 mb-1.5 bg-white shadow-lg border border-mine-border rounded-lg py-1 min-w-[120px] z-50">
-                <button
-                  type="button"
-                  onClick={handleExportCSV}
-                  className="w-full text-left px-3 py-1.5 text-[11px] text-mine-text hover:bg-mine-bg transition-colors"
-                >
+              <GitCompare className="w-3.5 h-3.5" />
+              对比
+            </ToolbarButton>
+
+            {/* Export dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <ToolbarButton>
+                  <Download className="w-3.5 h-3.5" />
+                  导出
+                </ToolbarButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start">
+                <DropdownMenuItem onSelect={handleExportCSV}>
                   导出 CSV
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExportJSON}
-                  className="w-full text-left px-3 py-1.5 text-[11px] text-mine-text hover:bg-mine-bg transition-colors"
-                >
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={handleExportJSON}>
                   导出 JSON
-                </button>
-              </div>
-            )}
-          </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          {/* Status change button */}
-          <button
-            type="button"
-            onClick={() => setStatusDialogOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-lg border border-mine-border transition-all text-mine-text hover:bg-mine-bg"
-          >
-            <ArrowRightLeft className="w-3.5 h-3.5" />
-            状态变更
-          </button>
+            {/* Status change button */}
+            <ToolbarButton onClick={() => setStatusDialogOpen(true)}>
+              <ArrowRightLeft className="w-3.5 h-3.5" />
+              状态变更
+            </ToolbarButton>
 
-          <div className="w-px h-4 bg-mine-border" />
+            <ToolbarSeparator />
 
-          {/* Clear selection */}
-          <button
-            type="button"
-            onClick={clearSelection}
-            className="flex items-center justify-center w-6 h-6 rounded-md text-mine-muted hover:text-mine-text hover:bg-mine-bg transition-all"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
+            {/* Clear selection */}
+            <ToolbarButton
+              onClick={clearSelection}
+              className="w-6 h-6 p-0 border-0 justify-center text-mine-muted hover:text-mine-text"
+            >
+              <X className="w-3.5 h-3.5" />
+            </ToolbarButton>
+          </Toolbar>
         </motion.div>
       </AnimatePresence>
 

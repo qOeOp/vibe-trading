@@ -1,21 +1,41 @@
 'use client';
 
-import { useCallback, useMemo, useId, useState } from 'react';
+import { useCallback, useMemo, useId } from 'react';
 import type { ReactNode } from 'react';
 import { line, area, curveLinear } from 'd3-shape';
 import type { CurveFactory } from 'd3-shape';
 import { motion } from 'framer-motion';
 
 import type { AxisConfig } from '../types';
-import { BaseChart, XAxis, YAxis, SvgLinearGradient, DataZoomBar } from '../common';
-import { useBandChart } from './hooks';
-import type { BandData, BandDataPoint, BandConfig, OverlaySeries, AuxiliaryLine } from './hooks';
-import { BandSeries, OverlayLine, BandTooltipArea, MonthStripes, DrawdownArea, BaselineSeries, ExcessBars, ZoomResetButton } from './components';
+import {
+  BaseChart,
+  XAxis,
+  YAxis,
+  SvgLinearGradient,
+  DataZoomBar,
+} from '../common';
+import { useBandChart, useBandChartZoom } from './hooks';
+import type {
+  BandData,
+  BandDataPoint,
+  BandConfig,
+  OverlaySeries,
+  AuxiliaryLine,
+} from './hooks';
+import {
+  BandSeries,
+  OverlayLine,
+  BandTooltipArea,
+  MonthStripes,
+  DrawdownArea,
+  BaselineSeries,
+  ExcessBars,
+  ZoomResetButton,
+} from './components';
 
 /** Knockout stroke — matches page background (--color-mine-bg) for visual gap effect */
-const KNOCKOUT_COLOR = '#f5f3ef';
+const KNOCKOUT_COLOR = 'var(--color-mine-bg)';
 import type { BandTooltipInfo } from './components';
-import { useAnimateZoom } from './hooks/use-animate-zoom';
 
 export interface BandChartProps {
   data: BandData;
@@ -64,7 +84,10 @@ export interface BandChartProps {
   /** Called when user clicks empty area to deselect (selectedMode → false) */
   onSelectStrategy?: (id: string | null) => void;
   /** Market index baseline data (daily + monthly for smooth curve) */
-  baseline?: { daily: Array<{ name: string; value: number }>; monthly: Array<{ name: string; value: number }> };
+  baseline?: {
+    daily: Array<{ name: string; value: number }>;
+    monthly: Array<{ name: string; value: number }>;
+  };
   /** Excess return data (strategy − baseline). Only positive values are rendered. */
   excessReturn?: Array<{ name: string; value: number }> | null;
   /** Enable brush-zoom interaction (click-to-month, drag-to-range) in selected mode */
@@ -190,7 +213,10 @@ interface BandChartContentProps {
   showMonthStripes?: boolean;
   selectedMode?: boolean;
   onSelectStrategy?: (id: string | null) => void;
-  baseline?: { daily: Array<{ name: string; value: number }>; monthly: Array<{ name: string; value: number }> };
+  baseline?: {
+    daily: Array<{ name: string; value: number }>;
+    monthly: Array<{ name: string; value: number }>;
+  };
   excessReturn?: Array<{ name: string; value: number }> | null;
   brushZoomEnabled?: boolean;
 }
@@ -231,121 +257,32 @@ function BandChartContent({
   excessReturn,
   brushZoomEnabled,
 }: BandChartContentProps) {
-  // State for DataZoom
-  const [zoomState, setZoomState] = useState<{ start: number; end: number }>({ start: 0, end: 100 });
-  const [zoomStateX, setZoomStateX] = useState<{ start: number; end: number }>({ start: 0, end: 100 });
-
-  // Calculate full domain to derive zoomed domain
-  const fullYDomain = useMemo((): [number, number] => {
-    if (data.length === 0) return [0, 1];
-
-    let minVal = Infinity;
-    let maxVal = -Infinity;
-    for (const bp of data) {
-      if (bp.min < minVal) minVal = bp.min;
-      if (bp.max > maxVal) maxVal = bp.max;
-    }
-
-    const range = maxVal - minVal || 1;
-    return [minVal - range * 0.05, maxVal + range * 0.05];
-  }, [data]);
-
-  // X domain (must be computed before customYDomain which depends on it)
-  const customXDomain = useMemo((): string[] | undefined => {
-    if (!showXDataZoom) return undefined;
-    const len = data.length;
-    if (len === 0) return undefined;
-
-    const startIdx = Math.floor(len * (zoomStateX.start / 100));
-    const endIdx = Math.ceil(len * (zoomStateX.end / 100));
-    // Clamp
-    const safeStart = Math.max(0, Math.min(len - 1, startIdx));
-    const safeEnd = Math.max(safeStart + 1, Math.min(len, endIdx));
-
-    return data.slice(safeStart, safeEnd).map(d => d.name);
-  }, [showXDataZoom, data, zoomStateX]);
-
-  // Brush-zoom animation
-  const { animateZoom } = useAnimateZoom();
-  const isZoomed = zoomStateX.start > 0.5 || zoomStateX.end < 99.5;
-
-  const handleBrushZoom = useCallback((xRange: { start: number; end: number }) => {
-    animateZoom(zoomStateX, xRange, setZoomStateX, 350);
-  }, [zoomStateX, animateZoom]);
-
-  const handleResetZoom = useCallback(() => {
-    animateZoom(zoomStateX, { start: 0, end: 100 }, setZoomStateX, 350);
-  }, [zoomStateX, animateZoom]);
-
-  const customYDomain = useMemo((): [number, number] | undefined => {
-    // Selected mode: fit Y domain to the overlay strategy + baseline combined range + 10% padding
-    if (selectedMode && overlay) {
-      // When X is zoomed, auto-fit Y to visible data slice only
-      const visibleSet = isZoomed && customXDomain ? new Set(customXDomain) : null;
-
-      let sMin = Infinity;
-      let sMax = -Infinity;
-      for (const pt of overlay.series) {
-        if (visibleSet && !visibleSet.has(pt.name)) continue;
-        if (pt.value < sMin) sMin = pt.value;
-        if (pt.value > sMax) sMax = pt.value;
-      }
-      // Include baseline so it never clips the chart edges
-      if (baseline?.daily) {
-        for (const pt of baseline.daily) {
-          if (visibleSet && !visibleSet.has(pt.name)) continue;
-          if (pt.value < sMin) sMin = pt.value;
-          if (pt.value > sMax) sMax = pt.value;
-        }
-      }
-      if (sMin === Infinity) {
-        sMin = 0;
-        sMax = 1;
-      }
-      const range = sMax - sMin || 1;
-      return [sMin - range * 0.1, sMax + range * 0.1];
-    }
-
-    // Non-selected mode: auto-fit Y when X is zoomed
-    if (isZoomed && customXDomain) {
-      const visibleSet = new Set(customXDomain);
-      let sMin = Infinity;
-      let sMax = -Infinity;
-      for (const d of data) {
-        if (visibleSet.has(d.name)) {
-          if (d.min < sMin) sMin = d.min;
-          if (d.max > sMax) sMax = d.max;
-        }
-      }
-      if (sMin !== Infinity) {
-        const range = sMax - sMin || 1;
-        return [sMin - range * 0.1, sMax + range * 0.1];
-      }
-    }
-
-    if (!showDataZoom) return undefined;
-    const [min, max] = fullYDomain;
-    const range = max - min;
-
-    const zMin = min + (zoomState.start / 100) * range;
-    const zMax = min + (zoomState.end / 100) * range;
-
-    return [zMin, zMax];
-  }, [selectedMode, overlay, baseline, showDataZoom, fullYDomain, zoomState, isZoomed, customXDomain, data]);
-
-  const margins: [number, number, number, number] | undefined = useMemo(() => {
-    // Top, Right, Bottom, Left
-    // Default is [10, 24, 10, 10]
-    // If Y zoom: Right increases (e.g. 50)
-    // If X zoom: Bottom increases (e.g. 40)
-    const top = 10;
-    const right = showDataZoom ? 50 : 24;
-    const bottom = showXDataZoom ? 40 : 10;
-    const left = 10;
-
-    if (showDataZoom || showXDataZoom) return [top, right, bottom, left];
-    return undefined;
-  }, [showDataZoom, showXDataZoom]);
+  // ── Zoom state, domain computation, visible-data filtering ──
+  const {
+    fullYDomain,
+    customYDomain,
+    customXDomain,
+    margins,
+    isZoomed,
+    zoomState,
+    zoomStateX,
+    setZoomState,
+    setZoomStateX,
+    handleBrushZoom,
+    handleResetZoom,
+    visibleData,
+    visibleOverlay,
+    visibleBaseline,
+    visibleExcessReturn,
+  } = useBandChartZoom({
+    data,
+    overlay,
+    baseline,
+    excessReturn,
+    selectedMode,
+    showDataZoom,
+    showXDataZoom,
+  });
 
   const {
     dims,
@@ -371,46 +308,17 @@ function BandChartContent({
 
   const handleXAxisDimensionsChanged = useCallback(
     ({ height }: { height: number }) => updateXAxisHeight(height),
-    [updateXAxisHeight]
+    [updateXAxisHeight],
   );
 
   const handleYAxisDimensionsChanged = useCallback(
     ({ width }: { width: number }) => updateYAxisWidth(width),
-    [updateYAxisWidth]
+    [updateYAxisWidth],
   );
 
   const handleMouseLeave = useCallback(() => {
     onHoverStrategy?.(null);
   }, [onHoverStrategy]);
-
-  // ── Visible-data filtering: when X is zoomed, only pass visible points to renderers ──
-  const visibleSet = useMemo(() => {
-    if (!isZoomed || !customXDomain) return null;
-    return new Set(customXDomain);
-  }, [isZoomed, customXDomain]);
-
-  const visibleData = useMemo(() => {
-    if (!visibleSet) return data;
-    return data.filter(d => visibleSet.has(d.name));
-  }, [data, visibleSet]);
-
-  const visibleOverlay = useMemo(() => {
-    if (!overlay || !visibleSet) return overlay;
-    return { ...overlay, series: overlay.series.filter(pt => visibleSet.has(pt.name)) };
-  }, [overlay, visibleSet]);
-
-  const visibleBaseline = useMemo(() => {
-    if (!baseline || !visibleSet) return baseline;
-    return {
-      daily: baseline.daily.filter(pt => visibleSet.has(pt.name)),
-      monthly: baseline.monthly.filter(pt => visibleSet.has(pt.name)),
-    };
-  }, [baseline, visibleSet]);
-
-  const visibleExcessReturn = useMemo(() => {
-    if (!excessReturn || !visibleSet) return excessReturn;
-    return excessReturn.filter(pt => visibleSet.has(pt.name));
-  }, [excessReturn, visibleSet]);
 
   // ── Median top-layer: always rendered above all fills/overlays ──
   const reactId = useId();
@@ -424,8 +332,15 @@ function BandChartContent({
     const x = (d: BandDataPoint) => xScale(d.name) ?? 0;
     const baseY = yScale.range()[0];
 
-    const medLine = line<BandDataPoint>().x(x).y((d) => yScale(d.median)).curve(curve);
-    const medArea = area<BandDataPoint>().x(x).y0(() => baseY).y1((d) => yScale(d.median)).curve(curve);
+    const medLine = line<BandDataPoint>()
+      .x(x)
+      .y((d) => yScale(d.median))
+      .curve(curve);
+    const medArea = area<BandDataPoint>()
+      .x(x)
+      .y0(() => baseY)
+      .y1((d) => yScale(d.median))
+      .curve(curve);
 
     return {
       medianPath: medLine(visibleData) || '',
@@ -451,24 +366,26 @@ function BandChartContent({
         className="ngx-charts"
         style={{
           display: 'block',
-          overflow: (xAxis.visible || yAxis.visible) ? 'visible' : 'hidden',
+          overflow: xAxis.visible || yAxis.visible ? 'visible' : 'hidden',
           flex: 1,
           minHeight: 0,
         }}
       >
         <defs>
-          <filter id="overlay-line-shadow" x="-10%" y="-10%" width="120%" height="140%">
+          <filter
+            id="overlay-line-shadow"
+            x="-10%"
+            y="-10%"
+            width="120%"
+            height="140%"
+          >
             <feDropShadow dx="3" dy="5" stdDeviation="4" floodOpacity="1" />
           </filter>
         </defs>
         <g transform={transform} className="band-chart chart">
           {/* Layer 0.5: Month Stripes (Background) */}
           {showMonthStripes && (
-            <MonthStripes
-              xScale={xScale}
-              height={dims.height}
-              data={xDomain}
-            />
+            <MonthStripes xScale={xScale} height={dims.height} data={xDomain} />
           )}
 
           {/* Layer 0.8: Drawdown Ceiling (red tint from top, depth = drawdown) — middle depth layer */}
@@ -478,7 +395,10 @@ function BandChartContent({
                 data={
                   visibleOverlay
                     ? visibleOverlay.series
-                    : visibleData.map(d => ({ name: d.name, value: d.median }))
+                    : visibleData.map((d) => ({
+                        name: d.name,
+                        value: d.median,
+                      }))
                 }
                 xScale={xScale}
                 yScale={yScale}
@@ -532,7 +452,9 @@ function BandChartContent({
 
           {/* Layer 2.5: DataZoom Control (Vertical Y) */}
           {showDataZoom && (
-            <g transform={`translate(${dims.width + (yAxis.separated ? 20 : 10)}, 0)`}>
+            <g
+              transform={`translate(${dims.width + (yAxis.separated ? 20 : 10)}, 0)`}
+            >
               <DataZoomBar
                 height={dims.height}
                 start={zoomState.start}
@@ -553,7 +475,22 @@ function BandChartContent({
                 end={zoomStateX.end}
                 onChange={(s, e) => setZoomStateX({ start: s, end: e })}
                 orient="horizontal"
-                xLabels={xDataZoomLabels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']}
+                xLabels={
+                  xDataZoomLabels || [
+                    'Jan',
+                    'Feb',
+                    'Mar',
+                    'Apr',
+                    'May',
+                    'Jun',
+                    'Jul',
+                    'Aug',
+                    'Sep',
+                    'Oct',
+                    'Nov',
+                    'Dec',
+                  ]
+                }
               />
             </g>
           )}
@@ -583,34 +520,38 @@ function BandChartContent({
           </g>
 
           {/* Layer 3.2: Baseline series (line + between-curve fills, selected mode) */}
-          {selectedMode && visibleBaseline && visibleBaseline.daily.length > 0 && (
-            <BaselineSeries
-              daily={visibleBaseline.daily}
-              monthly={visibleBaseline.monthly}
-              xScale={xScale}
-              yScale={yScale}
-              mode="selected"
-              animated={animated}
-              overlaySeries={visibleOverlay?.series}
-            />
-          )}
+          {selectedMode &&
+            visibleBaseline &&
+            visibleBaseline.daily.length > 0 && (
+              <BaselineSeries
+                daily={visibleBaseline.daily}
+                monthly={visibleBaseline.monthly}
+                xScale={xScale}
+                yScale={yScale}
+                mode="selected"
+                animated={animated}
+                overlaySeries={visibleOverlay?.series}
+              />
+            )}
 
           {/* Layer 3.3: Excess return energy bars (only positive, only in selected mode) — middle depth layer */}
-          {selectedMode && visibleExcessReturn && visibleExcessReturn.length > 0 && (
-            <g opacity={0.6}>
-              <ExcessBars
-                data={visibleExcessReturn}
-                xScale={xScale}
-                chartHeight={dims.height}
-                animated={animated}
-              />
-            </g>
-          )}
+          {selectedMode &&
+            visibleExcessReturn &&
+            visibleExcessReturn.length > 0 && (
+              <g opacity={0.6}>
+                <ExcessBars
+                  data={visibleExcessReturn}
+                  xScale={xScale}
+                  chartHeight={dims.height}
+                  animated={animated}
+                />
+              </g>
+            )}
 
           {/* Layer 4: Highlighted strategy line + gradient (with directional shadow for depth) */}
           <g filter={overlay ? 'url(#overlay-line-shadow)' : undefined}>
             <OverlayLine
-              overlay={visibleOverlay}
+              overlay={visibleOverlay ?? null}
               xScale={xScale}
               yScale={yScale}
               animated={animated}
@@ -632,8 +573,19 @@ function BandChartContent({
                     { offset: 0, color: `rgb(${bandColor})`, opacity: 0.01 },
                   ]}
                 />
-                <filter id={medianShadowId} x="-10%" y="-10%" width="120%" height="140%">
-                  <feDropShadow dx="3" dy="5" stdDeviation="4" floodOpacity="1" />
+                <filter
+                  id={medianShadowId}
+                  x="-10%"
+                  y="-10%"
+                  width="120%"
+                  height="140%"
+                >
+                  <feDropShadow
+                    dx="3"
+                    dy="5"
+                    stdDeviation="4"
+                    floodOpacity="1"
+                  />
                 </filter>
               </defs>
 
@@ -658,7 +610,10 @@ function BandChartContent({
                 strokeLinejoin="round"
                 initial={animated ? { d: medianPath, opacity: 0 } : undefined}
                 animate={{ d: medianPath, opacity: 1 }}
-                transition={{ d: { duration: animated ? 0.75 : 0, ease: 'easeInOut' }, opacity: { duration: 0.3 } }}
+                transition={{
+                  d: { duration: animated ? 0.75 : 0, ease: 'easeInOut' },
+                  opacity: { duration: 0.3 },
+                }}
               />
               {/* Median line with drop shadow */}
               <motion.path
@@ -671,7 +626,10 @@ function BandChartContent({
                 filter={`url(#${medianShadowId})`}
                 initial={animated ? { d: medianPath, opacity: 0 } : undefined}
                 animate={{ d: medianPath, opacity: 1 }}
-                transition={{ d: { duration: animated ? 0.75 : 0, ease: 'easeInOut' }, opacity: { duration: 0.3 } }}
+                transition={{
+                  d: { duration: animated ? 0.75 : 0, ease: 'easeInOut' },
+                  opacity: { duration: 0.3 },
+                }}
               />
             </g>
           )}
@@ -681,7 +639,7 @@ function BandChartContent({
             <text
               x={4}
               y={2}
-              fill="#666666"
+              fill="var(--color-mine-muted)"
               fontSize={13}
               fontWeight={500}
               fontFamily="var(--font-chart, Roboto, sans-serif)"
@@ -709,7 +667,11 @@ function BandChartContent({
               brushZoomEnabled={brushZoomEnabled}
               onBrushZoom={handleBrushZoom}
               crosshairXLabelY={showXDataZoom ? dims.height + 10 : undefined}
-              crosshairYLabelX={showDataZoom ? dims.width + (yAxis.separated ? 20 : 10) : undefined}
+              crosshairYLabelX={
+                showDataZoom
+                  ? dims.width + (yAxis.separated ? 20 : 10)
+                  : undefined
+              }
               crosshairYLabelWidth={showDataZoom ? 40 : undefined}
             />
           </g>

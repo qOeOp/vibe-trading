@@ -28,7 +28,7 @@ function ProgressSection({ task }: { task: MiningTask }) {
   };
 
   const loopText = (
-    <span className="text-[11px] font-mono tabular-nums text-mine-muted">
+    <span className="text-[11px] numeric text-mine-muted">
       Loop {progress.currentLoop}/{progress.maxLoops}
     </span>
   );

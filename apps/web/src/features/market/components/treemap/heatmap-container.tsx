@@ -1,36 +1,25 @@
-"use client";
+'use client';
 
-import {
-  memo,
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  useMemo,
-} from "react";
-import type { TreemapNode } from "@/features/market/types";
+import { memo, useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import type { TreemapNode } from '@/features/market/types';
 import {
   useTreemap,
   calculateRippleLayout,
   getTargetSize,
-} from "@/features/market/hooks/use-treemap";
-import { HeatMapTile } from "./heatmap-tile";
+} from '@/features/market/hooks/use-treemap';
+import { HeatMapTile } from './heatmap-tile';
 import {
   Breadcrumb,
   createInitialBreadcrumb,
   addBreadcrumbItem,
   navigateToBreadcrumb,
-} from "./breadcrumb";
-import type { BreadcrumbItem } from "./breadcrumb";
-import { SearchBox, filterBySearch } from "./search-box";
-import {
-  LoadingState,
-  ErrorState,
-  EmptyState,
-  NoResultsState,
-} from "./states";
-import { COLOR_RAMP } from "@/features/market/utils/treemap-colors";
-import { ANIMATION } from "@/features/market/constants";
+} from './breadcrumb';
+import type { BreadcrumbItem } from './breadcrumb';
+import { filterBySearch } from './search-box';
+import { SearchInput } from '@/components/ui/search-input';
+import { LoadingState, ErrorState, EmptyState, NoResultsState } from './states';
+import { COLOR_RAMP } from '@/features/market/utils/treemap-colors';
+import { ANIMATION } from '@/features/market/constants';
 
 // ============ Types ============
 
@@ -60,7 +49,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
   isLoading = false,
   error = null,
   onRetry,
-  className = "",
+  className = '',
 }: HeatMapContainerProps) {
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -72,9 +61,9 @@ export const HeatMapContainer = memo(function HeatMapContainer({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [currentData, setCurrentData] = useState<TreemapNode[]>(data);
   const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>(
-    createInitialBreadcrumb()
+    createInitialBreadcrumb(),
   );
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [activeHoverIndex, setActiveHoverIndex] = useState<number>(-1);
   const [showSparklineIndex, setShowSparklineIndex] = useState<number>(-1);
   const [_isTransitioning, setIsTransitioning] = useState(false);
@@ -110,12 +99,16 @@ export const HeatMapContainer = memo(function HeatMapContainer({
   const { layout: baseLayout, splitLineStructure } = useTreemap(
     filteredData,
     dimensions.width,
-    dimensions.height
+    dimensions.height,
   );
 
   // Calculate target size for hover expansion
   const { targetW, targetH } = useMemo(() => {
-    return getTargetSize(dimensions.width, dimensions.height, filteredData.length);
+    return getTargetSize(
+      dimensions.width,
+      dimensions.height,
+      filteredData.length,
+    );
   }, [dimensions.width, dimensions.height, filteredData.length]);
 
   // Calculate min/max areas for adaptive styles
@@ -130,7 +123,11 @@ export const HeatMapContainer = memo(function HeatMapContainer({
 
   // Calculate expanded layout when hovering
   const expandedLayout = useMemo(() => {
-    if (activeHoverIndex < 0 || !splitLineStructure || baseLayout.length === 0) {
+    if (
+      activeHoverIndex < 0 ||
+      !splitLineStructure ||
+      baseLayout.length === 0
+    ) {
       return baseLayout;
     }
 
@@ -149,9 +146,17 @@ export const HeatMapContainer = memo(function HeatMapContainer({
       dimensions.width,
       dimensions.height,
       targetW,
-      targetH
+      targetH,
     );
-  }, [baseLayout, splitLineStructure, activeHoverIndex, dimensions.width, dimensions.height, targetW, targetH]);
+  }, [
+    baseLayout,
+    splitLineStructure,
+    activeHoverIndex,
+    dimensions.width,
+    dimensions.height,
+    targetW,
+    targetH,
+  ]);
 
   // Handlers
   const handleTileClick = useCallback(
@@ -175,7 +180,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
 
       // Update current data to children
       setCurrentData(node.children);
-      setSearchQuery("");
+      setSearchQuery('');
       setActiveHoverIndex(-1);
       setShowSparklineIndex(-1);
 
@@ -185,7 +190,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
       // End transition
       setTimeout(() => setIsTransitioning(false), ANIMATION.treemapDuration);
     },
-    [breadcrumb, currentData, onDrillDown]
+    [breadcrumb, currentData, onDrillDown],
   );
 
   const handleBreadcrumbNavigate = useCallback(
@@ -211,7 +216,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
         }
       }
 
-      setSearchQuery("");
+      setSearchQuery('');
       setActiveHoverIndex(-1);
       setShowSparklineIndex(-1);
 
@@ -220,7 +225,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
 
       setTimeout(() => setIsTransitioning(false), ANIMATION.treemapDuration);
     },
-    [breadcrumb, data, onDrillUp]
+    [breadcrumb, data, onDrillUp],
   );
 
   const handleSearchChange = useCallback((value: string) => {
@@ -230,7 +235,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
   }, []);
 
   const handleSearchClear = useCallback(() => {
-    setSearchQuery("");
+    setSearchQuery('');
   }, []);
 
   // Tile级别的hover处理 - 延迟确认防抖动
@@ -263,11 +268,11 @@ export const HeatMapContainer = memo(function HeatMapContainer({
         const needsExpand = tile.width < targetW || tile.height < targetH;
         sparklineTimerRef.current = setTimeout(
           () => setShowSparklineIndex(index),
-          needsExpand ? ANIMATION.sparklineDelay : 50
+          needsExpand ? ANIMATION.sparklineDelay : 50,
         );
       }, ANIMATION.hoverDelay);
     },
-    [baseLayout, targetW, targetH]
+    [baseLayout, targetW, targetH],
   );
 
   const handleTileMouseLeave = useCallback((index: number) => {
@@ -319,9 +324,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
           onSearchChange={handleSearchChange}
           dataCount={0}
         />
-        <div
-          className="flex-1 flex items-center justify-center rounded-2xl bg-mine-card min-h-[400px]"
-        >
+        <div className="flex-1 flex items-center justify-center rounded-2xl bg-mine-card min-h-[400px]">
           <LoadingState />
         </div>
       </div>
@@ -338,9 +341,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
           onSearchChange={handleSearchChange}
           dataCount={0}
         />
-        <div
-          className="flex-1 flex items-center justify-center rounded-2xl bg-mine-card min-h-[400px]"
-        >
+        <div className="flex-1 flex items-center justify-center rounded-2xl bg-mine-card min-h-[400px]">
           <ErrorState message={error} onRetry={onRetry} />
         </div>
       </div>
@@ -357,9 +358,7 @@ export const HeatMapContainer = memo(function HeatMapContainer({
           onSearchChange={handleSearchChange}
           dataCount={0}
         />
-        <div
-          className="flex-1 flex items-center justify-center rounded-2xl bg-mine-card min-h-[400px]"
-        >
+        <div className="flex-1 flex items-center justify-center rounded-2xl bg-mine-card min-h-[400px]">
           <EmptyState title="暂无数据" message="当前级别没有可显示的数据" />
         </div>
       </div>
@@ -450,9 +449,11 @@ const Header = memo(function Header({
       </div>
 
       {/* 右侧：搜索框固定宽度 */}
-      <SearchBox
+      <SearchInput
         value={searchQuery}
         onChange={onSearchChange}
+        debounceMs={300}
+        placeholder="搜索板块/股票..."
         className="w-52 shrink-0"
       />
     </div>
@@ -461,13 +462,13 @@ const Header = memo(function Header({
 
 const ColorLegend = memo(function ColorLegend() {
   const items = [
-    { label: "跌 >5%", color: COLOR_RAMP[0].bg },
-    { label: "跌 2-5%", color: COLOR_RAMP[1].bg },
-    { label: "跌 0.5-2%", color: COLOR_RAMP[2].bg },
-    { label: "平盘", color: COLOR_RAMP[3].bg },
-    { label: "涨 0.5-2%", color: COLOR_RAMP[4].bg },
-    { label: "涨 2-5%", color: COLOR_RAMP[5].bg },
-    { label: "涨 >5%", color: COLOR_RAMP[6].bg },
+    { label: '跌 >5%', color: COLOR_RAMP[0].bg },
+    { label: '跌 2-5%', color: COLOR_RAMP[1].bg },
+    { label: '跌 0.5-2%', color: COLOR_RAMP[2].bg },
+    { label: '平盘', color: COLOR_RAMP[3].bg },
+    { label: '涨 0.5-2%', color: COLOR_RAMP[4].bg },
+    { label: '涨 2-5%', color: COLOR_RAMP[5].bg },
+    { label: '涨 >5%', color: COLOR_RAMP[6].bg },
   ];
 
   return (

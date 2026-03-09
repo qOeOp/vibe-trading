@@ -18,13 +18,13 @@ export interface FactorInfo {
 }
 
 export type FactorCategory =
-  | "momentum"
-  | "value"
-  | "quality"
-  | "size"
-  | "volatility"
-  | "growth"
-  | "technical";
+  | 'momentum'
+  | 'value'
+  | 'quality'
+  | 'size'
+  | 'volatility'
+  | 'growth'
+  | 'technical';
 
 export interface QuantileReturn {
   quantile: number;
@@ -77,7 +77,15 @@ export interface HoldingCompositionPoint {
   Other: number;
 }
 
-export const HOLDING_SECTORS = ["Consumer", "Resources", "Manufacturing", "Financials", "Healthcare", "Technology", "Other"] as const;
+export const HOLDING_SECTORS = [
+  'Consumer',
+  'Resources',
+  'Manufacturing',
+  'Financials',
+  'Healthcare',
+  'Technology',
+  'Other',
+] as const;
 export type HoldingSector = (typeof HOLDING_SECTORS)[number];
 
 /**
@@ -85,13 +93,13 @@ export type HoldingSector = (typeof HOLDING_SECTORS)[number];
  * 6 core sectors (医药/消费/金融/制造/科技/资源) + Other.
  */
 export const SECTOR_COLOR_MAP: Record<HoldingSector, string> = {
-  Consumer:      "#1939B7",  // 消费 — royal blue
-  Resources:     "#36D6F0",  // 资源 — cyan
-  Manufacturing: "#228B22",  // 制造 — forest green
-  Financials:    "#E8626F",  // 金融 — coral red
-  Healthcare:    "#58CEAA",  // 医药 — mint green
-  Technology:    "#A8385D",  // 科技 — deep rose
-  Other:         "#B0B0B0",  // 其他 — gray
+  Consumer: 'var(--color-sector-consumer)', // 消费
+  Resources: 'var(--color-sector-resources)', // 资源
+  Manufacturing: 'var(--color-sector-manufacturing)', // 制造
+  Financials: 'var(--color-sector-financials)', // 金融
+  Healthcare: 'var(--color-sector-healthcare)', // 医药
+  Technology: 'var(--color-sector-technology)', // 科技
+  Other: 'var(--color-sector-other)', // 其他
 };
 
 export interface FactorData {

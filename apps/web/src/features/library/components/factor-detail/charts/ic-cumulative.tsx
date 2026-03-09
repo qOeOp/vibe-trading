@@ -10,7 +10,7 @@ import type { Factor } from '@/features/library/types';
 /* ── Visual constants ──────────────────────────────────────────── */
 
 const CUMULATIVE_COLORS: Array<{ name: string; value: string }> = [
-  { name: '累计IC', value: '#6366f1' },
+  { name: '累计IC', value: 'var(--color-mine-accent-indigo)' },
 ];
 
 const SERIES_CONFIG = {
