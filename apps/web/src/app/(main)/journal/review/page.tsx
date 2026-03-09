@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 
 export default function JournalReviewPage() {
   return (
-    <div className="flex-1 flex items-center justify-center text-mine-muted text-sm">
+    <div className="placeholder-center">
       Journal / Review — Coming Soon
     </div>
   );

@@ -7,7 +7,12 @@ import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { getModuleByRoute, getActiveTab } from '@/lib/navigation';
-import { MarketTicker } from './market-ticker';
+import {
+  MarketTicker,
+  DEFAULT_TICKER_INDICES,
+  DEFAULT_TICKER_BREADTH,
+  DEFAULT_TICKER_LIMIT_STATS,
+} from './market-ticker';
 import { useTopBarExtraNavItems } from './top-bar-slot';
 
 export interface NavItem {
@@ -103,13 +108,19 @@ export function TopNavBar({
     <header className="flex items-center h-14 bg-transparent gap-4 pr-4 shrink-0">
       {/* Left: MarketTicker or custom slot */}
       <div className="flex-1 overflow-hidden">
-        {leftSlot ?? <MarketTicker />}
+        {leftSlot ?? (
+          <MarketTicker
+            indices={DEFAULT_TICKER_INDICES}
+            breadth={DEFAULT_TICKER_BREADTH}
+            limitStats={DEFAULT_TICKER_LIMIT_STATS}
+          />
+        )}
       </div>
 
       {/* Right: nav pills + actions */}
       <div className="flex items-center gap-4 shrink-0">
         {displayNavItems.length > 0 && (
-          <nav className="flex items-center gap-0.5 bg-white/60 backdrop-blur-sm rounded-full p-1 border border-white/40">
+          <nav className="flex items-center gap-0.5 glass-light rounded-full p-1 border border-white/40">
             {displayNavItems.map((item, index) => {
               const { id, label, icon: Icon } = item;
               const active = isItemActive(item);

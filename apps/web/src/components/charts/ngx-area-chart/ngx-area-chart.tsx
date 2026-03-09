@@ -1,13 +1,26 @@
-"use client";
+'use client';
 
-import { useRef, useState, useMemo, useCallback, useEffect } from "react";
-import { scaleTime, scaleLinear } from "d3-scale";
-import { area, line, curveLinear } from "d3-shape";
-import { extent, bisector } from "d3-array";
-import type { NgxAreaChartProps, DataPoint, ViewDimensions, GradientStop } from "./types";
+import { useRef, useState, useMemo, useCallback, useEffect } from 'react';
+import { scaleTime, scaleLinear } from 'd3-scale';
+import { area, line, curveLinear } from 'd3-shape';
+import { extent, bisector } from 'd3-array';
+import type {
+  NgxAreaChartProps,
+  DataPoint,
+  ViewDimensions,
+  GradientStop,
+} from './types';
 
 const DEFAULT_SCHEME = {
-  domain: ["#5AA454", "#A10A28", "#C7B42C", "#AAAAAA", "#7aa3e5", "#a8385d", "#aae3f5"],
+  domain: [
+    '#5AA454',
+    '#A10A28',
+    '#C7B42C',
+    '#AAAAAA',
+    '#7aa3e5',
+    '#a8385d',
+    '#aae3f5',
+  ],
 };
 
 let idCounter = 0;
@@ -20,13 +33,13 @@ export function NgxAreaChart({
   width: propWidth,
   height: propHeight,
   legend = true,
-  legendTitle = "Legend",
+  legendTitle = 'Legend',
   xAxis = true,
   yAxis = true,
   showXAxisLabel = false,
   showYAxisLabel = false,
-  xAxisLabel = "",
-  yAxisLabel = "",
+  xAxisLabel = '',
+  yAxisLabel = '',
   autoScale = false,
   showGridLines = true,
   curve = curveLinear,
@@ -73,30 +86,42 @@ export function NgxAreaChart({
     return m;
   }, [xAxis, yAxis, showXAxisLabel, showYAxisLabel, legend]);
 
-  const dims: ViewDimensions = useMemo(() => ({
-    width: Math.max(0, width - margin.left - margin.right),
-    height: Math.max(0, height - margin.top - margin.bottom),
-    xOffset: margin.left,
-  }), [width, height, margin]);
+  const dims: ViewDimensions = useMemo(
+    () => ({
+      width: Math.max(0, width - margin.left - margin.right),
+      height: Math.max(0, height - margin.top - margin.bottom),
+      xOffset: margin.left,
+    }),
+    [width, height, margin],
+  );
 
   const xSet = useMemo(() => {
     const allX = results.flatMap((s) => s.series.map((d) => d.name));
-    const unique = Array.from(new Set(allX.map((x) => (x instanceof Date ? x.getTime() : x))));
+    const unique = Array.from(
+      new Set(allX.map((x) => (x instanceof Date ? x.getTime() : x))),
+    );
     const firstItem = allX[0];
     const isDate = firstItem instanceof Date;
-    return unique.sort((a, b) => Number(a) - Number(b)).map((x) =>
-      isDate ? new Date(x as number) : x
-    );
+    return unique
+      .sort((a, b) => Number(a) - Number(b))
+      .map((x) => (isDate ? new Date(x as number) : x));
   }, [results]);
 
   const xScale = useMemo(() => {
     if (!xSet.length || dims.width <= 0) return null;
-    const domain = extent(xSet as (Date | number)[]) as [Date | number, Date | number];
+    const domain = extent(xSet as (Date | number)[]) as [
+      Date | number,
+      Date | number,
+    ];
     const isTime = xSet[0] instanceof Date;
     if (isTime) {
-      return scaleTime().domain(domain as [Date, Date]).range([0, dims.width]);
+      return scaleTime()
+        .domain(domain as [Date, Date])
+        .range([0, dims.width]);
     }
-    return scaleLinear().domain(domain as [number, number]).range([0, dims.width]);
+    return scaleLinear()
+      .domain(domain as [number, number])
+      .range([0, dims.width]);
   }, [xSet, dims.width]);
 
   const yScale = useMemo(() => {
@@ -120,7 +145,7 @@ export function NgxAreaChart({
     (index: number) => {
       return scheme.domain[index % scheme.domain.length];
     },
-    [scheme]
+    [scheme],
   );
 
   function getGradientStops(color: string): GradientStop[] {
@@ -147,7 +172,10 @@ export function NgxAreaChart({
       .curve(curve);
   }, [xScale, yScale, curve]);
 
-  const bisect = useMemo(() => bisector<Date | number, Date | number>((d) => d).left, []);
+  const bisect = useMemo(
+    () => bisector<Date | number, Date | number>((d) => d).left,
+    [],
+  );
 
   const findClosestPoint = useCallback(
     (mouseX: number) => {
@@ -159,16 +187,19 @@ export function NgxAreaChart({
       if (!d0) return d1;
       if (!d1) return d0;
       const x0Num = x0 instanceof Date ? x0.getTime() : x0;
-      const d0Num = d0 instanceof Date ? (d0 as Date).getTime() : (d0 as number);
-      const d1Num = d1 instanceof Date ? (d1 as Date).getTime() : (d1 as number);
+      const d0Num =
+        d0 instanceof Date ? (d0 as Date).getTime() : (d0 as number);
+      const d1Num =
+        d1 instanceof Date ? (d1 as Date).getTime() : (d1 as number);
       return x0Num - d0Num > d1Num - x0Num ? d1 : d0;
     },
-    [xScale, xSet, bisect]
+    [xScale, xSet, bisect],
   );
 
   const hoveredValues = useMemo(() => {
     if (hoveredX === null) return [];
-    const hoveredXNum = hoveredX instanceof Date ? hoveredX.getTime() : hoveredX;
+    const hoveredXNum =
+      hoveredX instanceof Date ? hoveredX.getTime() : hoveredX;
     return results.map((series, i) => {
       const point = series.series.find((d) => {
         const xNum = d.name instanceof Date ? d.name.getTime() : d.name;
@@ -190,7 +221,7 @@ export function NgxAreaChart({
       const closest = findClosestPoint(mouseX);
       setHoveredX(closest as Date | number | null);
     },
-    [findClosestPoint, tooltipDisabled]
+    [findClosestPoint, tooltipDisabled],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -207,7 +238,7 @@ export function NgxAreaChart({
       });
       onSelect?.({ name });
     },
-    [onSelect]
+    [onSelect],
   );
 
   const xTicks = useMemo(() => {
@@ -225,11 +256,14 @@ export function NgxAreaChart({
     (value: Date | number) => {
       if (xAxisTickFormatting) return xAxisTickFormatting(value);
       if (value instanceof Date) {
-        return value.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        return value.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+        });
       }
       return String(value);
     },
-    [xAxisTickFormatting]
+    [xAxisTickFormatting],
   );
 
   const formatYTick = useCallback(
@@ -237,12 +271,19 @@ export function NgxAreaChart({
       if (yAxisTickFormatting) return yAxisTickFormatting(value);
       return `${value}%`;
     },
-    [yAxisTickFormatting]
+    [yAxisTickFormatting],
   );
 
   const clipPathId = useMemo(() => generateId(), []);
 
-  if (width <= 0 || height <= 0 || !xScale || !yScale || !areaGenerator || !lineGenerator) {
+  if (
+    width <= 0 ||
+    height <= 0 ||
+    !xScale ||
+    !yScale ||
+    !areaGenerator ||
+    !lineGenerator
+  ) {
     return <div ref={containerRef} className="w-full h-full" />;
   }
 
@@ -252,7 +293,12 @@ export function NgxAreaChart({
         <defs>
           {/* Clip path */}
           <clipPath id={clipPathId}>
-            <rect x={-5} y={-5} width={dims.width + 10} height={dims.height + 10} />
+            <rect
+              x={-5}
+              y={-5}
+              width={dims.width + 10}
+              height={dims.height + 10}
+            />
           </clipPath>
 
           {/* Gradient definitions for each series */}
@@ -294,7 +340,7 @@ export function NgxAreaChart({
                   x2={dims.width}
                   y1={yScale(tick)}
                   y2={yScale(tick)}
-                  stroke="#e0e0e0"
+                  stroke="var(--color-mine-border)"
                   strokeDasharray="3,3"
                   strokeOpacity={0.7}
                 />
@@ -310,7 +356,7 @@ export function NgxAreaChart({
                   <text
                     y={16}
                     textAnchor="middle"
-                    fill="#8a8a8a"
+                    fill="var(--color-mine-muted)"
                     fontSize={10}
                     fontFamily="Inter, system-ui, sans-serif"
                   >
@@ -323,7 +369,7 @@ export function NgxAreaChart({
                   x={dims.width / 2}
                   y={40}
                   textAnchor="middle"
-                  fill="#666"
+                  fill="var(--color-mine-muted)"
                   fontSize={12}
                 >
                   {xAxisLabel}
@@ -341,7 +387,7 @@ export function NgxAreaChart({
                     x={-8}
                     dy="0.32em"
                     textAnchor="end"
-                    fill="#8a8a8a"
+                    fill="var(--color-mine-muted)"
                     fontSize={10}
                     fontFamily="Inter, system-ui, sans-serif"
                   >
@@ -355,7 +401,7 @@ export function NgxAreaChart({
                   x={-dims.height / 2}
                   y={-margin.left + 15}
                   textAnchor="middle"
-                  fill="#666"
+                  fill="var(--color-mine-muted)"
                   fontSize={12}
                 >
                   {yAxisLabel}
@@ -369,25 +415,35 @@ export function NgxAreaChart({
             {/* Area series */}
             {results.map((series, i) => {
               const color = getColor(i);
-              const isActive = activeEntries.length === 0 || activeEntries.includes(series.name);
+              const isActive =
+                activeEntries.length === 0 ||
+                activeEntries.includes(series.name);
               const opacity = isActive ? 1 : 0.3;
               const sortedData = [...series.series].sort((a, b) => {
-                const aNum = a.name instanceof Date ? a.name.getTime() : Number(a.name);
-                const bNum = b.name instanceof Date ? b.name.getTime() : Number(b.name);
+                const aNum =
+                  a.name instanceof Date ? a.name.getTime() : Number(a.name);
+                const bNum =
+                  b.name instanceof Date ? b.name.getTime() : Number(b.name);
                 return aNum - bNum;
               });
 
-              const areaPath = areaGenerator(sortedData) || "";
-              const linePath = lineGenerator(sortedData) || "";
+              const areaPath = areaGenerator(sortedData) || '';
+              const linePath = lineGenerator(sortedData) || '';
 
               return (
-                <g key={series.name} className="area-series" style={{ opacity }}>
+                <g
+                  key={series.name}
+                  className="area-series"
+                  style={{ opacity }}
+                >
                   {/* Area fill */}
                   <path
                     d={areaPath}
-                    fill={gradient ? `url(#gradient-${clipPathId}-${i})` : color}
+                    fill={
+                      gradient ? `url(#gradient-${clipPathId}-${i})` : color
+                    }
                     fillOpacity={gradient ? 1 : 0.5}
-                    className={animations ? "area-path-animated" : ""}
+                    className={animations ? 'area-path-animated' : ''}
                   />
                   {/* Line stroke on top */}
                   <path
@@ -397,7 +453,7 @@ export function NgxAreaChart({
                     strokeWidth={2}
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className={animations ? "line-path-animated" : ""}
+                    className={animations ? 'line-path-animated' : ''}
                   />
                 </g>
               );
@@ -413,7 +469,7 @@ export function NgxAreaChart({
                   width={dims.width}
                   height={dims.height}
                   fill="transparent"
-                  style={{ cursor: "crosshair" }}
+                  style={{ cursor: 'crosshair' }}
                   onMouseMove={handleMouseMove}
                   onMouseLeave={handleMouseLeave}
                 />
@@ -426,7 +482,7 @@ export function NgxAreaChart({
                       x2={xScale(hoveredX as Date | number)}
                       y1={0}
                       y2={dims.height}
-                      stroke="#999"
+                      stroke="var(--color-mine-muted)"
                       strokeWidth={1}
                       strokeDasharray="3,3"
                       strokeOpacity={0.8}
@@ -435,9 +491,13 @@ export function NgxAreaChart({
 
                     {/* Circles at intersection points */}
                     {results.map((series, i) => {
-                      const hoveredXNum = hoveredX instanceof Date ? hoveredX.getTime() : hoveredX;
+                      const hoveredXNum =
+                        hoveredX instanceof Date
+                          ? hoveredX.getTime()
+                          : hoveredX;
                       const point = series.series.find((d) => {
-                        const xNum = d.name instanceof Date ? d.name.getTime() : d.name;
+                        const xNum =
+                          d.name instanceof Date ? d.name.getTime() : d.name;
                         return xNum === hoveredXNum;
                       });
                       if (!point) return null;
@@ -464,11 +524,13 @@ export function NgxAreaChart({
 
         {/* Legend */}
         {legend && (
-          <g transform={`translate(${width - margin.right + 10}, ${margin.top})`}>
+          <g
+            transform={`translate(${width - margin.right + 10}, ${margin.top})`}
+          >
             <text
               x={0}
               y={0}
-              fill="#666"
+              fill="var(--color-mine-muted)"
               fontSize={11}
               fontWeight={600}
               fontFamily="Inter, system-ui, sans-serif"
@@ -477,12 +539,14 @@ export function NgxAreaChart({
             </text>
             {results.map((series, i) => {
               const color = getColor(i);
-              const isActive = activeEntries.length === 0 || activeEntries.includes(series.name);
+              const isActive =
+                activeEntries.length === 0 ||
+                activeEntries.includes(series.name);
               return (
                 <g
                   key={series.name}
                   transform={`translate(0, ${20 + i * 20})`}
-                  style={{ cursor: "pointer", opacity: isActive ? 1 : 0.5 }}
+                  style={{ cursor: 'pointer', opacity: isActive ? 1 : 0.5 }}
                   onClick={() => handleLegendClick(series.name)}
                 >
                   <circle cx={6} cy={0} r={5} fill={color} />
@@ -490,7 +554,7 @@ export function NgxAreaChart({
                     x={16}
                     y={0}
                     dy="0.35em"
-                    fill="#333"
+                    fill="var(--color-mine-text)"
                     fontSize={11}
                     fontFamily="Inter, system-ui, sans-serif"
                   >
@@ -510,51 +574,70 @@ export function NgxAreaChart({
           style={{
             left: xScale(hoveredX as Date | number) + margin.left + 15,
             top: margin.top,
-            background: "rgba(30, 30, 30, 0.95)",
-            backdropFilter: "blur(8px)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: "8px",
-            padding: "10px 12px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-            minWidth: "120px",
+            background: 'var(--color-chart-tooltip-bg)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid var(--color-chart-tooltip-border)',
+            borderRadius: '8px',
+            padding: '10px 12px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+            minWidth: '120px',
           }}
         >
-          <div style={{ fontWeight: 600, marginBottom: 6, color: "#fff", fontSize: 11 }}>
+          <div
+            style={{
+              fontWeight: 600,
+              marginBottom: 6,
+              color: 'var(--color-chart-tooltip-text)',
+              fontSize: 11,
+            }}
+          >
             {hoveredX instanceof Date
-              ? hoveredX.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+              ? hoveredX.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
               : String(hoveredX)}
           </div>
           {hoveredValues.map((item, i) => (
             <div
               key={i}
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                margin: "4px 0",
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                margin: '4px 0',
                 gap: 12,
               }}
             >
-              <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span
                   style={{
                     width: 8,
                     height: 8,
                     background: item.color,
-                    borderRadius: "50%",
+                    borderRadius: '50%',
                   }}
                 />
-                <span style={{ color: "#9ca3af", fontSize: 10 }}>{item.series}</span>
+                <span
+                  style={{
+                    color: 'var(--color-chart-tooltip-label)',
+                    fontSize: 10,
+                  }}
+                >
+                  {item.series}
+                </span>
               </span>
               <span
                 style={{
                   fontWeight: 600,
-                  color: "#fff",
+                  color: 'var(--color-chart-tooltip-text)',
                   fontSize: 11,
-                  fontVariantNumeric: "tabular-nums",
+                  fontVariantNumeric: 'tabular-nums',
                 }}
               >
-                {item.value >= 0 ? "+" : ""}{item.value.toFixed(2)}%
+                {item.value >= 0 ? '+' : ''}
+                {item.value.toFixed(2)}%
               </span>
             </div>
           ))}
