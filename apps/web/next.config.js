@@ -23,7 +23,7 @@ const nextConfig = {
   distDir,
   // Turbopack: import .md files as raw strings (for blueprint doc system)
   turbopack: {
-    root: '../../', // Explicitly set workspace root (Nx monorepo)
+    root: require('path').resolve(__dirname, '../../'), // Explicitly set workspace root (Nx monorepo)
     rules: {
       '**/*.md': {
         loaders: ['raw-loader'],
