@@ -58,6 +58,52 @@
   --color-mine-text: #1a1a1a;
   --color-mine-muted: #5a5a5a;
   --color-mine-border: #e0ddd8;
+  --color-mine-border-light: #f0ede8;
+  --color-mine-hover: #f7f5f1;
+  --color-mine-panel-bg: #f2f2f2;
+  --color-mine-accent-blue: #3b82f6;
+  --color-mine-accent-indigo: #6366f1;
+  --color-mine-accent-purple: #8b5cf6;
+  --color-mine-accent-amber: #f59e0b;
+  --color-mine-terminal-bg: #1e1e1e;
+  --color-mine-macos-close: #ff5f57;
+  /* Factor category colors */
+  --color-factor-momentum: #f97316;
+  --color-factor-dividend: #ec4899;
+  --color-factor-value: #3b82f6;
+  --color-factor-growth: #22c55e;
+  --color-factor-quality: #10b981;
+  --color-factor-liquidity: #06b6d4;
+  --color-factor-volatility: #eab308;
+  --color-factor-size: #64748b;
+  --color-factor-sentiment: #a855f7;
+  /* Factor status colors */
+  --color-status-incubating: #8b8b8b;
+  --color-status-paper: #3b82f6;
+  --color-status-live: #4caf50;
+  --color-status-probation: #f5a623;
+  --color-status-retired: #8a8a8a;
+  /* Factor source/type colors */
+  --color-source-manual: #8b8b8b;
+  --color-source-gplearn: #22c55e;
+  --color-source-pysr: #3b82f6;
+  --color-source-llm: #a855f7;
+  --color-type-leaf: #3b82f6;
+  --color-type-composite: #a855f7;
+  /* Sector colors (行业) */
+  --color-sector-consumer: #1939b7;
+  --color-sector-resources: #36d6f0;
+  --color-sector-manufacturing: #228b22;
+  --color-sector-financials: #e8626f;
+  --color-sector-healthcare: #58ceaa;
+  --color-sector-technology: #a8385d;
+  --color-sector-other: #b0b0b0;
+  --color-chrome-close: #ff5f57;
+  /* Chart tooltip (暗底浮层，所有 D3/SVG tooltip 统一) */
+  --color-chart-tooltip-bg: rgba(30, 30, 30, 0.95);
+  --color-chart-tooltip-text: #ffffff;
+  --color-chart-tooltip-label: #9ca3af;
+  --color-chart-tooltip-border: rgba(255, 255, 255, 0.1);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -396,6 +442,49 @@
   background-color: rgba(38, 166, 154, 0.15) !important;
 }
 
+/* ── Glass Effects ──────────────────────────────────────────── */
+/* Reusable backdrop-blur presets. Avoids duplicating the same  */
+/* 5-property combo across sidebar, nav, tooltips, footers.     */
+/* Allowed zones: left sidebar, top nav pills, ticker, tooltip. */
+/* NEVER use on cards/panels (design system rule 1.4).          */
+
+@utility glass-heavy {
+  background: oklch(1 0 0 / 0.4);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid oklch(1 0 0 / 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+@utility glass-light {
+  background: oklch(1 0 0 / 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+@utility glass-tooltip {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: oklch(1 0 0 / 0.75);
+  border: 1px solid oklch(from var(--color-mine-border) l c h / 0.5);
+}
+
+/* ── Shared Layout Utilities ─────────────────────────────────── */
+
+@utility placeholder-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-mine-muted);
+  font-size: 0.875rem; /* text-sm */
+}
+
+@utility numeric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Panel Typography ────────────────────────────────────────── */
 /* Semantic text roles for the unified panel system.             */
 /* Each utility is a complete token: size + weight + color +     */
@@ -456,6 +545,6 @@
 .mine-table {
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   font-size: 13px;
-  color: #1a1a1a;
+  color: var(--color-mine-text);
   user-select: text;
 }

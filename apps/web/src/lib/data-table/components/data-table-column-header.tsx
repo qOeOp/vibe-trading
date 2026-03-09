@@ -83,7 +83,7 @@ export function DataTableColumnHeader<TData, TValue>({
           {canSort && (
             <>
               <DropdownMenuCheckboxItem
-                className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+                className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-mine-muted"
                 checked={column.getIsSorted() === 'asc'}
                 onClick={() => column.toggleSorting(false)}
               >
@@ -91,7 +91,7 @@ export function DataTableColumnHeader<TData, TValue>({
                 Asc
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
-                className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+                className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-mine-muted"
                 checked={column.getIsSorted() === 'desc'}
                 onClick={() => column.toggleSorting(true)}
               >
@@ -100,7 +100,7 @@ export function DataTableColumnHeader<TData, TValue>({
               </DropdownMenuCheckboxItem>
               {column.getIsSorted() && (
                 <DropdownMenuItem
-                  className="pl-2 [&_svg]:text-muted-foreground"
+                  className="pl-2 [&_svg]:text-mine-muted"
                   onClick={() => column.clearSorting()}
                 >
                   <X />
@@ -111,7 +111,7 @@ export function DataTableColumnHeader<TData, TValue>({
           )}
           {canHide && (
             <DropdownMenuCheckboxItem
-              className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+              className="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-mine-muted"
               checked={!column.getIsVisible()}
               onClick={() => column.toggleVisibility(false)}
             >
