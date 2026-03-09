@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -9,9 +9,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
-import type { Factor, FactorLifecycleStatus } from "../types";
-import { VALID_STATUS_TRANSITIONS, STATUS_COLORS, STATUS_LABELS } from "../types";
+} from '@/components/ui/dialog';
+import type { Factor, FactorLifecycleStatus } from '../types';
+import {
+  VALID_STATUS_TRANSITIONS,
+  STATUS_COLORS,
+  STATUS_LABELS,
+} from '../types';
 
 interface StatusChangeDialogProps {
   factor: Factor;
@@ -27,10 +31,11 @@ export function StatusChangeDialog({
   onConfirm,
 }: StatusChangeDialogProps) {
   const validTargets = VALID_STATUS_TRANSITIONS[factor.status];
-  const [targetStatus, setTargetStatus] = useState<FactorLifecycleStatus | null>(
-    validTargets.length === 1 ? validTargets[0] : null,
-  );
-  const [reason, setReason] = useState("");
+  const [targetStatus, setTargetStatus] =
+    useState<FactorLifecycleStatus | null>(
+      validTargets.length === 1 ? validTargets[0] : null,
+    );
+  const [reason, setReason] = useState('');
 
   const canConfirm = targetStatus !== null && reason.trim().length > 0;
 
@@ -39,14 +44,14 @@ export function StatusChangeDialog({
     onConfirm(targetStatus, reason.trim());
     // Reset state
     setTargetStatus(validTargets.length === 1 ? validTargets[0] : null);
-    setReason("");
+    setReason('');
   };
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {
       // Reset on close
       setTargetStatus(validTargets.length === 1 ? validTargets[0] : null);
-      setReason("");
+      setReason('');
     }
     onOpenChange(next);
   };
@@ -60,7 +65,9 @@ export function StatusChangeDialog({
         <DialogHeader>
           <DialogTitle>状态变更</DialogTitle>
           <DialogDescription>
-            为因子 <span className="font-semibold text-mine-text">{factor.name}</span> 选择目标状态并填写变更原因。
+            为因子{' '}
+            <span className="font-semibold text-mine-text">{factor.name}</span>{' '}
+            选择目标状态并填写变更原因。
           </DialogDescription>
         </DialogHeader>
 
@@ -68,22 +75,29 @@ export function StatusChangeDialog({
           {/* Current status display */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] text-mine-muted uppercase">当前</span>
+              <span className="text-[10px] text-mine-muted uppercase">
+                当前
+              </span>
               <span
                 className="px-2 py-0.5 text-[11px] font-bold rounded"
-                style={{ backgroundColor: `${currentColor}18`, color: currentColor }}
+                style={{
+                  backgroundColor: `color-mix(in srgb, ${currentColor} 9%, transparent)`,
+                  color: currentColor,
+                }}
               >
                 {currentLabel}
               </span>
             </div>
             <ArrowRight className="w-3.5 h-3.5 text-mine-muted" />
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] text-mine-muted uppercase">目标</span>
+              <span className="text-[10px] text-mine-muted uppercase">
+                目标
+              </span>
               {targetStatus ? (
                 <span
                   className="px-2 py-0.5 text-[11px] font-bold rounded"
                   style={{
-                    backgroundColor: `${STATUS_COLORS[targetStatus]}18`,
+                    backgroundColor: `color-mix(in srgb, ${STATUS_COLORS[targetStatus]} 9%, transparent)`,
                     color: STATUS_COLORS[targetStatus],
                   }}
                 >
@@ -116,11 +130,11 @@ export function StatusChangeDialog({
                         ? {
                             backgroundColor: targetColor,
                             borderColor: targetColor,
-                            color: "#fff",
+                            color: 'white',
                           }
                         : {
-                            backgroundColor: "transparent",
-                            borderColor: "#e0ddd8",
+                            backgroundColor: 'transparent',
+                            borderColor: 'var(--color-mine-border)',
                             color: targetColor,
                           }
                     }
@@ -146,7 +160,7 @@ export function StatusChangeDialog({
           </div>
 
           {/* Warning note for RETIRED */}
-          {targetStatus === "RETIRED" && (
+          {targetStatus === 'RETIRED' && (
             <div className="flex items-start gap-2 px-3 py-2 bg-market-up-medium/5 border border-market-up-medium/20 rounded-lg">
               <span className="text-market-up-medium text-sm mt-0.5">⚠️</span>
               <span className="text-[11px] text-mine-text leading-relaxed">
@@ -173,9 +187,9 @@ export function StatusChangeDialog({
               backgroundColor: canConfirm
                 ? targetStatus
                   ? STATUS_COLORS[targetStatus]
-                  : "#2d2d2d"
-                : "#d0d0d0",
-              cursor: canConfirm ? "pointer" : "not-allowed",
+                  : 'var(--color-mine-text)'
+                : 'var(--color-mine-border)',
+              cursor: canConfirm ? 'pointer' : 'not-allowed',
             }}
           >
             确认变更

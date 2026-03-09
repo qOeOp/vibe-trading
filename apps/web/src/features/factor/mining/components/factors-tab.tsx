@@ -74,7 +74,7 @@ function FactorCard({
             )}
           />
         )}
-        <span className="text-xs font-mono tabular-nums truncate">
+        <span className="text-xs numeric truncate">
           {factor.name}
         </span>
       </div>
@@ -82,7 +82,7 @@ function FactorCard({
       <div className="flex items-center gap-3 pl-5">
         <span
           className={cn(
-            'text-[10px] font-mono tabular-nums',
+            'text-[10px] numeric',
             selected ? 'text-white/60' : 'text-mine-muted',
           )}
         >
@@ -90,7 +90,7 @@ function FactorCard({
         </span>
         <span
           className={cn(
-            'text-[10px] font-mono tabular-nums',
+            'text-[10px] numeric',
             selected ? 'text-white/60' : 'text-mine-muted',
           )}
         >

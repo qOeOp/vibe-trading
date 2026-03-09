@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface SparklineSVGProps {
   data: number[];
@@ -28,21 +28,34 @@ export function SparklineSVG({
   const range = max - min || 0.001;
   const isUp = data[data.length - 1] >= data[0];
   const fillColor =
-    color ?? (autoColor ? (isUp ? "#F6465D" : "#2EBD85") : "#8a8a8a");
+    color ??
+    (autoColor
+      ? isUp
+        ? 'var(--color-market-up-medium)'
+        : 'var(--color-market-down-medium)'
+      : 'var(--color-mine-muted)');
 
   const barCount = data.length;
   const gap = 1;
-  const barWidth = Math.max(1, (viewBoxWidth - gap * (barCount - 1)) / barCount);
+  const barWidth = Math.max(
+    1,
+    (viewBoxWidth - gap * (barCount - 1)) / barCount,
+  );
 
   return (
     <svg
       viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
       preserveAspectRatio="none"
       className={className}
-      style={!className ? { width: viewBoxWidth, height: viewBoxHeight } : undefined}
+      style={
+        !className ? { width: viewBoxWidth, height: viewBoxHeight } : undefined
+      }
     >
       {data.map((v, i) => {
-        const barHeight = Math.max(1, ((v - min) / range) * (viewBoxHeight - 2));
+        const barHeight = Math.max(
+          1,
+          ((v - min) / range) * (viewBoxHeight - 2),
+        );
         const x = i * (barWidth + gap);
         const y = viewBoxHeight - barHeight;
         return (

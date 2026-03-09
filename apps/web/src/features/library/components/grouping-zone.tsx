@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import { useCallback } from "react";
-import { useDroppable } from "@dnd-kit/core";
+import { useCallback } from 'react';
+import { useDroppable } from '@dnd-kit/core';
 import {
   SortableContext,
   useSortable,
   horizontalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   GripVertical,
   X,
   ChevronsUpDown,
   ChevronsDownUp,
   Trash2,
-} from "lucide-react";
-import { useLibraryStore } from "../store/use-library-store";
+} from 'lucide-react';
+import { useLibraryStore } from '../store/use-library-store';
 
 // ─── Column label mapping ────────────────────────────────
 
 const COLUMN_LABELS: Record<string, string> = {
-  category: "类别",
-  status: "状态",
-  source: "来源",
-  factorType: "类型",
+  category: '类别',
+  status: '状态',
+  source: '来源',
+  factorType: '类型',
 };
 
 // ─── Sortable Pill ───────────────────────────────────────
@@ -90,7 +90,7 @@ export function GroupingZone({ isDraggingColumn }: GroupingZoneProps) {
   const collapseAllGroups = useLibraryStore((s) => s.collapseAllGroups);
   const setGrouping = useLibraryStore((s) => s.setGrouping);
 
-  const { setNodeRef, isOver } = useDroppable({ id: "grouping-zone" });
+  const { setNodeRef, isOver } = useDroppable({ id: 'grouping-zone' });
 
   const handleClear = useCallback(() => {
     setGrouping([]);
@@ -98,13 +98,14 @@ export function GroupingZone({ isDraggingColumn }: GroupingZoneProps) {
 
   return (
     <div
+      data-slot="grouping-zone"
       ref={setNodeRef}
       className={`flex items-center gap-2 px-3 py-1.5 min-h-[32px] border-b transition-colors ${
         isOver
-          ? "bg-mine-accent-teal/5 border-mine-accent-teal/30"
+          ? 'bg-mine-accent-teal/5 border-mine-accent-teal/30'
           : isDraggingColumn
-            ? "bg-mine-accent-teal/3 border-mine-border/50"
-            : "border-mine-border/20"
+            ? 'bg-mine-accent-teal/3 border-mine-border/50'
+            : 'border-mine-border/20'
       }`}
     >
       {/* Label */}
@@ -115,9 +116,7 @@ export function GroupingZone({ isDraggingColumn }: GroupingZoneProps) {
       {/* Pills or placeholder */}
       {grouping.length === 0 ? (
         <span className="text-[10px] text-mine-muted/40 italic select-none">
-          {isDraggingColumn
-            ? "松开以按此列分组"
-            : "拖拽列标题到此处进行分组"}
+          {isDraggingColumn ? '松开以按此列分组' : '拖拽列标题到此处进行分组'}
         </span>
       ) : (
         <SortableContext

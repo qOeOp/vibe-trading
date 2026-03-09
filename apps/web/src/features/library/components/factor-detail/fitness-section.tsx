@@ -5,17 +5,17 @@ import type { Factor } from '@/features/library/types';
 
 function icMagnitudeColor(ic: number): string {
   const abs = Math.abs(ic);
-  if (abs >= 0.05) return 'text-market-down';
-  if (abs >= 0.03) return 'text-market-down-medium';
+  if (abs >= 0.05) return 'text-market-up';
+  if (abs >= 0.03) return 'text-market-up-medium';
   if (abs >= 0.02) return 'text-market-flat';
-  return 'text-market-up-medium';
+  return 'text-market-down-medium';
 }
 
 function irQualityColor(ir: number): string {
   const abs = Math.abs(ir);
-  if (abs >= 1.0) return 'text-market-down-medium';
+  if (abs >= 1.0) return 'text-market-up-medium';
   if (abs >= 0.5) return 'text-market-flat';
-  return 'text-market-up-medium';
+  return 'text-market-down-medium';
 }
 
 interface FitnessSectionProps {
@@ -72,13 +72,13 @@ export function FitnessSection({ factor }: FitnessSectionProps) {
                   )}
                 </td>
                 <td
-                  className={`py-1.5 px-2 text-right font-mono tabular-nums font-medium ${icMagnitudeColor(row.ic)}`}
+                  className={`py-1.5 px-2 text-right numeric font-medium ${icMagnitudeColor(row.ic)}`}
                 >
                   {row.ic >= 0 ? '+' : ''}
                   {row.ic.toFixed(4)}
                 </td>
                 <td
-                  className={`py-1.5 px-2 text-right font-mono tabular-nums ${irQualityColor(row.ir)}`}
+                  className={`py-1.5 px-2 text-right numeric ${irQualityColor(row.ir)}`}
                 >
                   {row.ir.toFixed(2)}
                 </td>

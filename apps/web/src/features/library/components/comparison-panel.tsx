@@ -1,32 +1,32 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { X } from "lucide-react";
+import { useMemo } from 'react';
+import { X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { RadarChart } from "@/lib/ngx-charts/radar-chart";
-import type { RadarSeries } from "@/lib/ngx-charts/radar-chart";
-import type { Factor } from "../types";
-import { STATUS_COLORS, STATUS_LABELS } from "../types";
+} from '@/components/ui/dialog';
+import { RadarChart } from '@/lib/ngx-charts/radar-chart';
+import type { RadarSeries } from '@/lib/ngx-charts/radar-chart';
+import type { Factor } from '../types';
+import { STATUS_COLORS, STATUS_LABELS } from '../types';
 import {
   computeRadarScores,
   radarScoresToValues,
   RADAR_LABELS,
-} from "../utils/compute-radar-scores";
+} from '../utils/compute-radar-scores';
 
 // ─── Constants ──────────────────────────────────────────
 
 /** Color palette for comparison series (max 5 factors) */
 const COMPARISON_COLORS = [
-  "#26a69a", // teal
-  "#3b82f6", // blue
-  "#f59e0b", // amber
-  "#ec4899", // pink
-  "#8b5cf6", // purple
+  'var(--color-mine-accent-teal)',
+  'var(--color-mine-accent-blue)',
+  'var(--color-mine-accent-amber)',
+  'var(--color-factor-dividend)', // pink
+  'var(--color-mine-accent-purple)',
 ];
 
 // ─── Metric definitions ─────────────────────────────────
@@ -42,85 +42,113 @@ interface MetricDef {
 
 const METRICS: MetricDef[] = [
   {
-    key: "ic",
-    label: "IC (20D)",
-    format: (v) => `${v >= 0 ? "+" : ""}${v.toFixed(3)}`,
-    colorFn: (v) => (v >= 0 ? "#2EBD85" : "#F6465D"),
+    key: 'ic',
+    label: 'IC (20D)',
+    format: (v) => `${v >= 0 ? '+' : ''}${v.toFixed(3)}`,
+    colorFn: (v) =>
+      v >= 0
+        ? 'var(--color-market-up-medium)'
+        : 'var(--color-market-down-medium)',
     rank: (v) => Math.abs(v),
   },
   {
-    key: "ir",
-    label: "IR",
+    key: 'ir',
+    label: 'IR',
     format: (v) => v.toFixed(2),
     colorFn: (v) =>
-      Math.abs(v) >= 1.0 ? "#2EBD85" : Math.abs(v) >= 0.5 ? "#76808E" : "#F6465D",
+      Math.abs(v) >= 1.0
+        ? 'var(--color-market-up-medium)'
+        : Math.abs(v) >= 0.5
+          ? 'var(--color-market-flat)'
+          : 'var(--color-market-down-medium)',
     rank: (v) => Math.abs(v),
   },
   {
-    key: "icTstat",
-    label: "t-stat",
+    key: 'icTstat',
+    label: 't-stat',
     format: (v) => v.toFixed(2),
-    colorFn: (v) => (Math.abs(v) >= 2 ? "#2EBD85" : "#F6465D"),
+    colorFn: (v) =>
+      Math.abs(v) >= 2
+        ? 'var(--color-market-up-medium)'
+        : 'var(--color-market-down-medium)',
     rank: (v) => Math.abs(v),
   },
   {
-    key: "winRate",
-    label: "胜率",
+    key: 'winRate',
+    label: '胜率',
     format: (v) => `${v}%`,
-    colorFn: (v) => (v >= 55 ? "#2EBD85" : "#76808E"),
+    colorFn: (v) =>
+      v >= 55 ? 'var(--color-market-up-medium)' : 'var(--color-market-flat)',
     rank: (v) => v,
   },
   {
-    key: "turnover",
-    label: "换手",
+    key: 'turnover',
+    label: '换手',
     format: (v) => `${v}%`,
-    colorFn: () => "#1a1a1a",
+    colorFn: () => 'var(--color-mine-text)',
     rank: (v) => -v, // lower turnover is generally better
   },
   {
-    key: "capacity",
-    label: "容量",
-    format: (v) =>
-      v >= 10000 ? `${(v / 10000).toFixed(0)}亿` : `${v}万`,
-    colorFn: () => "#1a1a1a",
+    key: 'capacity',
+    label: '容量',
+    format: (v) => (v >= 10000 ? `${(v / 10000).toFixed(0)}亿` : `${v}万`),
+    colorFn: () => 'var(--color-mine-text)',
     rank: (v) => v,
   },
   {
-    key: "ic60d",
-    label: "IC 60D",
-    format: (v) => `${v >= 0 ? "+" : ""}${v.toFixed(3)}`,
-    colorFn: (v) => (v >= 0 ? "#2EBD85" : "#F6465D"),
-    rank: (v) => Math.abs(v),
-  },
-  {
-    key: "ic120d",
-    label: "IC 120D",
-    format: (v) => `${v >= 0 ? "+" : ""}${v.toFixed(3)}`,
-    colorFn: (v) => (v >= 0 ? "#2EBD85" : "#F6465D"),
-    rank: (v) => Math.abs(v),
-  },
-  {
-    key: "vScore",
-    label: "V-Score",
-    format: (v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}`,
+    key: 'ic60d',
+    label: 'IC 60D',
+    format: (v) => `${v >= 0 ? '+' : ''}${v.toFixed(3)}`,
     colorFn: (v) =>
-      v < -1 ? "#3b82f6" : v > 1 ? "#f5a623" : "#8a8a8a",
+      v >= 0
+        ? 'var(--color-market-up-medium)'
+        : 'var(--color-market-down-medium)',
+    rank: (v) => Math.abs(v),
+  },
+  {
+    key: 'ic120d',
+    label: 'IC 120D',
+    format: (v) => `${v >= 0 ? '+' : ''}${v.toFixed(3)}`,
+    colorFn: (v) =>
+      v >= 0
+        ? 'var(--color-market-up-medium)'
+        : 'var(--color-market-down-medium)',
+    rank: (v) => Math.abs(v),
+  },
+  {
+    key: 'vScore',
+    label: 'V-Score',
+    format: (v) => `${v >= 0 ? '+' : ''}${v.toFixed(2)}`,
+    colorFn: (v) =>
+      v < -1
+        ? 'var(--color-mine-accent-blue)'
+        : v > 1
+          ? 'var(--color-mine-accent-yellow)'
+          : 'var(--color-mine-muted)',
     rank: (v) => -Math.abs(v), // closer to 0 = more fairly valued (neutral rank)
   },
   {
-    key: "rankTestRetention",
-    label: "Rank Test",
+    key: 'rankTestRetention',
+    label: 'Rank Test',
     format: (v) => `${Math.round(v * 100)}%`,
     colorFn: (v) =>
-      v >= 0.7 ? "#2EBD85" : v >= 0.3 ? "#76808E" : "#F6465D",
+      v >= 0.7
+        ? 'var(--color-market-up-medium)'
+        : v >= 0.3
+          ? 'var(--color-market-flat)'
+          : 'var(--color-market-down-medium)',
     rank: (v) => v,
   },
   {
-    key: "binaryTestRetention",
-    label: "Binary Test",
+    key: 'binaryTestRetention',
+    label: 'Binary Test',
     format: (v) => `${Math.round(v * 100)}%`,
     colorFn: (v) =>
-      v >= 0.7 ? "#2EBD85" : v >= 0.3 ? "#76808E" : "#F6465D",
+      v >= 0.7
+        ? 'var(--color-market-up-medium)'
+        : v >= 0.3
+          ? 'var(--color-market-flat)'
+          : 'var(--color-market-down-medium)',
     rank: (v) => v,
   },
 ];
@@ -181,8 +209,7 @@ export function ComparisonPanel({
           {/* Factor name tags */}
           <div className="flex items-center gap-2 flex-wrap">
             {displayFactors.map((f, i) => {
-              const color =
-                COMPARISON_COLORS[i % COMPARISON_COLORS.length];
+              const color = COMPARISON_COLORS[i % COMPARISON_COLORS.length];
               const statusColor = STATUS_COLORS[f.status];
               return (
                 <div
@@ -190,7 +217,7 @@ export function ComparisonPanel({
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border"
                   style={{
                     borderColor: color,
-                    backgroundColor: `${color}08`,
+                    backgroundColor: `color-mix(in srgb, ${color} 3%, transparent)`,
                   }}
                 >
                   <div
@@ -206,7 +233,7 @@ export function ComparisonPanel({
                   <span
                     className="text-[8px] font-bold px-1 py-0.5 rounded ml-1"
                     style={{
-                      backgroundColor: `${statusColor}18`,
+                      backgroundColor: `color-mix(in srgb, ${statusColor} 9%, transparent)`,
                       color: statusColor,
                     }}
                   >
@@ -254,9 +281,7 @@ export function ComparisonPanel({
                         className="text-right py-2 px-3 text-[9px] font-semibold"
                         style={{
                           color:
-                            COMPARISON_COLORS[
-                              i % COMPARISON_COLORS.length
-                            ],
+                            COMPARISON_COLORS[i % COMPARISON_COLORS.length],
                         }}
                       >
                         {f.name}
@@ -282,7 +307,7 @@ export function ComparisonPanel({
                           return (
                             <td
                               key={f.id}
-                              className="py-1.5 px-3 text-right font-mono tabular-nums"
+                              className="py-1.5 px-3 text-right numeric"
                               style={{
                                 color: m.colorFn(val),
                                 fontWeight: isBest ? 700 : 400,

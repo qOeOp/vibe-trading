@@ -107,7 +107,7 @@ export function GroupHeaderRow({ row, leafColumnCount }: GroupHeaderRowProps) {
                 <span className="text-xs font-semibold text-mine-text">
                   {label}
                 </span>
-                <span className="text-[10px] text-mine-muted font-mono tabular-nums bg-mine-border/40 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] text-mine-muted numeric bg-mine-border/40 px-1.5 py-0.5 rounded">
                   {aggregates.count}
                 </span>
               </div>
@@ -121,7 +121,7 @@ export function GroupHeaderRow({ row, leafColumnCount }: GroupHeaderRowProps) {
             <TableCell key={cell.id} className="text-right">
               <span
                 className={cn(
-                  "font-mono tabular-nums text-[11px]",
+                  "numeric text-[11px]",
                   aggregates.avgIC >= 0
                     ? "text-market-down-medium/70"
                     : "text-market-up-medium/70",
@@ -137,7 +137,7 @@ export function GroupHeaderRow({ row, leafColumnCount }: GroupHeaderRowProps) {
         if (columnId === "ir") {
           return (
             <TableCell key={cell.id} className="text-right">
-              <span className="font-mono tabular-nums text-[11px] text-mine-muted">
+              <span className="numeric text-[11px] text-mine-muted">
                 {formatNum2(aggregates.avgIR)}
               </span>
             </TableCell>

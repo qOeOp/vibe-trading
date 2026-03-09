@@ -44,6 +44,32 @@ export type FactorSource =
 /** 因子预期方向 */
 export type FactorDirection = 'positive' | 'negative';
 
+/** 预测周期 key */
+export const HORIZON_KEYS = ['T1', 'T5', 'T10', 'T20'] as const;
+export type HorizonKey = (typeof HORIZON_KEYS)[number];
+
+/** Horizon 显示标签 */
+export const HORIZON_LABELS: Record<HorizonKey, string> = {
+  T1: 'T+1',
+  T5: 'T+5',
+  T10: 'T+10',
+  T20: 'T+20',
+};
+
+/** Pool × Horizon 组合的计算状态 */
+export type ComputeStatus = 'ready' | 'loading' | 'error';
+
+/** 单个 pool×horizon 组合的状态 */
+export interface ConfigSliceStatus {
+  signalStatus: ComputeStatus;
+  portfolioStatus: ComputeStatus;
+}
+
+/** 生成 pool×horizon 组合 key */
+export function getConfigKey(pool: UniversePool, horizon: HorizonKey): string {
+  return `${pool}_${horizon}`;
+}
+
 // ─── Benchmark Config ────────────────────────────────────
 
 /** 标准股票池列表 */
@@ -185,6 +211,9 @@ export interface Factor {
     proposedAt: string;
   };
 
+  /** 每个 pool×horizon 组合的计算状态 — key = `${pool}_${horizon}` */
+  configStatus?: Record<string, ConfigSliceStatus>;
+
   /** 挖掘来源扩展字段 — 仅 source === "mining_llm" 时存在 */
   codeFile?: string;
   taskId?: string;
@@ -221,24 +250,24 @@ export const VALID_STATUS_TRANSITIONS: Record<
 
 /** 分类颜色映射 (badge 背景 18% + 文字色) */
 export const CATEGORY_COLORS: Record<FactorCategory, string> = {
-  动能: '#f97316',
-  股息率: '#ec4899',
-  价值: '#3b82f6',
-  成长: '#22c55e',
-  品质: '#10b981',
-  流动性: '#06b6d4',
-  波动度: '#eab308',
-  规模: '#64748b',
-  情绪: '#a855f7',
+  动能: 'var(--color-factor-momentum)',
+  股息率: 'var(--color-factor-dividend)',
+  价值: 'var(--color-factor-value)',
+  成长: 'var(--color-factor-growth)',
+  品质: 'var(--color-factor-quality)',
+  流动性: 'var(--color-factor-liquidity)',
+  波动度: 'var(--color-factor-volatility)',
+  规模: 'var(--color-factor-size)',
+  情绪: 'var(--color-factor-sentiment)',
 };
 
 /** 状态颜色映射 */
 export const STATUS_COLORS: Record<FactorLifecycleStatus, string> = {
-  INCUBATING: '#8b8b8b',
-  PAPER_TEST: '#3b82f6',
-  LIVE_ACTIVE: '#4caf50',
-  PROBATION: '#f5a623',
-  RETIRED: '#8a8a8a',
+  INCUBATING: 'var(--color-status-incubating)',
+  PAPER_TEST: 'var(--color-status-paper)',
+  LIVE_ACTIVE: 'var(--color-status-live)',
+  PROBATION: 'var(--color-status-probation)',
+  RETIRED: 'var(--color-status-retired)',
 };
 
 /** 状态中文标签 */
@@ -260,10 +289,10 @@ export const SOURCE_LABELS: Record<FactorSource, string> = {
 
 /** 来源颜色 */
 export const SOURCE_COLORS: Record<FactorSource, string> = {
-  manual: '#8b8b8b',
-  mining_gplearn: '#22c55e',
-  mining_pysr: '#3b82f6',
-  mining_llm: '#a855f7',
+  manual: 'var(--color-source-manual)',
+  mining_gplearn: 'var(--color-source-gplearn)',
+  mining_pysr: 'var(--color-source-pysr)',
+  mining_llm: 'var(--color-source-llm)',
 };
 
 /** 类型中文标签 */
@@ -274,8 +303,8 @@ export const TYPE_LABELS: Record<FactorType, string> = {
 
 /** 类型颜色 */
 export const TYPE_COLORS: Record<FactorType, string> = {
-  leaf: '#3b82f6',
-  composite: '#a855f7',
+  leaf: 'var(--color-type-leaf)',
+  composite: 'var(--color-type-composite)',
 };
 
 /** 去极值方法标签 */

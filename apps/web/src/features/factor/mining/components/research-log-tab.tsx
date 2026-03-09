@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { Card } from '@/components/ui/card';
 import { PanelEmpty } from '@/components/shared/panel';
 import { miningApi } from '../api';
 import type { MiningTask, MiningRound } from '../types';
@@ -110,10 +111,7 @@ function RoundCard({ round, expanded, onToggle }: RoundCardProps) {
   const steps = buildSteps(round);
 
   return (
-    <div
-      data-slot="round-card"
-      className="bg-white shadow-sm border border-mine-border rounded-xl overflow-hidden"
-    >
+    <Card data-slot="round-card">
       {/* Header — always visible */}
       <button
         type="button"
@@ -131,7 +129,7 @@ function RoundCard({ round, expanded, onToggle }: RoundCardProps) {
               Round {round.roundIndex}
             </span>
             {round.timestamp != null && (
-              <span className="text-[10px] text-mine-muted font-mono tabular-nums">
+              <span className="text-[10px] text-mine-muted numeric">
                 {formatTimestamp(round.timestamp)}
               </span>
             )}
@@ -165,7 +163,7 @@ function RoundCard({ round, expanded, onToggle }: RoundCardProps) {
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 

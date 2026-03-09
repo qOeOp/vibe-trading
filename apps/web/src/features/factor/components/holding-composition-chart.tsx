@@ -1,35 +1,41 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { curveLinear } from "d3-shape";
-import { AreaChartStacked, ScaleType } from "@/lib/ngx-charts";
-import type { MultiSeries } from "@/lib/ngx-charts";
-import { HOLDING_SECTORS, SECTOR_COLOR_MAP } from "../types";
-import type { HoldingCompositionPoint } from "../types";
+import { useMemo } from 'react';
+import { curveLinear } from 'd3-shape';
+import { AreaChartStacked, ScaleType } from '@/lib/ngx-charts';
+import type { MultiSeries } from '@/lib/ngx-charts';
+import { HOLDING_SECTORS, SECTOR_COLOR_MAP } from '../types';
+import type { HoldingCompositionPoint } from '../types';
 
-const SECTOR_COLORS: Array<{ name: string; value: string }> = HOLDING_SECTORS.map(
-  (name) => ({ name, value: SECTOR_COLOR_MAP[name] ?? "#76808E" }),
-);
+const SECTOR_COLORS: Array<{ name: string; value: string }> =
+  HOLDING_SECTORS.map((name) => ({
+    name,
+    value: SECTOR_COLOR_MAP[name] ?? 'var(--color-market-flat)',
+  }));
 
 /** Legend items for external rendering (excludes "Other") */
-export const HOLDING_COMPOSITION_LEGEND = SECTOR_COLORS
-  .filter((c) => c.name !== "Other")
-  .map((c) => ({ label: c.name, color: c.value }));
+export const HOLDING_COMPOSITION_LEGEND = SECTOR_COLORS.filter(
+  (c) => c.name !== 'Other',
+).map((c) => ({ label: c.name, color: c.value }));
 
 interface HoldingCompositionChartProps {
   data: HoldingCompositionPoint[];
   activeEntries?: Array<{ name: string }>;
 }
 
-export function HoldingCompositionChart({ data, activeEntries = [] }: HoldingCompositionChartProps) {
+export function HoldingCompositionChart({
+  data,
+  activeEntries = [],
+}: HoldingCompositionChartProps) {
   const chartData: MultiSeries = useMemo(
-    () => HOLDING_SECTORS.map((sector) => ({
-      name: sector,
-      series: data.map((d) => ({
-        name: new Date(d.date),
-        value: d[sector],
+    () =>
+      HOLDING_SECTORS.map((sector) => ({
+        name: sector,
+        series: data.map((d) => ({
+          name: new Date(d.date),
+          value: d[sector],
+        })),
       })),
-    })),
     [data],
   );
 

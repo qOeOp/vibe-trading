@@ -9,13 +9,13 @@ import type { Factor } from '@/features/library/types';
 /* ── Visual constants ──────────────────────────────────────── */
 
 /** Q1=green (bottom), Q5=red (top) — A股 convention */
-const TURNOVER_COLORS = ['#0B8C5F', '#CF304A'];
+const TURNOVER_COLORS = ['var(--color-market-down)', 'var(--color-market-up)'];
 
 /** 4-state classification colors for turnover brush */
-const BOTH_HIGH = '#1a1a1a'; // Black: both extremes active (high cost)
-const Q5_HIGH = '#3d3d3d'; // Dark gray: good quantile active (positive signal)
-const Q1_HIGH = '#a0a0a0'; // Light gray: bad quantile active (negative signal)
-const BOTH_LOW = '#eaeaea'; // White: both extremes inactive
+const BOTH_HIGH = 'var(--color-mine-text)'; // Both extremes active (high cost)
+const Q5_HIGH = 'var(--color-mine-nav-active)'; // Good quantile active (positive signal)
+const Q1_HIGH = 'var(--color-mine-muted)'; // Bad quantile active (negative signal)
+const BOTH_LOW = 'var(--color-mine-border-light)'; // Both extremes inactive
 
 /* ── Custom Brush Hook ─────────────────────────────────────── */
 
@@ -85,11 +85,11 @@ export function QuantileTurnoverSection({
             Q1 / Q5 · 拖选范围缩放
           </span>
           <span className="flex items-center gap-1 text-[8px] text-mine-muted">
-            <span className="inline-block w-2.5 h-2.5 rounded-[2px] bg-[#0B8C5F]" />
+            <span className="inline-block w-2.5 h-2.5 rounded-[2px] bg-market-down" />
             Q1
           </span>
           <span className="flex items-center gap-1 text-[8px] text-mine-muted">
-            <span className="inline-block w-2.5 h-2.5 rounded-[2px] bg-[#CF304A]" />
+            <span className="inline-block w-2.5 h-2.5 rounded-[2px] bg-market-up" />
             Q5
           </span>
         </div>

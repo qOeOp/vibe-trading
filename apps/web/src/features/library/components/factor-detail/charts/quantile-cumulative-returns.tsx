@@ -8,11 +8,11 @@ import type { Factor } from '@/features/library/types';
 
 /** A股红涨绿跌: Q1 (worst, green/跌) → Q5 (best, red/涨) */
 const QUANTILE_COLORS = [
-  '#0B8C5F', // Q1 — worst (green/跌)
-  '#58CEAA', // Q2
-  '#76808E', // Q3 — neutral
-  '#E8626F', // Q4
-  '#CF304A', // Q5 — best (red/涨)
+  'var(--color-market-down)', // Q1 — worst (green/跌)
+  'var(--color-market-down-light)', // Q2
+  'var(--color-market-flat)', // Q3 — neutral
+  'var(--color-market-up-light)', // Q4
+  'var(--color-market-up)', // Q5 — best (red/涨)
 ];
 
 const LEGEND_ITEMS = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'] as const;

@@ -10,6 +10,7 @@ import { useLibraryStore } from '@/features/library/store/use-library-store';
 import type { Factor } from '@/features/library/types';
 
 import { IdentityHeader } from './identity-header';
+import { GlobalSelector } from './global-selector';
 import { OverviewSection } from './overview-section';
 import { StatisticsSection } from './statistics-section';
 
@@ -59,6 +60,9 @@ export function FactorDetailPanel({ factor }: FactorDetailPanelProps) {
           >
             {/* Header: Identity Card */}
             <IdentityHeader factor={factor} />
+
+            {/* Global Selector: Pool × Horizon */}
+            <GlobalSelector factor={factor} />
 
             {/* Layer 1: Quick Assessment */}
             <OverviewSection factor={factor} />

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import type { RankedStrategy } from "../data/polar-calendar-data";
+import { cn } from '@/lib/utils';
+import type { RankedStrategy } from '../data/polar-calendar-data';
 
 interface LeaderboardTableProps {
   rankings: RankedStrategy[];
@@ -12,11 +12,26 @@ interface LeaderboardTableProps {
 }
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <span className="text-xs" role="img" aria-label="1st place">🥇</span>;
-  if (rank === 2) return <span className="text-xs" role="img" aria-label="2nd place">🥈</span>;
-  if (rank === 3) return <span className="text-xs" role="img" aria-label="3rd place">🥉</span>;
+  if (rank === 1)
+    return (
+      <span className="text-xs" role="img" aria-label="1st place">
+        🥇
+      </span>
+    );
+  if (rank === 2)
+    return (
+      <span className="text-xs" role="img" aria-label="2nd place">
+        🥈
+      </span>
+    );
+  if (rank === 3)
+    return (
+      <span className="text-xs" role="img" aria-label="3rd place">
+        🥉
+      </span>
+    );
   return (
-    <span className="text-xs text-mine-muted font-mono tabular-nums w-5 text-center inline-block">
+    <span className="text-xs text-mine-muted numeric w-5 text-center inline-block">
       {rank}
     </span>
   );
@@ -44,20 +59,21 @@ export function LeaderboardTable({
         {rankings.map((item) => {
           const isHovered = hoverStrategyId === item.strategy.id;
           const isSelected = selectedStrategyId === item.strategy.id;
-          const hasHighlight = hoverStrategyId != null || selectedStrategyId != null;
+          const hasHighlight =
+            hoverStrategyId != null || selectedStrategyId != null;
           const dimmed = hasHighlight && !isHovered && !isSelected;
 
           return (
             <div
               key={item.strategy.id}
               className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1.5 cursor-pointer transition-all border-l-2",
+                'flex items-center gap-1.5 px-2.5 py-1.5 cursor-pointer transition-all border-l-2',
                 isSelected
-                  ? "bg-mine-bg border-l-mine-nav-active"
+                  ? 'bg-mine-bg border-l-mine-nav-active'
                   : isHovered
-                    ? "bg-mine-bg/60 border-l-transparent"
-                    : "bg-transparent border-l-transparent hover:bg-mine-bg/40",
-                dimmed && "opacity-40"
+                    ? 'bg-mine-bg/60 border-l-transparent'
+                    : 'bg-transparent border-l-transparent hover:bg-mine-bg/40',
+                dimmed && 'opacity-40',
               )}
               onMouseEnter={() => onHoverStrategy(item.strategy.id)}
               onMouseLeave={() => onHoverStrategy(null)}
@@ -83,11 +99,13 @@ export function LeaderboardTable({
               <div className="w-14 text-right shrink-0">
                 <span
                   className={cn(
-                    "text-xs font-mono tabular-nums font-medium",
-                    item.annualReturn >= 0 ? "text-[#CF304A]" : "text-[#0B8C5F]"
+                    'text-xs numeric font-medium',
+                    item.annualReturn >= 0
+                      ? 'text-market-up'
+                      : 'text-market-down',
                   )}
                 >
-                  {item.annualReturn > 0 ? "+" : ""}
+                  {item.annualReturn > 0 ? '+' : ''}
                   {item.annualReturn.toFixed(1)}%
                 </span>
               </div>
@@ -96,8 +114,8 @@ export function LeaderboardTable({
               <div className="w-12 text-right shrink-0">
                 <span
                   className={cn(
-                    "text-xs font-mono tabular-nums",
-                    item.sharpe >= 1 ? "text-[#0B8C5F]" : "text-mine-muted"
+                    'text-xs numeric',
+                    item.sharpe >= 1 ? 'text-market-up' : 'text-mine-muted',
                   )}
                 >
                   {item.sharpe.toFixed(2)}

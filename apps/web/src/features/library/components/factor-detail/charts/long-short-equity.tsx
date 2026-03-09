@@ -9,7 +9,7 @@ import type { Factor } from '@/features/library/types';
 /* ── Visual constants ──────────────────────────────────────── */
 
 const EQUITY_COLORS: Array<{ name: string; value: string }> = [
-  { name: '净值', value: '#6366f1' },
+  { name: '净值', value: 'var(--color-mine-accent-indigo)' },
 ];
 
 const SERIES_CONFIG = {
@@ -106,7 +106,7 @@ export function LongShortEquitySection({
         <span>
           <span className="text-mine-muted">年化</span>{' '}
           <span
-            className={`font-semibold tabular-nums font-mono ${factor.longShortReturn >= 0 ? 'text-market-down-medium' : 'text-market-up-medium'}`}
+            className={`font-semibold tabular-nums font-mono ${factor.longShortReturn >= 0 ? 'text-market-up-medium' : 'text-market-down-medium'}`}
           >
             {factor.longShortReturn >= 0 ? '+' : ''}
             {factor.longShortReturn.toFixed(1)}%
@@ -114,7 +114,7 @@ export function LongShortEquitySection({
         </span>
         <span>
           <span className="text-mine-muted">MaxDD</span>{' '}
-          <span className="font-semibold tabular-nums font-mono text-market-up-medium">
+          <span className="font-semibold tabular-nums font-mono text-market-down-medium">
             -{(maxDD * 100).toFixed(1)}%
           </span>
         </span>

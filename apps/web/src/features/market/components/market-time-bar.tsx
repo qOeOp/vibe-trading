@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
 const SESSIONS = [
-  { label: "集合竞价", start: 0, end: 6, color: "bg-[#d4d4d4]/50" },
-  { label: "连续竞价", start: 6, end: 46, color: "bg-[#4a7c59]/20" },
-  { label: "午休", start: 46, end: 56, color: "bg-[#d4d4d4]/30" },
-  { label: "连续竞价", start: 56, end: 96, color: "bg-[#4a7c59]/20" },
-  { label: "已收盘", start: 96, end: 100, color: "bg-[#d4d4d4]/20" },
+  { label: '集合竞价', start: 0, end: 6, color: 'bg-zinc-300/50' },
+  { label: '连续竞价', start: 6, end: 46, color: 'bg-mine-section-green/20' },
+  { label: '午休', start: 46, end: 56, color: 'bg-zinc-300/30' },
+  { label: '连续竞价', start: 56, end: 96, color: 'bg-mine-section-green/20' },
+  { label: '已收盘', start: 96, end: 100, color: 'bg-zinc-300/20' },
 ];
 
 const TIME_MARKS = [
-  { label: "9:15", pos: 0 },
-  { label: "9:30", pos: 6 },
-  { label: "10:00", pos: 18 },
-  { label: "10:30", pos: 30 },
-  { label: "11:00", pos: 38 },
-  { label: "11:30", pos: 46 },
-  { label: "13:00", pos: 56 },
-  { label: "13:30", pos: 66 },
-  { label: "14:00", pos: 76 },
-  { label: "14:30", pos: 86 },
-  { label: "15:00", pos: 96 },
+  { label: '9:15', pos: 0 },
+  { label: '9:30', pos: 6 },
+  { label: '10:00', pos: 18 },
+  { label: '10:30', pos: 30 },
+  { label: '11:00', pos: 38 },
+  { label: '11:30', pos: 46 },
+  { label: '13:00', pos: 56 },
+  { label: '13:30', pos: 66 },
+  { label: '14:00', pos: 76 },
+  { label: '14:30', pos: 86 },
+  { label: '15:00', pos: 96 },
 ];
 
 function getCurrentPosition(): number {

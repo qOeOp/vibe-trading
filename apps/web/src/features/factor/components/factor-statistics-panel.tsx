@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import type { FactorStatistics } from "../types";
+import { cn } from '@/lib/utils';
+import type { FactorStatistics } from '../types';
 
 interface FactorStatisticsPanelProps {
   statistics: FactorStatistics;
@@ -10,19 +10,24 @@ interface FactorStatisticsPanelProps {
 interface StatItemProps {
   label: string;
   value: string | number;
-  format?: "percent" | "decimal" | "number";
-  highlight?: "positive" | "negative" | "neutral";
+  format?: 'percent' | 'decimal' | 'number';
+  highlight?: 'positive' | 'negative' | 'neutral';
 }
 
-function StatItem({ label, value, format = "decimal", highlight }: StatItemProps) {
+function StatItem({
+  label,
+  value,
+  format = 'decimal',
+  highlight,
+}: StatItemProps) {
   const formatValue = (val: string | number) => {
-    if (typeof val === "string") return val;
+    if (typeof val === 'string') return val;
     switch (format) {
-      case "percent":
+      case 'percent':
         return `${(val * 100).toFixed(2)}%`;
-      case "decimal":
+      case 'decimal':
         return val.toFixed(4);
-      case "number":
+      case 'number':
         return val.toFixed(2);
       default:
         return val.toString();
@@ -34,11 +39,11 @@ function StatItem({ label, value, format = "decimal", highlight }: StatItemProps
       <span className="text-mine-muted text-sm">{label}</span>
       <span
         className={cn(
-          "font-mono text-sm font-medium",
-          highlight === "positive" && "text-[#0B8C5F]",
-          highlight === "negative" && "text-[#CF304A]",
-          highlight === "neutral" && "text-mine-text",
-          !highlight && "text-mine-text"
+          'font-mono text-sm font-medium',
+          highlight === 'positive' && 'text-market-up',
+          highlight === 'negative' && 'text-market-down',
+          highlight === 'neutral' && 'text-mine-text',
+          !highlight && 'text-mine-text',
         )}
       >
         {formatValue(value)}
@@ -47,7 +52,13 @@ function StatItem({ label, value, format = "decimal", highlight }: StatItemProps
   );
 }
 
-function StatSection({ title, children }: { title: string; children: React.ReactNode }) {
+function StatSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="mb-6 last:mb-0">
       <h4 className="text-xs font-semibold uppercase tracking-wider text-mine-muted mb-3">
@@ -58,11 +69,13 @@ function StatSection({ title, children }: { title: string; children: React.React
   );
 }
 
-export function FactorStatisticsPanel({ statistics }: FactorStatisticsPanelProps) {
+export function FactorStatisticsPanel({
+  statistics,
+}: FactorStatisticsPanelProps) {
   const getHighlight = (value: number, threshold = 0) => {
-    if (value > threshold) return "positive" as const;
-    if (value < threshold) return "negative" as const;
-    return "neutral" as const;
+    if (value > threshold) return 'positive' as const;
+    if (value < threshold) return 'negative' as const;
+    return 'neutral' as const;
   };
 
   return (
@@ -117,7 +130,7 @@ export function FactorStatisticsPanel({ statistics }: FactorStatisticsPanelProps
           label="IC p-value"
           value={statistics.icPValue}
           format="decimal"
-          highlight={statistics.icPValue < 0.05 ? "positive" : "negative"}
+          highlight={statistics.icPValue < 0.05 ? 'positive' : 'negative'}
         />
         <StatItem
           label="IC Skewness"

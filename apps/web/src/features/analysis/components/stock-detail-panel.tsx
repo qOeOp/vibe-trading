@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Bell,
   History,
@@ -11,24 +11,37 @@ import {
   TrendingUp,
   MessageSquare,
   Edit3,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { getStockInfo, MOCK_ALERTS } from "../data/mock-stock-data";
-import type { AlertItem } from "../data/mock-stock-data";
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Card } from '@/components/ui/card';
+import { getStockInfo, MOCK_ALERTS } from '../data/mock-stock-data';
+import type { AlertItem } from '../data/mock-stock-data';
 
 interface StockDetailPanelProps {
   symbol: string;
 }
 
 // Tab types
-type TabType = "alerts" | "history" | "system";
+type TabType = 'alerts' | 'history' | 'system';
 
 // Alert row component
 function AlertRow({ alert }: { alert: AlertItem }) {
   const statusConfig = {
-    active: { color: "text-mine-accent-teal", bg: "bg-mine-accent-teal/10", label: "Active" },
-    triggered: { color: "text-market-up", bg: "bg-market-up/10", label: "Stopped - Triggered" },
-    stopped: { color: "text-mine-muted", bg: "bg-mine-muted/10", label: "Stopped" },
+    active: {
+      color: 'text-mine-accent-teal',
+      bg: 'bg-mine-accent-teal/10',
+      label: 'Active',
+    },
+    triggered: {
+      color: 'text-market-up',
+      bg: 'bg-market-up/10',
+      label: 'Stopped - Triggered',
+    },
+    stopped: {
+      color: 'text-mine-muted',
+      bg: 'bg-mine-muted/10',
+      label: 'Stopped',
+    },
   };
 
   const config = statusConfig[alert.status];
@@ -39,11 +52,11 @@ function AlertRow({ alert }: { alert: AlertItem }) {
         {/* Status icon */}
         <div
           className={cn(
-            "w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-            config.bg
+            'w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5',
+            config.bg,
           )}
         >
-          <Bell className={cn("w-3 h-3", config.color)} />
+          <Bell className={cn('w-3 h-3', config.color)} />
         </div>
 
         {/* Content */}
@@ -56,13 +69,15 @@ function AlertRow({ alert }: { alert: AlertItem }) {
               <span className="w-1.5 h-1.5 rounded-full bg-mine-text" />
               {alert.symbol}, {alert.timeframe}
             </span>
-            <span className={cn("text-[10px]", config.color)}>
+            <span className={cn('text-[10px]', config.color)}>
               {config.label}
             </span>
             {alert.type && (
               <>
                 <span className="text-[10px] text-mine-muted">·</span>
-                <span className="text-[10px] text-mine-muted">{alert.type}</span>
+                <span className="text-[10px] text-mine-muted">
+                  {alert.type}
+                </span>
               </>
             )}
           </div>
@@ -116,15 +131,19 @@ function StockInfoSection({ symbol }: { symbol: string }) {
         <div className="flex items-center gap-2">
           <div
             className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold",
-              isUp ? "bg-market-up/10 text-market-up" : "bg-market-down/10 text-market-down"
+              'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold',
+              isUp
+                ? 'bg-market-up/10 text-market-up'
+                : 'bg-market-down/10 text-market-down',
             )}
           >
             {symbol.slice(0, 2)}
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-semibold text-mine-text">{symbol}</span>
+              <span className="text-sm font-semibold text-mine-text">
+                {symbol}
+              </span>
               <ExternalLink className="w-3 h-3 text-mine-muted" />
             </div>
           </div>
@@ -167,12 +186,12 @@ function StockInfoSection({ symbol }: { symbol: string }) {
           <span className="text-xs text-mine-muted">USD</span>
           <span
             className={cn(
-              "text-sm font-semibold tabular-nums",
-              isUp ? "text-market-up" : "text-market-down"
+              'text-sm font-semibold tabular-nums',
+              isUp ? 'text-market-up' : 'text-market-down',
             )}
           >
-            {isUp ? "+" : ""}
-            {info.change.toFixed(2)} ({isUp ? "+" : ""}
+            {isUp ? '+' : ''}
+            {info.change.toFixed(2)} ({isUp ? '+' : ''}
             {info.changePercent.toFixed(2)}%)
           </span>
         </div>
@@ -193,13 +212,15 @@ function StockInfoSection({ symbol }: { symbol: string }) {
             <span className="text-xs text-mine-muted">USD</span>
             <span
               className={cn(
-                "text-xs font-medium tabular-nums",
-                (info.preMarketChange || 0) >= 0 ? "text-market-up" : "text-market-down"
+                'text-xs font-medium tabular-nums',
+                (info.preMarketChange || 0) >= 0
+                  ? 'text-market-up'
+                  : 'text-market-down',
               )}
             >
-              {(info.preMarketChange || 0) >= 0 ? "+" : ""}
+              {(info.preMarketChange || 0) >= 0 ? '+' : ''}
               {info.preMarketChange?.toFixed(2)} (
-              {(info.preMarketChangePercent || 0) >= 0 ? "+" : ""}
+              {(info.preMarketChangePercent || 0) >= 0 ? '+' : ''}
               {info.preMarketChangePercent?.toFixed(2)}%)
             </span>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-mine-bg text-mine-muted">
@@ -213,16 +234,16 @@ function StockInfoSection({ symbol }: { symbol: string }) {
 }
 
 export function StockDetailPanel({ symbol }: StockDetailPanelProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("alerts");
+  const [activeTab, setActiveTab] = useState<TabType>('alerts');
 
   const tabs: { id: TabType; label: string; icon: typeof Bell }[] = [
-    { id: "alerts", label: "Alerts", icon: Bell },
-    { id: "history", label: "History", icon: History },
-    { id: "system", label: "System", icon: Settings },
+    { id: 'alerts', label: 'Alerts', icon: Bell },
+    { id: 'history', label: 'History', icon: History },
+    { id: 'system', label: 'System', icon: Settings },
   ];
 
   return (
-    <div className="flex flex-col rounded-xl bg-white shadow-sm border border-mine-border overflow-hidden">
+    <Card>
       {/* Tabs */}
       <div className="flex border-b border-mine-border/50">
         {tabs.map((tab) => (
@@ -230,10 +251,10 @@ export function StockDetailPanel({ symbol }: StockDetailPanelProps) {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors",
+              'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors',
               activeTab === tab.id
-                ? "text-mine-accent-teal border-b-2 border-mine-accent-teal bg-mine-accent-teal/5"
-                : "text-mine-muted hover:text-mine-text hover:bg-mine-bg/50"
+                ? 'text-mine-accent-teal border-b-2 border-mine-accent-teal bg-mine-accent-teal/5'
+                : 'text-mine-muted hover:text-mine-text hover:bg-mine-bg/50',
             )}
           >
             {tab.label}
@@ -243,13 +264,13 @@ export function StockDetailPanel({ symbol }: StockDetailPanelProps) {
 
       {/* Tab content */}
       <div className="flex-1 min-h-[200px]">
-        {activeTab === "alerts" && <AlertsTab />}
-        {activeTab === "history" && (
+        {activeTab === 'alerts' && <AlertsTab />}
+        {activeTab === 'history' && (
           <div className="flex items-center justify-center h-full text-xs text-mine-muted">
             No history available
           </div>
         )}
-        {activeTab === "system" && (
+        {activeTab === 'system' && (
           <div className="flex items-center justify-center h-full text-xs text-mine-muted">
             System settings
           </div>
@@ -258,6 +279,6 @@ export function StockDetailPanel({ symbol }: StockDetailPanelProps) {
 
       {/* Stock info section */}
       <StockInfoSection symbol={symbol} />
-    </div>
+    </Card>
   );
 }

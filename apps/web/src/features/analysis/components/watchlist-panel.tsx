@@ -1,21 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import {
-  Plus,
-  Settings,
-  ChevronRight,
-  TrendingUp,
-  Filter,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState } from 'react';
+import { Plus, Settings, ChevronRight, TrendingUp, Filter } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   WATCHLIST_INDICES,
   WATCHLIST_SHARES,
   WATCHLIST_FUTURES,
   WATCHLIST_CRYPTO,
-} from "../data/mock-stock-data";
-import type { WatchlistItem } from "../data/mock-stock-data";
+} from '../data/mock-stock-data';
+import type { WatchlistItem } from '../data/mock-stock-data';
 
 interface WatchlistPanelProps {
   selectedSymbol: string;
@@ -46,8 +41,8 @@ function WatchlistGroup({
       >
         <ChevronRight
           className={cn(
-            "w-3.5 h-3.5 transition-transform",
-            isExpanded && "rotate-90"
+            'w-3.5 h-3.5 transition-transform',
+            isExpanded && 'rotate-90',
           )}
         />
         {title}
@@ -87,23 +82,23 @@ function WatchlistRow({
       tabIndex={0}
       onClick={onSelect}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onSelect();
         }
       }}
       className={cn(
-        "w-full flex items-center gap-3 px-3 py-2.5 transition-colors text-left cursor-pointer",
-        isSelected
-          ? "bg-mine-accent-teal/10"
-          : "hover:bg-mine-bg/50"
+        'w-full flex items-center gap-3 px-3 py-2.5 transition-colors text-left cursor-pointer',
+        isSelected ? 'bg-mine-accent-teal/10' : 'hover:bg-mine-bg/50',
       )}
     >
       {/* Symbol icon */}
       <div
         className={cn(
-          "w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold",
-          isUp ? "bg-market-up/10 text-market-up" : "bg-market-down/10 text-market-down"
+          'w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold',
+          isUp
+            ? 'bg-market-up/10 text-market-up'
+            : 'bg-market-down/10 text-market-down',
         )}
       >
         {item.symbol.slice(0, 2)}
@@ -130,11 +125,11 @@ function WatchlistRow({
       <div className="text-right w-16">
         <div
           className={cn(
-            "text-[10px] tabular-nums",
-            isUp ? "text-market-up" : "text-market-down"
+            'text-[10px] numeric',
+            isUp ? 'text-market-up' : 'text-market-down',
           )}
         >
-          {isUp ? "+" : ""}
+          {isUp ? '+' : ''}
           {item.change.toFixed(2)}
         </div>
       </div>
@@ -143,11 +138,11 @@ function WatchlistRow({
       <div className="text-right w-14">
         <div
           className={cn(
-            "text-[10px] tabular-nums font-medium",
-            isUp ? "text-market-up" : "text-market-down"
+            'text-[10px] numeric font-medium',
+            isUp ? 'text-market-up' : 'text-market-down',
           )}
         >
-          {isUp ? "+" : ""}
+          {isUp ? '+' : ''}
           {item.changePercent.toFixed(2)}%
         </div>
       </div>
@@ -171,7 +166,7 @@ export function WatchlistPanel({
   onSelectSymbol,
 }: WatchlistPanelProps) {
   return (
-    <div className="flex-1 flex flex-col rounded-xl bg-white shadow-sm border border-mine-border overflow-hidden">
+    <Card className="flex-1">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-mine-border/50">
         <h2 className="text-sm font-semibold text-mine-text">Watchlist</h2>
@@ -244,6 +239,6 @@ export function WatchlistPanel({
           defaultExpanded={false}
         />
       </div>
-    </div>
+    </Card>
   );
 }

@@ -103,7 +103,7 @@ export function TaskCard({
         {(task.status === 'RUNNING' || task.status === 'COMPLETED') && (
           <span
             className={cn(
-              'text-[11px] font-mono tabular-nums',
+              'text-[11px] numeric',
               isSelected ? 'text-white/80' : 'text-mine-muted',
             )}
           >

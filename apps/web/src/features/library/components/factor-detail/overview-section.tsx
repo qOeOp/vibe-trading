@@ -42,7 +42,7 @@ function VScoreIndicator({ vScore }: { vScore: number }) {
     >
       <span className="text-[10px] text-mine-muted">V-Score</span>
       <span
-        className={`text-[11px] font-bold font-mono tabular-nums ${config.colorClass}`}
+        className={`text-[11px] font-bold numeric ${config.colorClass}`}
       >
         {vScore >= 0 ? '+' : ''}
         {vScore.toFixed(2)}
@@ -77,9 +77,9 @@ export function OverviewSection({ factor }: OverviewSectionProps) {
           labels={[...RADAR_LABELS]}
           values={values}
           size={320}
-          fillColor="#26a69a"
+          fillColor="var(--color-mine-accent-teal)"
           fillOpacity={0.18}
-          strokeColor="#26a69a"
+          strokeColor="var(--color-mine-accent-teal)"
         />
       </div>
     </PanelSection>

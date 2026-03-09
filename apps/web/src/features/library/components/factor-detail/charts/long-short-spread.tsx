@@ -9,7 +9,7 @@ import type { Factor } from '@/features/library/types';
 /* ── Visual constants ──────────────────────────────────────── */
 
 const SPREAD_COLORS: Array<{ name: string; value: string }> = [
-  { name: '价差', value: '#6366f1' },
+  { name: '价差', value: 'var(--color-mine-accent-indigo)' },
 ];
 
 const SERIES_CONFIG = {

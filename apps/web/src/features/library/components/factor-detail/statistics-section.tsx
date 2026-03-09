@@ -51,11 +51,11 @@ function fmtCapacity(cap: number): string {
 // ─── Quantile Colors (A股红涨绿跌: worst=green → best=red) ───────
 
 const QUANTILE_COLORS: Array<{ name: string; value: string }> = [
-  { name: 'Q1', value: '#0B8C5F' },
-  { name: 'Q2', value: '#58CEAA' },
-  { name: 'Q3', value: '#76808E' },
-  { name: 'Q4', value: '#E8626F' },
-  { name: 'Q5', value: '#CF304A' },
+  { name: 'Q1', value: 'var(--color-market-down)' },
+  { name: 'Q2', value: 'var(--color-market-down-light)' },
+  { name: 'Q3', value: 'var(--color-market-flat)' },
+  { name: 'Q4', value: 'var(--color-market-up-light)' },
+  { name: 'Q5', value: 'var(--color-market-up)' },
 ];
 
 function useQuantileData(

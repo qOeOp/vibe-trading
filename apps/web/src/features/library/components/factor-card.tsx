@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import type { Factor } from "../types";
-import { CATEGORY_COLORS, STATUS_COLORS, STATUS_LABELS } from "../types";
-import { useLibraryStore } from "../store/use-library-store";
-import { cn } from "@/lib/utils";
-import { SparklineSVG } from "./sparkline-svg";
+import type { Factor } from '../types';
+import { CATEGORY_COLORS, STATUS_COLORS, STATUS_LABELS } from '../types';
+import { useLibraryStore } from '../store/use-library-store';
+import { cn } from '@/lib/utils';
+import { SparklineSVG } from './sparkline-svg';
 
 interface FactorCardProps extends React.HTMLAttributes<HTMLDivElement> {
   factor: Factor;
@@ -13,9 +13,7 @@ interface FactorCardProps extends React.HTMLAttributes<HTMLDivElement> {
 export function FactorCard({ factor, className, ...props }: FactorCardProps) {
   const selectedFactorId = useLibraryStore((s) => s.selectedFactorId);
   const selectFactor = useLibraryStore((s) => s.selectFactor);
-  const toggleFactorSelection = useLibraryStore(
-    (s) => s.toggleFactorSelection,
-  );
+  const toggleFactorSelection = useLibraryStore((s) => s.toggleFactorSelection);
   const selectedFactorIds = useLibraryStore((s) => s.selectedFactorIds);
 
   const catColor = CATEGORY_COLORS[factor.category];
@@ -23,22 +21,22 @@ export function FactorCard({ factor, className, ...props }: FactorCardProps) {
   const statusLabel = STATUS_LABELS[factor.status];
   const isSelected = selectedFactorId === factor.id;
   const isBatchSelected = selectedFactorIds.has(factor.id);
-  const icColor = factor.ic >= 0 ? "#F6465D" : "#2EBD85";
-
   return (
     <div
       data-slot="factor-card"
       onClick={() => selectFactor(isSelected ? null : factor.id)}
       className={cn(
-        "bg-white shadow-sm rounded-xl cursor-pointer transition-all hover:shadow-md overflow-hidden",
+        'bg-white shadow-sm rounded-xl cursor-pointer transition-all hover:shadow-md overflow-hidden',
         className,
       )}
       style={{
-        borderWidth: "1px 1px 1px 3px",
-        borderStyle: "solid",
-        borderTopColor: isSelected ? statusColor : "#e0ddd8",
-        borderRightColor: isSelected ? statusColor : "#e0ddd8",
-        borderBottomColor: isSelected ? statusColor : "#e0ddd8",
+        borderWidth: '1px 1px 1px 3px',
+        borderStyle: 'solid',
+        borderTopColor: isSelected ? statusColor : 'var(--color-mine-border)',
+        borderRightColor: isSelected ? statusColor : 'var(--color-mine-border)',
+        borderBottomColor: isSelected
+          ? statusColor
+          : 'var(--color-mine-border)',
         borderLeftColor: statusColor,
       }}
       {...props}
@@ -57,7 +55,7 @@ export function FactorCard({ factor, className, ...props }: FactorCardProps) {
           <span
             className="px-1.5 py-0.5 text-[9px] font-bold rounded shrink-0"
             style={{
-              backgroundColor: `${statusColor}18`,
+              backgroundColor: `color-mix(in srgb, ${statusColor} 9%, transparent)`,
               color: statusColor,
             }}
           >
@@ -70,7 +68,7 @@ export function FactorCard({ factor, className, ...props }: FactorCardProps) {
           <span
             className="px-2 py-0.5 text-[10px] font-semibold rounded"
             style={{
-              backgroundColor: `${catColor}18`,
+              backgroundColor: `color-mix(in srgb, ${catColor} 9%, transparent)`,
               color: catColor,
             }}
           >
@@ -87,7 +85,12 @@ export function FactorCard({ factor, className, ...props }: FactorCardProps) {
 
         {/* Row 3: Sparkline */}
         <div className="mb-2">
-          <SparklineSVG data={factor.icTrend} viewBoxWidth={160} viewBoxHeight={30} className="w-full h-[30px]" />
+          <SparklineSVG
+            data={factor.icTrend}
+            viewBoxWidth={160}
+            viewBoxHeight={30}
+            className="w-full h-[30px]"
+          />
         </div>
 
         {/* Row 4: Key metrics */}
@@ -96,25 +99,25 @@ export function FactorCard({ factor, className, ...props }: FactorCardProps) {
             <span className="text-mine-muted">IC </span>
             <span
               className={cn(
-                "font-mono tabular-nums font-semibold",
+                'numeric font-semibold',
                 factor.ic >= 0
-                  ? "text-market-down-strong"
-                  : "text-market-up-strong",
+                  ? 'text-market-up-strong'
+                  : 'text-market-down-strong',
               )}
             >
-              {factor.ic >= 0 ? "+" : ""}
+              {factor.ic >= 0 ? '+' : ''}
               {factor.ic.toFixed(3)}
             </span>
           </div>
           <div>
             <span className="text-mine-muted">IR </span>
-            <span className="font-mono tabular-nums">
+            <span className="numeric">
               {factor.ir.toFixed(2)}
             </span>
           </div>
           <div>
-            <span className="text-mine-muted">{"\u80DC\u7387"} </span>
-            <span className="font-mono tabular-nums">{factor.winRate}%</span>
+            <span className="text-mine-muted">{'\u80DC\u7387'} </span>
+            <span className="numeric">{factor.winRate}%</span>
           </div>
         </div>
       </div>

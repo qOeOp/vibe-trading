@@ -6,6 +6,8 @@ import type {
   FactorCategory,
   FactorLifecycleStatus,
   StatusChangeRecord,
+  UniversePool,
+  HorizonKey,
 } from '../types';
 import { VALID_STATUS_TRANSITIONS } from '../types';
 import { getLibraryFactors } from '../data/mock-library';
@@ -37,6 +39,11 @@ interface LibraryState extends LibraryFilters {
   grouping: string[];
   /** Expanded state for grouped rows (true = all expanded by default) */
   expanded: Record<string, boolean> | boolean;
+
+  /** Global Selector: selected stock pool */
+  selectedPool: UniversePool;
+  /** Global Selector: selected horizon */
+  selectedHorizon: HorizonKey;
 
   // Filter actions
   toggleStatus: (status: FactorLifecycleStatus) => void;
@@ -73,6 +80,10 @@ interface LibraryState extends LibraryFilters {
     reason: string,
   ) => void;
 
+  // Global Selector actions
+  setPool: (pool: UniversePool) => void;
+  setHorizon: (horizon: HorizonKey) => void;
+
   // Proposal actions
   dismissProposal: (factorId: string) => void;
 
@@ -95,6 +106,8 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
   selectedFactorIds: new Set<string>(),
   grouping: [],
   expanded: true,
+  selectedPool: '全A',
+  selectedHorizon: 'T5',
 
   // ─── Filter Actions ──────────────────────────────────
 
@@ -164,6 +177,12 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
   expandAllGroups: () => set({ expanded: true }),
 
   collapseAllGroups: () => set({ expanded: {} }),
+
+  // ─── Global Selector Actions ────────────────────────
+
+  setPool: (pool) => set({ selectedPool: pool }),
+
+  setHorizon: (horizon) => set({ selectedHorizon: horizon }),
 
   // ─── Mutation Actions ────────────────────────────────
 

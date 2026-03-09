@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { curveLinear } from "d3-shape";
-import { AreaChart } from "@/lib/ngx-charts";
-import type { MultiSeries } from "@/lib/ngx-charts";
-import type { CumulativeReturnPoint } from "../types";
+import { useMemo } from 'react';
+import { curveLinear } from 'd3-shape';
+import { AreaChart } from '@/lib/ngx-charts';
+import type { MultiSeries } from '@/lib/ngx-charts';
+import type { CumulativeReturnPoint } from '../types';
 
 /** Legend items for external rendering */
 export const CUMULATIVE_RETURNS_LEGEND = [
-  { label: "Q5 (Best)", color: "#a8385d" },
-  { label: "Q1 (Worst)", color: "#7aa3e5" },
+  { label: 'Q5 (Best)', color: 'var(--color-sector-technology)' },
+  { label: 'Q1 (Worst)', color: 'var(--color-mine-accent-blue)' },
 ];
 
 interface CumulativeReturnsChartProps {
@@ -18,11 +18,14 @@ interface CumulativeReturnsChartProps {
   activeEntries?: Array<{ name: string }>;
 }
 
-export function CumulativeReturnsChart({ data, activeEntries = [] }: CumulativeReturnsChartProps) {
+export function CumulativeReturnsChart({
+  data,
+  activeEntries = [],
+}: CumulativeReturnsChartProps) {
   // Transform data to ngx-charts MultiSeries format
   const chartData: MultiSeries = useMemo(() => {
     const q5Series = {
-      name: "Q5 (Best)",
+      name: 'Q5 (Best)',
       series: data.map((d) => ({
         name: new Date(d.date),
         value: Number((d.quantile5 * 100).toFixed(2)),
@@ -30,7 +33,7 @@ export function CumulativeReturnsChart({ data, activeEntries = [] }: CumulativeR
     };
 
     const q1Series = {
-      name: "Q1 (Worst)",
+      name: 'Q1 (Worst)',
       series: data.map((d) => ({
         name: new Date(d.date),
         value: Number((d.quantile1 * 100).toFixed(2)),
@@ -55,7 +58,10 @@ export function CumulativeReturnsChart({ data, activeEntries = [] }: CumulativeR
         showLabel: false,
         tickFormatting: (value: unknown) => {
           if (value instanceof Date) {
-            return value.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            return value.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            });
           }
           return String(value);
         },
@@ -63,7 +69,7 @@ export function CumulativeReturnsChart({ data, activeEntries = [] }: CumulativeR
       yAxis={{
         visible: true,
         showGridLines: true,
-        gridLineStrokeDasharray: "6 4",
+        gridLineStrokeDasharray: '6 4',
         showLabel: false,
         tickFormatting: (value: unknown) => `${value}%`,
       }}

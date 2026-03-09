@@ -110,7 +110,7 @@ function ICMonthlyTracker({ data }: { data: Factor['icMonthlyHeatmap'] }) {
                   />
                 </TooltipTrigger>
                 <TooltipContent side="top" sideOffset={6}>
-                  <span className="font-mono tabular-nums">
+                  <span className="numeric">
                     {block.tooltip}
                   </span>
                 </TooltipContent>

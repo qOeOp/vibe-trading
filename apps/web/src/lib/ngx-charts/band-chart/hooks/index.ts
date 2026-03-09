@@ -10,3 +10,9 @@ export {
 } from './use-band-chart';
 
 export { useAnimateZoom, type UseAnimateZoomResult } from './use-animate-zoom';
+
+export {
+  useBandChartZoom,
+  type UseBandChartZoomConfig,
+  type UseBandChartZoomResult,
+} from './use-band-chart-zoom';

@@ -6,22 +6,32 @@ export { BandSeries } from './components/band-series';
 export type { BandSeriesProps } from './components/band-series';
 export { OverlayLine } from './components/overlay-line';
 export type { OverlayLineProps } from './components/overlay-line';
-export {
-  BandTooltipArea,
-} from './components/band-tooltip-area';
+export { BandTooltipArea } from './components/band-tooltip-area';
 export type {
   BandTooltipAreaProps,
   BandTooltipInfo,
 } from './components/band-tooltip-area';
-export {
-  useBandChart,
-} from './hooks';
+export { useBandChart, useBandChartZoom } from './hooks';
 export type {
   UseBandChartConfig,
   UseBandChartResult,
+  UseBandChartZoomConfig,
+  UseBandChartZoomResult,
   BandDataPoint,
   BandData,
   OverlaySeries,
   BandConfig,
   AuxiliaryLine,
 } from './hooks';
+export {
+  computeFullYDomain,
+  computeSelectedYDomain,
+  computeZoomedBandYDomain,
+  computeSliderYDomain,
+  computeXDomainFromZoom,
+  computeDynamicMargins,
+  filterVisibleBandData,
+  filterVisibleOverlay,
+  filterVisibleBaseline,
+  filterVisibleNamedValues,
+} from './utils';

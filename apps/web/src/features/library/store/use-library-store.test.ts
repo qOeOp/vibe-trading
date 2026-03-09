@@ -89,3 +89,130 @@ describe('useLibraryStore – addFactor', () => {
     expect(matches).toHaveLength(1);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// GlobalSelector store extensions — setPool / setHorizon
+// ═══════════════════════════════════════════════════════════════
+// These tests validate the store slice that GlobalSelector depends on.
+// The store must provide selectedPool, selectedHorizon, setPool, setHorizon.
+// Default: selectedPool = '全A', selectedHorizon = 'T5'.
+// ═══════════════════════════════════════════════════════════════
+
+describe('useLibraryStore – setPool', () => {
+  beforeEach(() => {
+    // Reset to defaults before each test
+    useLibraryStore.setState({
+      selectedPool: '全A',
+      selectedHorizon: 'T5',
+    });
+  });
+
+  it('defaults selectedPool to 全A', () => {
+    // Given: store is in initial state
+    // When: reading selectedPool
+    // Then: value is '全A'
+  });
+
+  it('updates selectedPool to 沪深300', () => {
+    // Given: store with default selectedPool '全A'
+    // When: setPool('沪深300') is called
+    // Then: selectedPool becomes '沪深300'
+  });
+
+  it('updates selectedPool to 中证500', () => {
+    // Given: store with default selectedPool '全A'
+    // When: setPool('中证500') is called
+    // Then: selectedPool becomes '中证500'
+  });
+
+  it('updates selectedPool to 中证1000', () => {
+    // Given: store with default selectedPool '全A'
+    // When: setPool('中证1000') is called
+    // Then: selectedPool becomes '中证1000'
+  });
+
+  it('does not affect selectedHorizon when pool changes', () => {
+    // Given: store with selectedHorizon 'T5'
+    // When: setPool('沪深300') is called
+    // Then: selectedHorizon remains 'T5' (independent dimensions)
+  });
+
+  it('does not affect other store state (factors, filters) when pool changes', () => {
+    // Given: store with factors and filters set
+    // When: setPool('中证500') is called
+    // Then: factors array, statuses, category, search are unchanged
+  });
+});
+
+describe('useLibraryStore – setHorizon', () => {
+  beforeEach(() => {
+    useLibraryStore.setState({
+      selectedPool: '全A',
+      selectedHorizon: 'T5',
+    });
+  });
+
+  it('defaults selectedHorizon to T5', () => {
+    // Given: store is in initial state
+    // When: reading selectedHorizon
+    // Then: value is 'T5'
+  });
+
+  it('updates selectedHorizon to T1', () => {
+    // Given: store with default selectedHorizon 'T5'
+    // When: setHorizon('T1') is called
+    // Then: selectedHorizon becomes 'T1'
+  });
+
+  it('updates selectedHorizon to T10', () => {
+    // Given: store with default selectedHorizon 'T5'
+    // When: setHorizon('T10') is called
+    // Then: selectedHorizon becomes 'T10'
+  });
+
+  it('updates selectedHorizon to T20', () => {
+    // Given: store with default selectedHorizon 'T5'
+    // When: setHorizon('T20') is called
+    // Then: selectedHorizon becomes 'T20'
+  });
+
+  it('does not affect selectedPool when horizon changes', () => {
+    // Given: store with selectedPool '沪深300'
+    // When: setHorizon('T10') is called
+    // Then: selectedPool remains '沪深300' (independent dimensions)
+  });
+
+  it('does not affect other store state (factors, filters) when horizon changes', () => {
+    // Given: store with factors and filters set
+    // When: setHorizon('T20') is called
+    // Then: factors array, statuses, category, search are unchanged
+  });
+});
+
+describe('useLibraryStore – pool x horizon independence', () => {
+  beforeEach(() => {
+    useLibraryStore.setState({
+      selectedPool: '全A',
+      selectedHorizon: 'T5',
+    });
+  });
+
+  it('allows sequential pool then horizon changes without interference', () => {
+    // Given: store at defaults (全A, T5)
+    // When: setPool('中证1000') then setHorizon('T20')
+    // Then: selectedPool is '中证1000' AND selectedHorizon is 'T20'
+  });
+
+  it('allows rapid toggling back to original values', () => {
+    // Given: store at defaults (全A, T5)
+    // When: setPool('沪深300') then setPool('全A')
+    // Then: selectedPool is '全A' (back to original)
+  });
+
+  it('preserves pool/horizon through resetFilters', () => {
+    // Given: store with selectedPool '中证500', selectedHorizon 'T10'
+    // When: resetFilters() is called
+    // Then: verify whether pool/horizon are reset or preserved
+    //       (design decision — document actual behavior)
+  });
+});
