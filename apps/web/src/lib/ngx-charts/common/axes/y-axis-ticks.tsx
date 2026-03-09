@@ -79,7 +79,7 @@ export function YAxisTicks({
   orient = Orientation.Left,
   tickArguments = [5],
   tickValues,
-  tickStroke = '#e0ddd8',
+  tickStroke = 'var(--color-mine-border)',
   trimTicks: shouldTrimTicks = true,
   maxTickLength = 16,
   tickFormatting,
@@ -110,7 +110,9 @@ export function YAxisTicks({
     const maxScaleTicks = Math.floor(height / 50);
 
     if (scale.ticks) {
-      return scale.ticks.apply(scale, [Math.max(maxScaleTicks, tickArguments[0])]);
+      return scale.ticks.apply(scale, [
+        Math.max(maxScaleTicks, tickArguments[0]),
+      ]);
     }
 
     const domain = scale.domain();
@@ -130,12 +132,13 @@ export function YAxisTicks({
       }
       return String(value);
     },
-    [tickFormatting, scale, tickArguments]
+    [tickFormatting, scale, tickArguments],
   );
 
   const tickTrim = useCallback(
-    (label: string): string => shouldTrimTicks ? trimLabel(label, maxTickLength) : label,
-    [shouldTrimTicks, maxTickLength]
+    (label: string): string =>
+      shouldTrimTicks ? trimLabel(label, maxTickLength) : label,
+    [shouldTrimTicks, maxTickLength],
   );
 
   const adjustedScale = useMemo(() => {
@@ -146,7 +149,8 @@ export function YAxisTicks({
   }, [scale]);
 
   const { textAnchor, x1, dy, tickX2 } = useMemo(() => {
-    const sign = orient === Orientation.Top || orient === Orientation.Right ? -1 : 1;
+    const sign =
+      orient === Orientation.Top || orient === Orientation.Right ? -1 : 1;
 
     switch (orient) {
       case Orientation.Left: {
@@ -182,7 +186,7 @@ export function YAxisTicks({
     (tick: string | number | Date): string => {
       return `translate(0,${adjustedScale(tick)})`;
     },
-    [adjustedScale]
+    [adjustedScale],
   );
 
   const onDimensionsChangedRef = useRef(onDimensionsChanged);
@@ -215,16 +219,14 @@ export function YAxisTicks({
           if (!formatted) return null;
 
           return (
-            <g key={`tick-${index}`} className="tick" transform={tickTransform(tick)}>
+            <g
+              key={`tick-${index}`}
+              className="tick"
+              transform={tickTransform(tick)}
+            >
               <title>{formatted}</title>
               {showTicks && (
-                <line
-                  x1={0}
-                  x2={tickX2}
-                  y1={0}
-                  y2={0}
-                  stroke={tickStroke}
-                />
+                <line x1={0} x2={tickX2} y1={0} y2={0} stroke={tickStroke} />
               )}
               <text
                 strokeWidth={overlay ? '3' : '0.01'}
@@ -250,7 +252,9 @@ export function YAxisTicks({
               <line
                 className="gridline-path gridline-path-horizontal"
                 x1={0}
-                x2={orient === Orientation.Left ? gridLineWidth : -gridLineWidth}
+                x2={
+                  orient === Orientation.Left ? gridLineWidth : -gridLineWidth
+                }
                 strokeDasharray={gridLineStrokeDasharray}
               />
             </g>
@@ -265,13 +269,17 @@ export function YAxisTicks({
           if (yPos < -1 || yPos > height + 1) return null;
 
           return (
-            <g key={`ref-${index}`} className="ref-line" transform={tickTransform(refLine.value)}>
+            <g
+              key={`ref-${index}`}
+              className="ref-line"
+              transform={tickTransform(refLine.value)}
+            >
               <g transform={gridLineTransform}>
                 <line
                   className="refline-path gridline-path-horizontal"
                   x1={0}
                   x2={gridLineWidth}
-                  stroke="#a8b2c7"
+                  stroke="var(--color-mine-border)"
                   strokeDasharray="5"
                   strokeDashoffset={5}
                 />
