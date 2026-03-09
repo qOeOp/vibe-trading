@@ -24,7 +24,11 @@ import {
 // binds Magic UI tree to marimo's RequestingTree + jotai atoms.
 
 // Lazy-load connected tree deps — they require requestClientAtom
-const ConnectedFileTreeContent = lazy(() => import('./connected-file-tree'));
+const ConnectedFileTreeContent = lazy(() =>
+  import('./connected-file-tree').then((m) => ({
+    default: m.ConnectedFileTreeContent,
+  })),
+);
 
 // ─── Static tree data (disconnected demo) ────────────────
 

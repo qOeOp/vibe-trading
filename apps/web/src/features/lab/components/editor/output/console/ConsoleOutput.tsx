@@ -5,8 +5,8 @@ import React, { useLayoutEffect } from 'react';
 import { ToggleButton } from 'react-aria-components';
 import { DebuggerControls } from '@/features/lab/components/debugger/debugger-code';
 import { CopyClipboardIcon } from '@/features/lab/components/icons/copy-icon';
-import { Input } from '@/features/lab/components/ui/input';
-import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
+import { Tooltip } from '@/components/ui/tooltip';
 import type { CellId } from '@/features/lab/core/cells/ids';
 import { isInternalCellName } from '@/features/lab/core/cells/names';
 import type { WithResponse } from '@/features/lab/core/cells/types';
@@ -17,7 +17,10 @@ import { cn } from '@/features/lab/utils/cn';
 import { invariant } from '@/features/lab/utils/invariant';
 import { NameCellContentEditable } from '@/features/lab/components/editor/actions/name-cell-input';
 import { ErrorBoundary } from '@/features/lab/components/editor/boundary/ErrorBoundary';
-import { type OnRefactorWithAI, OutputRenderer } from '@/features/lab/components/editor/Output';
+import {
+  type OnRefactorWithAI,
+  OutputRenderer,
+} from '@/features/lab/components/editor/Output';
 import { useWrapText } from '../useWrapText';
 import { processOutput } from './process-output';
 import { RenderTextWithLinks } from './text-rendering';
@@ -131,7 +134,7 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
             <span>
               <ToggleButton
                 aria-label="Toggle text wrapping"
-                className="p-1 rounded bg-transparent text-muted-foreground data-hovered:text-foreground data-selected:text-foreground"
+                className="p-1 rounded bg-transparent text-mine-muted data-hovered:text-mine-text data-selected:text-mine-text"
                 isSelected={wrapText}
                 onChange={setWrapText}
               >
@@ -206,7 +209,7 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
         <NameCellContentEditable
           value={cellName}
           cellId={cellId}
-          className="bg-(--slate-4) border-(--slate-4) hover:bg-(--slate-5) dark:border-(--sky-5) dark:bg-(--sky-6) dark:text-(--sky-12) text-(--slate-12) rounded-l rounded-br-lg absolute right-0 bottom-0 text-xs px-1.5 py-0.5 font-mono max-w-[75%] whitespace-nowrap overflow-hidden"
+          className="bg-(--slate-4) border-(--slate-4) hover:bg-(--slate-5) text-(--slate-12) rounded-l rounded-br-lg absolute right-0 bottom-0 text-xs px-1.5 py-0.5 font-mono max-w-[75%] whitespace-nowrap overflow-hidden"
         />
       </div>
     </div>

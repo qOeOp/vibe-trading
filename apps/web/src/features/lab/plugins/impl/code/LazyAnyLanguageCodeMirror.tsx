@@ -1,6 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { lazy } from "react";
+import { lazy } from 'react';
 
-export const LazyAnyLanguageCodeMirror = lazy(
-  () => import("./any-language-editor"),
+export const LazyAnyLanguageCodeMirror = lazy(() =>
+  import('./any-language-editor').then((m) => ({
+    default: m.AnyLanguageCodeMirror,
+  })),
 );

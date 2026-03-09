@@ -32,10 +32,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/features/lab/components/ui/dropdown-menu';
-import { Label } from '@/features/lab/components/ui/label';
+} from '@/components/ui/dropdown-menu';
+import { Label } from '@/components/ui/label';
 import { NumberField } from '@/features/lab/components/ui/number-field';
-import { Switch } from '@/features/lab/components/ui/switch';
+import { Switch } from '@/components/ui/switch';
 import { outputIsLoading } from '@/features/lab/core/cells/cell';
 import type { CellId } from '@/features/lab/core/cells/ids';
 import type { AppMode } from '@/features/lab/core/mode';
@@ -144,7 +144,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
       cols={cols}
       allowOverlap={false}
       className={cn(
-        'w-full mx-auto bg-background flex-1 min-h-full',
+        'w-full mx-auto bg-mine-page-bg flex-1 min-h-full',
         // Show grid border and background when editing
         enableInteractions && 'bg-(--slate-2) border-r',
         // Disable animations and add padding when reading
@@ -257,7 +257,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
         <div className="flex flex-1 flex-col items-center">
           <div
             style={styles}
-            className="bg-background flex-1 border-t border-x rounded-t shadow-sm w-full overflow-hidden"
+            className="bg-mine-page-bg flex-1 border-t border-x rounded-t shadow-sm w-full overflow-hidden"
           >
             {grid}
           </div>
@@ -295,7 +295,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
     grid = (
       <div
         style={styles}
-        className="bg-background border-t border-x rounded-t shadow-sm w-full mx-auto mt-4 h-[calc(100%-1rem)] overflow-hidden"
+        className="bg-mine-page-bg border-t border-x rounded-t shadow-sm w-full mx-auto mt-4 h-[calc(100%-1rem)] overflow-hidden"
       >
         <div className="h-full overflow-auto">{grid}</div>
       </div>
@@ -340,7 +340,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
               }}
               className={cn(
                 DRAG_HANDLE,
-                'droppable-element bg-background border-border border overflow-hidden p-2 rounded shrink-0',
+                'droppable-element bg-mine-page-bg border-mine-border border overflow-hidden p-2 rounded shrink-0',
               )}
             >
               <GridCell
@@ -550,10 +550,10 @@ const EditableGridCell = React.forwardRef(
         className={cn(
           className,
           'relative z-10 hover:z-20',
-          'bg-background border-transparent hover:border-(--sky-8) border',
+          'bg-mine-page-bg border-transparent hover:border-(--sky-8) border',
           popoverOpened && 'border-(--sky-8) z-20',
           !popoverOpened && 'hover-actions-parent',
-          isDragging && 'bg-(--slate-2) border-border z-20',
+          isDragging && 'bg-(--slate-2) border-mine-border z-20',
         )}
       >
         {children}

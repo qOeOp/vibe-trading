@@ -32,7 +32,7 @@ export const ToastProgress = ({
         indeterminate={isIndeterminate}
       />
       {!isIndeterminate && showPercentage && (
-        <div className="mt-1 text-xs text-muted-foreground text-right">
+        <div className="mt-1 text-xs text-mine-muted text-right">
           {Math.round(value)}%
         </div>
       )}

@@ -1,10 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { BoxIcon, CheckCircleIcon, XCircleIcon } from "lucide-react";
-import React from "react";
-import { Spinner } from "@/features/lab/components/icons/spinner";
-import { Button } from "@/features/lab/components/ui/button";
-import { Kbd } from "@/features/lab/components/ui/kbd";
+import { BoxIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react';
+import React from 'react';
+import { Spinner } from '@/features/lab/components/icons/spinner';
+import { Button } from '@/features/lab/components/ui/button';
+import { Kbd } from '@/components/ui/kbd';
 import {
   Table,
   TableBody,
@@ -12,15 +12,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/features/lab/components/ui/table";
-import { toast } from "@/features/lab/components/ui/use-toast";
-import { useResolvedMarimoConfig } from "@/features/lab/core/config/config";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import { isWasm } from "@/features/lab/core/wasm/utils";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
-import { cn } from "@/features/lab/utils/cn";
-import { SettingSubtitle } from "./common";
+} from '@/components/ui/table';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { useResolvedMarimoConfig } from '@/features/lab/core/config/config';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { ErrorBanner } from '@/features/lab/plugins/impl/common/error-banner';
+import { cn } from '@/features/lab/utils/cn';
+import { SettingSubtitle } from './common';
 
 interface Package {
   name: string;
@@ -46,62 +46,62 @@ interface OptionalFeature {
 // Define the optional dependencies and their features
 const OPTIONAL_DEPENDENCIES: OptionalFeature[] = [
   {
-    id: "sql",
-    packagesRequired: [{ name: "duckdb" }, { name: "sqlglot" }],
-    additionalPackageInstalls: [{ name: "polars[pyarrow]" }],
-    description: "SQL cells",
+    id: 'sql',
+    packagesRequired: [{ name: 'duckdb' }, { name: 'sqlglot' }],
+    additionalPackageInstalls: [{ name: 'polars[pyarrow]' }],
+    description: 'SQL cells',
   },
   {
-    id: "charts",
-    packagesRequired: [{ name: "altair" }],
+    id: 'charts',
+    packagesRequired: [{ name: 'altair' }],
     additionalPackageInstalls: [],
-    description: "Charts in datasource viewer",
+    description: 'Charts in datasource viewer',
   },
   {
-    id: "fast-charts",
-    packagesRequired: [{ name: "vegafusion" }, { name: "vl-convert-python" }],
+    id: 'fast-charts',
+    packagesRequired: [{ name: 'vegafusion' }, { name: 'vl-convert-python' }],
     additionalPackageInstalls: [],
-    description: "Fast server-side charts",
+    description: 'Fast server-side charts',
   },
   {
-    id: "formatting",
-    packagesRequired: [isWasm() ? { name: "black" } : { name: "ruff" }],
+    id: 'formatting',
+    packagesRequired: [isWasm() ? { name: 'black' } : { name: 'ruff' }],
     additionalPackageInstalls: [],
-    description: "Formatting",
+    description: 'Formatting',
   },
   {
-    id: "ai",
-    packagesRequired: [{ name: "openai" }],
+    id: 'ai',
+    packagesRequired: [{ name: 'openai' }],
     additionalPackageInstalls: [],
-    description: "AI features",
+    description: 'AI features',
   },
   {
-    id: "mcp",
-    packagesRequired: [{ name: "mcp", minVersion: "1" }],
-    additionalPackageInstalls: [{ name: "pydantic", minVersion: "2" }],
-    description: "Connect to MCP servers",
+    id: 'mcp',
+    packagesRequired: [{ name: 'mcp', minVersion: '1' }],
+    additionalPackageInstalls: [{ name: 'pydantic', minVersion: '2' }],
+    description: 'Connect to MCP servers',
   },
   {
-    id: "ipy-export",
-    packagesRequired: [{ name: "nbformat" }],
+    id: 'ipy-export',
+    packagesRequired: [{ name: 'nbformat' }],
     additionalPackageInstalls: [],
-    description: "Export as IPYNB",
+    description: 'Export as IPYNB',
   },
   {
-    id: "testing",
-    packagesRequired: [{ name: "pytest" }],
+    id: 'testing',
+    packagesRequired: [{ name: 'pytest' }],
     additionalPackageInstalls: [],
-    description: "Autorun unit tests",
+    description: 'Autorun unit tests',
   },
 ];
 
 // Only available outside wasm
 if (!isWasm()) {
   OPTIONAL_DEPENDENCIES.push({
-    id: "lsp",
-    packagesRequired: [{ name: "python-lsp-server" }, { name: "websockets" }],
-    additionalPackageInstalls: [{ name: "python-lsp-ruff" }],
-    description: "Language Server Protocol*",
+    id: 'lsp',
+    packagesRequired: [{ name: 'python-lsp-server' }, { name: 'websockets' }],
+    additionalPackageInstalls: [{ name: 'python-lsp-ruff' }],
+    description: 'Language Server Protocol*',
   });
 }
 
@@ -130,7 +130,7 @@ export const OptionalFeatures: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col overflow-hidden gap-2">
       <SettingSubtitle>Optional Features</SettingSubtitle>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-mine-muted">
         marimo is lightweight, with few dependencies, to maximize compatibility
         with your own environments.
         <br />
@@ -149,11 +149,11 @@ export const OptionalFeatures: React.FC = () => {
         <TableBody>
           {OPTIONAL_DEPENDENCIES.map((dep) => {
             const isInstalled = dep.packagesRequired.every((pkg) =>
-              installedPackageNames.has(pkg.name.split("[")[0]),
+              installedPackageNames.has(pkg.name.split('[')[0]),
             );
             const packageSpec = dep.packagesRequired
               .map((pkg) => pkg.name)
-              .join(", ");
+              .join(', ');
 
             return (
               <TableRow key={dep.id} className="text-sm">
@@ -187,7 +187,7 @@ export const OptionalFeatures: React.FC = () => {
         </TableBody>
       </Table>
 
-      <p className="text-muted-foreground mt-2">*Requires server restart</p>
+      <p className="text-mine-muted mt-2">*Requires server restart</p>
     </div>
   );
 };
@@ -210,27 +210,27 @@ const InstallButton: React.FC<{
           }
           return pkg.name;
         })
-        .join(" ");
-      const response = await addPackage({ package: packageSpec, group: "dev" });
+        .join(' ');
+      const response = await addPackage({ package: packageSpec, group: 'dev' });
       if (response.success) {
         onSuccess();
         toast({
-          title: "Package installed",
+          title: 'Package installed',
           description: (
             <span>
-              The packages{" "}
+              The packages{' '}
               <Kbd className="inline">
-                {packageSpecs.map((pkg) => pkg.name).join(", ")}
-              </Kbd>{" "}
+                {packageSpecs.map((pkg) => pkg.name).join(', ')}
+              </Kbd>{' '}
               have been added to your environment.
             </span>
           ),
         });
       } else {
         toast({
-          title: "Failed to install package",
+          title: 'Failed to install package',
           description: response.error,
-          variant: "danger",
+          variant: 'danger',
         });
       }
     } finally {
@@ -242,7 +242,7 @@ const InstallButton: React.FC<{
     <Button
       size="xs"
       variant="outline"
-      className={cn("text-xs", loading && "opacity-50 cursor-not-allowed")}
+      className={cn('text-xs', loading && 'opacity-50 cursor-not-allowed')}
       onClick={handleInstall}
       disabled={loading}
     >

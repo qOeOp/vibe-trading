@@ -1,15 +1,15 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   BoxIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   HelpCircleIcon,
-} from "lucide-react";
-import React from "react";
-import { useOpenSettingsToTab } from "@/features/lab/components/app-config/state";
-import { Spinner } from "@/features/lab/components/icons/spinner";
-import { SearchInput } from "@/features/lab/components/ui/input";
+} from 'lucide-react';
+import React from 'react';
+import { useOpenSettingsToTab } from '@/features/lab/components/app-config/state';
+import { Spinner } from '@/features/lab/components/icons/spinner';
+import { SearchInput } from '@/features/lab/components/ui/input';
 import {
   Table,
   TableBody,
@@ -17,28 +17,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/features/lab/components/ui/table";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import { toast } from "@/features/lab/components/ui/use-toast";
-import { useResolvedMarimoConfig } from "@/features/lab/core/config/config";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import type { DependencyTreeNode } from "@/features/lab/core/network/types";
-import { stripPackageManagerPrefix } from "@/features/lab/core/packages/package-input-utils";
+} from '@/features/lab/components/ui/table';
+import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { useResolvedMarimoConfig } from '@/features/lab/core/config/config';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import type { DependencyTreeNode } from '@/features/lab/core/network/types';
+import { stripPackageManagerPrefix } from '@/features/lab/core/packages/package-input-utils';
 import {
   showRemovePackageToast,
   showUpgradePackageToast,
-} from "@/features/lab/core/packages/toast-components";
-import { useInstallPackages } from "@/features/lab/core/packages/useInstallPackage";
-import { isWasm } from "@/features/lab/core/wasm/utils";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
-import { cn } from "@/features/lab/utils/cn";
-import { copyToClipboard } from "@/features/lab/utils/copy";
-import { Events } from "@/features/lab/utils/events";
-import { PanelEmptyState } from "./empty-state";
-import { PACKAGES_INPUT_ID, packagesToInstallAtom } from "./packages-utils";
+} from '@/features/lab/core/packages/toast-components';
+import { useInstallPackages } from '@/features/lab/core/packages/useInstallPackage';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { ErrorBanner } from '@/features/lab/plugins/impl/common/error-banner';
+import { cn } from '@/features/lab/utils/cn';
+import { copyToClipboard } from '@/features/lab/utils/copy';
+import { Events } from '@/features/lab/utils/events';
+import { PanelEmptyState } from './empty-state';
+import { PACKAGES_INPUT_ID, packagesToInstallAtom } from './packages-utils';
 
-type ViewMode = "tree" | "list";
+type ViewMode = 'tree' | 'list';
 
 const PackageActionButton: React.FC<{
   onClick: () => void;
@@ -54,8 +54,8 @@ const PackageActionButton: React.FC<{
     <button
       type="button"
       className={cn(
-        "px-2 h-full text-xs text-muted-foreground hover:text-foreground",
-        "invisible group-hover:visible",
+        'px-2 h-full text-xs text-mine-muted hover:text-mine-text',
+        'invisible group-hover:visible',
         className,
       )}
       onClick={Events.stopPropagation(onClick)}
@@ -65,7 +65,7 @@ const PackageActionButton: React.FC<{
   );
 };
 
-const PackagesPanel: React.FC = () => {
+export const PackagesPanel: React.FC = () => {
   const [config] = useResolvedMarimoConfig();
   const packageManager = config.package_management.manager;
   const { getDependencyTree, getPackageList } = useRequestClient();
@@ -100,7 +100,7 @@ const PackagesPanel: React.FC = () => {
   const viewMode = resolveViewMode(userViewMode, isTreeSupported);
   const name = dependencies.tree?.name;
   const version = dependencies?.tree?.version;
-  const isSandbox = name === "<root>"; // name is the project name otherwise
+  const isSandbox = name === '<root>'; // name is the project name otherwise
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -111,37 +111,37 @@ const PackagesPanel: React.FC = () => {
             <button
               type="button"
               className={cn(
-                "px-2 py-1 text-xs rounded",
-                viewMode === "list"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                'px-2 py-1 text-xs rounded',
+                viewMode === 'list'
+                  ? 'bg-mine-hover text-mine-text'
+                  : 'text-mine-muted hover:text-mine-text',
               )}
-              onClick={() => setUserViewMode("list")}
+              onClick={() => setUserViewMode('list')}
             >
               List
             </button>
             <button
               type="button"
               className={cn(
-                "px-2 py-1 text-xs rounded",
-                viewMode === "tree"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                'px-2 py-1 text-xs rounded',
+                viewMode === 'tree'
+                  ? 'bg-mine-hover text-mine-text'
+                  : 'text-mine-muted hover:text-mine-text',
               )}
-              onClick={() => setUserViewMode("tree")}
+              onClick={() => setUserViewMode('tree')}
             >
               Tree
             </button>
           </div>
           <div className="flex items-center gap-2">
             <div
-              className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium"
-              title={isSandbox ? "sandbox" : "project"}
+              className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-mine-text rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium"
+              title={isSandbox ? 'sandbox' : 'project'}
             >
-              {isSandbox ? "sandbox" : "project"}
+              {isSandbox ? 'sandbox' : 'project'}
             </div>
             {name && !isSandbox && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-mine-muted">
                 {name}
                 {version && ` v${version}`}
               </span>
@@ -149,7 +149,7 @@ const PackagesPanel: React.FC = () => {
           </div>
         </div>
       )}
-      {viewMode === "list" ? (
+      {viewMode === 'list' ? (
         <PackagesList packages={dependencies.list} onSuccess={refetch} />
       ) : (
         <DependencyTree
@@ -162,13 +162,11 @@ const PackagesPanel: React.FC = () => {
   );
 };
 
-export default PackagesPanel;
-
 const InstallPackageForm: React.FC<{
   packageManager: string;
   onSuccess: () => void;
 }> = ({ onSuccess, packageManager }) => {
-  const [input, setInput] = React.useState("");
+  const [input, setInput] = React.useState('');
   const { handleClick: openSettings } = useOpenSettingsToTab();
 
   // Get the packages to install from the atom
@@ -187,7 +185,7 @@ const InstallPackageForm: React.FC<{
   const { loading, handleInstallPackages } = useInstallPackages();
   const onSuccessInstallPackages = () => {
     onSuccess();
-    setInput("");
+    setInput('');
   };
 
   const installPackages = () => {
@@ -212,7 +210,7 @@ const InstallPackageForm: React.FC<{
           ) : (
             <Tooltip content="Change package manager">
               <BoxIcon
-                onClick={() => openSettings("packageManagementAndData")}
+                onClick={() => openSettings('packageManagementAndData')}
                 className="mr-2 h-4 w-4 shrink-0 opacity-50 hover:opacity-80 cursor-pointer"
               />
             </Tooltip>
@@ -221,7 +219,7 @@ const InstallPackageForm: React.FC<{
         rootClassName="flex-1 border-none"
         value={input}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
+          if (e.key === 'Enter') {
             e.preventDefault();
             installPackages();
           }
@@ -241,35 +239,35 @@ const InstallPackageForm: React.FC<{
               <div>
                 <span className="font-bold tracking-wide">Package name:</span> A
                 package name; this will install the latest version.
-                <div className="text-muted-foreground">Example: httpx</div>
+                <div className="text-mine-muted">Example: httpx</div>
               </div>
               <div>
                 <span className="font-bold tracking-wide">
                   Package and version:
-                </span>{" "}
+                </span>{' '}
                 A package with a specific version or version range.
-                <div className="text-muted-foreground">
-                  {"Examples: httpx==0.27.0, httpx>=0.27.0"}
+                <div className="text-mine-muted">
+                  {'Examples: httpx==0.27.0, httpx>=0.27.0'}
                 </div>
               </div>
               <div>
                 <span className="font-bold tracking-wide">Git:</span> A Git
                 repository
-                <div className="text-muted-foreground">
+                <div className="text-mine-muted">
                   Example: git+https://github.com/encode/httpx
                 </div>
               </div>
               <div>
                 <span className="font-bold tracking-wide">URL:</span> A remote
                 wheel or source distribution.
-                <div className="text-muted-foreground">
+                <div className="text-mine-muted">
                   Example: https://example.com/httpx-0.27.0.tar.gz
                 </div>
               </div>
               <div>
                 <span className="font-bold tracking-wide">Path:</span> A local
                 wheel, source distribution, or project directory.
-                <div className="text-muted-foreground">
+                <div className="text-mine-muted">
                   Example: /example/foo-0.1.0-py3-none-any.whl
                 </div>
               </div>
@@ -279,16 +277,16 @@ const InstallPackageForm: React.FC<{
       >
         <HelpCircleIcon
           className={
-            "h-4 w-4 cursor-help text-muted-foreground hover:text-foreground bg-transparent"
+            'h-4 w-4 cursor-help text-mine-muted hover:text-mine-text bg-transparent'
           }
         />
       </Tooltip>
       <button
         type="button"
         className={cn(
-          "float-right px-2 m-0 h-full text-sm text-secondary-foreground ml-2",
-          input && "bg-accent text-accent-foreground",
-          "disabled:cursor-not-allowed disabled:opacity-50",
+          'float-right px-2 m-0 h-full text-sm text-mine-text ml-2',
+          input && 'bg-mine-hover text-mine-text',
+          'disabled:cursor-not-allowed disabled:opacity-50',
         )}
         onClick={installPackages}
         disabled={!input}
@@ -330,7 +328,7 @@ const PackagesList: React.FC<{
             onClick={async () => {
               await copyToClipboard(`${item.name}==${item.version}`);
               toast({
-                title: "Copied to clipboard",
+                title: 'Copied to clipboard',
               });
             }}
           >
@@ -363,7 +361,7 @@ const UpgradeButton: React.FC<{
   const handleUpgradePackage = async () => {
     try {
       setLoading(true);
-      const group = tags?.find((tag) => tag.kind === "group")?.value;
+      const group = tags?.find((tag) => tag.kind === 'group')?.value;
       const response = await addPackage({
         package: packageName,
         upgrade: true,
@@ -398,7 +396,7 @@ const RemoveButton: React.FC<{
   const handleRemovePackage = async () => {
     try {
       setLoading(true);
-      const group = tags?.find((tag) => tag.kind === "group")?.value;
+      const group = tags?.find((tag) => tag.kind === 'group')?.value;
       const response = await removePackage({
         package: packageName,
         group,
@@ -508,7 +506,7 @@ const DependencyTreeNode: React.FC<{
   const indent = isTopLevel ? 0 : 16 + level * 16; // Top-level uses CSS padding, children use calculated indent
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
+    if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       if (hasChildren) {
         onToggle(nodeId);
@@ -528,10 +526,10 @@ const DependencyTreeNode: React.FC<{
     <div>
       <div
         className={cn(
-          "flex items-center group cursor-pointer text-sm whitespace-nowrap",
-          "hover:bg-(--slate-2) focus:bg-(--slate-2) focus:outline-hidden",
-          hasChildren && "select-none",
-          isTopLevel ? "px-2 py-0.5" : "",
+          'flex items-center group cursor-pointer text-sm whitespace-nowrap',
+          'hover:bg-(--slate-2) focus:bg-(--slate-2) focus:outline-hidden',
+          hasChildren && 'select-none',
+          isTopLevel ? 'px-2 py-0.5' : '',
         )}
         style={isTopLevel ? {} : { paddingLeft: `${indent}px` }}
         onClick={handleClick}
@@ -556,42 +554,40 @@ const DependencyTreeNode: React.FC<{
         <div className="flex items-center gap-2 flex-1 min-w-0 py-1.5">
           <span className="font-medium truncate">{node.name}</span>
           {node.version && (
-            <span className="text-muted-foreground text-xs">
-              v{node.version}
-            </span>
+            <span className="text-mine-muted text-xs">v{node.version}</span>
           )}
         </div>
 
         {/* Tags */}
         <div className="flex items-center gap-1 ml-2">
           {node.tags.map((tag, index) => {
-            if (tag.kind === "cycle") {
+            if (tag.kind === 'cycle') {
               return (
                 <div
                   key={index}
-                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300"
+                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-mine-text rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-orange-300 text-orange-700"
                   title="cycle"
                 >
                   cycle
                 </div>
               );
             }
-            if (tag.kind === "extra") {
+            if (tag.kind === 'extra') {
               return (
                 <div
                   key={index}
-                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-mine-text rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-blue-300 text-blue-700"
                   title={tag.value}
                 >
                   {tag.value}
                 </div>
               );
             }
-            if (tag.kind === "group") {
+            if (tag.kind === 'group') {
               return (
                 <div
                   key={index}
-                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-green-300 dark:border-green-700 text-green-700 dark:text-green-300"
+                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-mine-text rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-green-300 text-green-700"
                   title={tag.value}
                 >
                   {tag.value}
@@ -645,11 +641,11 @@ function resolveViewMode(
   userViewMode: ViewMode | null,
   isTreeSupported: boolean,
 ): ViewMode {
-  if (userViewMode === "list") {
-    return "list";
+  if (userViewMode === 'list') {
+    return 'list';
   }
   if (isTreeSupported) {
-    return userViewMode || "tree";
+    return userViewMode || 'tree';
   }
-  return "list";
+  return 'list';
 }

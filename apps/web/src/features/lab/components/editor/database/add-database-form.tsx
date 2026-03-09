@@ -4,8 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
-import { DatabaseLogo, type DBLogoName } from '@/features/lab/components/databases/icon';
-import { type FormRenderer, ZodForm } from '@/features/lab/components/forms/form';
+import {
+  DatabaseLogo,
+  type DBLogoName,
+} from '@/features/lab/components/databases/icon';
+import {
+  type FormRenderer,
+  ZodForm,
+} from '@/features/lab/components/forms/form';
 import { getDefaults } from '@/features/lab/components/forms/form-utils';
 import { Button } from '@/features/lab/components/ui/button';
 import {
@@ -15,8 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/features/lab/components/ui/dialog';
-import { FormErrorsBanner } from '@/features/lab/components/ui/form';
+} from '@/components/ui/dialog';
+import { FormErrorsBanner } from '@/components/ui/form';
 import { ExternalLink } from '@/features/lab/components/ui/links';
 import {
   Select,
@@ -25,7 +31,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/features/lab/components/ui/select';
+} from '@/components/ui/select';
 import { useCellActions } from '@/features/lab/core/cells/cells';
 import { useLastFocusedCellId } from '@/features/lab/core/cells/focus';
 import {
@@ -261,7 +267,7 @@ const DatabaseSchemaSelector: React.FC<{
       >
         <DatabaseLogo
           name={logo}
-          className="w-8 h-8 text-white brightness-0 invert dark:invert"
+          className="w-8 h-8 text-white brightness-0 invert"
         />
         <span className="text-white font-medium text-lg">{name}</span>
       </button>
@@ -273,7 +279,7 @@ const DatabaseSchemaSelector: React.FC<{
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {DATABASES.map(renderItem)}
       </div>
-      <h4 className="font-semibold text-muted-foreground text-lg flex items-center gap-4">
+      <h4 className="font-semibold text-mine-muted text-lg flex items-center gap-4">
         Data Catalogs
         <hr className="flex-1" />
       </h4>
@@ -348,7 +354,7 @@ const DatabaseForm: React.FC<{
               <SelectTrigger>
                 <SelectValue placeholder="Select a library" />
               </SelectTrigger>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-mine-muted">
                 Preferred connection library
               </span>
             </div>

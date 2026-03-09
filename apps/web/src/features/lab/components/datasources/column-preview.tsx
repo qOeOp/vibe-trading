@@ -25,8 +25,8 @@ import { LazyVegaEmbed } from '@/components/charts/lazy';
 import type { ColumnHeaderStatsKey } from '../data-table/types';
 import { CopyClipboardIcon } from '../icons/copy-icon';
 import { Spinner } from '../icons/spinner';
-import { Button } from '../ui/button';
-import { Tooltip } from '../ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
 import { ColumnPreviewContainer } from './components';
 import { InstallPackageButton } from './install-package-button';
 import { convertStatsName, sqlCode } from './utils';
@@ -69,7 +69,7 @@ export const DatasetColumnPreview: React.FC<{
 
   if (table.source_type === 'connection') {
     return (
-      <span className="text-xs text-muted-foreground gap-2 flex items-center justify-between pl-7">
+      <span className="text-xs text-mine-muted gap-2 flex items-center justify-between pl-7">
         {column.name} ({column.external_type})
         <Button
           variant="outline"
@@ -88,14 +88,14 @@ export const DatasetColumnPreview: React.FC<{
 
   if (table.source_type === 'catalog') {
     return (
-      <span className="text-xs text-muted-foreground gap-2 flex items-center justify-between pl-7">
+      <span className="text-xs text-mine-muted gap-2 flex items-center justify-between pl-7">
         {column.name} ({column.external_type})
       </span>
     );
   }
 
   if (!preview) {
-    return <span className="text-xs text-muted-foreground">Loading...</span>;
+    return <span className="text-xs text-mine-muted">Loading...</span>;
   }
 
   const error =
@@ -122,7 +122,7 @@ export const DatasetColumnPreview: React.FC<{
       <Button
         variant="outline"
         size="icon"
-        className="z-10 bg-background absolute right-1 -top-1"
+        className="z-10 bg-mine-page-bg absolute right-1 -top-1"
         onClick={Events.stopPropagation(() => {
           onAddColumnChart(
             sqlCode({ table, columnName: column.name, sqlTableContext }),
@@ -135,7 +135,7 @@ export const DatasetColumnPreview: React.FC<{
   );
 
   if (!error && !stats && !chart) {
-    return <span className="text-xs text-muted-foreground">No data</span>;
+    return <span className="text-xs text-mine-muted">No data</span>;
   }
 
   return (
@@ -159,7 +159,7 @@ export function renderPreviewError({
   refetchPreview?: () => void;
 }) {
   return (
-    <div className="text-xs text-muted-foreground p-2 border border-border rounded flex items-center justify-between">
+    <div className="text-xs text-mine-muted p-2 border border-mine-border rounded flex items-center justify-between">
       <span>{error}</span>
       {missingPackages && (
         <InstallPackageButton
@@ -192,7 +192,7 @@ export function renderStats({ stats, dataType, locale }: RenderStatsProps) {
             <span className="text-xs min-w-[60px] capitalize">
               {convertStatsName(key as ColumnHeaderStatsKey, dataType)}
             </span>
-            <span className="text-xs font-bold text-muted-foreground tracking-wide">
+            <span className="text-xs font-bold text-mine-muted tracking-wide">
               {prettyNumber(value, locale)}
             </span>
             <CopyClipboardIcon
@@ -262,9 +262,10 @@ export const AddDataframeChart: React.FC<{
   return (
     <Tooltip content="Add chart to notebook" delayDuration={400}>
       <Button
+        data-slot="add-dataframe-chart"
         variant="outline"
         size="icon"
-        className="z-10 bg-background absolute right-1 -top-0.5"
+        className="z-10 bg-mine-page-bg absolute right-1 -top-0.5"
         onClick={Events.stopPropagation(() => handleAddColumn(chartCode))}
       >
         <PlusSquareIcon className="h-3 w-3" />

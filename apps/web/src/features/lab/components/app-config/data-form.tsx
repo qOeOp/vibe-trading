@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { ChangeEvent } from "react";
-import type { FieldPath, UseFormReturn } from "react-hook-form";
+import type { ChangeEvent } from 'react';
+import type { FieldPath, UseFormReturn } from 'react-hook-form';
 import {
   FormControl,
   FormDescription,
@@ -9,19 +9,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/features/lab/components/ui/form";
-import { NativeSelect } from "@/features/lab/components/ui/native-select";
-import { NumberField } from "@/features/lab/components/ui/number-field";
-import type { UserConfig } from "@/features/lab/core/config/config-schema";
-import { Checkbox } from "../ui/checkbox";
+} from '@/components/ui/form';
+import { NativeSelect } from '@/features/lab/components/ui/native-select';
+import { NumberField } from '@/features/lab/components/ui/number-field';
+import type { UserConfig } from '@/features/lab/core/config/config-schema';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   formItemClasses,
   SettingGroup,
   SQL_OUTPUT_SELECT_OPTIONS,
-} from "./common";
-import { IsOverridden } from "./is-overridden";
+} from './common';
+import { IsOverridden } from './is-overridden';
 
-const DISCOVERY_OPTIONS = ["auto", "true", "false"];
+const DISCOVERY_OPTIONS = ['auto', 'true', 'false'];
 
 export const DataForm = ({
   form,
@@ -41,7 +41,7 @@ export const DataForm = ({
           const onChange = (e: ChangeEvent<HTMLSelectElement>) => {
             const value = e.target.value;
             field.onChange(
-              value === "true" ? true : value === "false" ? false : value,
+              value === 'true' ? true : value === 'false' ? false : value,
             );
           };
           return (
@@ -54,7 +54,7 @@ export const DataForm = ({
                   data-testid="auto-discover-schemas-select"
                   onChange={onChange}
                   value={
-                    field.value === undefined ? "auto" : field.value.toString()
+                    field.value === undefined ? 'auto' : field.value.toString()
                   }
                   disabled={field.disabled}
                   className="w-[100px]"
@@ -91,7 +91,7 @@ export const DataForm = ({
                   disabled={field.disabled}
                   className="inline-flex mr-2"
                 >
-                  {["rich", "plain"].map((option) => (
+                  {['rich', 'plain'].map((option) => (
                     <option value={option} key={option}>
                       {option}
                     </option>
@@ -186,17 +186,17 @@ export const DataForm = ({
 
       <SettingGroup title="SQL">
         <div className="flex flex-col gap-1">
-          <div className="text-sm text-foreground">
+          <div className="text-sm text-mine-text">
             Database Schema Discovery
           </div>
-          <div className="text-sm text-muted-foreground mb-2">
+          <div className="text-sm text-mine-muted mb-2">
             Whether database schemas, tables, and columns are automatically
             discovered.
             <br />
             <span className="font-semibold">
               Can be expensive for large databases.
-            </span>{" "}
-            Use 'auto' to determine introspection based on the{" "}
+            </span>{' '}
+            Use 'auto' to determine introspection based on the{' '}
             <a
               className="text-link hover:underline"
               rel="noopener noreferrer"
@@ -208,9 +208,9 @@ export const DataForm = ({
             .
           </div>
 
-          {renderDiscoveryForm("datasources.auto_discover_schemas", "Schemas")}
-          {renderDiscoveryForm("datasources.auto_discover_tables", "Tables")}
-          {renderDiscoveryForm("datasources.auto_discover_columns", "Columns")}
+          {renderDiscoveryForm('datasources.auto_discover_schemas', 'Schemas')}
+          {renderDiscoveryForm('datasources.auto_discover_tables', 'Tables')}
+          {renderDiscoveryForm('datasources.auto_discover_columns', 'Columns')}
         </div>
 
         <FormField

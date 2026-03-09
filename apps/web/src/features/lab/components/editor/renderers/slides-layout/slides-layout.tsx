@@ -1,17 +1,19 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import React, { memo } from "react";
-import { outputIsLoading } from "@/features/lab/core/cells/cell";
-import type { CellId } from "@/features/lab/core/cells/ids";
-import type { CellRuntimeState } from "@/features/lab/core/cells/types";
-import type { AppMode } from "@/features/lab/core/mode";
-import { OutputArea } from "@/features/lab/components/editor/Output";
-import type { ICellRendererProps } from "../types";
-import type { SlidesLayout } from "./types";
+import React, { memo } from 'react';
+import { outputIsLoading } from '@/features/lab/core/cells/cell';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import type { CellRuntimeState } from '@/features/lab/core/cells/types';
+import type { AppMode } from '@/features/lab/core/mode';
+import { OutputArea } from '@/features/lab/components/editor/Output';
+import type { ICellRendererProps } from '../types';
+import type { SlidesLayout } from './types';
 
 type Props = ICellRendererProps<SlidesLayout>;
 
-const LazySlidesComponent = React.lazy(
-  () => import("@/features/lab/components/slides/slides-component"),
+const LazySlidesComponent = React.lazy(() =>
+  import('@/features/lab/components/slides/slides-component').then((m) => ({
+    default: m.SlidesComponent,
+  })),
 );
 
 export const SlidesLayoutRenderer: React.FC<Props> = ({
@@ -21,12 +23,12 @@ export const SlidesLayoutRenderer: React.FC<Props> = ({
   cells,
   mode,
 }) => {
-  const isReading = mode === "read";
+  const isReading = mode === 'read';
 
   const slides = (
     <LazySlidesComponent forceKeyboardNavigation={true} className="flex-1">
       {cells.map((cell) => {
-        const isOutputEmpty = cell.output == null || cell.output.data === "";
+        const isOutputEmpty = cell.output == null || cell.output.data === '';
         if (isOutputEmpty) {
           return null;
         }
@@ -51,7 +53,7 @@ export const SlidesLayoutRenderer: React.FC<Props> = ({
   return <div className="pr-18 pb-5 flex-1 flex flex-col">{slides}</div>;
 };
 
-interface SlideProps extends Pick<CellRuntimeState, "output" | "status"> {
+interface SlideProps extends Pick<CellRuntimeState, 'output' | 'status'> {
   className?: string;
   code: string;
   cellId: CellId;
@@ -71,4 +73,4 @@ const Slide = memo(({ output, cellId, status }: SlideProps) => {
     />
   );
 });
-Slide.displayName = "Slide";
+Slide.displayName = 'Slide';

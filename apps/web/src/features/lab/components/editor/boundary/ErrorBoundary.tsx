@@ -19,7 +19,7 @@ const FallbackComponent: React.FC<FallbackProps> = (props) => {
   return (
     <div className="flex-1 flex items-center justify-center flex-col space-y-4 max-w-2xl mx-auto px-6">
       <h1 className="text-2xl font-bold">Something went wrong</h1>
-      <pre className="text-xs bg-muted/40 border rounded-md p-4 max-w-[80%] whitespace-normal">
+      <pre className="text-xs bg-mine-hover/40 border rounded-md p-4 max-w-[80%] whitespace-normal">
         {(props.error as Error)?.message}
       </pre>
       <div>

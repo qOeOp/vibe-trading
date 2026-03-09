@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -9,20 +9,20 @@ import {
   MoreHorizontal,
   PlusIcon,
   X,
-} from "lucide-react";
-import React, { memo } from "react";
-import { Button } from "@/features/lab/components/ui/button";
+} from 'lucide-react';
+import React, { memo } from 'react';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/features/lab/components/ui/dropdown-menu";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import { useCellActions } from "@/features/lab/core/cells/cells";
-import { cn } from "@/features/lab/utils/cn";
-import type { CellColumnId } from "@/features/lab/utils/id-tree";
-import { mergeRefs } from "@/features/lab/utils/mergeRefs";
+} from '@/components/ui/dropdown-menu';
+import { Tooltip } from '@/components/ui/tooltip';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { cn } from '@/features/lab/utils/cn';
+import type { CellColumnId } from '@/features/lab/utils/id-tree';
+import { mergeRefs } from '@/features/lab/utils/mergeRefs';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   columnId: CellColumnId;
@@ -58,21 +58,21 @@ const SortableColumnInternal = React.forwardRef(
         : undefined,
       transition,
       zIndex: isDragging ? 2 : undefined,
-      position: "relative",
+      position: 'relative',
       // @ts-expect-error  doesn't allow css variables
-      "--gutter-width": "50px",
+      '--gutter-width': '50px',
     };
 
     const { deleteColumn, moveColumn, addColumn } = useCellActions();
 
-    const buttonClasses = "hover:bg-(--gray-3) aspect-square p-0 w-7 h-7";
+    const buttonClasses = 'hover:bg-(--gray-3) aspect-square p-0 w-7 h-7';
 
     const handleScrollAppRight = () => {
-      const app = document.getElementById("App");
+      const app = document.getElementById('App');
       if (app) {
         app.scrollTo({
           left: app.scrollLeft + 1000,
-          behavior: "smooth",
+          behavior: 'smooth',
         });
       }
     };
@@ -85,7 +85,7 @@ const SortableColumnInternal = React.forwardRef(
             size="xs"
             className={buttonClasses}
             onClick={() =>
-              moveColumn({ column: columnId, overColumn: "_left_" })
+              moveColumn({ column: columnId, overColumn: '_left_' })
             }
             disabled={!canMoveLeft}
           >
@@ -98,7 +98,7 @@ const SortableColumnInternal = React.forwardRef(
             size="xs"
             className={buttonClasses}
             onClick={() =>
-              moveColumn({ column: columnId, overColumn: "_right_" })
+              moveColumn({ column: columnId, overColumn: '_right_' })
             }
             disabled={!canMoveRight}
           >
@@ -155,10 +155,10 @@ const SortableColumnInternal = React.forwardRef(
         style={style}
         data-is-dragging={isDragging}
         className={cn(
-          isDragging ? "" : props.className,
+          isDragging ? '' : props.className,
           // Set z-index: dragging should be above everything else
-          isDragging ? "z-20" : "z-1 hover:z-10 focus-within:z-10",
-          isOver && "bg-accent/20", // Add a background color when dragging over
+          isDragging ? 'z-20' : 'z-1 hover:z-10 focus-within:z-10',
+          isOver && 'bg-mine-hover/20', // Add a background color when dragging over
         )}
       >
         <div className="border border-[var(--slate-7)]">
@@ -170,6 +170,6 @@ const SortableColumnInternal = React.forwardRef(
     );
   },
 );
-SortableColumnInternal.displayName = "SortableColumn";
+SortableColumnInternal.displayName = 'SortableColumn';
 
 export const SortableColumn = memo(SortableColumnInternal);

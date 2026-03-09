@@ -11,8 +11,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../ui/alert-dialog";
-import { Button } from "../ui/button";
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { toast } from "../ui/use-toast";
 
 /**
@@ -67,7 +67,7 @@ export const KernelStartupErrorModal: React.FC = () => {
         </AlertDialogHeader>
         <div className="my-4 overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">
+            <span className="text-sm font-medium text-mine-muted">
               Error Details
             </span>
             <Button
@@ -80,7 +80,7 @@ export const KernelStartupErrorModal: React.FC = () => {
               Copy
             </Button>
           </div>
-          <pre className="bg-muted p-4 rounded-md text-sm font-mono overflow-auto max-h-80">
+          <pre className="bg-mine-hover p-4 rounded-md text-sm font-mono overflow-auto max-h-80">
             {error}
           </pre>
         </div>

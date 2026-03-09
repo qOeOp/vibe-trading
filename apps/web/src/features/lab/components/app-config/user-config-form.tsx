@@ -19,7 +19,7 @@ import type { FieldPath, FieldValues } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import type z from 'zod';
 import { Button } from '@/features/lab/components/ui/button';
-import { Checkbox } from '@/features/lab/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -28,11 +28,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/features/lab/components/ui/form';
-import { Kbd } from '@/features/lab/components/ui/kbd';
+} from '@/components/ui/form';
+import { Kbd } from '@/components/ui/kbd';
 import { NativeSelect } from '@/features/lab/components/ui/native-select';
 import { NumberField } from '@/features/lab/components/ui/number-field';
-import { Tabs, TabsList, TabsTrigger } from '@/features/lab/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { KEYMAP_PRESETS } from '@/features/lab/core/codemirror/keymaps/keymaps';
 import { capabilitiesAtom } from '@/features/lab/core/config/capabilities';
 import { useUserConfig } from '@/features/lab/core/config/config';
@@ -53,9 +53,9 @@ import { arrayToggle } from '@/features/lab/utils/arrays';
 import { cn } from '@/features/lab/utils/cn';
 import { autoPopulateModels } from '../ai/ai-utils';
 import { keyboardShortcutsAtom } from '../editor/controls/keyboard-shortcuts';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { ExternalLink } from '../ui/links';
-import { Tooltip } from '../ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { AiConfig } from './ai-config';
 import { formItemClasses, SettingGroup } from './common';
 import { DataForm } from './data-form';
@@ -1434,7 +1434,7 @@ export const UserConfigForm: React.FC = () => {
           orientation="vertical"
           className="w-1/3 border-r h-full overflow-auto p-3"
         >
-          <TabsList className="self-start max-h-none flex flex-col gap-2 shrink-0 bg-background flex-1 min-h-full">
+          <TabsList className="self-start max-h-none flex flex-col gap-2 shrink-0 bg-mine-page-bg flex-1 min-h-full">
             {categories.map((category) => (
               <TabsTrigger
                 key={category.id}
@@ -1445,7 +1445,7 @@ export const UserConfigForm: React.FC = () => {
                   <span
                     className={cn(
                       category.className,
-                      'w-8 h-8 rounded flex items-center justify-center text-muted-foreground shrink-0',
+                      'w-8 h-8 rounded flex items-center justify-center text-mine-muted shrink-0',
                     )}
                   >
                     <category.Icon className="w-4 h-4" />
@@ -1455,7 +1455,7 @@ export const UserConfigForm: React.FC = () => {
               </TabsTrigger>
             ))}
 
-            <div className="p-2 text-xs text-muted-foreground self-start flex flex-col gap-1">
+            <div className="p-2 text-xs text-mine-muted self-start flex flex-col gap-1">
               <span>Version: {marimoVersion}</span>
               <span>Locale: {locale}</span>
             </div>

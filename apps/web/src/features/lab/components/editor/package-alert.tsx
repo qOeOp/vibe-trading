@@ -22,7 +22,7 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from '../ui/form';
+} from '@/components/ui/form';
 import {
   isInstallingPackageAlert,
   isMissingPackageAlert,
@@ -45,16 +45,16 @@ import {
   UserConfigSchema,
 } from '@/features/lab/core/config/config-schema';
 import { getDirtyValues } from '../app-config/user-config-form';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import { ExternalLink } from '../ui/links';
 import { NativeSelect } from '../ui/native-select';
-import { Tooltip } from '../ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 
 function parsePackageSpecifier(spec: string): {
   name: string;
@@ -115,7 +115,7 @@ export const PackageAlert: React.FC = () => {
               <XIcon className="w-5 h-5" />
             </Button>
           </div>
-          <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
+          <div className="flex flex-col gap-4 justify-between items-start text-mine-muted text-base">
             <div>
               <p>The following packages were not found:</p>
               <table className="list-disc ml-2 mt-1">
@@ -228,8 +228,8 @@ export const PackageAlert: React.FC = () => {
           </div>
           <div
             className={cn(
-              'flex flex-col gap-4 justify-between items-start text-muted-foreground text-base',
-              status === 'installed' && 'text-accent-foreground',
+              'flex flex-col gap-4 justify-between items-start text-mine-muted text-base',
+              status === 'installed' && 'text-mine-text',
             )}
           >
             <p>{description}</p>
@@ -240,10 +240,10 @@ export const PackageAlert: React.FC = () => {
                     'flex items-center gap-1 font-mono text-sm',
                     st === 'installing' && 'font-semibold',
                     st === 'failed' && 'text-destructive',
-                    st === 'installed' && 'text-accent-foreground',
+                    st === 'installed' && 'text-mine-text',
                     st === 'installed' &&
                       status === 'failed' &&
-                      'text-muted-foreground',
+                      'text-mine-muted',
                   )}
                   key={index}
                 >
@@ -470,7 +470,7 @@ const ExtrasSelector: React.FC<ExtrasSelectorProps> = ({
           >
             <DropdownMenuTrigger asChild={true}>
               <button
-                className="hover:bg-muted/50 rounded text-sm px-1 transition-colors border border-muted-foreground/30 hover:border-muted-foreground/60 min-w-0 flex-1 truncate text-left"
+                className="hover:bg-mine-hover/50 rounded text-sm px-1 transition-colors border border-muted-foreground/30 hover:border-muted-foreground/60 min-w-0 flex-1 truncate text-left"
                 title={`Selected extras: ${selectedExtras.join(', ')}`}
                 type="button"
               >
@@ -482,7 +482,7 @@ const ExtrasSelector: React.FC<ExtrasSelectorProps> = ({
               className="w-64 p-0 max-h-96 flex flex-col"
             >
               {selectedExtras.length > 0 && (
-                <div className="p-2 bg-popover border-b border-border">
+                <div className="p-2 bg-mine-card border-b border-mine-border">
                   <div className="flex flex-wrap gap-1 p-1 min-h-[24px]">
                     {selectedExtras.map((extra) => (
                       <span
@@ -529,7 +529,7 @@ const ExtrasSelector: React.FC<ExtrasSelectorProps> = ({
             <button
               disabled={!canSelectExtras}
               className={cn(
-                'hover:bg-muted/50 rounded text-sm ml-2 transition-colors border border-muted-foreground/30 hover:border-muted-foreground/60 h-5 w-5 flex items-center justify-center p-0',
+                'hover:bg-mine-hover/50 rounded text-sm ml-2 transition-colors border border-muted-foreground/30 hover:border-muted-foreground/60 h-5 w-5 flex items-center justify-center p-0',
                 !canSelectExtras && 'opacity-50 cursor-not-allowed',
               )}
               title={canSelectExtras ? 'Add extras' : 'Loading extras...'}
@@ -542,8 +542,8 @@ const ExtrasSelector: React.FC<ExtrasSelectorProps> = ({
             align="start"
             className="w-64 p-0 max-h-96 flex flex-col"
           >
-            <div className="p-2 bg-popover border-b border-border">
-              <span className="text-muted-foreground italic text-sm">
+            <div className="p-2 bg-mine-card border-b border-mine-border">
+              <span className="text-mine-muted italic text-sm">
                 Package extras
               </span>
             </div>
@@ -626,10 +626,10 @@ const StreamingLogsViewer: React.FC<StreamingLogsViewerProps> = ({
   }
 
   return (
-    <div className="mt-4 border-t border-border pt-4 w-full">
+    <div className="mt-4 border-t border-mine-border pt-4 w-full">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-2 text-sm font-medium text-mine-muted hover:text-mine-text transition-colors"
         type="button"
       >
         {isExpanded ? (
@@ -644,11 +644,11 @@ const StreamingLogsViewer: React.FC<StreamingLogsViewerProps> = ({
         <div className="mt-3 space-y-3 w-full">
           {Object.entries(packageLogs).map(([packageName, logs]) => (
             <div key={packageName} className="w-full">
-              <h4 className="font-mono text-sm font-medium mb-2 text-foreground">
+              <h4 className="font-mono text-sm font-medium mb-2 text-mine-text">
                 {packageName}
               </h4>
-              <div className="border border-border rounded w-full">
-                <pre className="p-3 text-xs font-mono bg-background max-h-64 overflow-y-auto text-muted-foreground whitespace-pre-wrap scrollbar-thin">
+              <div className="border border-mine-border rounded w-full">
+                <pre className="p-3 text-xs font-mono bg-mine-page-bg max-h-64 overflow-y-auto text-mine-muted whitespace-pre-wrap scrollbar-thin">
                   {logs || 'No logs available'}
                 </pre>
               </div>

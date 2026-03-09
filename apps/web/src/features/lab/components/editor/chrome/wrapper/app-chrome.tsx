@@ -16,23 +16,43 @@ import { FloatingPanels } from './floating-panels';
 import { LabModeContext } from '@/features/lab/components/lab-mode-context';
 import { getFeatureFlag } from '@/features/lab/core/config/feature-flag';
 
-const LazyChatPanel = React.lazy(() => import('@/components/chat/chat-panel'));
-const LazyAgentPanel = React.lazy(
-  () => import('@/components/chat/acp/agent-panel'),
+const LazyChatPanel = React.lazy(() =>
+  import('@/components/chat/chat-panel').then((m) => ({
+    default: m.ChatPanel,
+  })),
 );
-const LazyErrorsPanel = React.lazy(() => import('../panels/error-panel'));
-const LazyFileExplorerPanel = React.lazy(
-  () => import('../panels/file-explorer-panel'),
+const LazyAgentPanel = React.lazy(() =>
+  import('@/components/chat/acp/agent-panel').then((m) => ({
+    default: m.AgentPanel,
+  })),
 );
-const LazyPackagesPanel = React.lazy(() => import('../panels/packages-panel'));
-const LazySnippetsPanel = React.lazy(() => import('../panels/snippets-panel'));
+const LazyErrorsPanel = React.lazy(() =>
+  import('../panels/error-panel').then((m) => ({ default: m.ErrorsPanel })),
+);
+const LazyFileExplorerPanel = React.lazy(() =>
+  import('../panels/file-explorer-panel').then((m) => ({
+    default: m.FileExplorerPanel,
+  })),
+);
+const LazyPackagesPanel = React.lazy(() =>
+  import('../panels/packages-panel').then((m) => ({
+    default: m.PackagesPanel,
+  })),
+);
+const LazySnippetsPanel = React.lazy(() =>
+  import('../panels/snippets-panel').then((m) => ({
+    default: m.SnippetsPanel,
+  })),
+);
 const LazyDataCatalogPanel = React.lazy(() =>
   import('../panels/data-catalog/data-catalog-panel').then((m) => ({
     default: m.DataCatalogPanel,
   })),
 );
-const LazyValidationPanel = React.lazy(
-  () => import('../panels/validation-panel'),
+const LazyValidationPanel = React.lazy(() =>
+  import('../panels/validation-panel').then((m) => ({
+    default: m.ValidationPanel,
+  })),
 );
 
 export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {

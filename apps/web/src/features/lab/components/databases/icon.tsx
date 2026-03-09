@@ -88,10 +88,10 @@ export const DatabaseLogo: FC<DatabaseLogoProps> = ({ name, className }) => {
       src={url}
       alt={name}
       className={cn(
-        'invert-[.5] dark:invert-[.7]',
+        'invert-[.5]',
         className,
         // Remove filters for PNG icons
-        isPng && 'brightness-100 dark:brightness-100 invert-0 dark:invert-0',
+        isPng && 'brightness-100 invert-0',
       )}
     />
   );

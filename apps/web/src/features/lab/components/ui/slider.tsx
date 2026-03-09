@@ -1,18 +1,18 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import * as SliderPrimitive from "@radix-ui/react-slider";
-import * as React from "react";
-import { useLocale } from "react-aria";
-import { cn } from "@/features/lab/utils/cn";
-import { prettyScientificNumber } from "@/features/lab/utils/numbers";
-import { useBoolean } from "@/features/lab/hooks/useBoolean";
+import * as SliderPrimitive from '@radix-ui/react-slider';
+import * as React from 'react';
+import { useLocale } from 'react-aria';
+import { cn } from '@/features/lab/utils/cn';
+import { prettyScientificNumber } from '@/features/lab/utils/numbers';
+import { useBoolean } from '@/features/lab/hooks/useBoolean';
 import {
   TooltipContent,
   TooltipPortal,
   TooltipProvider,
   TooltipRoot,
   TooltipTrigger,
-} from "./tooltip";
+} from './tooltip';
 
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
@@ -27,10 +27,10 @@ const Slider = React.forwardRef<
     <SliderPrimitive.Root
       ref={ref}
       className={cn(
-        "relative flex touch-none select-none hover:cursor-pointer",
-        "data-[orientation=horizontal]:w-full data-[orientation=horizontal]:items-center",
-        "data-[orientation=vertical]:h-full data-[orientation=vertical]:justify-center",
-        "data-disabled:cursor-not-allowed",
+        'relative flex touch-none select-none hover:cursor-pointer',
+        'data-[orientation=horizontal]:w-full data-[orientation=horizontal]:items-center',
+        'data-[orientation=vertical]:h-full data-[orientation=vertical]:justify-center',
+        'data-disabled:cursor-not-allowed',
         className,
       )}
       {...props}
@@ -38,18 +38,18 @@ const Slider = React.forwardRef<
       <SliderPrimitive.Track
         data-testid="track"
         className={cn(
-          "relative grow overflow-hidden rounded-full bg-slate-200 dark:bg-accent/60",
-          "data-[orientation=horizontal]:h-2 data-[orientation=horizontal]:w-full",
-          "data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2",
+          'relative grow overflow-hidden rounded-full bg-slate-200',
+          'data-[orientation=horizontal]:h-2 data-[orientation=horizontal]:w-full',
+          'data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2',
         )}
       >
         <SliderPrimitive.Range
           data-testid="range"
           className={cn(
-            "absolute bg-blue-500 dark:bg-primary",
-            "data-[orientation=horizontal]:h-full",
-            "data-[orientation=vertical]:w-full",
-            "data-disabled:opacity-50",
+            'absolute bg-blue-500 ',
+            'data-[orientation=horizontal]:h-full',
+            'data-[orientation=vertical]:w-full',
+            'data-disabled:opacity-50',
           )}
         />
       </SliderPrimitive.Track>
@@ -58,7 +58,7 @@ const Slider = React.forwardRef<
           <TooltipTrigger asChild={true}>
             <SliderPrimitive.Thumb
               data-testid="thumb"
-              className="block h-4 w-4 rounded-full shadow-xs-solid border border-blue-500 dark:border-primary dark:bg-accent bg-white hover:bg-blue-300 focus:bg-blue-300 transition-colors focus-visible:outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50"
+              className="block h-4 w-4 rounded-full shadow-xs-solid border border-blue-500 bg-white hover:bg-blue-300 focus:bg-blue-300 transition-colors focus-visible:outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50"
               onFocus={openActions.setTrue}
               onBlur={openActions.setFalse}
               onMouseEnter={openActions.setTrue}

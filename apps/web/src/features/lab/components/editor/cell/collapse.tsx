@@ -12,7 +12,7 @@ import type React from "react";
 import { memo } from "react";
 import { Toolbar } from "@/features/lab/components/layout/toolbar";
 import { Button } from "@/features/lab/components/ui/button";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useNotebook } from "@/features/lab/core/cells/cells";
 import type { CellId } from "@/features/lab/core/cells/ids";
 import { getDescendantsStatus } from "@/features/lab/core/cells/utils";
@@ -70,7 +70,7 @@ export const CollapsedCellBanner: React.FC<{
     <div
       onClick={onClick}
       className={cn(
-        "flex items-center justify-between w-[calc(100%-2rem)] h-9 bg-muted rounded-b mx-4 opacity-80 hover:opacity-100 cursor-pointer",
+        "flex items-center justify-between w-[calc(100%-2rem)] h-9 bg-mine-hover rounded-b mx-4 opacity-80 hover:opacity-100 cursor-pointer",
       )}
     >
       <Toolbar

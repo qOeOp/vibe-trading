@@ -135,7 +135,7 @@ export class ErrorContextProvider extends AIContextProvider<ErrorContextItem> {
           headerDiv.append(nameDiv);
 
           const descriptionDiv = document.createElement("div");
-          descriptionDiv.classList.add("text-sm", "text-muted-foreground");
+          descriptionDiv.classList.add("text-sm", "text-mine-muted");
           descriptionDiv.textContent = `${item.data.errors.length} ${errorsTxt.pluralize(item.data.errors.length)}`;
           headerDiv.append(descriptionDiv);
 

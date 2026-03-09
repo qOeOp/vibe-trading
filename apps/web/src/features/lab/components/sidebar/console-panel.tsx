@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useRef, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
-import { X, Trash2 } from "lucide-react";
+import { useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { useLabCellStore } from '@/features/lab/store/use-lab-cell-store';
+import { X, Trash2 } from 'lucide-react';
 
 /**
  * ConsolePanel — Global stdout/stderr aggregated output
@@ -27,10 +27,7 @@ export function ConsolePanel() {
   }, [consoleOutput.length]);
 
   return (
-    <div
-      data-slot="console-panel"
-      className="flex flex-col h-full bg-white"
-    >
+    <div data-slot="console-panel" className="flex flex-col h-full bg-white">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-mine-border/50">
         <span className="text-xs font-medium text-mine-muted uppercase tracking-wide">
@@ -63,9 +60,9 @@ export function ConsolePanel() {
       <div
         ref={scrollRef}
         className={cn(
-          "flex-1 overflow-y-auto",
-          "bg-[#1e1e1e] font-mono text-xs",
-          "p-3 space-y-0.5",
+          'flex-1 overflow-y-auto',
+          'bg-mine-nav-active font-mono text-xs',
+          'p-3 space-y-0.5',
         )}
       >
         {consoleOutput.length === 0 ? (
@@ -86,10 +83,8 @@ export function ConsolePanel() {
               )}
               <span
                 className={cn(
-                  "whitespace-pre-wrap break-all",
-                  line.stream === "stderr"
-                    ? "text-red-400"
-                    : "text-gray-300",
+                  'whitespace-pre-wrap break-all',
+                  line.stream === 'stderr' ? 'text-red-400' : 'text-gray-300',
                 )}
               >
                 {line.text}

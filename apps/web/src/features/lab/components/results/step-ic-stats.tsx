@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { cn } from "@/lib/utils";
-import type { ICStats } from "@/features/lab/types";
+import { useMemo } from 'react';
+import { cn } from '@/lib/utils';
+import type { ICStats } from '@/features/lab/types';
 
 // ─── KPI Item ───────────────────────────────────────────
 
@@ -13,17 +13,17 @@ function KPIItem({
 }: {
   label: string;
   value: string;
-  color?: "green" | "yellow" | "red" | "default";
+  color?: 'green' | 'yellow' | 'red' | 'default';
 }) {
   return (
     <div className="text-center">
       <div
         className={cn(
-          "text-sm font-bold font-mono tabular-nums",
-          color === "green" && "text-mine-accent-green",
-          color === "yellow" && "text-mine-accent-yellow",
-          color === "red" && "text-mine-accent-red",
-          (!color || color === "default") && "text-mine-text",
+          'text-sm font-bold font-mono tabular-nums',
+          color === 'green' && 'text-mine-accent-green',
+          color === 'yellow' && 'text-mine-accent-yellow',
+          color === 'red' && 'text-mine-accent-red',
+          (!color || color === 'default') && 'text-mine-text',
         )}
       >
         {value}
@@ -53,7 +53,7 @@ function ICTimeSeries({ data }: { data: number[] }) {
 
     const zy = h - ((0 - min) / range) * h;
 
-    return { path: points.join(" "), zeroY: zy, width: w, height: h };
+    return { path: points.join(' '), zeroY: zy, width: w, height: h };
   }, [data]);
 
   return (
@@ -70,7 +70,7 @@ function ICTimeSeries({ data }: { data: number[] }) {
           y1={zeroY}
           x2={width}
           y2={zeroY}
-          stroke="#a8b2c7"
+          stroke="var(--color-mine-border)"
           strokeWidth={0.5}
           strokeDasharray="4"
         />
@@ -78,7 +78,7 @@ function ICTimeSeries({ data }: { data: number[] }) {
         <polyline
           points={path}
           fill="none"
-          stroke="#26a69a"
+          stroke="var(--color-mine-accent-teal)"
           strokeWidth={1.2}
         />
       </svg>
@@ -90,26 +90,31 @@ function ICTimeSeries({ data }: { data: number[] }) {
 
 export function StepICStats({ icStats }: { icStats: ICStats }) {
   const icColor =
-    icStats.icMean > 0.03 ? "green" : icStats.icMean > 0.02 ? "yellow" : "red";
+    icStats.icMean > 0.03 ? 'green' : icStats.icMean > 0.02 ? 'yellow' : 'red';
   const tColor =
-    icStats.tStat > 2.0 ? "green" : icStats.tStat > 1.5 ? "yellow" : "red";
+    icStats.tStat > 2.0 ? 'green' : icStats.tStat > 1.5 ? 'yellow' : 'red';
 
   return (
     <div data-slot="step-ic-stats">
       {/* KPI Grid */}
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-        <KPIItem label="IC 均值" value={icStats.icMean.toFixed(4)} color={icColor} />
+        <KPIItem
+          label="IC 均值"
+          value={icStats.icMean.toFixed(4)}
+          color={icColor}
+        />
         <KPIItem label="IC 标准差" value={icStats.icStd.toFixed(4)} />
         <KPIItem label="IR" value={icStats.ir.toFixed(2)} />
         <KPIItem
           label="IC>0 占比"
           value={`${icStats.icPositiveRatio.toFixed(1)}%`}
         />
-        <KPIItem label="t-stat" value={icStats.tStat.toFixed(2)} color={tColor} />
         <KPIItem
-          label="覆盖率"
-          value={`${icStats.coverageRate.toFixed(1)}%`}
+          label="t-stat"
+          value={icStats.tStat.toFixed(2)}
+          color={tColor}
         />
+        <KPIItem label="覆盖率" value={`${icStats.coverageRate.toFixed(1)}%`} />
       </div>
 
       {/* IC Time Series */}
@@ -117,8 +122,14 @@ export function StepICStats({ icStats }: { icStats: ICStats }) {
 
       {/* Detailed stats */}
       <div className="grid grid-cols-2 gap-x-6 gap-y-1 mt-3">
-        <StatRow label="偏度 (Skewness)" value={icStats.icSkewness.toFixed(2)} />
-        <StatRow label="峰度 (Kurtosis)" value={icStats.icKurtosis.toFixed(2)} />
+        <StatRow
+          label="偏度 (Skewness)"
+          value={icStats.icSkewness.toFixed(2)}
+        />
+        <StatRow
+          label="峰度 (Kurtosis)"
+          value={icStats.icKurtosis.toFixed(2)}
+        />
       </div>
     </div>
   );

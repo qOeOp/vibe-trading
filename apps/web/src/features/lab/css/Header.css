@@ -18,7 +18,7 @@
 .running-app-icon {
   width: 45px;
   visibility: hidden;
-  animation: running-app-animation 2000ms;
+  animation: running-app-animation 1000ms;
   animation-timing-function: cubic-bezier(0.61, -0.01, 0.47, 0.99);
   animation-iteration-count: infinite;
   animation-delay: 1000ms;

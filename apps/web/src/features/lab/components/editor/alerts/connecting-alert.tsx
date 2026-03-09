@@ -12,7 +12,7 @@ import {
 } from "@/features/lab/core/network/connection";
 import { useConnectToRuntime } from "@/features/lab/core/runtime/config";
 import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { FloatingAlert } from "./floating-alert";
 
 const SHORT_DELAY_MS = 1000; // 1 second
@@ -36,7 +36,7 @@ export const ConnectingAlert: React.FC = () => {
         kind="info"
         className="flex flex-col rounded py-2 px-4 animate-in slide-in-from-top w-fit"
       >
-        <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
+        <div className="flex flex-col gap-4 justify-between items-start text-mine-muted text-base">
           <div className="flex items-center gap-2">
             <Spinner className="h-4 w-4" />
             <p>Connecting to a marimo runtime ...</p>

@@ -10,7 +10,7 @@ import { MultiIcon } from "@/features/lab/components/icons/multi-icon";
 import { Logger } from "@/features/lab/utils/Logger";
 import type { CellRuntimeState } from "@/features/lab/core/cells/types";
 import { useElapsedTime } from "@/features/lab/hooks/useElapsedTime";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 
 import "./cell-status.css";
 import { formatDistanceToNow } from "date-fns";
@@ -342,7 +342,7 @@ const LastRanTime = (props: { lastRanTime: number }) => {
       <strong className="tracking-wide font-semibold">
         {formatter.format(date)}
       </strong>{" "}
-      <span className="text-muted-foreground">
+      <span className="text-mine-muted">
         ({formatDistanceToNow(date)} ago)
       </span>
     </span>

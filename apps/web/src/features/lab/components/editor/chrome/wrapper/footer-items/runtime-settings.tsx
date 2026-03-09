@@ -7,24 +7,24 @@ import {
   PowerOffIcon,
   ZapIcon,
   ZapOffIcon,
-} from "lucide-react";
-import type React from "react";
-import { DisableIfOverridden } from "@/features/lab/components/app-config/is-overridden";
+} from 'lucide-react';
+import type React from 'react';
+import { DisableIfOverridden } from '@/features/lab/components/app-config/is-overridden';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/features/lab/components/ui/dropdown-menu";
-import { ExternalLink } from "@/features/lab/components/ui/links";
-import { Switch } from "@/features/lab/components/ui/switch";
-import { Tooltip, TooltipProvider } from "@/features/lab/components/ui/tooltip";
-import { useResolvedMarimoConfig } from "@/features/lab/core/config/config";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import { isWasm } from "@/features/lab/core/wasm/utils";
-import { cn } from "@/features/lab/utils/cn";
-import { FooterItem } from "../footer-item";
+} from '@/components/ui/dropdown-menu';
+import { ExternalLink } from '@/features/lab/components/ui/links';
+import { Switch } from '@/components/ui/switch';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
+import { useResolvedMarimoConfig } from '@/features/lab/core/config/config';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { isWasm } from '@/features/lab/core/wasm/utils';
+import { cn } from '@/features/lab/utils/cn';
+import { FooterItem } from '../footer-item';
 
 interface RuntimeSettingsProps {
   className?: string;
@@ -50,7 +50,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
   };
 
   const handleCellChangeToggle = async (checked: boolean) => {
-    const onCellChange = checked ? "autorun" : "lazy";
+    const onCellChange = checked ? 'autorun' : 'lazy';
     // Send only the changed portion to avoid overwriting other config values
     await saveUserConfig({
       config: { runtime: { on_cell_change: onCellChange } },
@@ -64,7 +64,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
   };
 
   const handleModuleReloadChange = async (
-    option: "off" | "lazy" | "autorun",
+    option: 'off' | 'lazy' | 'autorun',
   ) => {
     // Send only the changed portion to avoid overwriting other config values
     await saveUserConfig({
@@ -81,8 +81,8 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
   // Check if all reactivity is disabled
   const allReactivityDisabled =
     !config.runtime.auto_instantiate &&
-    config.runtime.on_cell_change === "lazy" &&
-    (isWasm() || config.runtime.auto_reload !== "autorun");
+    config.runtime.on_cell_change === 'lazy' &&
+    (isWasm() || config.runtime.auto_reload !== 'autorun');
 
   return (
     <DropdownMenu>
@@ -94,7 +94,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
         >
           <div className="flex items-center gap-1">
             {allReactivityDisabled ? (
-              <ZapOffIcon size={16} className="text-muted-foreground" />
+              <ZapOffIcon size={16} className="text-mine-muted" />
             ) : (
               <ZapIcon size={16} className="text-amber-500" />
             )}
@@ -124,7 +124,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
                 {config.runtime.auto_instantiate ? (
                   <ZapIcon size={14} className="text-amber-500" />
                 ) : (
-                  <ZapOffIcon size={14} className="text-muted-foreground" />
+                  <ZapOffIcon size={14} className="text-mine-muted" />
                 )}
                 <div>
                   <div className="text-sm font-medium flex items-center gap-1">
@@ -139,8 +139,8 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
                       <InfoIcon className="w-3 h-3" />
                     </Tooltip>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {config.runtime.auto_instantiate ? "autorun" : "lazy"}
+                  <div className="text-xs text-mine-muted">
+                    {config.runtime.auto_instantiate ? 'autorun' : 'lazy'}
                   </div>
                 </div>
               </div>
@@ -158,10 +158,10 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
           <DisableIfOverridden name="runtime.on_cell_change">
             <div className="flex items-center justify-between px-2 py-2">
               <div className="flex items-center space-x-2">
-                {config.runtime.on_cell_change === "autorun" ? (
+                {config.runtime.on_cell_change === 'autorun' ? (
                   <ZapIcon size={14} className="text-amber-500" />
                 ) : (
-                  <ZapOffIcon size={14} className="text-muted-foreground" />
+                  <ZapOffIcon size={14} className="text-mine-muted" />
                 )}
                 <div>
                   <div className="text-sm font-medium flex items-center gap-1">
@@ -177,13 +177,13 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
                       <InfoIcon className="w-3 h-3" />
                     </Tooltip>
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-mine-muted">
                     {config.runtime.on_cell_change}
                   </div>
                 </div>
               </div>
               <Switch
-                checked={config.runtime.on_cell_change === "autorun"}
+                checked={config.runtime.on_cell_change === 'autorun'}
                 onCheckedChange={handleCellChangeToggle}
                 size="sm"
               />
@@ -198,16 +198,16 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
               <DisableIfOverridden name="runtime.auto_reload">
                 <div className="px-2 py-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    {config.runtime.auto_reload === "off" && (
+                    {config.runtime.auto_reload === 'off' && (
                       <PowerOffIcon
                         size={14}
-                        className="text-muted-foreground"
+                        className="text-mine-muted"
                       />
                     )}
-                    {config.runtime.auto_reload === "lazy" && (
-                      <ZapOffIcon size={14} className="text-muted-foreground" />
+                    {config.runtime.auto_reload === 'lazy' && (
+                      <ZapOffIcon size={14} className="text-mine-muted" />
                     )}
-                    {config.runtime.auto_reload === "autorun" && (
+                    {config.runtime.auto_reload === 'autorun' && (
                       <ZapIcon size={14} className="text-amber-500" />
                     )}
                     <div>
@@ -224,32 +224,32 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
                           <InfoIcon className="w-3 h-3" />
                         </Tooltip>
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-mine-muted">
                         {config.runtime.auto_reload}
                       </div>
                     </div>
                   </div>
                   <div className="space-y-1">
-                    {["off", "lazy", "autorun"].map((option) => (
+                    {['off', 'lazy', 'autorun'].map((option) => (
                       <button
                         key={option}
                         onClick={() =>
                           handleModuleReloadChange(
-                            option as "off" | "lazy" | "autorun",
+                            option as 'off' | 'lazy' | 'autorun',
                           )
                         }
                         className={cn(
-                          "w-full flex items-center px-2 py-1 text-sm rounded hover:bg-accent",
-                          option === config.runtime.auto_reload && "bg-accent",
+                          'w-full flex items-center px-2 py-1 text-sm rounded hover:bg-mine-hover',
+                          option === config.runtime.auto_reload && 'bg-mine-hover',
                         )}
                       >
-                        {option === "off" && (
+                        {option === 'off' && (
                           <PowerOffIcon size={12} className="mr-2" />
                         )}
-                        {option === "lazy" && (
+                        {option === 'lazy' && (
                           <ZapOffIcon size={12} className="mr-2" />
                         )}
-                        {option === "autorun" && (
+                        {option === 'autorun' && (
                           <ZapIcon size={12} className="mr-2" />
                         )}
                         <span className="capitalize">{option}</span>

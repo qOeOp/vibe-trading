@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import type React from 'react';
 import { renderShortcut } from '@/features/lab/components/shortcuts/renderShortcut';
-import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { cellErrorCount } from '@/features/lab/core/cells/cells';
 import { isConnectingAtom } from '@/features/lab/core/network/connection';
 import { useRequestClient } from '@/features/lab/core/network/requests';
@@ -66,7 +66,7 @@ export const Footer: React.FC = () => {
     return (
       <footer
         data-slot="lab-status-dock"
-        className="h-10 py-1 gap-1 flex items-center text-mine-muted select-none print:hidden text-sm z-50 bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full pointer-events-auto px-1"
+        className="h-10 py-1 gap-1 flex items-center text-mine-muted select-none print:hidden text-sm z-50 glass-heavy rounded-full pointer-events-auto px-1"
       >
         {/* File tabs */}
         <DockFileTabs />
@@ -147,7 +147,7 @@ export const Footer: React.FC = () => {
   return (
     <footer
       data-slot="lab-footer"
-      className="h-10 py-1 gap-1 bg-background flex items-center text-muted-foreground text-md pl-2 pr-1 border-t border-border select-none print:hidden text-sm z-50 hide-on-fullscreen overflow-x-auto overflow-y-hidden scrollbar-thin"
+      className="h-10 py-1 gap-1 bg-mine-page-bg flex items-center text-mine-muted text-md pl-2 pr-1 border-t border-mine-border select-none print:hidden text-sm z-50 hide-on-fullscreen overflow-x-auto overflow-y-hidden scrollbar-thin"
     >
       <FooterItem
         className="h-full"
@@ -187,7 +187,7 @@ export const Footer: React.FC = () => {
             </div>
           }
         >
-          <span className="text-muted-foreground text-sm mr-4">kiosk mode</span>
+          <span className="text-mine-muted text-sm mr-4">kiosk mode</span>
         </Tooltip>
       </ShowInKioskMode>
 

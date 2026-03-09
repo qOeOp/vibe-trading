@@ -1,32 +1,37 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { atom, useAtom, useAtomValue } from "jotai";
-import { AlertTriangleIcon, EditIcon, XIcon } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/features/lab/components/ui/button";
-import { Input } from "@/features/lab/components/ui/input";
-import { Kbd } from "@/features/lab/components/ui/kbd";
-import { hotkeysAtom, useResolvedMarimoConfig } from "@/features/lab/core/config/config";
-import type { UserConfig } from "@/features/lab/core/config/config-schema";
+import { atom, useAtom, useAtomValue } from 'jotai';
+import { AlertTriangleIcon, EditIcon, XIcon } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/features/lab/components/ui/button';
+import { Input } from '@/features/lab/components/ui/input';
+import { Kbd } from '@/components/ui/kbd';
+import {
+  hotkeysAtom,
+  useResolvedMarimoConfig,
+} from '@/features/lab/core/config/config';
+import type { UserConfig } from '@/features/lab/core/config/config-schema';
 import {
   getDefaultHotkey,
   type HotkeyAction,
   type HotkeyGroup,
-} from "@/features/lab/core/hotkeys/hotkeys";
-import { isPlatformMac } from "@/features/lab/core/hotkeys/shortcuts";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import { useDuplicateShortcuts } from "@/features/lab/hooks/useDuplicateShortcuts";
-import { useHotkey } from "@/features/lab/hooks/useHotkey";
-import { KeyboardHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
+} from '@/features/lab/core/hotkeys/hotkeys';
+import { isPlatformMac } from '@/features/lab/core/hotkeys/shortcuts';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { useDuplicateShortcuts } from '@/features/lab/hooks/useDuplicateShortcuts';
+import { useHotkey } from '@/features/lab/hooks/useHotkey';
+import { KeyboardHotkeys } from '@/features/lab/components/shortcuts/renderShortcut';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   DialogOverlay,
   DialogPortal,
-  DialogTitle,
-} from "@/features/lab/components/ui/dialog";
-import { DuplicateShortcutBanner } from "./duplicate-shortcut-banner";
+} from '@/features/lab/components/ui/dialog';
+import { DuplicateShortcutBanner } from './duplicate-shortcut-banner';
 
 export const keyboardShortcutsAtom = atom(false);
 
@@ -41,10 +46,10 @@ export const KeyboardShortcuts: React.FC = () => {
   const { saveUserConfig } = useRequestClient();
   const { duplicates, hasDuplicate, getDuplicatesFor } = useDuplicateShortcuts(
     hotkeys,
-    "Markdown",
+    'Markdown',
   );
 
-  useHotkey("global.showHelp", () => setIsOpen((v) => !v));
+  useHotkey('global.showHelp', () => setIsOpen((v) => !v));
 
   const saveConfigOptimistic = async (newConfig: Partial<UserConfig>) => {
     const prevConfig = { ...config };
@@ -60,7 +65,7 @@ export const KeyboardShortcuts: React.FC = () => {
       return;
     }
 
-    const shortcutString = shortcut.join("-");
+    const shortcutString = shortcut.join('-');
     const newConfig = {
       keymap: {
         ...config.keymap,
@@ -101,7 +106,7 @@ export const KeyboardShortcuts: React.FC = () => {
   const handleResetAllShortcuts = async () => {
     if (
       !window.confirm(
-        "Are you sure you want to reset all shortcuts to their default values?",
+        'Are you sure you want to reset all shortcuts to their default values?',
       )
     ) {
       return;
@@ -131,7 +136,7 @@ export const KeyboardShortcuts: React.FC = () => {
       return (
         <div key={action}>
           <Input
-            defaultValue={newShortcut.join("+")}
+            defaultValue={newShortcut.join('+')}
             placeholder={hotkey.name}
             onKeyDown={(e) => {
               e.preventDefault();
@@ -139,36 +144,36 @@ export const KeyboardShortcuts: React.FC = () => {
 
               // Skip if the key is a modifier key
               if (
-                e.key === "Meta" ||
-                e.key === "Control" ||
-                e.key === "Alt" ||
-                e.key === "Shift"
+                e.key === 'Meta' ||
+                e.key === 'Control' ||
+                e.key === 'Alt' ||
+                e.key === 'Shift'
               ) {
                 return;
               }
 
               if (e.metaKey) {
-                next.push(isPlatformMac() ? "Cmd" : "Meta");
+                next.push(isPlatformMac() ? 'Cmd' : 'Meta');
               }
               if (e.ctrlKey) {
-                next.push("Ctrl");
+                next.push('Ctrl');
               }
               if (e.altKey) {
-                next.push("Alt");
+                next.push('Alt');
               }
               if (e.shiftKey) {
-                next.push("Shift");
+                next.push('Shift');
               }
 
               // We don't allow `-` to be a shortcut key, since it's used to
               // separate keys in the shortcut string
-              if (e.key === "-") {
+              if (e.key === '-') {
                 return;
               }
               // If escape is pressed, without any modifier keys, cancel editing
               // We don't allow escape to be a shortcut key along, since it's used to
               // remove focus from many elements
-              if (e.key === "Escape" && next.length === 0) {
+              if (e.key === 'Escape' && next.length === 0) {
                 setEditingShortcut(null);
                 setNewShortcut([]);
                 return;
@@ -176,8 +181,8 @@ export const KeyboardShortcuts: React.FC = () => {
 
               let key = e.key.toLowerCase();
               // Handle edge cases
-              if (e.key === " ") {
-                key = "Space";
+              if (e.key === ' ') {
+                key = 'Space';
               }
 
               next.push(key);
@@ -200,7 +205,7 @@ export const KeyboardShortcuts: React.FC = () => {
             }
           />
           <div className="flex items-center justify-between w-full">
-            <span className="text-muted-foreground text-xs">
+            <span className="text-mine-muted text-xs">
               Press a key combination
             </span>
             {defaultHotkey.key !== hotkey.key && (
@@ -208,7 +213,7 @@ export const KeyboardShortcuts: React.FC = () => {
                 className="text-xs cursor-pointer text-primary"
                 onClick={handleResetShortcut}
               >
-                Reset to default:{" "}
+                Reset to default:{' '}
                 <span className="font-mono">{defaultHotkey.key}</span>
               </span>
             )}
@@ -227,7 +232,7 @@ export const KeyboardShortcuts: React.FC = () => {
       >
         {hotkeys.isEditable(action) ? (
           <EditIcon
-            className="cursor-pointer opacity-60 hover:opacity-100 text-muted-foreground w-3 h-3"
+            className="cursor-pointer opacity-60 hover:opacity-100 text-mine-muted w-3 h-3"
             onClick={() => {
               setNewShortcut([]);
               setEditingShortcut(action);
@@ -243,10 +248,10 @@ export const KeyboardShortcuts: React.FC = () => {
             <div className="group relative inline-flex">
               <AlertTriangleIcon className="w-3 h-3 text-(--yellow-11)" />
               <div className="invisible group-hover:visible absolute left-0 top-5 z-10 w-max max-w-xs rounded-md bg-(--yellow-2) border border-(--yellow-7) p-2 text-xs text-(--yellow-11) shadow-md">
-                Also used by:{" "}
+                Also used by:{' '}
                 {duplicateActions
                   .map((a) => hotkeys.getHotkey(a).name.toLowerCase())
-                  .join(", ")}
+                  .join(', ')}
               </div>
             </div>
           )}
@@ -272,16 +277,16 @@ export const KeyboardShortcuts: React.FC = () => {
   const renderCommandGroup = (group: HotkeyGroup) =>
     renderGroup(
       group,
-      <p className="text-xs text-muted-foreground flex items-center gap-1">
-        Press{" "}
-        {config.keymap.preset === "vim" ? (
+      <p className="text-xs text-mine-muted flex items-center gap-1">
+        Press{' '}
+        {config.keymap.preset === 'vim' ? (
           <>
-            <KeyboardHotkeys shortcut={isPlatformMac() ? "Cmd" : "Ctrl"} />
+            <KeyboardHotkeys shortcut={isPlatformMac() ? 'Cmd' : 'Ctrl'} />
             <Kbd>Esc</Kbd>
           </>
         ) : (
           <Kbd>Esc</Kbd>
-        )}{" "}
+        )}{' '}
         in a cell to enter command mode
       </p>,
     );
@@ -301,16 +306,16 @@ export const KeyboardShortcuts: React.FC = () => {
           <DuplicateShortcutBanner duplicates={duplicates} />
           <div className="flex flex-row gap-3">
             <div className="w-1/2">
-              {renderGroup("Editing")}
-              {renderGroup("Markdown")}
+              {renderGroup('Editing')}
+              {renderGroup('Markdown')}
             </div>
 
             <div className="w-1/2">
-              {renderGroup("Navigation")}
-              {renderGroup("Running Cells")}
-              {renderGroup("Creation and Ordering")}
-              {renderCommandGroup("Command")}
-              {renderGroup("Other")}
+              {renderGroup('Navigation')}
+              {renderGroup('Running Cells')}
+              {renderGroup('Creation and Ordering')}
+              {renderCommandGroup('Command')}
+              {renderGroup('Other')}
               <Button
                 className="mt-4 hover:bg-destructive/10 border-destructive hover:border-destructive"
                 variant="outline"

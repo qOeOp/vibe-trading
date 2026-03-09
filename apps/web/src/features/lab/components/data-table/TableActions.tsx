@@ -12,8 +12,8 @@ import React from "react";
 import type { GetRowIds } from "@/features/lab/plugins/impl/DataTablePlugin";
 import { cn } from "@/features/lab/utils/cn";
 import type { PanelType } from "../editor/chrome/panels/context-aware-panel/context-aware-panel";
-import { Button } from "../ui/button";
-import { Tooltip } from "../ui/tooltip";
+import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
 import { toast } from "../ui/use-toast";
 import { type DownloadActionProps, DownloadAs } from "./download-actions";
 import { DataTablePagination } from "./pagination";
@@ -118,7 +118,7 @@ export const TableActions = <TData,>({
             className="mb-0 print:hidden"
             onClick={() => setIsSearchEnabled(!isSearchEnabled)}
           >
-            <SearchIcon className="w-4 h-4 text-muted-foreground" />
+            <SearchIcon className="w-4 h-4 text-mine-muted" />
           </Button>
         </Tooltip>
       )}
@@ -130,7 +130,7 @@ export const TableActions = <TData,>({
             className="mb-0 print:hidden"
             onClick={toggleDisplayHeader}
           >
-            <ChartSplineIcon className="w-4 h-4 text-muted-foreground" />
+            <ChartSplineIcon className="w-4 h-4 text-mine-muted" />
           </Button>
         </Tooltip>
       )}
@@ -146,7 +146,7 @@ export const TableActions = <TData,>({
               >
                 <PanelRightIcon
                   className={cn(
-                    "w-4 h-4 text-muted-foreground",
+                    "w-4 h-4 text-mine-muted",
                     isPanelOpen("row-viewer") && "text-primary",
                   )}
                 />
@@ -163,7 +163,7 @@ export const TableActions = <TData,>({
               >
                 <ChartColumnStacked
                   className={cn(
-                    "w-4 h-4 text-muted-foreground",
+                    "w-4 h-4 text-mine-muted",
                     isPanelOpen("column-explorer") && "text-primary",
                   )}
                 />

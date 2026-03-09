@@ -16,7 +16,7 @@ export const SheetMenu = ({ openWidth }: SheetMenuProps) => {
   return (
     <Sheet>
       <SheetTrigger className="lg:hidden" asChild={true}>
-        <Button variant="ghost" className="bg-background">
+        <Button variant="ghost" className="bg-mine-page-bg">
           <MenuIcon className="w-5 h-5" />
         </Button>
       </SheetTrigger>

@@ -13,7 +13,7 @@ import {
 import { z } from "zod";
 import { FieldOptions, randomNumber } from "./options";
 import { Combobox, ComboboxItem } from "../ui/combobox";
-import { Label } from "../ui/label";
+import { Label } from '@/components/ui/label';
 import { NativeSelect } from "../ui/native-select";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import {
@@ -23,14 +23,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from '@/components/ui/select';
 import { cn } from "@/features/lab/utils/cn";
 import { Events } from "@/features/lab/utils/events";
 import { Strings } from "@/features/lab/utils/strings";
 import { isZodPipe } from "@/features/lab/utils/zod-utils";
 import { Objects } from "@/features/lab/utils/objects";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   FormControl,
   FormDescription,
@@ -38,8 +38,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { DebouncedInput, DebouncedNumberInput } from "../ui/input";
+} from '@/components/ui/form';
+import { DebouncedInput, DebouncedNumberInput } from '../ui/input';
 import { Textarea } from "../ui/textarea";
 import { getDefaults, getUnionLiteral, maybeUnwrap } from "./form-utils";
 import {
@@ -372,7 +372,7 @@ export function renderZodSchema<T extends FieldValues, S>(
                     className={`px-4 py-2 ${
                       unionTypeValue === type
                         ? "border-b-2 border-primary font-medium"
-                        : "text-muted-foreground"
+                        : "text-mine-muted"
                     }`}
                     onClick={() => {
                       const nextSchema = getSchemaValue(type);
@@ -515,7 +515,7 @@ const FormArray = ({
             {renderZodSchema(schema, form, `${path}[${index}]`, renderers)}
             {canRemove && (
               <Trash2Icon
-                className="w-4 h-4 ml-2 my-1 text-muted-foreground hover:text-destructive cursor-pointer absolute right-0 top-5"
+                className="w-4 h-4 ml-2 my-1 text-mine-muted hover:text-destructive cursor-pointer absolute right-0 top-5"
                 onClick={() => {
                   remove(index);
                 }}
@@ -534,7 +534,7 @@ const FormArray = ({
           size="xs"
           data-testid="marimo-plugin-data-frames-add-array-item"
           variant="text"
-          className="hover:text-accent-foreground"
+          className="hover:text-mine-text"
           onClick={() => {
             append(getDefaults(schema));
           }}

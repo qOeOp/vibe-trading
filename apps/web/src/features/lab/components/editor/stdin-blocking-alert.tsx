@@ -4,8 +4,8 @@ import { atom, useAtomValue } from "jotai";
 import { notebookAtom } from "@/features/lab/core/cells/cells";
 import { Banner } from "@/features/lab/plugins/impl/common/error-banner";
 import { Logger } from "@/features/lab/utils/Logger";
-import { Button } from "../ui/button";
-import { Kbd } from "../ui/kbd";
+import { Button } from '@/components/ui/button';
+import { Kbd } from '@/components/ui/kbd';
 import { DelayMount } from "../utils/delay-mount";
 
 // Atom to check if there is a cell with unresolved stdin
@@ -59,7 +59,7 @@ export const StdinBlockingAlert: React.FC = () => {
             Program waiting for input
           </span>
         </div>
-        <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
+        <div className="flex flex-col gap-4 justify-between items-start text-mine-muted text-base">
           <div>
             <p>
               The program is still running, but blocked on{" "}

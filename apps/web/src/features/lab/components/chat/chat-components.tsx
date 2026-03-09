@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { FileUIPart } from "ai";
+import type { FileUIPart } from 'ai';
 import {
   AtSignIcon,
   FileIcon,
@@ -10,34 +10,38 @@ import {
   SendHorizontalIcon,
   StopCircleIcon,
   XIcon,
-} from "lucide-react";
-import { useState } from "react";
-import { cn } from "@/features/lab/utils/cn";
-import { Spinner } from "../icons/spinner";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Tooltip } from "../ui/tooltip";
-import { SUPPORTED_ATTACHMENT_TYPES } from "./chat-utils";
+} from 'lucide-react';
+import { useState } from 'react';
+import { cn } from '@/features/lab/utils/cn';
+import { Spinner } from '../icons/spinner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tooltip } from '@/components/ui/tooltip';
+import { SUPPORTED_ATTACHMENT_TYPES } from './chat-utils';
 
 export const AttachmentRenderer = ({
   attachment,
 }: {
   attachment: FileUIPart;
 }) => {
-  if (attachment.mediaType?.startsWith("image/")) {
+  if (attachment.mediaType?.startsWith('image/')) {
     return (
       <img
+        data-slot="attachment-renderer"
         src={attachment.url}
-        alt={attachment.filename || "Attachment"}
+        alt={attachment.filename || 'Attachment'}
         className="max-h-[100px] max-w-[100px] object-contain mb-1.5"
       />
     );
   }
 
   return (
-    <div className="flex flex-row gap-1 items-center text-xs">
+    <div
+      data-slot="attachment-renderer"
+      className="flex flex-row gap-1 items-center text-xs"
+    >
       <FileIcon className="h-3 w-3 mt-0.5" />
-      {attachment.filename || "Attachment"}
+      {attachment.filename || 'Attachment'}
     </div>
   );
 };
@@ -55,8 +59,9 @@ export const FileAttachmentPill = ({
 
   return (
     <div
+      data-slot="file-attachment-pill"
       className={cn(
-        "py-1 px-1.5 bg-muted rounded-md cursor-pointer flex flex-row gap-1 items-center text-xs",
+        'py-1 px-1.5 bg-mine-hover rounded-md cursor-pointer flex flex-row gap-1 items-center text-xs',
         className,
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -95,11 +100,12 @@ export const SendButton = ({
   );
 
   return (
-    <Tooltip content={isLoading ? "Stop" : "Submit"}>
+    <Tooltip content={isLoading ? 'Stop' : 'Submit'}>
       <Button
+        data-slot="send-button"
         variant="text"
         size="sm"
-        className="h-6 min-w-6 p-0 hover:bg-muted/30 cursor-pointer"
+        className="h-6 min-w-6 p-0 hover:bg-mine-hover/30 cursor-pointer"
         onClick={isLoading ? onStop : onSendClick}
         disabled={isLoading ? false : isEmpty}
       >
@@ -123,6 +129,7 @@ export const AddContextButton = ({
   return (
     <Tooltip content="Add context">
       <Button
+        data-slot="add-context-button"
         variant="text"
         size="icon"
         onClick={handleAddContext}
@@ -147,6 +154,7 @@ export const AttachFileButton = ({
     <>
       <Tooltip content="Attach a file">
         <Button
+          data-slot="attach-file-button"
           variant="text"
           size="icon"
           onClick={() => fileInputRef.current?.click()}
@@ -165,18 +173,18 @@ export const AttachFileButton = ({
             onAddFiles([...event.target.files]);
           }
         }}
-        accept={SUPPORTED_ATTACHMENT_TYPES.join(",")}
+        accept={SUPPORTED_ATTACHMENT_TYPES.join(',')}
       />
     </>
   );
 };
 
 function renderFileIcon(file: File): React.ReactNode {
-  const classNames = "h-3 w-3 mt-0.5";
+  const classNames = 'h-3 w-3 mt-0.5';
 
-  if (file.type.startsWith("image/")) {
+  if (file.type.startsWith('image/')) {
     return <ImageIcon className={classNames} />;
-  } else if (file.type.startsWith("text/")) {
+  } else if (file.type.startsWith('text/')) {
     return <FileTextIcon className={classNames} />;
   }
 

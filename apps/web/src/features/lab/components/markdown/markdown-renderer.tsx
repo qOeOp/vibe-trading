@@ -6,7 +6,7 @@ import { useAtomValue } from "jotai";
 import { BetweenHorizontalStartIcon } from "lucide-react";
 import { memo, Suspense, useState } from "react";
 import { Streamdown, type StreamdownProps } from "streamdown";
-import { Button, type ButtonProps } from "../ui/button";
+import { Button, type ButtonProps } from '@/components/ui/button';
 import { maybeAddMarimoImport } from "@/features/lab/core/cells/add-missing-import";
 import { useCellActions } from "@/features/lab/core/cells/cells";
 import { useLastFocusedCellId } from "@/features/lab/core/cells/focus";
@@ -174,7 +174,7 @@ const COMPONENTS: Components = {
       const code = children.trim();
       return (
         <div>
-          <div className="text-xs text-muted-foreground pl-1">{language}</div>
+          <div className="text-xs text-mine-muted pl-1">{language}</div>
           <CodeBlock code={code} language={language} />
         </div>
       );

@@ -45,7 +45,7 @@ function ModifiedDot({ visible = true }: { visible?: boolean }) {
       data-slot="modified-dot"
       className="shrink-0 flex items-center h-5 pt-0.5 pl-0.5"
     >
-      <div className="w-1.5 h-1.5 rounded-full bg-[#707070]" />
+      <div className="w-1.5 h-1.5 rounded-full bg-mine-muted" />
     </div>
   );
 }
@@ -76,7 +76,7 @@ function FileTabItem({
       data-slot="tab-section-file"
       className={cn(
         'group/tab flex items-center pr-px',
-        !isLast && 'border-r border-[#e0e0e0]',
+        !isLast && 'border-r border-mine-border',
         onClick && 'cursor-pointer',
         isActive && 'bg-white/40 rounded-lg',
       )}
@@ -86,7 +86,7 @@ function FileTabItem({
     >
       <div className="flex items-center gap-1 pl-4 pr-2">
         <PythonIcon className="w-4 h-4" />
-        <span className="font-mono font-medium text-sm text-[#707070] leading-5 tracking-[-0.084px] whitespace-nowrap">
+        <span className="font-mono font-medium text-sm text-mine-muted leading-5 tracking-[-0.084px] whitespace-nowrap">
           {label}
         </span>
         <ModifiedDot visible={isDirty} />

@@ -314,4 +314,4 @@ const TerminalComponent: React.FC<TerminalComponentProps> = ({
   );
 };
 
-export default React.memo(TerminalComponent);
+export const LabTerminal = React.memo(TerminalComponent);

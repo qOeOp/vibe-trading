@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-"use no memo";
+'use no memo';
 
-import type { Column, Table } from "@tanstack/react-table";
-import { capitalize } from "lodash-es";
-import { FilterIcon, MinusIcon, TextIcon, XIcon } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
-import { useLocale } from "react-aria";
+import type { Column, Table } from '@tanstack/react-table';
+import { capitalize } from 'lodash-es';
+import { FilterIcon, MinusIcon, TextIcon, XIcon } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
+import { useLocale } from 'react-aria';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,28 +16,28 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
-import type { CalculateTopKRows } from "@/features/lab/plugins/impl/DataTablePlugin";
-import type { OperatorType } from "@/features/lab/plugins/impl/data-frames/utils/operators";
-import { logNever } from "@/features/lab/utils/assertNever";
-import { cn } from "@/features/lab/utils/cn";
-import { Logger } from "@/features/lab/utils/Logger";
-import { Spinner } from "../icons/spinner";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
+} from '@/components/ui/dropdown-menu';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { ErrorBanner } from '@/features/lab/plugins/impl/common/error-banner';
+import type { CalculateTopKRows } from '@/features/lab/plugins/impl/DataTablePlugin';
+import type { OperatorType } from '@/features/lab/plugins/impl/data-frames/utils/operators';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { cn } from '@/features/lab/utils/cn';
+import { Logger } from '@/features/lab/utils/Logger';
+import { Spinner } from '../icons/spinner';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from "../ui/command";
-import { DraggablePopover } from "../ui/draggable-popover";
-import { Input } from "../ui/input";
-import { NumberField } from "../ui/number-field";
-import { PopoverClose } from "../ui/popover";
+} from '@/components/ui/command';
+import { DraggablePopover } from '../ui/draggable-popover';
+import { Input } from '@/components/ui/input';
+import { NumberField } from '../ui/number-field';
+import { PopoverClose } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -45,8 +45,8 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { type ColumnFilterForType, Filter } from "./filters";
+} from '@/components/ui/select';
+import { type ColumnFilterForType, Filter } from './filters';
 import {
   ClearFilterMenuItem,
   FilterButtons,
@@ -58,8 +58,8 @@ import {
   renderFormatOptions,
   renderSortFilterIcon,
   renderSorts,
-} from "./header-items";
-import { stringifyUnknownValue } from "./utils";
+} from './header-items';
+import { stringifyUnknownValue } from './utils';
 
 const TOP_K_ROWS = 30;
 
@@ -67,7 +67,7 @@ interface DataTableColumnHeaderProps<TData, TValue>
   extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   header: React.ReactNode;
-  justify?: "left" | "center" | "right";
+  justify?: 'left' | 'center' | 'right';
   calculateTopKRows?: CalculateTopKRows;
   table?: Table<TData>;
 }
@@ -102,8 +102,8 @@ export const DataTableColumnHeader = <TData, TValue>({
         <DropdownMenuTrigger asChild={true}>
           <div
             className={cn(
-              "group flex items-center my-1 space-between w-full select-none gap-2 border hover:border-border border-transparent hover:bg-(--slate-3) data-[state=open]:bg-(--slate-3) data-[state=open]:border-border rounded px-1 -mx-1",
-              justify === "right" && "flex-row-reverse",
+              'group flex items-center my-1 space-between w-full select-none gap-2 border hover:border-mine-border border-transparent hover:bg-(--slate-3) data-[state=open]:bg-(--slate-3) data-[state=open]:border-mine-border rounded px-1 -mx-1',
+              justify === 'right' && 'flex-row-reverse',
               className,
             )}
             data-testid="data-table-sort-button"
@@ -111,9 +111,9 @@ export const DataTableColumnHeader = <TData, TValue>({
             <span className="flex-1">{header}</span>
             <span
               className={cn(
-                "h-5 py-1 px-1",
+                'h-5 py-1 px-1',
                 hideIcon &&
-                  "invisible group-hover:visible data-[state=open]:visible",
+                  'invisible group-hover:visible data-[state=open]:visible',
               )}
             >
               {renderSortFilterIcon(column)}
@@ -155,7 +155,7 @@ export const DataTableColumnHeaderWithSummary = <TData, TValue>({
   return (
     <div
       className={cn(
-        "flex flex-col h-full pt-0.5 pb-3 justify-between items-start",
+        'flex flex-col h-full pt-0.5 pb-3 justify-between items-start',
         className,
       )}
     >
@@ -189,7 +189,7 @@ export function renderMenuItemFilter<TData, TValue>(
     </DropdownMenuSubTrigger>
   );
 
-  if (filterType === "boolean") {
+  if (filterType === 'boolean') {
     return (
       <DropdownMenuSub>
         {filterMenuItem}
@@ -202,7 +202,7 @@ export function renderMenuItemFilter<TData, TValue>(
     );
   }
 
-  if (filterType === "text") {
+  if (filterType === 'text') {
     return (
       <DropdownMenuSub>
         {filterMenuItem}
@@ -215,7 +215,7 @@ export function renderMenuItemFilter<TData, TValue>(
     );
   }
 
-  if (filterType === "number") {
+  if (filterType === 'number') {
     return (
       <DropdownMenuSub>
         {filterMenuItem}
@@ -228,22 +228,22 @@ export function renderMenuItemFilter<TData, TValue>(
     );
   }
 
-  if (filterType === "select") {
+  if (filterType === 'select') {
     // Not implemented
     return null;
   }
 
-  if (filterType === "time") {
+  if (filterType === 'time') {
     // Not implemented
     return null;
   }
 
-  if (filterType === "datetime") {
+  if (filterType === 'datetime') {
     // Not implemented
     return null;
   }
 
-  if (filterType === "date") {
+  if (filterType === 'date') {
     // Not implemented
     return null;
   }
@@ -254,8 +254,8 @@ export function renderMenuItemFilter<TData, TValue>(
 
 // Type-safe constants for null filter operators
 const NULL_FILTER_OPERATORS = {
-  is_null: "is_null",
-  is_not_null: "is_not_null",
+  is_null: 'is_null',
+  is_not_null: 'is_not_null',
 } satisfies Record<string, OperatorType>;
 
 const NullFilter = <TData, TValue>({
@@ -265,18 +265,18 @@ const NullFilter = <TData, TValue>({
   setOperator,
 }: {
   column: Column<TData, TValue>;
-  defaultItem?: OperatorType | "between";
-  operator: OperatorType | "between";
+  defaultItem?: OperatorType | 'between';
+  operator: OperatorType | 'between';
   setOperator: (operator: OperatorType) => void;
 }) => {
   const handleValueChange = (value: OperatorType) => {
     setOperator(value);
-    if (value === "is_null" || value === "is_not_null") {
+    if (value === 'is_null' || value === 'is_not_null') {
       column.setFilterValue(Filter.text({ operator: value }));
     }
   };
 
-  const isNullOrNotNull = operator === "is_null" || operator === "is_not_null";
+  const isNullOrNotNull = operator === 'is_null' || operator === 'is_not_null';
 
   return (
     <Select
@@ -285,8 +285,8 @@ const NullFilter = <TData, TValue>({
     >
       <SelectTrigger
         className={cn(
-          "border-border shadow-none! ring-0! w-full mb-0.5",
-          isNullOrNotNull && "mb-2",
+          'border-mine-border shadow-none! ring-0! w-full mb-0.5',
+          isNullOrNotNull && 'mb-2',
         )}
       >
         <SelectValue defaultValue={operator} />
@@ -315,7 +315,7 @@ const BooleanFilter = <TData, TValue>({
       <DropdownMenuItem
         onClick={() =>
           column.setFilterValue(
-            Filter.boolean({ value: true, operator: "is_true" }),
+            Filter.boolean({ value: true, operator: 'is_true' }),
           )
         }
       >
@@ -324,7 +324,7 @@ const BooleanFilter = <TData, TValue>({
       <DropdownMenuItem
         onClick={() =>
           column.setFilterValue(
-            Filter.boolean({ value: false, operator: "is_false" }),
+            Filter.boolean({ value: false, operator: 'is_false' }),
           )
         }
       >
@@ -333,14 +333,14 @@ const BooleanFilter = <TData, TValue>({
       <DropdownMenuSeparator />
       <DropdownMenuItem
         onClick={() =>
-          column.setFilterValue(Filter.boolean({ operator: "is_null" }))
+          column.setFilterValue(Filter.boolean({ operator: 'is_null' }))
         }
       >
         Is null
       </DropdownMenuItem>
       <DropdownMenuItem
         onClick={() =>
-          column.setFilterValue(Filter.boolean({ operator: "is_not_null" }))
+          column.setFilterValue(Filter.boolean({ operator: 'is_not_null' }))
         }
       >
         Is not null
@@ -355,12 +355,12 @@ const NumberRangeFilter = <TData, TValue>({
   column: Column<TData, TValue>;
 }) => {
   const currentFilter = column.getFilterValue() as
-    | ColumnFilterForType<"number">
+    | ColumnFilterForType<'number'>
     | undefined;
   const hasFilter = currentFilter !== undefined;
 
-  const [operator, setOperator] = useState<OperatorType | "between">(
-    currentFilter?.operator ?? "between",
+  const [operator, setOperator] = useState<OperatorType | 'between'>(
+    currentFilter?.operator ?? 'between',
   );
   const [min, setMin] = useState<number | undefined>(currentFilter?.min);
   const [max, setMax] = useState<number | undefined>(currentFilter?.max);
@@ -372,7 +372,7 @@ const NumberRangeFilter = <TData, TValue>({
       Filter.number({
         min: opts.min ?? min,
         max: opts.max ?? max,
-        operator: operator === "between" ? undefined : operator,
+        operator: operator === 'between' ? undefined : operator,
       }),
     );
   };
@@ -385,7 +385,7 @@ const NumberRangeFilter = <TData, TValue>({
         operator={operator}
         setOperator={setOperator}
       />
-      {operator === "between" && (
+      {operator === 'between' && (
         <>
           <div className="flex gap-1 items-center">
             <NumberField
@@ -395,35 +395,35 @@ const NumberRangeFilter = <TData, TValue>({
               aria-label="min"
               placeholder="min"
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === 'Enter') {
                   handleApply({
                     min: Number.parseFloat(e.currentTarget.value),
                   });
                 }
-                if (e.key === "Tab") {
+                if (e.key === 'Tab') {
                   maxRef.current?.focus();
                 }
               }}
-              className="shadow-none! border-border hover:shadow-none!"
+              className="shadow-none! border-mine-border hover:shadow-none!"
             />
-            <MinusIcon className="h-5 w-5 text-muted-foreground" />
+            <MinusIcon className="h-5 w-5 text-mine-muted" />
             <NumberField
               ref={maxRef}
               value={max}
               onChange={(value) => setMax(value)}
               aria-label="max"
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === 'Enter') {
                   handleApply({
                     max: Number.parseFloat(e.currentTarget.value),
                   });
                 }
-                if (e.key === "Tab") {
+                if (e.key === 'Tab') {
                   minRef.current?.focus();
                 }
               }}
               placeholder="max"
-              className="shadow-none! border-border hover:shadow-none!"
+              className="shadow-none! border-mine-border hover:shadow-none!"
             />
           </div>
           <FilterButtons
@@ -447,21 +447,21 @@ const TextFilter = <TData, TValue>({
   column: Column<TData, TValue>;
 }) => {
   const currentFilter = column.getFilterValue() as
-    | ColumnFilterForType<"text">
+    | ColumnFilterForType<'text'>
     | undefined;
   const hasFilter = currentFilter !== undefined;
-  const [value, setValue] = useState<string>(currentFilter?.text ?? "");
+  const [value, setValue] = useState<string>(currentFilter?.text ?? '');
   const [operator, setOperator] = useState<OperatorType>(
-    currentFilter?.operator ?? "contains",
+    currentFilter?.operator ?? 'contains',
   );
 
   const handleApply = () => {
-    if (operator !== "contains") {
+    if (operator !== 'contains') {
       column.setFilterValue(Filter.text({ operator }));
       return;
     }
 
-    if (value === "") {
+    if (value === '') {
       column.setFilterValue(undefined);
       return;
     }
@@ -477,25 +477,25 @@ const TextFilter = <TData, TValue>({
         operator={operator}
         setOperator={setOperator}
       />
-      {operator === "contains" && (
+      {operator === 'contains' && (
         <>
           <Input
             type="text"
-            icon={<TextIcon className="h-3 w-3 text-muted-foreground mb-1" />}
-            value={value ?? ""}
+            icon={<TextIcon className="h-3 w-3 text-mine-muted mb-1" />}
+            value={value ?? ''}
             onChange={(e) => setValue(e.target.value)}
             placeholder="Text..."
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === 'Enter') {
                 handleApply();
               }
             }}
-            className="shadow-none! border-border hover:shadow-none!"
+            className="shadow-none! border-mine-border hover:shadow-none!"
           />
           <FilterButtons
             onApply={handleApply}
             onClear={() => {
-              setValue("");
+              setValue('');
               column.setFilterValue(undefined);
             }}
             clearButtonDisabled={!hasFilter}
@@ -516,7 +516,7 @@ const PopoverFilterByValues = <TData, TValue>({
   column: Column<TData, TValue>;
 }) => {
   const [chosenValues, setChosenValues] = useState<Set<unknown>>(new Set());
-  const [query, setQuery] = useState<string>("");
+  const [query, setQuery] = useState<string>('');
 
   const { data, isPending, error } = useAsyncData(async () => {
     if (!calculateTopKRows) {
@@ -540,7 +540,7 @@ const PopoverFilterByValues = <TData, TValue>({
           : String(value).toLowerCase().includes(query.toLowerCase());
       });
     } catch (error_) {
-      Logger.error("Error filtering data", error_);
+      Logger.error('Error filtering data', error_);
       return [];
     }
   }, [data, query]);
@@ -585,7 +585,7 @@ const PopoverFilterByValues = <TData, TValue>({
       return;
     }
     column.setFilterValue(
-      Filter.select({ options: [...chosenValues], operator: "in" }),
+      Filter.select({ options: [...chosenValues], operator: 'in' }),
     );
   };
 
@@ -642,7 +642,7 @@ const PopoverFilterByValues = <TData, TValue>({
             })}
           </CommandList>
           {filteredData.length === TOP_K_ROWS && (
-            <span className="text-xs text-muted-foreground mt-1.5 text-center">
+            <span className="text-xs text-mine-muted mt-1.5 text-center">
               Only showing the top {TOP_K_ROWS} values
             </span>
           )}

@@ -1,39 +1,39 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
-import { SaveIcon } from "lucide-react";
-import { useState } from "react";
-import { FilenameInput } from "@/features/lab/components/editor/header/filename-input";
-import { Button as ControlButton } from "@/features/lab/components/editor/inputs/Inputs";
-import { RecoveryButton } from "@/features/lab/components/editor/RecoveryButton";
-import { renderShortcut } from "@/features/lab/components/shortcuts/renderShortcut";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import { useEventListener } from "@/features/lab/hooks/useEventListener";
-import { useHotkey } from "@/features/lab/hooks/useHotkey";
-import { useImperativeModal } from "@/features/lab/components/modal/ImperativeModal";
-import { Button } from "@/features/lab/components/ui/button";
+import { useAtom, useAtomValue, useSetAtom, useStore } from 'jotai';
+import { SaveIcon } from 'lucide-react';
+import { useState } from 'react';
+import { FilenameInput } from '@/features/lab/components/editor/header/filename-input';
+import { Button as ControlButton } from '@/features/lab/components/editor/inputs/Inputs';
+import { RecoveryButton } from '@/features/lab/components/editor/RecoveryButton';
+import { renderShortcut } from '@/features/lab/components/shortcuts/renderShortcut';
+import { Tooltip } from '@/components/ui/tooltip';
+import { useEventListener } from '@/features/lab/hooks/useEventListener';
+import { useHotkey } from '@/features/lab/hooks/useHotkey';
+import { useImperativeModal } from '@/features/lab/components/modal/ImperativeModal';
+import { Button } from '@/features/lab/components/ui/button';
 import {
   DialogContent,
   DialogFooter,
   DialogTitle,
-} from "@/features/lab/components/ui/dialog";
-import { Label } from "@/features/lab/components/ui/label";
-import { useEvent } from "@/features/lab/hooks/useEvent";
-import { Logger } from "@/features/lab/utils/Logger";
-import { getCellConfigs, getNotebook, useNotebook } from "../cells/cells";
-import { notebookCells } from "../cells/utils";
-import { formatAll } from "../codemirror/format";
-import { autoSaveConfigAtom } from "../config/config";
-import { useAutoExport } from "../export/hooks";
-import { getSerializedLayout, layoutStateAtom } from "../layout/layout";
-import { kioskModeAtom } from "../mode";
-import { connectionAtom } from "../network/connection";
-import { useRequestClient } from "../network/requests";
-import { WebSocketState } from "../websocket/types";
-import { filenameAtom } from "./file-state";
-import { useFilename, useUpdateFilename } from "./filename";
-import { lastSavedNotebookAtom, needsSaveAtom } from "./state";
-import { useAutoSave } from "./useAutoSave";
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { useEvent } from '@/features/lab/hooks/useEvent';
+import { Logger } from '@/features/lab/utils/Logger';
+import { getCellConfigs, getNotebook, useNotebook } from '../cells/cells';
+import { notebookCells } from '../cells/utils';
+import { formatAll } from '../codemirror/format';
+import { autoSaveConfigAtom } from '../config/config';
+import { useAutoExport } from '../export/hooks';
+import { getSerializedLayout, layoutStateAtom } from '../layout/layout';
+import { kioskModeAtom } from '../mode';
+import { connectionAtom } from '../network/connection';
+import { useRequestClient } from '../network/requests';
+import { WebSocketState } from '../websocket/types';
+import { filenameAtom } from './file-state';
+import { useFilename, useUpdateFilename } from './filename';
+import { lastSavedNotebookAtom, needsSaveAtom } from './state';
+import { useAutoSave } from './useAutoSave';
 
 interface SaveNotebookProps {
   kioskMode: boolean;
@@ -49,14 +49,14 @@ export const SaveComponent = ({ kioskMode }: SaveNotebookProps) => {
   useAutoExport();
 
   // Add beforeunload event listener to prevent accidental closing when there are unsaved changes
-  useEventListener(window, "beforeunload", (event) => {
+  useEventListener(window, 'beforeunload', (event) => {
     // Only prevent unload if we have unsaved changes
     if (needsSave) {
       // Standard way to show a confirmation dialog before closing
       event.preventDefault();
       // Required for older browsers
       event.returnValue =
-        "You have unsaved changes. Are you sure you want to leave?";
+        'You have unsaved changes. Are you sure you want to leave?';
       return event.returnValue;
     }
   });
@@ -67,19 +67,19 @@ export const SaveComponent = ({ kioskMode }: SaveNotebookProps) => {
     saveOrNameNotebook();
   };
 
-  useHotkey("global.save", saveOrNameNotebook);
+  useHotkey('global.save', saveOrNameNotebook);
 
   if (closed) {
     return <RecoveryButton filename={filename} needsSave={needsSave} />;
   }
 
   return (
-    <Tooltip content={renderShortcut("global.save")}>
+    <Tooltip content={renderShortcut('global.save')}>
       <ControlButton
         data-testid="save-button"
         id="save-button"
         shape="rectangle"
-        color={needsSave ? "yellow" : "hint-green"}
+        color={needsSave ? 'yellow' : 'hint-green'}
         onClick={handleSaveClick}
       >
         <SaveIcon strokeWidth={1.5} size={18} />
@@ -108,14 +108,14 @@ export function useSaveNotebook() {
 
       // Don't save if we are not connected to a kernel
       if (connection.state !== WebSocketState.OPEN) {
-        openAlert("Failed to save notebook: not connected to a kernel.");
+        openAlert('Failed to save notebook: not connected to a kernel.');
         return;
       }
 
-      Logger.log("saving to ", filename);
+      Logger.log('saving to ', filename);
 
       if (userInitiated && autoSaveConfig.format_on_save) {
-        Logger.log("formatting notebook (onSave)");
+        Logger.log('formatting notebook (onSave)');
         await formatAll();
       }
 
@@ -200,11 +200,11 @@ export function isNamedPersistentFile(
   return (
     filename !== null &&
     // Linux
-    !filename.startsWith("/tmp/") &&
+    !filename.startsWith('/tmp/') &&
     // macOS
-    !filename.startsWith("/var/folders") &&
+    !filename.startsWith('/var/folders') &&
     // Windows
-    !filename.includes("AppData\\Local\\Temp")
+    !filename.includes('AppData\\Local\\Temp')
   );
 }
 
@@ -239,7 +239,7 @@ const SaveDialog = (props: {
   onSave: (filename: string) => void;
 }) => {
   const { onClose, onSave } = props;
-  const cancelButtonLabel = "Cancel";
+  const cancelButtonLabel = 'Cancel';
   const [filename, setFilename] = useState<string>();
   const handleFilenameChange = (name: string) => {
     setFilename(name);

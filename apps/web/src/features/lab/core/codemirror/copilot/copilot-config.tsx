@@ -1,16 +1,16 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { useAtom } from "jotai";
-import { CheckIcon, CopyIcon, Loader2Icon, XIcon } from "lucide-react";
-import { memo, useState } from "react";
-import { Button, buttonVariants } from "@/features/lab/components/ui/button";
-import { Label } from "@/features/lab/components/ui/label";
-import { ExternalLink } from "@/features/lab/components/ui/links";
-import { toast } from "@/features/lab/components/ui/use-toast";
-import { copyToClipboard } from "@/features/lab/utils/copy";
-import { Logger } from "@/features/lab/utils/Logger";
-import { getCopilotClient } from "./client";
-import { copilotSignedInState, isGitHubCopilotSignedInState } from "./state";
-import type { GitHubCopilotStatus } from "./types";
+import { useAtom } from 'jotai';
+import { CheckIcon, CopyIcon, Loader2Icon, XIcon } from 'lucide-react';
+import { memo, useState } from 'react';
+import { Button, buttonVariants } from '@/features/lab/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { ExternalLink } from '@/features/lab/components/ui/links';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { copyToClipboard } from '@/features/lab/utils/copy';
+import { Logger } from '@/features/lab/utils/Logger';
+import { getCopilotClient } from './client';
+import { copilotSignedInState, isGitHubCopilotSignedInState } from './state';
+import type { GitHubCopilotStatus } from './types';
 
 export const CopilotConfig = memo(() => {
   const [copilotSignedIn, copilotChangeSignIn] = useAtom(
@@ -28,15 +28,15 @@ export const CopilotConfig = memo(() => {
 
       // Validate the response has required fields
       if (!result?.verificationUri || !result.userCode) {
-        Logger.error("Copilot#trySignIn: Invalid response from sign-in", {
+        Logger.error('Copilot#trySignIn: Invalid response from sign-in', {
           result,
         });
-        setStep("connectionError");
+        setStep('connectionError');
         toast({
-          title: "GitHub Copilot Connection Error",
+          title: 'GitHub Copilot Connection Error',
           description:
-            "Unable to connect to GitHub Copilot. Please check your settings and try again.",
-          variant: "danger",
+            'Unable to connect to GitHub Copilot. Please check your settings and try again.',
+          variant: 'danger',
         });
         return;
       }
@@ -45,19 +45,19 @@ export const CopilotConfig = memo(() => {
       if (isSignedIn(status)) {
         copilotChangeSignIn(true);
       } else {
-        setStep("signingIn");
+        setStep('signingIn');
         setLocalData({ url: verificationUri, code: userCode });
       }
     } catch (error) {
-      Logger.error("Copilot#trySignIn: Error during sign-in", error);
-      setStep("connectionError");
+      Logger.error('Copilot#trySignIn: Error during sign-in', error);
+      setStep('connectionError');
       toast({
-        title: "GitHub Copilot Connection Error",
+        title: 'GitHub Copilot Connection Error',
         description:
           error instanceof Error
             ? error.message
-            : "Unable to connect to GitHub Copilot. Please check your settings and try again.",
-        variant: "danger",
+            : 'Unable to connect to GitHub Copilot. Please check your settings and try again.',
+        variant: 'danger',
       });
     } finally {
       setLoading(false);
@@ -75,17 +75,17 @@ export const CopilotConfig = memo(() => {
       const result = await handleSignInConfirmation(localData.code);
       if (result.success) {
         copilotChangeSignIn(true);
-        setStep("signedIn");
-      } else if (result.error === "connection") {
-        setStep("connectionError");
+        setStep('signedIn');
+      } else if (result.error === 'connection') {
+        setStep('connectionError');
         toast({
-          title: "GitHub Copilot Connection Error",
-          description: "Lost connection during sign-in. Please try again.",
-          variant: "danger",
+          title: 'GitHub Copilot Connection Error',
+          description: 'Lost connection during sign-in. Please try again.',
+          variant: 'danger',
           action: <Button onClick={trySignIn}>Retry</Button>,
         });
       } else {
-        setStep("signInFailed");
+        setStep('signInFailed');
       }
     } finally {
       setLoading(false);
@@ -96,24 +96,24 @@ export const CopilotConfig = memo(() => {
     evt.preventDefault();
     await handleSignOut();
     copilotChangeSignIn(false);
-    setStep("signedOut");
+    setStep('signedOut');
   };
 
   const renderBody = () => {
     // If we don't have a step set, infer it from the current state
-    const resolvedStep = step ?? (copilotSignedIn ? "signedIn" : "connecting");
+    const resolvedStep = step ?? (copilotSignedIn ? 'signedIn' : 'connecting');
 
     switch (resolvedStep) {
-      case "connecting":
+      case 'connecting':
         return <Label className="font-normal flex">Connecting...</Label>;
-      case "signedOut":
+      case 'signedOut':
         return (
           <Button onClick={trySignIn} size="xs" variant="link">
             Sign in to GitHub Copilot
           </Button>
         );
 
-      case "signingIn":
+      case 'signingIn':
         return (
           <ol className="ml-4 text-sm list-decimal [&>li]:mt-2">
             <li>
@@ -128,7 +128,7 @@ export const CopilotConfig = memo(() => {
                     }
                     await copyToClipboard(localData.code);
                     toast({
-                      description: "Copied to clipboard",
+                      description: 'Copied to clipboard',
                     });
                   }}
                 />
@@ -140,7 +140,7 @@ export const CopilotConfig = memo(() => {
                 href={localData?.url}
                 target="_blank"
                 rel="noreferrer"
-                className={buttonVariants({ variant: "link", size: "xs" })}
+                className={buttonVariants({ variant: 'link', size: 'xs' })}
               >
                 {localData?.url}
               </a>
@@ -157,7 +157,7 @@ export const CopilotConfig = memo(() => {
           </ol>
         );
 
-      case "signInFailed":
+      case 'signInFailed':
         return (
           <div className="flex flex-col gap-1">
             <div className="text-destructive text-sm">
@@ -173,7 +173,7 @@ export const CopilotConfig = memo(() => {
           </div>
         );
 
-      case "signedIn":
+      case 'signedIn':
         return (
           <div className="flex items-center gap-5">
             <Label className="font-normal flex items-center">
@@ -188,7 +188,7 @@ export const CopilotConfig = memo(() => {
           </div>
         );
 
-      case "connectionError":
+      case 'connectionError':
         return (
           <div className="flex flex-col gap-1">
             <Label className="font-normal flex">
@@ -202,7 +202,7 @@ export const CopilotConfig = memo(() => {
           </div>
         );
 
-      case "notConnected":
+      case 'notConnected':
         return (
           <div className="flex flex-col gap-1">
             <Label className="font-normal flex">
@@ -210,7 +210,7 @@ export const CopilotConfig = memo(() => {
               Unable to connect
             </Label>
             <div className="text-sm">
-              For troubleshooting, see the{" "}
+              For troubleshooting, see the{' '}
               <ExternalLink href="https://docs.marimo.io/getting_started/index.html#github-copilot">
                 docs
               </ExternalLink>
@@ -224,7 +224,7 @@ export const CopilotConfig = memo(() => {
   return renderBody();
 });
 
-CopilotConfig.displayName = "CopilotConfig";
+CopilotConfig.displayName = 'CopilotConfig';
 
 // Utility functions
 const MAX_RETRIES = 5;
@@ -239,26 +239,26 @@ async function handleSignInConfirmation(userCode: string) {
   const client = getCopilotClient();
 
   try {
-    Logger.log("Copilot#tryFinishSignIn: Attempting to confirm sign-in");
+    Logger.log('Copilot#tryFinishSignIn: Attempting to confirm sign-in');
     const { status } = await client.signInConfirm({ userCode });
 
     if (isSignedIn(status)) {
-      Logger.log("Copilot#tryFinishSignIn: Sign-in confirmed successfully");
+      Logger.log('Copilot#tryFinishSignIn: Sign-in confirmed successfully');
       return { success: true };
     }
 
     Logger.warn(
-      "Copilot#tryFinishSignIn: Sign-in confirmation returned unexpected status",
+      'Copilot#tryFinishSignIn: Sign-in confirmation returned unexpected status',
       { status },
     );
     return { success: false };
   } catch (error) {
     if (isConnectionError(error)) {
       Logger.error(
-        "Copilot#tryFinishSignIn: Connection error during sign-in",
+        'Copilot#tryFinishSignIn: Connection error during sign-in',
         error,
       );
-      return { success: false, error: "connection" };
+      return { success: false, error: 'connection' };
     }
 
     return await handleSignInRetry(client);
@@ -272,23 +272,23 @@ async function handleSignInRetry(client: ReturnType<typeof getCopilotClient>) {
       const signedIn = await client.signedIn();
       if (signedIn) {
         Logger.log(
-          "Copilot#tryFinishSignIn: Successfully signed in after retry",
+          'Copilot#tryFinishSignIn: Successfully signed in after retry',
         );
         return { success: true };
       }
     } catch (retryError) {
-      Logger.warn("Copilot#tryFinishSignIn: Retry attempt failed", {
+      Logger.warn('Copilot#tryFinishSignIn: Retry attempt failed', {
         attempt: i + 1,
         maxRetries: MAX_RETRIES,
       });
 
       if (isConnectionError(retryError)) {
-        return { success: false, error: "connection" };
+        return { success: false, error: 'connection' };
       }
     }
   }
 
-  Logger.error("Copilot#tryFinishSignIn: All sign-in attempts failed");
+  Logger.error('Copilot#tryFinishSignIn: All sign-in attempts failed');
   return { success: false };
 }
 
@@ -300,14 +300,14 @@ async function handleSignOut() {
 function isConnectionError(error: unknown): boolean {
   return (
     error instanceof Error &&
-    (error.message.includes("ECONNREFUSED") ||
-      error.message.includes("WebSocket") ||
-      error.message.includes("network"))
+    (error.message.includes('ECONNREFUSED') ||
+      error.message.includes('WebSocket') ||
+      error.message.includes('network'))
   );
 }
 
 function isSignedIn(status: GitHubCopilotStatus): boolean {
   return (
-    status === "SignedIn" || status === "AlreadySignedIn" || status === "OK"
+    status === 'SignedIn' || status === 'AlreadySignedIn' || status === 'OK'
   );
 }

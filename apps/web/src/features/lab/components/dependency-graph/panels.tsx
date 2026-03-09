@@ -20,10 +20,10 @@ import type { Variable, Variables } from "@/features/lab/core/variables/types";
 import { ConnectionCellActionsDropdown } from "../editor/cell/cell-actions";
 import { CellLink } from "../editor/links/cell-link";
 import { CellLinkList } from "../editor/links/cell-link-list";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import { Label } from "../ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { VariableName } from "../variables/common";
 import type { GraphSelection, GraphSettings, LayoutDirection } from "./types";
 
@@ -53,7 +53,7 @@ export const GraphToolbar: React.FC<Props> = memo(
             <SettingsIcon className="w-4 h-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-2 text-muted-foreground">
+        <PopoverContent className="w-auto p-2 text-mine-muted">
           <div className="font-semibold pb-4">Settings</div>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -90,7 +90,7 @@ export const GraphToolbar: React.FC<Props> = memo(
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="bg-background"
+            className="bg-mine-page-bg"
             aria-selected={view === "TB"}
             size="xs"
             onClick={() => onChange("TB")}
@@ -100,7 +100,7 @@ export const GraphToolbar: React.FC<Props> = memo(
           </Button>
           <Button
             variant="outline"
-            className="bg-background"
+            className="bg-mine-page-bg"
             aria-selected={view === "LR"}
             size="xs"
             onClick={() => onChange("LR")}
@@ -149,7 +149,7 @@ export const GraphSelectionPanel: React.FC<{
       ) => (
         <>
           {variables.length === 0 && (
-            <div className="text-muted-foreground text-sm text-center">--</div>
+            <div className="text-mine-muted text-sm text-center">--</div>
           )}
           <div className="grid grid-cols-5 gap-3 items-center text-sm py-1 flex-1 empty:hidden">
             {variables.map((variable) => (
@@ -163,7 +163,7 @@ export const GraphSelectionPanel: React.FC<{
                   title={variable.value ?? ""}
                 >
                   {variable.value}
-                  <span className="ml-1 truncate text-foreground/60 font-mono">
+                  <span className="ml-1 truncate text-mine-text/60 font-mono">
                     ({variable.dataType})
                   </span>
                 </div>
@@ -254,7 +254,7 @@ export const GraphSelectionPanel: React.FC<{
                     highlightInCell(variable.declaredBy[0], variable.name);
                   }}
                 />
-                <div className="truncate text-foreground/60 font-mono">
+                <div className="truncate text-mine-text/60 font-mono">
                   {variable.dataType}
                 </div>
                 <div
@@ -276,7 +276,7 @@ export const GraphSelectionPanel: React.FC<{
       position="bottom-left"
       className="max-h-[90%] flex flex-col w-[calc(100%-5rem)]"
     >
-      <div className="min-h-[100px] shadow-md rounded-md border max-w-[550px] border-primary/40 my-4 min-w-[240px] bg-(--slate-1) text-muted-foreground/80 flex flex-col overflow-y-auto">
+      <div className="min-h-[100px] shadow-md rounded-md border max-w-[550px] border-primary/40 my-4 min-w-[240px] bg-(--slate-1) text-mine-muted/80 flex flex-col overflow-y-auto">
         {renderSelection()}
       </div>
     </Panel>

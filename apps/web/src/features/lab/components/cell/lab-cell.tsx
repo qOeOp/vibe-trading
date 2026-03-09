@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useCallback } from "react";
-import { cn } from "@/lib/utils";
-import { useLabCellStore } from "@/features/lab/store/use-lab-cell-store";
-import type { LabCell as LabCellType } from "@/features/lab/types";
-import { CellToolbar } from "./cell-toolbar";
-import { CellEditor } from "./cell-editor";
-import { CellOutput } from "./cell-output";
+import { useCallback } from 'react';
+import { cn } from '@/lib/utils';
+import { useLabCellStore } from '@/features/lab/store/use-lab-cell-store';
+import type { LabCell as LabCellType } from '@/features/lab/types';
+import { CellToolbar } from './cell-toolbar';
+import { CellEditor } from './cell-editor';
+import { CellOutput } from './cell-output';
 
 interface LabCellProps {
   cell: LabCellType;
@@ -62,9 +62,7 @@ export function LabCell({
     (name: string) => {
       // Update cell name in store
       useLabCellStore.setState((state) => ({
-        cells: state.cells.map((c) =>
-          c.id === cell.id ? { ...c, name } : c,
-        ),
+        cells: state.cells.map((c) => (c.id === cell.id ? { ...c, name } : c)),
       }));
     },
     [cell.id],
@@ -75,19 +73,19 @@ export function LabCell({
       data-slot="lab-cell"
       className={cn(
         // Marimo .marimo-cell base (Cell.css)
-        "group/cell relative",
-        "rounded-[10px] border border-mine-border bg-white",
-        "transition-all duration-200",
+        'group/cell relative',
+        'rounded-[10px] border border-mine-border bg-white',
+        'transition-all duration-200',
         // Marimo :hover → border darkens, raise z-index
-        "hover:border-[#c5c0b8] hover:z-30",
+        'hover:border-mine-border hover:z-30',
         // Marimo .interactive:focus-within → shadow glow
-        isActive && "shadow-[0_4px_12px_rgba(38,166,154,0.15)]",
+        isActive && 'shadow-[0_4px_12px_rgba(38,166,154,0.15)]',
         // Marimo .needs-run → stale yellow outline
-        cell.status === "stale" &&
-          "border-mine-accent-yellow/25 outline outline-1 outline-mine-accent-yellow/25",
+        cell.status === 'stale' &&
+          'border-mine-accent-yellow/25 outline outline-1 outline-mine-accent-yellow/25',
         // Marimo .has-error → red outline
-        cell.status === "error" &&
-          "border-mine-accent-red/20 outline outline-1 outline-mine-accent-red/20",
+        cell.status === 'error' &&
+          'border-mine-accent-red/20 outline outline-1 outline-mine-accent-red/20',
       )}
     >
       {/* Toolbar — absolute positioned outside cell, Marimo style */}

@@ -61,7 +61,7 @@ export const CustomNode = memo((props: CustomNodeProps) => {
       />
       <div
         className={cn(
-          "flex flex-col bg-card border border-input/50 rounded-md mx-[2px] overflow-hidden",
+          "flex flex-col bg-mine-card border border-input/50 rounded-md mx-[2px] overflow-hidden",
           selected && "border-primary",
         )}
         style={{
@@ -69,7 +69,7 @@ export const CustomNode = memo((props: CustomNodeProps) => {
           width: data.forceWidth || getWidth(reactFlowWidth),
         }}
       >
-        <div className="text-muted-foreground font-semibold text-xs py-1 px-2 bg-muted border-b">
+        <div className="text-mine-muted font-semibold text-xs py-1 px-2 bg-mine-hover border-b">
           {displayCellName(cell.name, cellIndex)}
         </div>
         <TinyCode code={cell.code} />

@@ -3,10 +3,13 @@ import type { EditorView } from '@codemirror/view';
 import type { QuotePrefixKind } from '@/features/lab/packages/smart-cells';
 import { InfoIcon, PaintRollerIcon } from 'lucide-react';
 import { Button } from '@/features/lab/components/ui/button';
-import { Checkbox } from '@/features/lab/components/ui/checkbox';
-import { Tooltip, TooltipProvider } from '@/features/lab/components/ui/tooltip';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { normalizeName } from '@/features/lab/core/cells/names';
-import { type ConnectionName, DUCKDB_ENGINE } from '@/features/lab/core/datasets/engines';
+import {
+  type ConnectionName,
+  DUCKDB_ENGINE,
+} from '@/features/lab/core/datasets/engines';
 import { useAutoGrowInputProps } from '@/features/lab/hooks/useAutoGrowInputProps';
 import { cellIdState } from '@/features/lab/core/codemirror/cells/state';
 import { formatSQL } from '@/features/lab/core/codemirror/format';
@@ -25,7 +28,7 @@ import type { LanguageMetadataOf } from '../types';
 import { getQuotePrefix, MarkdownQuotePrefixTooltip } from './markdown';
 import { SQLEngineSelect, SQLModeSelect } from './sql';
 
-const Divider = () => <div className="h-4 border-r border-border" />;
+const Divider = () => <div className="h-4 border-r border-mine-border" />;
 
 export const LanguagePanelComponent: React.FC<{
   view: EditorView;
@@ -88,7 +91,7 @@ export const LanguagePanelComponent: React.FC<{
                 sanitizeAndTriggerUpdate(e);
               }
             }}
-            className="min-w-14 w-auto border border-border rounded px-1 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+            className="min-w-14 w-auto border border-mine-border rounded px-1 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
           />
           <span {...spanProps} />
         </label>

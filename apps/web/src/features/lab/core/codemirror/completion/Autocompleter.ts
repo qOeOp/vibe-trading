@@ -33,18 +33,18 @@ function constructCompletionInfoNode(
     const instructionDiv = document.createElement("div");
     instructionDiv.classList.add(
       "text-xs",
-      "text-muted-foreground",
+      "text-mine-muted",
       "font-medium",
       "pt-1",
       "-mt-2",
       "border-t",
-      "border-border",
+      "border-mine-border",
     );
 
     // Create kbd element for the key symbol
     const kbd = document.createElement("kbd");
     kbd.className =
-      "ml-1 rounded-md bg-muted/40 px-2 text-[0.75rem] font-prose center border border-foreground/20 text-muted-foreground inline whitespace-nowrap";
+      "ml-1 rounded-md bg-mine-hover/40 px-2 text-[0.75rem] font-prose center border border-foreground/20 text-mine-muted inline whitespace-nowrap";
     kbd.textContent = isPlatformMac() ? "⌘" : "Ctrl";
 
     // Add the instruction text

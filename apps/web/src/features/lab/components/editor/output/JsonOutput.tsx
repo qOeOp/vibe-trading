@@ -11,19 +11,19 @@ import {
   nullType,
   objectType,
   stringType,
-} from "@textea/json-viewer";
-import { CheckIcon, CopyIcon } from "lucide-react";
-import { memo, useState } from "react";
-import type { OutputMessage } from "@/features/lab/core/kernel/messages";
-import { cn } from "@/features/lab/utils/cn";
-import { copyToClipboard } from "@/features/lab/utils/copy";
-import { isUrl } from "@/features/lab/utils/urls";
-import { useTheme } from "@/features/lab/theme/useTheme";
-import { logNever } from "@/features/lab/utils/assertNever";
-import { OutputRenderer } from "../Output";
-import { HtmlOutput } from "./HtmlOutput";
-import { ImageOutput } from "./ImageOutput";
-import { VideoOutput } from "./VideoOutput";
+} from '@textea/json-viewer';
+import { CheckIcon, CopyIcon } from 'lucide-react';
+import { memo, useState } from 'react';
+import type { OutputMessage } from '@/features/lab/core/kernel/messages';
+import { cn } from '@/features/lab/utils/cn';
+import { copyToClipboard } from '@/features/lab/utils/copy';
+import { isUrl } from '@/features/lab/utils/urls';
+import { useTheme } from '@/features/lab/theme/useTheme';
+import { logNever } from '@/features/lab/utils/assertNever';
+import { OutputRenderer } from '../Output';
+import { HtmlOutput } from './HtmlOutput';
+import { ImageOutput } from './ImageOutput';
+import { VideoOutput } from './VideoOutput';
 
 interface Props {
   /**
@@ -31,7 +31,7 @@ interface Props {
    */
   data: unknown;
 
-  format?: "auto" | "tree" | "raw";
+  format?: 'auto' | 'tree' | 'raw';
 
   /**
    * A text label for the JSON viewer. If `false`, no label is used.
@@ -43,16 +43,16 @@ interface Props {
   /**
    * The value types to use for the JSON viewer.
    */
-  valueTypes?: "json" | "python";
+  valueTypes?: 'json' | 'python';
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CopyButton: React.FC<DataItemProps<any>> = ({ value }) => {
   const skipCopy =
-    typeof value === "string" &&
-    (value.startsWith("text/html:") ||
-      value.startsWith("image/") ||
-      value.startsWith("video/"));
+    typeof value === 'string' &&
+    (value.startsWith('text/html:') ||
+      value.startsWith('image/') ||
+      value.startsWith('video/'));
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async (evt: React.MouseEvent) => {
@@ -69,15 +69,15 @@ const CopyButton: React.FC<DataItemProps<any>> = ({ value }) => {
     <button
       onClick={handleCopy}
       className={cn(
-        "inline-flex ml-2 copy-button rounded w-6 h-3 justify-center items-center relative",
+        'inline-flex ml-2 copy-button rounded w-6 h-3 justify-center items-center relative',
       )}
       aria-label="Copy to clipboard"
       type="button"
     >
       {copied ? (
-        <CheckIcon className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-muted rounded" />
+        <CheckIcon className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-mine-hover rounded" />
       ) : (
-        <CopyIcon className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-muted rounded" />
+        <CopyIcon className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-mine-hover rounded" />
       )}
     </button>
   );
@@ -100,13 +100,13 @@ const PyCopyButton: React.FC<DataItemProps<any>> = (props) => {
 export const JsonOutput: React.FC<Props> = memo(
   ({
     data,
-    format = "auto",
+    format = 'auto',
     name = false,
-    valueTypes = "python",
+    valueTypes = 'python',
     className,
   }) => {
     const { theme } = useTheme();
-    if (format === "auto") {
+    if (format === 'auto') {
       format = inferBestFormat(data);
     }
 
@@ -116,16 +116,17 @@ export const JsonOutput: React.FC<Props> = memo(
     };
 
     switch (format) {
-      case "tree":
+      case 'tree':
         return (
           <JsonViewer
-            className={cn("marimo-json-output", className)}
+            data-slot="json-output"
+            className={cn('marimo-json-output', className)}
             rootName={name}
             theme={theme}
             displayDataTypes={false}
             value={data}
             style={{
-              backgroundColor: "transparent",
+              backgroundColor: 'transparent',
             }}
             collapseStringsAfterLength={COLLAPSED_TEXT_LENGTH}
             // leave the default valueTypes as it was - 'python', only 'json' is changed
@@ -140,18 +141,26 @@ export const JsonOutput: React.FC<Props> = memo(
           />
         );
 
-      case "raw":
-        return <pre className={className}>{JSON.stringify(data, null, 2)}</pre>;
+      case 'raw':
+        return (
+          <pre data-slot="json-output" className={className}>
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        );
       default:
         logNever(format);
-        return <pre className={className}>{JSON.stringify(data, null, 2)}</pre>;
+        return (
+          <pre data-slot="json-output" className={className}>
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        );
     }
   },
 );
-JsonOutput.displayName = "JsonOutput";
+JsonOutput.displayName = 'JsonOutput';
 
-function inferBestFormat(data: unknown): "tree" | "raw" {
-  return typeof data === "object" && data !== null ? "tree" : "raw";
+function inferBestFormat(data: unknown): 'tree' | 'raw' {
+  return typeof data === 'object' && data !== null ? 'tree' : 'raw';
 }
 
 const COLLAPSED_TEXT_LENGTH = 100;
@@ -171,7 +180,7 @@ const CollapsibleTextOutput = (props: { text: string }) => {
         onClick={() => setIsCollapsed(false)}
       >
         {props.text.slice(0, COLLAPSED_TEXT_LENGTH)}
-        {props.text.length > COLLAPSED_TEXT_LENGTH && "..."}
+        {props.text.length > COLLAPSED_TEXT_LENGTH && '...'}
       </span>
     );
   }
@@ -188,7 +197,7 @@ const CollapsibleTextOutput = (props: { text: string }) => {
 
 type LeafRenderer = (
   data: string,
-  mimeType: OutputMessage["mimetype"],
+  mimeType: OutputMessage['mimetype'],
 ) => React.ReactNode;
 
 /**
@@ -197,27 +206,27 @@ type LeafRenderer = (
  * Render function takes leaf data as input.
  */
 const LEAF_RENDERERS: Record<string, LeafRenderer> = {
-  "image/": (value) => <ImageOutput src={value} />,
-  "video/": (value) => <VideoOutput src={value} />,
-  "text/html:": (value) => (
+  'image/': (value) => <ImageOutput src={value} />,
+  'video/': (value) => <VideoOutput src={value} />,
+  'text/html:': (value) => (
     <HtmlOutput html={value} inline={true} alwaysSanitizeHtml={false} />
   ),
-  "text/markdown:": (value) => (
+  'text/markdown:': (value) => (
     <HtmlOutput html={value} inline={true} alwaysSanitizeHtml={true} />
   ),
-  "text/plain+float:": (value) => <span>{value}</span>,
-  "text/plain+bigint:": (value) => <span>{value}</span>,
-  "text/plain+set:": (value) => <span>set{value}</span>,
-  "text/plain+tuple:": (value) => <span>{value}</span>,
-  "text/plain:": (value) => <CollapsibleTextOutput text={value} />,
-  "application/json:": (value) => (
+  'text/plain+float:': (value) => <span>{value}</span>,
+  'text/plain+bigint:': (value) => <span>{value}</span>,
+  'text/plain+set:': (value) => <span>set{value}</span>,
+  'text/plain+tuple:': (value) => <span>{value}</span>,
+  'text/plain:': (value) => <CollapsibleTextOutput text={value} />,
+  'application/json:': (value) => (
     <JsonOutput data={JSON.parse(value)} format="auto" />
   ),
-  "application/": (value, mimeType) => {
+  'application/': (value, mimeType) => {
     return (
       <OutputRenderer
         message={{
-          channel: "output",
+          channel: 'output',
           data: value,
           mimetype: mimeType,
         }}
@@ -236,7 +245,7 @@ const LEAF_RENDERERS: Record<string, LeafRenderer> = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MIME_TYPES: DataType<any>[] = Object.entries(LEAF_RENDERERS).map(
   ([leafType, render]) => ({
-    is: (value) => typeof value === "string" && value.startsWith(leafType),
+    is: (value) => typeof value === 'string' && value.startsWith(leafType),
     PostComponent: PyCopyButton,
     Component: (props) => renderLeaf(props.value, render),
   }),
@@ -245,7 +254,7 @@ const MIME_TYPES: DataType<any>[] = Object.entries(LEAF_RENDERERS).map(
 const PYTHON_BOOLEAN_TYPE = defineDataType<boolean>({
   ...booleanType,
   PostComponent: PyCopyButton,
-  Component: ({ value }) => <span>{value ? "True" : "False"}</span>,
+  Component: ({ value }) => <span>{value ? 'True' : 'False'}</span>,
 });
 
 const PYTHON_NONE_TYPE = defineDataType<null>({
@@ -347,14 +356,14 @@ function leafData(leaf: string): string {
 
 function leafDataAndMimeType(
   leaf: string,
-): [string, OutputMessage["mimetype"] | undefined] {
-  const delimIndex = leaf.indexOf(":");
+): [string, OutputMessage['mimetype'] | undefined] {
+  const delimIndex = leaf.indexOf(':');
   if (delimIndex === -1) {
     return [leaf, undefined];
   }
   return [
     leaf.slice(delimIndex + 1),
-    leaf.slice(0, delimIndex) as OutputMessage["mimetype"],
+    leaf.slice(0, delimIndex) as OutputMessage['mimetype'],
   ];
 }
 
@@ -376,8 +385,8 @@ function renderLeaf(leaf: string, render: LeafRenderer): React.ReactNode {
 }
 
 const MIME_PREFIXES = Object.keys(LEAF_RENDERERS);
-const REPLACE_PREFIX = "<marimo-replace>";
-const REPLACE_SUFFIX = "</marimo-replace>";
+const REPLACE_PREFIX = '<marimo-replace>';
+const REPLACE_SUFFIX = '</marimo-replace>';
 /**
  * Get the string representation (as Python) of a value.
  * - recursively handles lists and dictionaries
@@ -389,30 +398,30 @@ function pythonJsonReplacer(_key: string, value: unknown): unknown {
   if (value == null) {
     return `${REPLACE_PREFIX}None${REPLACE_SUFFIX}`;
   }
-  if (typeof value === "object") {
+  if (typeof value === 'object') {
     return value;
   }
-  if (typeof value === "bigint") {
+  if (typeof value === 'bigint') {
     return `${REPLACE_PREFIX}${value}${REPLACE_SUFFIX}`;
   }
   if (Array.isArray(value)) {
     return value;
   }
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     // If float, we want to keep the quotes around the number.
-    if (value.startsWith("text/plain+float:")) {
+    if (value.startsWith('text/plain+float:')) {
       return `${REPLACE_PREFIX}${leafData(value)}${REPLACE_SUFFIX}`;
     }
-    if (value.startsWith("text/plain+bigint:")) {
+    if (value.startsWith('text/plain+bigint:')) {
       // Use BigInt to avoid precision loss
       const number = BigInt(leafData(value));
       return `${REPLACE_PREFIX}${number}${REPLACE_SUFFIX}`;
     }
-    if (value.startsWith("text/plain+tuple:")) {
+    if (value.startsWith('text/plain+tuple:')) {
       // replace first and last characters [] with ()
       return `${REPLACE_PREFIX}(${leafData(value).slice(1, -1)})${REPLACE_SUFFIX}`;
     }
-    if (value.startsWith("text/plain+set:")) {
+    if (value.startsWith('text/plain+set:')) {
       // replace first and last characters [] with {}
       return `${REPLACE_PREFIX}{${leafData(value).slice(1, -1)}}${REPLACE_SUFFIX}`;
     }
@@ -422,8 +431,8 @@ function pythonJsonReplacer(_key: string, value: unknown): unknown {
     }
     return value;
   }
-  if (typeof value === "boolean") {
-    return `${REPLACE_PREFIX}${value ? "True" : "False"}${REPLACE_SUFFIX}`;
+  if (typeof value === 'boolean') {
+    return `${REPLACE_PREFIX}${value ? 'True' : 'False'}${REPLACE_SUFFIX}`;
   }
   return value;
 }
@@ -432,8 +441,8 @@ export function getCopyValue(value: unknown): string {
   // Because this results in valid json, it adds quotes around None and True/False.
   // but we want to make this look like Python, so we remove the quotes.
   return JSON.stringify(value, pythonJsonReplacer, 2)
-    .replaceAll(`"${REPLACE_PREFIX}`, "")
-    .replaceAll(`${REPLACE_SUFFIX}"`, "");
+    .replaceAll(`"${REPLACE_PREFIX}`, '')
+    .replaceAll(`${REPLACE_SUFFIX}"`, '');
 }
 
 /**

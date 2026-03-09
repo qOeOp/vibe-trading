@@ -178,7 +178,7 @@ function isMultiLine(message: string): boolean {
 
 // ─── Component ──────────────────────────────────────────
 
-function VTLogsPanel() {
+export function VTLogsPanel() {
   const allLogs = useUnifiedLogs();
   const { clearLogs } = useCellActions();
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
@@ -479,5 +479,3 @@ function LogTableRow({
     </div>
   );
 }
-
-export default VTLogsPanel;

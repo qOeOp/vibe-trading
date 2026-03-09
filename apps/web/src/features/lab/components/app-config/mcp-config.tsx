@@ -10,13 +10,13 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/features/lab/components/ui/card';
-import { FormField, FormItem } from '@/features/lab/components/ui/form';
+} from '@/components/ui/card';
+import { FormField, FormItem } from '@/components/ui/form';
 import type { UserConfig } from '@/features/lab/core/config/config-schema';
 import { useMCPRefresh, useMCPStatus } from '../mcp/hooks';
 import { McpStatusText } from '../mcp/mcp-status-indicator';
-import { Button } from '../ui/button';
-import { Kbd } from '../ui/kbd';
+import { Button } from '@/components/ui/button';
+import { Kbd } from '@/components/ui/kbd';
 import { SettingSubtitle } from './common';
 import { useOpenSettingsToTab } from './state';
 
@@ -77,12 +77,12 @@ export const MCPConfig: React.FC<MCPConfigProps> = ({ form, onSubmit }) => {
         </div>
       </div>
       {status?.error && (
-        <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 p-2 rounded">
+        <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
           {status.error}
         </div>
       )}
       {status?.servers && (
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-mine-muted">
           {Object.entries(status.servers).map(([server, status]) => (
             <div key={server}>
               {server}: <McpStatusText status={status} />
@@ -90,11 +90,11 @@ export const MCPConfig: React.FC<MCPConfigProps> = ({ form, onSubmit }) => {
           ))}
         </div>
       )}
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-mine-muted">
         Enable Model Context Protocol (MCP) servers to provide additional
         capabilities and data sources for AI features.
       </p>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm text-mine-muted">
         This feature requires the <Kbd className="inline">marimo[mcp]</Kbd>{' '}
         package. See{' '}
         <Button
@@ -145,8 +145,8 @@ export const MCPConfig: React.FC<MCPConfigProps> = ({ form, onSubmit }) => {
                           <span
                             className={`h-5 w-5 flex items-center justify-center rounded border ${
                               isChecked
-                                ? 'border-[var(--blue-7)] bg-[var(--blue-7)] text-foreground'
-                                : 'border-muted bg-background text-muted-foreground'
+                                ? 'border-[var(--blue-7)] bg-[var(--blue-7)] text-mine-text'
+                                : 'border-muted bg-mine-page-bg text-mine-muted'
                             }`}
                           >
                             {isChecked ? <CheckSquareIcon /> : null}

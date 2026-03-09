@@ -1,11 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import type { UIMessage } from "@ai-sdk/react";
-import { useChat } from "@ai-sdk/react";
-import { storePrompt } from "@marimo-team/codemirror-ai";
-import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { DefaultChatTransport, type FileUIPart, type TextUIPart } from "ai";
-import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
+import type { UIMessage } from '@ai-sdk/react';
+import { useChat } from '@ai-sdk/react';
+import { storePrompt } from '@marimo-team/codemirror-ai';
+import type { ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { DefaultChatTransport, type FileUIPart, type TextUIPart } from 'ai';
+import { useAtom, useAtomValue, useSetAtom, useStore } from 'jotai';
 import {
   BotMessageSquareIcon,
   HatGlasses,
@@ -15,10 +15,10 @@ import {
   NotebookText,
   PlusIcon,
   SettingsIcon,
-} from "lucide-react";
-import { memo, useEffect, useRef, useState } from "react";
-import useEvent from "react-use-event-hook";
-import { Button } from "../ui/button";
+} from 'lucide-react';
+import { memo, useEffect, useRef, useState } from 'react';
+import useEvent from 'react-use-event-hook';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -26,50 +26,50 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-} from "../ui/select";
-import { replaceMessagesInChat } from "@/features/lab/core/ai/chat-utils";
-import { useModelChange } from "@/features/lab/core/ai/config";
-import { AiModelId } from "@/features/lab/core/ai/ids/ids";
-import { useStagedAICellsActions } from "@/features/lab/core/ai/staged-cells";
+} from '@/components/ui/select';
+import { replaceMessagesInChat } from '@/features/lab/core/ai/chat-utils';
+import { useModelChange } from '@/features/lab/core/ai/config';
+import { AiModelId } from '@/features/lab/core/ai/ids/ids';
+import { useStagedAICellsActions } from '@/features/lab/core/ai/staged-cells';
 import {
   activeChatAtom,
   type Chat,
   type ChatId,
   chatStateAtom,
-} from "@/features/lab/core/ai/state";
-import type { ToolNotebookContext } from "@/features/lab/core/ai/tools/base";
+} from '@/features/lab/core/ai/state';
+import type { ToolNotebookContext } from '@/features/lab/core/ai/tools/base';
 import {
   type CopilotMode,
   FRONTEND_TOOL_REGISTRY,
-} from "@/features/lab/core/ai/tools/registry";
-import { useCellActions } from "@/features/lab/core/cells/cells";
-import { aiAtom, aiEnabledAtom } from "@/features/lab/core/config/config";
-import { DEFAULT_AI_MODEL } from "@/features/lab/core/config/config-schema";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import { useRuntimeManager } from "@/features/lab/core/runtime/config";
-import { ErrorBanner } from "@/features/lab/plugins/impl/common/error-banner";
-import { cn } from "@/features/lab/utils/cn";
-import { Logger } from "@/features/lab/utils/Logger";
-import { AIModelDropdown } from "../ai/ai-model-dropdown";
-import { useOpenSettingsToTab } from "../app-config/state";
-import { PromptInput } from "../editor/ai/add-cell-with-ai";
+} from '@/features/lab/core/ai/tools/registry';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { aiAtom, aiEnabledAtom } from '@/features/lab/core/config/config';
+import { DEFAULT_AI_MODEL } from '@/features/lab/core/config/config-schema';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { useRuntimeManager } from '@/features/lab/core/runtime/config';
+import { ErrorBanner } from '@/features/lab/plugins/impl/common/error-banner';
+import { cn } from '@/features/lab/utils/cn';
+import { Logger } from '@/features/lab/utils/Logger';
+import { AIModelDropdown } from '../ai/ai-model-dropdown';
+import { useOpenSettingsToTab } from '../app-config/state';
+import { PromptInput } from '../editor/ai/add-cell-with-ai';
 import {
   addContextCompletion,
   CONTEXT_TRIGGER,
-} from "../editor/ai/completion-utils";
-import { PanelEmptyState } from "../editor/chrome/panels/empty-state";
-import { CopyClipboardIcon } from "../icons/copy-icon";
-import { MCPStatusIndicator } from "../mcp/mcp-status-indicator";
-import { Tooltip, TooltipProvider } from "../ui/tooltip";
+} from '../editor/ai/completion-utils';
+import { PanelEmptyState } from '../editor/chrome/panels/empty-state';
+import { CopyClipboardIcon } from '../icons/copy-icon';
+import { MCPStatusIndicator } from '../mcp/mcp-status-indicator';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import {
   AddContextButton,
   AttachFileButton,
   AttachmentRenderer,
   FileAttachmentPill,
   SendButton,
-} from "./chat-components";
-import { renderUIMessage } from "./chat-display";
-import { ChatHistoryPopover } from "./chat-history-popover";
+} from './chat-components';
+import { renderUIMessage } from './chat-display';
+import { ChatHistoryPopover } from './chat-history-popover';
 import {
   buildCompletionRequestBody,
   convertToFileUIPart,
@@ -79,10 +79,10 @@ import {
   isLastMessageReasoning,
   PROVIDERS_THAT_SUPPORT_ATTACHMENTS,
   useFileState,
-} from "./chat-utils";
+} from './chat-utils';
 
 // Default mode for the AI
-const DEFAULT_MODE = "manual";
+const DEFAULT_MODE = 'manual';
 
 interface ChatHeaderProps {
   onNewChat: () => void;
@@ -98,7 +98,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const { handleClick } = useOpenSettingsToTab();
 
   return (
-    <div className="flex border-b px-2 py-1 justify-between shrink-0 items-center">
+    <div
+      data-slot="chat-header"
+      className="flex border-b px-2 py-1 justify-between shrink-0 items-center"
+    >
       <Tooltip content="New chat">
         <Button variant="text" size="icon" onClick={onNewChat}>
           <PlusIcon className="h-4 w-4" />
@@ -111,7 +114,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             variant="text"
             size="xs"
             className="hover:bg-foreground/10 py-2"
-            onClick={() => handleClick("ai")}
+            onClick={() => handleClick('ai')}
           >
             <SettingsIcon className="h-4 w-4" />
           </Button>
@@ -137,15 +140,15 @@ const ChatMessageDisplay: React.FC<ChatMessageProps> = memo(
   ({ message, index, onEdit, isStreamingReasoning, isLast }) => {
     const renderUserMessage = (message: UIMessage) => {
       const textParts = message.parts?.filter(
-        (p): p is TextUIPart => p.type === "text",
+        (p): p is TextUIPart => p.type === 'text',
       );
-      const content = textParts?.map((p) => p.text).join("\n");
+      const content = textParts?.map((p) => p.text).join('\n');
       const fileParts = message.parts?.filter(
-        (p): p is FileUIPart => p.type === "file",
+        (p): p is FileUIPart => p.type === 'file',
       );
 
       return (
-        <div className="w-[95%] bg-background border p-1 rounded-sm">
+        <div className="w-[95%] bg-mine-page-bg border p-1 rounded-sm">
           {fileParts?.map((filePart, idx) => (
             <AttachmentRenderer attachment={filePart} key={idx} />
           ))}
@@ -172,14 +175,14 @@ const ChatMessageDisplay: React.FC<ChatMessageProps> = memo(
 
     const renderOtherMessage = (message: UIMessage) => {
       const textParts = message.parts.filter(
-        (p): p is TextUIPart => p.type === "text",
+        (p): p is TextUIPart => p.type === 'text',
       );
-      const content = textParts.map((p) => p.text).join("\n");
+      const content = textParts.map((p) => p.text).join('\n');
 
       return (
         <div className="w-[95%] wrap-break-word">
           <div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <CopyClipboardIcon className="h-3 w-3" value={content || ""} />
+            <CopyClipboardIcon className="h-3 w-3" value={content || ''} />
           </div>
           {renderUIMessage({ message, isStreamingReasoning, isLast })}
         </div>
@@ -188,19 +191,20 @@ const ChatMessageDisplay: React.FC<ChatMessageProps> = memo(
 
     return (
       <div
+        data-slot="chat-message"
         className={cn(
-          "flex group relative",
-          message.role === "user" ? "justify-end" : "justify-start",
+          'flex group relative',
+          message.role === 'user' ? 'justify-end' : 'justify-start',
         )}
       >
-        {message.role === "user"
+        {message.role === 'user'
           ? renderUserMessage(message)
           : renderOtherMessage(message)}
       </div>
     );
   },
 );
-ChatMessageDisplay.displayName = "ChatMessage";
+ChatMessageDisplay.displayName = 'ChatMessage';
 
 interface ChatInputFooterProps {
   isEmpty: boolean;
@@ -236,22 +240,22 @@ const ChatInputFooter: React.FC<ChatInputFooterProps> = memo(
       Icon: LucideIcon;
     }[] = [
       {
-        value: "manual",
-        label: "Manual",
-        subtitle: "Pure chat, no tool usage",
+        value: 'manual',
+        label: 'Manual',
+        subtitle: 'Pure chat, no tool usage',
         Icon: MessageCircleIcon,
       },
       {
-        value: "ask",
-        label: "Ask",
+        value: 'ask',
+        label: 'Ask',
         subtitle:
-          "Use AI with access to read-only tools like documentation search",
+          'Use AI with access to read-only tools like documentation search',
         Icon: NotebookText,
       },
       {
-        value: "agent",
-        label: "Agent (beta)",
-        subtitle: "Use AI with access to read and write tools",
+        value: 'agent',
+        label: 'Agent (beta)',
+        subtitle: 'Use AI with access to read and write tools',
         Icon: HatGlasses,
       },
     ];
@@ -265,16 +269,19 @@ const ChatInputFooter: React.FC<ChatInputFooterProps> = memo(
 
     return (
       <TooltipProvider>
-        <div className="px-3 py-2 border-t border-border/20 flex flex-row flex-wrap items-center justify-between gap-1">
+        <div
+          data-slot="chat-input-footer"
+          className="px-3 py-2 border-t border-mine-border/20 flex flex-row flex-wrap items-center justify-between gap-1"
+        >
           <div className="flex items-center gap-2">
             <Select value={currentMode} onValueChange={saveModeChange}>
-              <SelectTrigger className="h-6 text-xs border-border shadow-none! ring-0! bg-muted hover:bg-muted/30 py-0 px-2 gap-1.5">
+              <SelectTrigger className="h-6 text-xs border-mine-border shadow-none! ring-0! bg-mine-hover hover:bg-mine-hover/30 py-0 px-2 gap-1.5">
                 {CurrentModeIcon && <CurrentModeIcon className="h-3 w-3" />}
                 <span className="capitalize">{currentMode}</span>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel className="text-xs uppercase tracking-wider text-muted-foreground/70 font-medium">
+                  <SelectLabel className="text-xs uppercase tracking-wider text-mine-muted/70 font-medium">
                     AI Mode
                   </SelectLabel>
                   {modeOptions.map((option) => (
@@ -284,12 +291,12 @@ const ChatInputFooter: React.FC<ChatInputFooterProps> = memo(
                       className="text-xs py-1"
                     >
                       <div className="flex items-start gap-2.5">
-                        <span className="mt-1 text-muted-foreground">
+                        <span className="mt-1 text-mine-muted">
                           <option.Icon className="h-3 w-3" />
                         </span>
                         <div className="flex flex-col gap-0.5">
                           <span className="font-semibold">{option.label}</span>
-                          <span className="text-muted-foreground">
+                          <span className="text-mine-muted">
                             {option.subtitle}
                           </span>
                         </div>
@@ -301,7 +308,7 @@ const ChatInputFooter: React.FC<ChatInputFooterProps> = memo(
             </Select>
             <AIModelDropdown
               placeholder="Model"
-              triggerClassName="h-6 text-xs shadow-none! ring-0! bg-muted hover:bg-muted/30 rounded-sm"
+              triggerClassName="h-6 text-xs shadow-none! ring-0! bg-mine-hover hover:bg-mine-hover/30 rounded-sm"
               iconSize="small"
               showAddCustomModelDocs={true}
               forRole="chat"
@@ -332,7 +339,7 @@ const ChatInputFooter: React.FC<ChatInputFooterProps> = memo(
   },
 );
 
-ChatInputFooter.displayName = "ChatInputFooter";
+ChatInputFooter.displayName = 'ChatInputFooter';
 
 interface ChatInputProps {
   placeholder?: string;
@@ -369,8 +376,11 @@ const ChatInput: React.FC<ChatInputProps> = memo(
     });
 
     return (
-      <div className="relative shrink-0 min-h-[80px] flex flex-col border-t">
-        <div className={cn("px-2 py-3 flex-1", inputClassName)}>
+      <div
+        data-slot="chat-input"
+        className="relative shrink-0 min-h-[80px] flex flex-col border-t"
+      >
+        <div className={cn('px-2 py-3 flex-1', inputClassName)}>
           <PromptInput
             inputRef={inputRef}
             value={input}
@@ -378,7 +388,7 @@ const ChatInput: React.FC<ChatInputProps> = memo(
             onSubmit={onSubmit}
             onClose={onClose}
             onAddFiles={onAddFiles}
-            placeholder={placeholder || "Type your message..."}
+            placeholder={placeholder || 'Type your message...'}
           />
         </div>
         <ChatInputFooter
@@ -395,7 +405,7 @@ const ChatInput: React.FC<ChatInputProps> = memo(
   },
 );
 
-ChatInput.displayName = "ChatInput";
+ChatInput.displayName = 'ChatInput';
 
 const ChatPanel = () => {
   const aiConfigured = useAtomValue(aiEnabledAtom);
@@ -410,7 +420,7 @@ const ChatPanel = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleClick("ai", "ai-providers")}
+            onClick={() => handleClick('ai', 'ai-providers')}
           >
             Edit AI settings
           </Button>
@@ -426,8 +436,8 @@ const ChatPanel = () => {
 const ChatPanelBody = () => {
   const setChatState = useSetAtom(chatStateAtom);
   const [activeChat, setActiveChat] = useAtom(activeChatAtom);
-  const [input, setInput] = useState("");
-  const [newThreadInput, setNewThreadInput] = useState("");
+  const [input, setInput] = useState('');
+  const [newThreadInput, setNewThreadInput] = useState('');
   const { files, addFiles, clearFiles, removeFile } = useFileState();
   const newThreadInputRef = useRef<ReactCodeMirrorRef>(null);
   const newMessageInputRef = useRef<ReactCodeMirrorRef>(null);
@@ -464,7 +474,7 @@ const ChatPanelBody = () => {
     sendAutomaticallyWhen: ({ messages }) => hasPendingToolCalls(messages),
     messages: activeChat?.messages || [], // initial messages
     transport: new DefaultChatTransport({
-      api: runtimeManager.getAiURL("chat").toString(),
+      api: runtimeManager.getAiURL('chat').toString(),
       headers: runtimeManager.headers(),
       prepareSendMessagesRequest: async (options) => {
         const completionBody = await buildCompletionRequestBody(
@@ -497,7 +507,7 @@ const ChatPanelBody = () => {
       // Dynamic tool calls will throw an error for toolName
       // https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-tool-usage#client-side-page
       if (toolCall.dynamic) {
-        Logger.debug("Skipping dynamic tool call", toolCall);
+        Logger.debug('Skipping dynamic tool call', toolCall);
         return;
       }
 
@@ -513,11 +523,11 @@ const ChatPanelBody = () => {
       });
     },
     onError: (error) => {
-      Logger.error("An error occurred:", error);
+      Logger.error('An error occurred:', error);
     },
   });
 
-  const isLoading = status === "submitted" || status === "streaming";
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   // Check if we're currently streaming reasoning in the latest message
   const isStreamingReasoning =
@@ -567,35 +577,35 @@ const ChatPanelBody = () => {
 
     // Trigger AI conversation with append
     sendMessage({
-      role: "user",
+      role: 'user',
       parts: [
         {
-          type: "text" as const,
+          type: 'text' as const,
           text: initialMessage,
         },
         ...(fileParts ?? []),
       ],
     });
     clearFiles();
-    setInput("");
+    setInput('');
   };
 
   const handleNewChat = useEvent(() => {
     setActiveChat(null);
-    setInput("");
-    setNewThreadInput("");
+    setInput('');
+    setNewThreadInput('');
     clearFiles();
   });
 
   const handleMessageEdit = useEvent((index: number, newValue: string) => {
     const editedMessage = messages[index];
-    const fileParts = editedMessage.parts?.filter((p) => p.type === "file");
+    const fileParts = editedMessage.parts?.filter((p) => p.type === 'file');
 
     const messageId = editedMessage.id;
     sendMessage({
       messageId: messageId, // replace the message
-      role: "user",
-      parts: [{ type: "text", text: newValue }, ...fileParts],
+      role: 'user',
+      parts: [{ type: 'text', text: newValue }, ...fileParts],
     });
   });
 
@@ -614,7 +624,7 @@ const ChatPanelBody = () => {
         text: newValue,
         files: fileParts,
       });
-      setInput("");
+      setInput('');
       clearFiles();
     },
   );
@@ -668,8 +678,8 @@ const ChatPanelBody = () => {
   const filesPills = files && files.length > 0 && (
     <div
       className={cn(
-        "flex flex-row gap-1 flex-wrap p-1",
-        isNewThread && "py-2 px-1",
+        'flex flex-row gap-1 flex-wrap p-1',
+        isNewThread && 'py-2 px-1',
       )}
     >
       {files?.map((file) => (
@@ -683,7 +693,7 @@ const ChatPanelBody = () => {
   );
 
   return (
-    <div className="flex flex-col h-[calc(100%-53px)]">
+    <div data-slot="chat-panel" className="flex flex-col h-[calc(100%-53px)]">
       <TooltipProvider>
         <ChatHeader
           onNewChat={handleNewChat}
@@ -697,7 +707,7 @@ const ChatPanelBody = () => {
         ref={scrollContainerRef}
       >
         {isNewThread && (
-          <div className="rounded-md border bg-background">
+          <div className="rounded-md border bg-mine-page-bg">
             {filesPills}
             {chatInput}
           </div>
@@ -722,7 +732,7 @@ const ChatPanelBody = () => {
 
         {error && (
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <ErrorBanner error={error || new Error("Unknown error")} />
+            <ErrorBanner error={error || new Error('Unknown error')} />
             <Button variant="outline" size="sm" onClick={handleReload}>
               Retry
             </Button>
@@ -751,4 +761,4 @@ const ChatPanelBody = () => {
   );
 };
 
-export default ChatPanel;
+export { ChatPanel };

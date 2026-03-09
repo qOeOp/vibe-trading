@@ -32,10 +32,10 @@ import { hotkeysAtom } from "@/features/lab/core/config/config";
 import { useHotkey } from "@/features/lab/hooks/useHotkey";
 import { UndoButton } from "../buttons/undo-button";
 import { KeyboardHotkeys } from "../shortcuts/renderShortcut";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Toggle } from "../ui/toggle";
-import { Tooltip } from "../ui/tooltip";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Toggle } from '@/components/ui/toggle';
+import { Tooltip } from '@/components/ui/tooltip';
 import { toast } from "../ui/use-toast";
 
 export const FindReplace: React.FC = () => {
@@ -290,7 +290,7 @@ export const FindReplace: React.FC = () => {
             </span>
           )}
         </div>
-        <div className="text-xs text-muted-foreground flex gap-1 mt-2">
+        <div className="text-xs text-mine-muted flex gap-1 mt-2">
           Press{" "}
           <KeyboardHotkeys
             shortcut={hotkeys.getHotkey("cell.findAndReplace").key}

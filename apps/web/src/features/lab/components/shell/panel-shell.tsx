@@ -45,7 +45,7 @@ function PanelShell({
           {headerRight}
           {onClose && (
             <button
-              className="w-5 h-5 flex items-center justify-center rounded text-[#a3a3a3] hover:text-[#525252] hover:bg-[#f5f5f5] transition-colors"
+              className="w-5 h-5 flex items-center justify-center rounded text-mine-muted/50 hover:text-mine-muted hover:bg-mine-hover transition-colors"
               onClick={onClose}
             >
               <X className="w-3 h-3" strokeWidth={2} />

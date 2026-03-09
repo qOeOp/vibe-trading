@@ -17,7 +17,7 @@ import { useOpenSettingsToTab } from '@/features/lab/components/app-config/state
 import { Cell } from '../notebook-cell';
 import { SortableCellsProvider } from '@/features/lab/components/sort/SortableCellsProvider';
 import { Button } from '@/features/lab/components/ui/button';
-import { Tooltip } from '@/features/lab/components/ui/tooltip';
+import { Tooltip } from '@/components/ui/tooltip';
 import { maybeAddMarimoImport } from '@/features/lab/core/cells/add-missing-import';
 import { SETUP_CELL_ID } from '@/features/lab/core/cells/ids';
 import { LanguageAdapters } from '@/features/lab/core/codemirror/language/LanguageAdapters';
@@ -348,7 +348,7 @@ const AddCellButtons: React.FC<{
     <div className="flex justify-center mt-4 pt-6 pb-32 group gap-4 w-full print:hidden">
       <div
         className={cn(
-          'border border-border rounded transition-all duration-200 overflow-hidden divide-x divide-border flex',
+          'border border-mine-border rounded transition-all duration-200 overflow-hidden divide-x divide-border flex',
           !isAiButtonOpen && 'w-fit shadow-sm-solid-shade',
           isAiButtonOpen &&
             'w-full max-w-4xl shadow-md-solid-shade shadow-(color:--blue-3)',

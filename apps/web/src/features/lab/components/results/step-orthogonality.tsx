@@ -1,8 +1,16 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { cn } from "@/lib/utils";
-import { StatBox } from "./stat-box";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ReferenceLine,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts';
+import { cn } from '@/lib/utils';
+import { StatBox } from './stat-box';
 import {
   Table,
   TableHeader,
@@ -10,101 +18,76 @@ import {
   TableHead,
   TableRow,
   TableCell,
-} from "@/components/ui/table";
-import type { OrthogonalityTest } from "@/features/lab/types";
+} from '@/components/ui/table';
+import type { OrthogonalityTest } from '@/features/lab/types';
 
-// ─── Correlation Heatmap (SVG) ──────────────────────────
+// ─── Correlation Chart (Recharts) ────────────────────────
 
 function CorrelationChart({
   factors,
 }: {
   factors: { name: string; correlation: number; pValue: number }[];
 }) {
-  const barWidth = 32;
-  const gap = 4;
-  const chartHeight = 100;
-  const svgWidth = factors.length * (barWidth + gap) - gap;
-  const midY = chartHeight / 2;
-  const maxCorr = Math.max(...factors.map((f) => Math.abs(f.correlation)), 0.01);
+  const data = factors.map((f) => ({
+    name: f.name,
+    correlation: f.correlation,
+    isSignificant: f.pValue < 0.05,
+  }));
 
   return (
-    <div className="bg-mine-bg rounded-md p-2">
-      <div className="text-[10px] text-mine-muted mb-1">
-        与已知因子相关性
-      </div>
-      <svg
-        viewBox={`0 0 ${svgWidth} ${chartHeight + 28}`}
-        className="w-full h-[130px]"
-      >
-        {/* Zero line */}
-        <line
-          x1={0}
-          y1={midY}
-          x2={svgWidth}
-          y2={midY}
-          stroke="#a8b2c7"
-          strokeWidth={0.5}
-          strokeDasharray="4"
-        />
-        {/* ±0.2 threshold lines */}
-        {[0.2, -0.2].map((threshold) => {
-          const ty =
-            midY - (threshold / maxCorr) * (chartHeight / 2) * 0.9;
-          return (
-            <line
-              key={threshold}
-              x1={0}
-              y1={ty}
-              x2={svgWidth}
-              y2={ty}
-              stroke="#e74c3c"
-              strokeWidth={0.3}
-              strokeDasharray="2"
-              opacity={0.4}
-            />
-          );
-        })}
-        {factors.map((f, i) => {
-          const x = i * (barWidth + gap);
-          const barH =
-            (Math.abs(f.correlation) / maxCorr) * (chartHeight / 2) * 0.9;
-          const isPositive = f.correlation >= 0;
-          const y = isPositive ? midY - barH : midY;
-          const isSignificant = f.pValue < 0.05;
-
-          return (
-            <g key={f.name}>
-              <rect
-                x={x}
-                y={y}
-                width={barWidth}
-                height={barH}
-                fill={isSignificant ? "#e74c3c" : "#26a69a"}
-                rx={2}
-                opacity={0.7}
+    <div data-slot="correlation-chart" className="bg-mine-bg rounded-md p-2">
+      <div className="text-[10px] text-mine-muted mb-1">与已知因子相关性</div>
+      <ResponsiveContainer width="100%" height={130}>
+        <BarChart
+          data={data}
+          margin={{ top: 4, right: 4, bottom: 20, left: 4 }}
+        >
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 8, fill: 'var(--color-mine-muted)' }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis hide />
+          <ReferenceLine
+            y={0}
+            stroke="var(--color-mine-border)"
+            strokeWidth={0.5}
+            strokeDasharray="4"
+          />
+          <ReferenceLine
+            y={0.2}
+            stroke="var(--color-mine-accent-red)"
+            strokeWidth={0.3}
+            strokeDasharray="2"
+            opacity={0.4}
+          />
+          <ReferenceLine
+            y={-0.2}
+            stroke="var(--color-mine-accent-red)"
+            strokeWidth={0.3}
+            strokeDasharray="2"
+            opacity={0.4}
+          />
+          <Bar
+            dataKey="correlation"
+            radius={[2, 2, 0, 0]}
+            opacity={0.7}
+            isAnimationActive={false}
+          >
+            {data.map((entry) => (
+              <Cell
+                key={entry.name}
+                fill={
+                  entry.isSignificant
+                    ? 'var(--color-mine-accent-red)'
+                    : 'var(--color-mine-accent-teal)'
+                }
               />
-              {/* Factor name */}
-              <text
-                x={x + barWidth / 2}
-                y={chartHeight + 12}
-                textAnchor="middle"
-                className="text-[8px] fill-mine-muted"
-              >
-                {f.name}
-              </text>
-              {/* Value */}
-              <text
-                x={x + barWidth / 2}
-                y={chartHeight + 24}
-                textAnchor="middle"
-                className="text-[7px] fill-mine-muted font-mono"
-              >
-                {f.correlation.toFixed(2)}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
@@ -118,17 +101,17 @@ export function StepOrthogonality({
 }) {
   const maxCorrColor =
     orthogonality.maxCorrelation < 0.15
-      ? "green"
+      ? 'green'
       : orthogonality.maxCorrelation < 0.25
-        ? "yellow"
-        : "red";
+        ? 'yellow'
+        : 'red';
 
   const independenceColor =
     orthogonality.independenceRatio > 80
-      ? "green"
+      ? 'green'
       : orthogonality.independenceRatio > 65
-        ? "yellow"
-        : "red";
+        ? 'yellow'
+        : 'red';
 
   return (
     <div data-slot="step-orthogonality" className="space-y-3">
@@ -139,10 +122,7 @@ export function StepOrthogonality({
           value={orthogonality.maxCorrelation.toFixed(3)}
           color={maxCorrColor}
         />
-        <StatBox
-          label="残差 IC"
-          value={orthogonality.residualIC.toFixed(4)}
-        />
+        <StatBox label="残差 IC" value={orthogonality.residualIC.toFixed(4)} />
         <StatBox
           label="独立性"
           value={`${orthogonality.independenceRatio.toFixed(1)}%`}
@@ -172,11 +152,11 @@ export function StepOrthogonality({
                 </TableCell>
                 <TableCell
                   className={cn(
-                    "text-[11px] font-mono tabular-nums text-right",
-                    Math.abs(f.correlation) > 0.2 && "text-mine-accent-red",
+                    'text-[11px] font-mono tabular-nums text-right',
+                    Math.abs(f.correlation) > 0.2 && 'text-mine-accent-red',
                   )}
                 >
-                  {f.correlation > 0 ? "+" : ""}
+                  {f.correlation > 0 ? '+' : ''}
                   {f.correlation.toFixed(3)}
                 </TableCell>
                 <TableCell className="text-[11px] font-mono tabular-nums text-right">
@@ -201,4 +181,3 @@ export function StepOrthogonality({
     </div>
   );
 }
-

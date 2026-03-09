@@ -1,8 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { HashIcon, InfoIcon } from "lucide-react";
-import type React from "react";
-import { dbDisplayName } from "@/features/lab/components/databases/display";
+import { HashIcon, InfoIcon } from 'lucide-react';
+import type React from 'react';
+import { dbDisplayName } from '@/features/lab/components/databases/display';
 import {
   ColumnIcon,
   DatabaseIcon,
@@ -12,13 +12,13 @@ import {
   SchemaIcon,
   TableIcon,
   ViewIcon,
-} from "@/features/lab/components/databases/namespace-icons";
-import { DATA_TYPE_ICON } from "@/features/lab/components/datasets/icons";
-import { Badge } from "@/features/lab/components/ui/badge";
+} from '@/features/lab/components/databases/namespace-icons';
+import { DATA_TYPE_ICON } from '@/features/lab/components/datasets/icons';
+import { Badge } from '@/components/ui/badge';
 import {
   type ConnectionName,
   INTERNAL_SQL_ENGINES,
-} from "@/features/lab/core/datasets/engines";
+} from '@/features/lab/core/datasets/engines';
 import type {
   Database,
   DatabaseSchema,
@@ -26,39 +26,39 @@ import type {
   DataTable,
   DataTableColumn,
   DataType,
-} from "@/features/lab/core/kernel/messages";
-import { PluralWord } from "@/features/lab/utils/pluralize";
+} from '@/features/lab/core/kernel/messages';
+import { PluralWord } from '@/features/lab/utils/pluralize';
 
 // Configuration constants
 const PREVIEW_ITEM_LIMIT = 5;
 
 // Color mappings for data types (Tailwind-safe)
 const DATA_TYPE_COLORS: Record<DataType, string> = {
-  boolean: "bg-[var(--orange-4)] text-[var(--orange-11)]",
-  date: "bg-[var(--grass-4)] text-[var(--grass-11)]",
-  time: "bg-[var(--grass-4)] text-[var(--grass-11)]",
-  datetime: "bg-[var(--grass-4)] text-[var(--grass-11)]",
-  number: "bg-[var(--purple-4)] text-[var(--purple-11)]",
-  integer: "bg-[var(--purple-4)] text-[var(--purple-11)]",
-  string: "bg-[var(--blue-4)] text-[var(--blue-11)]",
-  unknown: "bg-[var(--slate-4)] text-[var(--slate-11)]",
+  boolean: 'bg-[var(--orange-4)] text-[var(--orange-11)]',
+  date: 'bg-[var(--grass-4)] text-[var(--grass-11)]',
+  time: 'bg-[var(--grass-4)] text-[var(--grass-11)]',
+  datetime: 'bg-[var(--grass-4)] text-[var(--grass-11)]',
+  number: 'bg-[var(--purple-4)] text-[var(--purple-11)]',
+  integer: 'bg-[var(--purple-4)] text-[var(--purple-11)]',
+  string: 'bg-[var(--blue-4)] text-[var(--blue-11)]',
+  unknown: 'bg-[var(--slate-4)] text-[var(--slate-11)]',
 };
 
 // Source type colors
 const SOURCE_TYPE_COLORS = {
-  local: "bg-[var(--blue-4)] text-[var(--blue-11)]",
-  duckdb: "bg-[var(--amber-4)] text-[var(--amber-11)]",
-  connection: "bg-[var(--green-4)] text-[var(--green-11)]",
-  catalog: "bg-[var(--purple-4)] text-[var(--purple-11)]",
+  local: 'bg-[var(--blue-4)] text-[var(--blue-11)]',
+  duckdb: 'bg-[var(--amber-4)] text-[var(--amber-11)]',
+  connection: 'bg-[var(--green-4)] text-[var(--green-11)]',
+  catalog: 'bg-[var(--purple-4)] text-[var(--purple-11)]',
 } as const;
 
-const CONTAINER_STYLES = "p-3 min-w-[250px] flex flex-col divide-y";
+const CONTAINER_STYLES = 'p-3 min-w-[250px] flex flex-col divide-y';
 
-const columnsText = new PluralWord("column", "columns");
-const rowsText = new PluralWord("row", "rows");
-const schemasText = new PluralWord("schema", "schemas");
-const tablesText = new PluralWord("table", "tables");
-const databasesText = new PluralWord("database", "databases");
+const columnsText = new PluralWord('column', 'columns');
+const rowsText = new PluralWord('row', 'rows');
+const schemasText = new PluralWord('schema', 'schemas');
+const tablesText = new PluralWord('table', 'tables');
+const databasesText = new PluralWord('database', 'databases');
 
 // Helper components and functions
 const SectionHeader: React.FC<{
@@ -98,7 +98,7 @@ const PreviewList: React.FC<{
   items: React.ReactNode[];
   totalCount: number;
   limit?: number;
-}> = ({ title = "", items, totalCount, limit = PREVIEW_ITEM_LIMIT }) => {
+}> = ({ title = '', items, totalCount, limit = PREVIEW_ITEM_LIMIT }) => {
   if (items.length === 0) {
     return null;
   }
@@ -131,7 +131,7 @@ const getDataTypeColorClass = (dataType: DataType): string => {
 
 export const renderTableInfo = (table: DataTable): React.ReactNode => {
   const tableIcon =
-    table.type === "view" ? (
+    table.type === 'view' ? (
       <ViewIcon className="w-4 h-4 text-[var(--blue-9)]" />
     ) : (
       <TableIcon className="w-4 h-4 text-[var(--green-9)]" />
@@ -141,9 +141,9 @@ export const renderTableInfo = (table: DataTable): React.ReactNode => {
     <Badge
       variant="secondary"
       className={`text-xs ${
-        table.type === "view"
-          ? "bg-[var(--blue-4)] text-[var(--blue-11)]"
-          : "bg-[var(--green-4)] text-[var(--green-11)]"
+        table.type === 'view'
+          ? 'bg-[var(--blue-4)] text-[var(--blue-11)]'
+          : 'bg-[var(--green-4)] text-[var(--green-11)]'
       }`}
     >
       {table.type}
@@ -234,7 +234,7 @@ export const renderTableInfo = (table: DataTable): React.ReactNode => {
       )}
 
       {/* Empty Info */}
-      {table.columns.length === 0 && renderEmptyInfo("column")}
+      {table.columns.length === 0 && renderEmptyInfo('column')}
 
       {/* Primary Keys & Indexes */}
       {(hasPrimaryKeys || hasIndexes) && (
@@ -307,7 +307,7 @@ export const renderColumnInfo = (column: DataTableColumn): React.ReactNode => {
         key={index}
         className="text-xs bg-[var(--slate-3)] rounded font-mono"
       >
-        {value === null || value === undefined ? "null" : String(value)}
+        {value === null || value === undefined ? 'null' : String(value)}
       </div>
     )) || [];
 
@@ -401,11 +401,11 @@ export const renderDatabaseInfo = (database: Database): React.ReactNode => {
       <div className="py-2">
         <StatisticItem
           icon={<SchemaIcon className="w-3 h-3 text-[var(--slate-9)]" />}
-          text={`${database.schemas.length} schema${database.schemas.length === 1 ? "" : "s"}`}
+          text={`${database.schemas.length} schema${database.schemas.length === 1 ? '' : 's'}`}
         />
       </div>
       {/* Empty Info */}
-      {database.schemas.length === 0 && renderEmptyInfo("schema")}
+      {database.schemas.length === 0 && renderEmptyInfo('schema')}
 
       {/* Schema Preview */}
       {database.schemas.length > 0 && (
@@ -435,7 +435,7 @@ export const renderSchemaInfo = (schema: DatabaseSchema): React.ReactNode => {
       className="flex items-center justify-between text-xs rounded hover:bg-[var(--slate-3)]"
     >
       <div className="flex items-center gap-2">
-        {table.type === "view" ? (
+        {table.type === 'view' ? (
           <ViewIcon className="w-3 h-3 text-[var(--blue-9)]" />
         ) : (
           <TableIcon className="w-3 h-3 text-[var(--green-9)]" />
@@ -445,9 +445,9 @@ export const renderSchemaInfo = (schema: DatabaseSchema): React.ReactNode => {
       <Badge
         variant="outline"
         className={`text-xs ${
-          table.type === "view"
-            ? "bg-[var(--blue-4)] text-[var(--blue-11)]"
-            : "bg-[var(--green-4)] text-[var(--green-11)]"
+          table.type === 'view'
+            ? 'bg-[var(--blue-4)] text-[var(--blue-11)]'
+            : 'bg-[var(--green-4)] text-[var(--green-11)]'
         }`}
       >
         {table.type}
@@ -467,12 +467,12 @@ export const renderSchemaInfo = (schema: DatabaseSchema): React.ReactNode => {
       <div className="py-2">
         <StatisticItem
           icon={<TableIcon className="w-3 h-3 text-[var(--slate-9)]" />}
-          text={`${schema.tables.length} table${schema.tables.length === 1 ? "" : "s"}`}
+          text={`${schema.tables.length} table${schema.tables.length === 1 ? '' : 's'}`}
         />
       </div>
 
       {/* Empty Info */}
-      {schema.tables.length === 0 && renderEmptyInfo("table")}
+      {schema.tables.length === 0 && renderEmptyInfo('table')}
 
       {/* Table Preview */}
       {schema.tables.length > 0 && (
@@ -567,7 +567,7 @@ export const renderDatasourceInfo = (
 
   let title = connection.name;
   if (INTERNAL_SQL_ENGINES.has(connection.name as ConnectionName)) {
-    title = "In-Memory";
+    title = 'In-Memory';
   }
 
   const dataframeItems = dataframes?.map((table) => (
@@ -637,13 +637,13 @@ export const renderDatasourceInfo = (
 };
 
 export const renderEmptyInfo = (
-  type: "column" | "table" | "schema" | "database",
+  type: 'column' | 'table' | 'schema' | 'database',
 ) => {
   return (
     <div className="flex items-start gap-2 mt-3">
       <InfoIcon size={10} className="mt-1 text-[var(--slate-10)] shrink-0" />
       <span className="text-xs text-[var(--slate-11)]">
-        No {type} information available.{" \n"}
+        No {type} information available.{' \n'}
         <span className="text-[var(--blue-10)]">
           Introspect to see more details.
         </span>

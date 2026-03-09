@@ -22,11 +22,11 @@ const AnyLanguageCodeMirror: React.FC<
 > = ({ language, showCopyButton, extensions = [], ...props }) => {
   return (
     <div className="relative w-full">
-      <pre className="font-mono text-sm p-2 bg-muted rounded">
+      <pre className="font-mono text-sm p-2 bg-mine-hover rounded">
         {props.value || ''}
       </pre>
     </div>
   );
 };
 
-export default AnyLanguageCodeMirror;
+export { AnyLanguageCodeMirror };

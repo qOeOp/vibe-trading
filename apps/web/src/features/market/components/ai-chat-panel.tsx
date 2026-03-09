@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Send,
   Bot,
@@ -13,21 +13,22 @@ import {
   Zap,
   Megaphone,
   BookOpen,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { getLatestNews } from "../data/mock-news";
-import type { NewsItem } from "../data/mock-news";
-import { useChat } from "../hooks";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { getLatestNews } from '../data/mock-news';
+import type { NewsItem } from '../data/mock-news';
+import { useChat } from '../hooks';
 
-type TabType = "news" | "chat";
+type TabType = 'news' | 'chat';
 
 // ============ News Tab ============
 const NEWS_TYPE_CONFIG = {
-  flash: { icon: Zap, label: "快讯", color: "text-amber-500" },
-  news: { icon: Newspaper, label: "新闻", color: "text-blue-500" },
-  announcement: { icon: Megaphone, label: "公告", color: "text-purple-500" },
-  research: { icon: BookOpen, label: "研报", color: "text-green-500" },
+  flash: { icon: Zap, label: '快讯', color: 'text-amber-500' },
+  news: { icon: Newspaper, label: '新闻', color: 'text-blue-500' },
+  announcement: { icon: Megaphone, label: '公告', color: 'text-purple-500' },
+  research: { icon: BookOpen, label: '研报', color: 'text-green-500' },
 };
 
 function NewsTab() {
@@ -36,7 +37,11 @@ function NewsTab() {
   return (
     <div className="flex-1 overflow-y-auto">
       {news.map((item, idx) => (
-        <NewsItemRow key={item.id} item={item} isLast={idx === news.length - 1} />
+        <NewsItemRow
+          key={item.id}
+          item={item}
+          isLast={idx === news.length - 1}
+        />
       ))}
     </div>
   );
@@ -51,25 +56,27 @@ function NewsItemRow({ item, isLast }: { item: NewsItem; isLast: boolean }) {
       tabIndex={0}
       aria-label={`${config.label}: ${item.title}`}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           // TODO: handle news item click
         }
       }}
       className={cn(
-        "px-3 py-2.5 hover:bg-mine-bg/50 cursor-pointer transition-colors",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-mine-accent-teal/50 focus-visible:ring-inset",
-        !isLast && "border-b border-mine-border/30"
+        'px-3 py-2.5 hover:bg-mine-bg/50 cursor-pointer transition-colors',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-mine-accent-teal/50 focus-visible:ring-inset',
+        !isLast && 'border-b border-mine-border/30',
       )}
     >
       {/* Time + Type */}
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-[10px] text-mine-muted font-mono tabular-nums">{item.time}</span>
-        <span className={cn("flex items-center gap-0.5 text-[10px]", config.color)}>
+        <span className="text-[10px] text-mine-muted numeric">{item.time}</span>
+        <span
+          className={cn('flex items-center gap-0.5 text-[10px]', config.color)}
+        >
           <config.icon className="w-3 h-3" />
           {config.label}
         </span>
-        {item.importance === "high" && (
+        {item.importance === 'high' && (
           <span className="px-1 py-0.5 rounded text-[9px] font-medium bg-market-up-medium/10 text-market-up-medium">
             重要
           </span>
@@ -91,7 +98,9 @@ function NewsItemRow({ item, isLast }: { item: NewsItem; isLast: boolean }) {
             {tag}
           </span>
         ))}
-        <span className="text-[10px] text-mine-muted ml-auto">{item.source}</span>
+        <span className="text-[10px] text-mine-muted ml-auto">
+          {item.source}
+        </span>
       </div>
 
       {/* Related stocks */}
@@ -114,13 +123,14 @@ function NewsItemRow({ item, isLast }: { item: NewsItem; isLast: boolean }) {
 
 // ============ Chat Tab ============
 const QUICK_PROMPTS = [
-  { icon: TrendingUp, text: "今日市场怎么样?" },
-  { icon: Sparkles, text: "哪些板块值得关注?" },
-  { icon: AlertCircle, text: "有什么风险提示?" },
+  { icon: TrendingUp, text: '今日市场怎么样?' },
+  { icon: Sparkles, text: '哪些板块值得关注?' },
+  { icon: AlertCircle, text: '有什么风险提示?' },
 ];
 
 function ChatTab() {
-  const { messages, input, setInput, isTyping, messagesEndRef, handleSend } = useChat();
+  const { messages, input, setInput, isTyping, messagesEndRef, handleSend } =
+    useChat();
 
   return (
     <>
@@ -129,15 +139,20 @@ function ChatTab() {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={cn("flex gap-2", msg.role === "user" && "flex-row-reverse")}
+            className={cn(
+              'flex gap-2',
+              msg.role === 'user' && 'flex-row-reverse',
+            )}
           >
             <div
               className={cn(
-                "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                msg.role === "assistant" ? "bg-mine-accent-teal/10" : "bg-mine-muted/10"
+                'w-5 h-5 rounded-full flex items-center justify-center shrink-0',
+                msg.role === 'assistant'
+                  ? 'bg-mine-accent-teal/10'
+                  : 'bg-mine-muted/10',
               )}
             >
-              {msg.role === "assistant" ? (
+              {msg.role === 'assistant' ? (
                 <Bot className="w-3 h-3 text-mine-accent-teal" />
               ) : (
                 <User className="w-3 h-3 text-mine-muted" />
@@ -145,10 +160,10 @@ function ChatTab() {
             </div>
             <div
               className={cn(
-                "max-w-[190px] px-2.5 py-1.5 rounded-xl text-[11px] leading-relaxed",
-                msg.role === "assistant"
-                  ? "bg-mine-bg text-mine-text"
-                  : "bg-mine-accent-teal text-white"
+                'max-w-[190px] px-2.5 py-1.5 rounded-xl text-[11px] leading-relaxed',
+                msg.role === 'assistant'
+                  ? 'bg-mine-bg text-mine-text'
+                  : 'bg-mine-accent-teal text-white',
               )}
             >
               <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -163,9 +178,9 @@ function ChatTab() {
             </div>
             <div className="bg-mine-bg px-2.5 py-1.5 rounded-xl">
               <div className="flex gap-1">
-                <span className="w-1 h-1 bg-mine-muted rounded-full animate-bounce motion-reduce:animate-none" />
-                <span className="w-1 h-1 bg-mine-muted rounded-full animate-bounce motion-reduce:animate-none [animation-delay:0.1s]" />
-                <span className="w-1 h-1 bg-mine-muted rounded-full animate-bounce motion-reduce:animate-none [animation-delay:0.2s]" />
+                <span className="w-1 h-1 bg-mine-muted rounded-full animate-pulse motion-reduce:animate-none" />
+                <span className="w-1 h-1 bg-mine-muted rounded-full animate-pulse motion-reduce:animate-none [animation-delay:0.15s]" />
+                <span className="w-1 h-1 bg-mine-muted rounded-full animate-pulse motion-reduce:animate-none [animation-delay:0.3s]" />
               </div>
             </div>
           </div>
@@ -199,7 +214,7 @@ function ChatTab() {
             autoComplete="off"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="问我任何问题..."
             aria-label="输入问题"
             className="flex-1 bg-mine-bg rounded-lg px-2.5 py-1.5 text-[11px] text-mine-text placeholder:text-mine-muted outline-none focus:ring-1 focus:ring-mine-accent-teal/30"
@@ -221,37 +236,37 @@ function ChatTab() {
 
 // ============ Main Panel ============
 export function AiChatPanel() {
-  const [activeTab, setActiveTab] = useState<TabType>("news");
+  const [activeTab, setActiveTab] = useState<TabType>('news');
 
   return (
-    <div className="w-[280px] min-w-0 max-w-full flex flex-col rounded-xl bg-white shadow-sm border border-mine-border overflow-hidden">
+    <Card className="w-[280px] min-w-0 max-w-full">
       {/* Tab Header */}
       <div className="flex border-b border-mine-border/50">
         <button
-          onClick={() => setActiveTab("news")}
-          aria-selected={activeTab === "news"}
+          onClick={() => setActiveTab('news')}
+          aria-selected={activeTab === 'news'}
           role="tab"
           className={cn(
-            "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-mine-accent-teal/50 focus-visible:ring-inset",
-            activeTab === "news"
-              ? "text-mine-accent-teal border-b-2 border-mine-accent-teal bg-mine-accent-teal/5"
-              : "text-mine-muted hover:text-mine-text hover:bg-mine-bg/50"
+            'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-mine-accent-teal/50 focus-visible:ring-inset',
+            activeTab === 'news'
+              ? 'text-mine-accent-teal border-b-2 border-mine-accent-teal bg-mine-accent-teal/5'
+              : 'text-mine-muted hover:text-mine-text hover:bg-mine-bg/50',
           )}
         >
           <Newspaper className="w-3.5 h-3.5" />
           新闻流
         </button>
         <button
-          onClick={() => setActiveTab("chat")}
-          aria-selected={activeTab === "chat"}
+          onClick={() => setActiveTab('chat')}
+          aria-selected={activeTab === 'chat'}
           role="tab"
           className={cn(
-            "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-mine-accent-teal/50 focus-visible:ring-inset",
-            activeTab === "chat"
-              ? "text-mine-accent-teal border-b-2 border-mine-accent-teal bg-mine-accent-teal/5"
-              : "text-mine-muted hover:text-mine-text hover:bg-mine-bg/50"
+            'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-mine-accent-teal/50 focus-visible:ring-inset',
+            activeTab === 'chat'
+              ? 'text-mine-accent-teal border-b-2 border-mine-accent-teal bg-mine-accent-teal/5'
+              : 'text-mine-muted hover:text-mine-text hover:bg-mine-bg/50',
           )}
         >
           <MessageCircle className="w-3.5 h-3.5" />
@@ -260,7 +275,7 @@ export function AiChatPanel() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === "news" ? <NewsTab /> : <ChatTab />}
-    </div>
+      {activeTab === 'news' ? <NewsTab /> : <ChatTab />}
+    </Card>
   );
 }

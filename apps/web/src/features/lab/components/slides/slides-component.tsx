@@ -11,11 +11,9 @@ interface SlidesComponentProps {
   wrapAround?: boolean;
 }
 
-const SlidesComponent = ({
+export const SlidesComponent = ({
   className,
   children,
 }: PropsWithChildren<SlidesComponentProps>) => {
   return <div className={className}>{children}</div>;
 };
-
-export default SlidesComponent;

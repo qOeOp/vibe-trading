@@ -20,7 +20,7 @@ import {
   jsonToMarkdown,
   jsonToTSV,
 } from "@/features/lab/utils/json/json-parser";
-import { Button } from "../ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +30,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import { toast } from "../ui/use-toast";
 
 type DownloadFormat = "csv" | "json" | "parquet";
@@ -195,7 +195,7 @@ export const DownloadAs: React.FC<DownloadActionProps> = (props) => {
                 <option.icon className="mo-dropdown-icon" />
                 <div className="flex flex-col">
                   <span>{option.label}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-mine-muted">
                     {option.description}
                   </span>
                 </div>

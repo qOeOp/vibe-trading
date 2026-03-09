@@ -1,26 +1,26 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { DatabaseIcon, DiamondPlusIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
-import { Button } from "../inputs/Inputs";
-import { MinimalHotkeys } from "@/features/lab/components/shortcuts/renderShortcut";
+import { DatabaseIcon, DiamondPlusIcon, PlusIcon } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '../inputs/Inputs';
+import { MinimalHotkeys } from '@/features/lab/components/shortcuts/renderShortcut';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/features/lab/components/ui/dropdown-menu";
-import { maybeAddMarimoImport } from "@/features/lab/core/cells/add-missing-import";
-import { useCellActions } from "@/features/lab/core/cells/cells";
-import { LanguageAdapters } from "@/features/lab/core/codemirror/language/LanguageAdapters";
-import { MARKDOWN_INITIAL_HIDE_CODE } from "@/features/lab/core/codemirror/language/languages/markdown";
+} from '@/components/ui/dropdown-menu';
+import { maybeAddMarimoImport } from '@/features/lab/core/cells/add-missing-import';
+import { useCellActions } from '@/features/lab/core/cells/cells';
+import { LanguageAdapters } from '@/features/lab/core/codemirror/language/LanguageAdapters';
+import { MARKDOWN_INITIAL_HIDE_CODE } from '@/features/lab/core/codemirror/language/languages/markdown';
 import {
   getConnectionTooltip,
   isAppInteractionDisabled,
-} from "@/features/lab/core/websocket/connection-utils";
-import type { WebSocketState } from "@/features/lab/core/websocket/types";
-import { cn } from "@/features/lab/utils/cn";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import { MarkdownIcon, PythonIcon } from "./code/icons";
+} from '@/features/lab/core/websocket/connection-utils';
+import type { WebSocketState } from '@/features/lab/core/websocket/types';
+import { cn } from '@/features/lab/utils/cn';
+import { Tooltip } from '@/components/ui/tooltip';
+import { MarkdownIcon, PythonIcon } from './code/icons';
 
 export const CreateCellButton = ({
   connectionState,
@@ -31,7 +31,7 @@ export const CreateCellButton = ({
   connectionState: WebSocketState;
   tooltipContent: React.ReactNode;
   onClick: ((opts: { code: string; hideCode?: boolean }) => void) | undefined;
-  oneClickShortcut: "shift" | "mod";
+  oneClickShortcut: 'shift' | 'mod';
 }) => {
   const { createNewCell, addSetupCellIfDoesntExist } = useCellActions();
   const shortcut = `${oneClickShortcut}-Click`;
@@ -45,15 +45,15 @@ export const CreateCellButton = ({
   ) : (
     <div className="flex flex-col gap-4">
       <div>{baseTooltipContent}</div>
-      <div className="text-xs text-muted-foreground font-medium pt-1 -mt-2 border-t border-border">
-        {<MinimalHotkeys shortcut={shortcut} className="inline" />}{" "}
+      <div className="text-xs text-mine-muted font-medium pt-1 -mt-2 border-t border-mine-border">
+        {<MinimalHotkeys shortcut={shortcut} className="inline" />}{' '}
         <span>for other cell types</span>
       </div>
     </div>
   );
 
   const addPythonCell = () => {
-    onClick?.({ code: "" });
+    onClick?.({ code: '' });
   };
 
   // NB: When adding the marimo import for markdown and SQL, we run it
@@ -78,7 +78,7 @@ export const CreateCellButton = ({
   };
 
   const renderIcon = (icon: React.ReactNode) => {
-    return <div className="mr-3 text-muted-foreground">{icon}</div>;
+    return <div className="mr-3 text-mine-muted">{icon}</div>;
   };
 
   const openDropdown = () => {
@@ -103,7 +103,7 @@ export const CreateCellButton = ({
     e.stopPropagation();
 
     const hasModifier =
-      oneClickShortcut === "shift" ? e.shiftKey : e.metaKey || e.ctrlKey;
+      oneClickShortcut === 'shift' ? e.shiftKey : e.metaKey || e.ctrlKey;
 
     if (hasModifier) {
       openDropdown();
@@ -142,8 +142,8 @@ export const CreateCellButton = ({
       <DropdownMenuTrigger asChild={true}>
         <Button
           className={cn(
-            "border-none hover-action shadow-none! bg-transparent! focus-visible:outline-none",
-            isAppInteractionDisabled(connectionState) && " inactive-button",
+            'border-none hover-action shadow-none! bg-transparent! focus-visible:outline-none',
+            isAppInteractionDisabled(connectionState) && ' inactive-button',
           )}
           onPointerDownCapture={handlePointerDownCapture}
           onContextMenuCapture={handleContextMenu}

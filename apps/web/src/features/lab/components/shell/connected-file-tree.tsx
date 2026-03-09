@@ -160,7 +160,7 @@ function renderFileNodes(nodes: FileInfo[]) {
 
 // ─── Main Component ──────────────────────────────────────
 
-function ConnectedFileTreeContent() {
+export function ConnectedFileTreeContent() {
   const [tree] = useAtom(treeAtom);
   const [data, setData] = useState<FileInfo[]>([]);
   const [showHiddenFiles, setShowHiddenFiles] = useAtom(hiddenFilesState);
@@ -288,5 +288,3 @@ function ConnectedFileTreeContent() {
     </div>
   );
 }
-
-export default ConnectedFileTreeContent;

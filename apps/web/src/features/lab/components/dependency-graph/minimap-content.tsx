@@ -143,7 +143,7 @@ const VariablesList: React.FC<{
             <span
               className={cn({
                 "font-bold": isSelected,
-                "text-foreground": selectedCell === undefined,
+                "text-mine-text": selectedCell === undefined,
                 "text-primary font-medium":
                   !isSelected &&
                   isVariableAffectedBySelectedCell(variable, selectedCell),
@@ -348,7 +348,7 @@ function getTextColor({
 
   // Nothing selected. Nodes that declare or uses variables
   if (!selectedCell && !isNonReferenceableCell(cell.graph)) {
-    return "text-foreground";
+    return "text-mine-text";
   }
 
   // Inside the selected graph

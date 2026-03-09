@@ -19,8 +19,8 @@ import useResizeObserver from 'use-resize-observer';
 import { PythonIcon } from '@/features/lab/components/editor/cell/code/icons';
 import { Alert, AlertDescription } from '@/features/lab/components/ui/alert';
 import { Button } from '@/features/lab/components/ui/button';
-import { Form } from '@/features/lab/components/ui/form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/lab/components/ui/tabs';
+import { Form } from '@/components/ui/form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { CellId } from '@/features/lab/core/cells/ids';
 import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
 import { useDebouncedCallback } from '@/features/lab/hooks/useDebounce';
@@ -375,21 +375,21 @@ export const ChartPanel: React.FC<{
         <div className="flex flex-row gap-1.5 items-center">
           <TabsList>
             <TabsTrigger value="chart" className="h-6">
-              <ChartColumnIcon className="text-muted-foreground mr-2 w-4 h-4" />
+              <ChartColumnIcon className="text-mine-muted mr-2 w-4 h-4" />
               Chart
             </TabsTrigger>
             <TabsTrigger value="code" className="h-6">
-              <PythonIcon className="text-muted-foreground mr-2" />
+              <PythonIcon className="text-mine-muted mr-2" />
               Python code
             </TabsTrigger>
             {developmentMode && (
               <>
                 <TabsTrigger value="formValues" className="h-6">
-                  <CodeIcon className="text-muted-foreground mr-2 w-4 h-4" />
+                  <CodeIcon className="text-mine-muted mr-2 w-4 h-4" />
                   Form values (debug)
                 </TabsTrigger>
                 <TabsTrigger value="vegaSpec" className="h-6">
-                  <CodeIcon className="text-muted-foreground mr-2 w-4 h-4" />
+                  <CodeIcon className="text-mine-muted mr-2 w-4 h-4" />
                   Vega spec (debug)
                 </TabsTrigger>
               </>
@@ -455,7 +455,7 @@ export const ChartPanel: React.FC<{
         <Button
           variant="outline"
           size="icon"
-          className="border-border ml-auto"
+          className="border-mine-border ml-auto"
           onClick={() => setFormCollapsed((prev) => !prev)}
           title={formCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >

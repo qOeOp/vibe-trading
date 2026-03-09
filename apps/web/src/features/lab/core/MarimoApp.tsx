@@ -1,52 +1,60 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import "../css/index.css";
-import "../css/app/App.css";
-import "iconify-icon";
+import '../css/index.css';
+import '../css/app/App.css';
+import 'iconify-icon';
 
-import { Provider as SlotzProvider } from "@marimo-team/react-slotz";
-import type React from "react";
-import { memo, type PropsWithChildren, Suspense } from "react";
-import { TailwindIndicator } from "../components/debug/indicator";
-import { useAppConfig, useResolvedMarimoConfig } from "./config/config";
-import { getInitialAppMode } from "./mode";
-import { CssVariables } from "../theme/ThemeProvider";
-import { reactLazyWithPreload } from "../utils/lazy";
-import { ErrorBoundary } from "../components/editor/boundary/ErrorBoundary";
-import { KernelStartupErrorModal } from "../components/editor/KernelStartupErrorModal";
-import { ModalProvider } from "../components/modal/ImperativeModal";
-import { Toaster } from "../components/ui/toaster";
-import { TooltipProvider } from "../components/ui/tooltip";
-import { LocaleProvider } from "./i18n/locale-provider";
-import { slotsController } from "./slots/slots";
+import { Provider as SlotzProvider } from '@marimo-team/react-slotz';
+import type React from 'react';
+import { memo, type PropsWithChildren, Suspense } from 'react';
+import { TailwindIndicator } from '../components/debug/indicator';
+import { useAppConfig, useResolvedMarimoConfig } from './config/config';
+import { getInitialAppMode } from './mode';
+import { CssVariables } from '../theme/ThemeProvider';
+import { reactLazyWithPreload } from '../utils/lazy';
+import { ErrorBoundary } from '../components/editor/boundary/ErrorBoundary';
+import { KernelStartupErrorModal } from '../components/editor/KernelStartupErrorModal';
+import { ModalProvider } from '../components/modal/ImperativeModal';
+import { Toaster } from '../components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { LocaleProvider } from './i18n/locale-provider';
+import { slotsController } from './slots/slots';
 
 // Force tailwind classnames
 // tailwind only creates css for classnames that exist the FE files
 export const FORCE_TW_CLASSES =
-  "prose prose-sm prose-base prose-lg prose-xl prose-2xl dark:prose-invert";
+  'prose prose-sm prose-base prose-lg prose-xl prose-2xl';
 
 // Lazy imports
-const LazyHomePage = reactLazyWithPreload(
-  () => import("@/components/pages/home-page"),
+const LazyHomePage = reactLazyWithPreload<object>(() =>
+  import('@/components/pages/home-page').then((m) => ({
+    default: m.HomePage,
+  })),
 );
-const LazyRunPage = reactLazyWithPreload(
-  () => import("@/components/pages/run-page"),
+const LazyRunPage = reactLazyWithPreload<Record<string, unknown>>(() =>
+  import('@/components/pages/run-page').then((m) => ({
+    default: m.RunPage,
+  })),
 );
-const LazyEditPage = reactLazyWithPreload(
-  () => import("@/components/pages/edit-page"),
+const LazyEditPage = reactLazyWithPreload<Record<string, unknown>>(() =>
+  import('@/components/pages/edit-page').then((m) => ({
+    default: m.EditPage,
+  })),
 );
-const LazyGalleryPage = reactLazyWithPreload(
-  () => import("@/components/pages/gallery-page"),
+const LazyGalleryPage = reactLazyWithPreload<object>(() =>
+  import('@/components/pages/gallery-page').then((m) => ({
+    default: m.GalleryPage,
+  })),
 );
 
 export function preloadPage(mode: string) {
   switch (mode) {
-    case "home":
+    case 'home':
       LazyHomePage.preload();
       break;
-    case "gallery":
+    case 'gallery':
       LazyGalleryPage.preload();
       break;
-    case "read":
+    case 'read':
       LazyRunPage.preload();
       break;
     default:
@@ -64,13 +72,13 @@ export const MarimoApp: React.FC = memo(() => {
 
   const renderBody = () => {
     const initialMode = getInitialAppMode();
-    if (initialMode === "home") {
+    if (initialMode === 'home') {
       return <LazyHomePage.Component />;
     }
-    if (initialMode === "gallery") {
+    if (initialMode === 'gallery') {
       return <LazyGalleryPage.Component />;
     }
-    if (initialMode === "read") {
+    if (initialMode === 'read') {
       return <LazyRunPage.Component appConfig={appConfig} />;
     }
     return (
@@ -81,14 +89,14 @@ export const MarimoApp: React.FC = memo(() => {
   return (
     <Providers>
       <CssVariables
-        variables={{ "--marimo-code-editor-font-size": editorFontSize }}
+        variables={{ '--marimo-code-editor-font-size': editorFontSize }}
       >
         <LocaleProvider>{renderBody()}</LocaleProvider>
       </CssVariables>
     </Providers>
   );
 });
-MarimoApp.displayName = "MarimoApp";
+MarimoApp.displayName = 'MarimoApp';
 
 /**
  * The root with all the providers.
@@ -113,7 +121,7 @@ const Providers = memo(({ children }: PropsWithChildren) => {
     </ErrorBoundary>
   );
 });
-Providers.displayName = "Providers";
+Providers.displayName = 'Providers';
 
 function toRem(px: number) {
   return `${px / 16}rem`;

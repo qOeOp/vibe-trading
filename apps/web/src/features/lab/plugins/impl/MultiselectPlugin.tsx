@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { type JSX, useId, useMemo, useState } from "react";
-import { Virtuoso } from "react-virtuoso";
-import { z } from "zod";
-import { cn } from "@/features/lab/utils/cn";
-import { Combobox, ComboboxItem } from "@/features/lab/components/ui/combobox";
-import { CommandSeparator } from "@/features/lab/components/ui/command";
-import type { IPlugin, IPluginProps, Setter } from "../types";
-import { Labeled } from "./common/labeled";
-import { multiselectFilterFn } from "./multiselectFilterFn";
+import { type JSX, useId, useMemo, useState } from 'react';
+import { Virtuoso } from 'react-virtuoso';
+import { z } from 'zod';
+import { cn } from '@/features/lab/utils/cn';
+import { Combobox, ComboboxItem } from '@/features/lab/components/ui/combobox';
+import { CommandSeparator } from '@/components/ui/command';
+import type { IPlugin, IPluginProps, Setter } from '../types';
+import { Labeled } from './common/labeled';
+import { multiselectFilterFn } from './multiselectFilterFn';
 
 interface Data {
   label: string | null;
@@ -19,7 +19,7 @@ interface Data {
 type T = string[];
 
 export class MultiselectPlugin implements IPlugin<T, Data> {
-  tagName = "marimo-multiselect";
+  tagName = 'marimo-multiselect';
 
   validator = z.object({
     initialValue: z.array(z.string()),
@@ -53,8 +53,8 @@ interface MultiselectProps extends Data {
   setValue: Setter<T>;
 }
 
-const SELECT_ALL_KEY = "__select_all__";
-const DESELECT_ALL_KEY = "__deselect_all__";
+const SELECT_ALL_KEY = '__select_all__';
+const DESELECT_ALL_KEY = '__deselect_all__';
 
 export const Multiselect = ({
   options,
@@ -65,7 +65,7 @@ export const Multiselect = ({
   maxSelections,
 }: MultiselectProps): JSX.Element => {
   const id = useId();
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredOptions = useMemo(() => {
     if (!searchQuery) {
@@ -135,7 +135,7 @@ export const Multiselect = ({
         onSelect={handleDeselectAll}
         disabled={!deselectAllEnabled}
       >
-        {maxSelections === 1 ? "Deselect" : "Deselect all"}
+        {maxSelections === 1 ? 'Deselect' : 'Deselect all'}
       </ComboboxItem>,
       <CommandSeparator key="_separator" />,
     );
@@ -146,7 +146,7 @@ export const Multiselect = ({
     if (filteredOptions.length > 200) {
       return (
         <Virtuoso
-          style={{ height: "200px" }}
+          style={{ height: '200px' }}
           totalCount={filteredOptions.length}
           overscan={50}
           itemContent={(i: number) => {
@@ -192,7 +192,7 @@ export const Multiselect = ({
         placeholder="Select..."
         multiple={true}
         className={cn({
-          "w-full": fullWidth,
+          'w-full': fullWidth,
         })}
         value={value}
         onValueChange={handleValueChange}

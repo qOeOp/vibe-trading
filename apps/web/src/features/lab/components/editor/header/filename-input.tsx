@@ -1,26 +1,26 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { PopoverAnchor } from "@radix-ui/react-popover";
-import { FilePenIcon } from "lucide-react";
-import { type JSX, useEffect, useRef, useState } from "react";
-import type { FileInfo } from "@/features/lab/core/network/types";
-import { useAsyncData } from "@/features/lab/hooks/useAsyncData";
-import { Paths } from "@/features/lab/utils/paths";
-import { cn } from "@/features/lab/utils/cn";
+import { PopoverAnchor } from '@radix-ui/react-popover';
+import { FilePenIcon } from 'lucide-react';
+import { type JSX, useEffect, useRef, useState } from 'react';
+import type { FileInfo } from '@/features/lab/core/network/types';
+import { useAsyncData } from '@/features/lab/hooks/useAsyncData';
+import { Paths } from '@/features/lab/utils/paths';
+import { cn } from '@/features/lab/utils/cn';
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/features/lab/components/ui/command";
-import { Popover, PopoverContent } from "@/features/lab/components/ui/popover";
-import { FILE_TYPE_ICONS, guessFileType } from "../file-tree/types";
+} from '@/features/lab/components/ui/command';
+import { Popover, PopoverContent } from '@/features/lab/components/ui/popover';
+import { FILE_TYPE_ICONS, guessFileType } from '../file-tree/types';
 
-import "./filename-input.css";
-import { getFeatureFlag } from "@/features/lab/core/config/feature-flag";
-import { useRequestClient } from "@/features/lab/core/network/requests";
-import { ErrorBoundary } from "../boundary/ErrorBoundary";
+import './filename-input.css';
+import { getFeatureFlag } from '@/features/lab/core/config/feature-flag';
+import { useRequestClient } from '@/features/lab/core/network/requests';
+import { ErrorBoundary } from '../boundary/ErrorBoundary';
 
 interface FilenameInputProps {
   resetOnBlur?: boolean;
@@ -56,7 +56,7 @@ export const FilenameInput = ({
 
   const onBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
     // If we are coming from a click event from inside the popover, don't blur
-    if (evt.relatedTarget?.closest(".filename-input")) {
+    if (evt.relatedTarget?.closest('.filename-input')) {
       return;
     }
 
@@ -66,8 +66,8 @@ export const FilenameInput = ({
     }
   };
 
-  const dirname = Paths.dirname(searchValue || "");
-  const basename = Paths.basename(searchValue || "");
+  const dirname = Paths.dirname(searchValue || '');
+  const basename = Paths.basename(searchValue || '');
 
   const filteredSuggestions = suggestions.filter((suggestion) =>
     Paths.basename(suggestion.path).startsWith(basename),
@@ -106,9 +106,9 @@ export const FilenameInput = ({
           className="py-2 px-3"
           onSelect={handleNameChange}
         >
-          <FilePenIcon className="w-4 h-4 mr-2" />{" "}
+          <FilePenIcon className="w-4 h-4 mr-2" />{' '}
           <span className="text-sm">
-            {initialValue ? "Rename to: " : "Save as: "}
+            {initialValue ? 'Rename to: ' : 'Save as: '}
             <span className="font-medium text-sm">
               {Paths.basename(suggestedNamed)}
             </span>
@@ -118,7 +118,7 @@ export const FilenameInput = ({
 
       {filteredSuggestions.map((suggestion) => {
         const fileType = suggestion.isDirectory
-          ? "directory"
+          ? 'directory'
           : guessFileType(suggestion.path);
         const Icon = FILE_TYPE_ICONS[fileType];
 
@@ -133,7 +133,7 @@ export const FilenameInput = ({
         return (
           <CommandItem
             key={suggestion.path}
-            variant={suggestion.isDirectory ? "default" : "muted"}
+            variant={suggestion.isDirectory ? 'default' : 'muted'}
             className="py-2 px-3"
             onSelect={handleCommand}
           >
@@ -164,9 +164,9 @@ export const FilenameInput = ({
                 tabIndex={-1}
                 rootClassName="border-none justify-center px-1"
                 spellCheck="false"
-                value={focused ? searchValue || "" : initialValue || ""}
+                value={focused ? searchValue || '' : initialValue || ''}
                 onKeyDown={(e) => {
-                  if (e.key === "Escape") {
+                  if (e.key === 'Escape') {
                     e.currentTarget.blur();
                   }
                 }}
@@ -178,7 +178,7 @@ export const FilenameInput = ({
                 style={flexibleWidth ? { maxWidth: size } : undefined}
                 className={cn(
                   className,
-                  "w-full px-4 py-1 my-1 h-9 font-mono text-foreground/60",
+                  'w-full px-4 py-1 my-1 h-9 font-mono text-mine-text/60',
                 )}
               />
             </PopoverAnchor>
@@ -186,8 +186,8 @@ export const FilenameInput = ({
             <PopoverContent
               side="bottom"
               className={cn(
-                "p-0 w-full min-w-80 max-w-80vw hidden",
-                suggestionsList && "group-focus-within:block",
+                'p-0 w-full min-w-80 max-w-80vw hidden',
+                suggestionsList && 'group-focus-within:block',
               )}
               portal={false}
             >
@@ -208,20 +208,20 @@ function getSuggestion(
   if (!search) {
     return;
   }
-  if (search.endsWith("/")) {
+  if (search.endsWith('/')) {
     return;
   }
 
   // Matches allowed files in marimo/_utils/marimo_path.py
-  const extensionsToLeave = getFeatureFlag("markdown")
-    ? new Set(["py", "md", "markdown", "qmd"])
-    : new Set(["py"]);
+  const extensionsToLeave = getFeatureFlag('markdown')
+    ? new Set(['py', 'md', 'markdown', 'qmd'])
+    : new Set(['py']);
 
   if (extensionsToLeave.has(Paths.extension(search))) {
     // If ends with an allowed extension, leave as is
-  } else if (search.endsWith(".")) {
+  } else if (search.endsWith('.')) {
     search = `${search}py`;
-  } else if (search.endsWith(".p")) {
+  } else if (search.endsWith('.p')) {
     search = `${search}y`;
   } else {
     search = `${search}.py`;

@@ -20,7 +20,7 @@ import { mergeProps } from 'react-aria';
 import useEvent from 'react-use-event-hook';
 import { StopButton } from './cell/StopButton';
 import { Toolbar, ToolbarItem } from './cell/toolbar';
-import { Tooltip, TooltipProvider } from '../ui/tooltip';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { aiCompletionCellAtom } from '@/features/lab/core/ai/state';
 import { outputIsLoading, outputIsStale } from '@/features/lab/core/cells/cell';
 import { isOutputEmpty } from '@/features/lab/core/cells/outputs';
@@ -1244,7 +1244,7 @@ const SetupCellComponent = ({
               </div>
             </div>
             <div className="py-1 px-2 flex justify-end gap-2 last:rounded-b">
-              <span className="text-muted-foreground text-xs font-bold">
+              <span className="text-mine-muted text-xs font-bold">
                 setup cell
               </span>
               <Tooltip
@@ -1260,7 +1260,7 @@ const SetupCellComponent = ({
                 <HelpCircleIcon
                   size={16}
                   strokeWidth={1.5}
-                  className="rounded-lg text-muted-foreground"
+                  className="rounded-lg text-mine-muted"
                 />
               </Tooltip>
             </div>

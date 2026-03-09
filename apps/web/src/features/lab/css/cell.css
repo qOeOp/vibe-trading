@@ -47,7 +47,7 @@
   }
 
   &:hover {
-    border-color: #c5c0b8;
+    border-color: var(--color-mine-border);
   }
 
   &:focus-visible {
@@ -129,7 +129,7 @@
   }
 
   &.disabled:hover {
-    border-color: #c5c0b8;
+    border-color: var(--color-mine-border);
   }
 
   /* Error styles — less precedence than needs-run */
@@ -354,7 +354,7 @@
 
   &.cm-focused {
     .cm-activeLineGutter {
-      background: #e2f2ff;
+      background: oklch(from var(--color-mine-accent-teal) 0.94 0.02 h);
     }
 
     .cm-activeLine:not(.cm-error-line) {
@@ -457,7 +457,7 @@
 
 /* Amber breathing dot for stale cells */
 [data-slot='lab-fullscreen'] .marimo-cell.needs-run .cell-status-stale {
-  animation: amber-breathe 2s ease-in-out infinite;
+  animation: amber-breathe 1s ease-in-out infinite;
 }
 
 @keyframes amber-breathe {
@@ -500,7 +500,7 @@
     box-shadow: inset 3px 0 0 transparent;
   }
   30% {
-    box-shadow: inset 3px 0 0 #4caf50;
+    box-shadow: inset 3px 0 0 var(--color-mine-accent-green);
   }
   100% {
     box-shadow: inset 3px 0 0 transparent;
@@ -512,7 +512,7 @@
     box-shadow: inset 3px 0 0 transparent;
   }
   30% {
-    box-shadow: inset 3px 0 0 #e74c3c;
+    box-shadow: inset 3px 0 0 var(--color-mine-accent-red);
   }
   100% {
     box-shadow: inset 3px 0 0 transparent;

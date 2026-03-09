@@ -41,7 +41,7 @@ export const MarkdownQuotePrefixTooltip: React.FC = () => {
           <code className="text-xs px-1 py-0.5 bg-(--slate-2) rounded">r</code>
           <span className="font-semibold">Raw String</span>
         </header>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-mine-muted">
           Write LaTeX without escaping special characters
         </p>
         <pre className="text-xs bg-(--slate-2) p-2 rounded">\alpha \beta</pre>
@@ -52,7 +52,7 @@ export const MarkdownQuotePrefixTooltip: React.FC = () => {
           <code className="text-xs px-1 py-0.5 bg-(--slate-2) rounded">f</code>
           <span className="font-semibold">Format String</span>
         </header>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-mine-muted">
           Interpolate Python values
         </p>
         <pre className="text-xs bg-(--slate-2) p-2 rounded">

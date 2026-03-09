@@ -1,50 +1,53 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useCompletion } from "@ai-sdk/react";
-import { EditorView } from "@codemirror/view";
+import { useCompletion } from '@ai-sdk/react';
+import { EditorView } from '@codemirror/view';
 import {
   CircleCheckIcon,
   Loader2Icon,
   SparklesIcon,
   XIcon,
-} from "lucide-react";
-import React, { useCallback, useEffect, useId, useState } from "react";
-import CodeMirrorMerge from "react-codemirror-merge";
-import { Button } from "@/features/lab/components/ui/button";
-import { customPythonLanguageSupport } from "@/features/lab/core/codemirror/language/languages/python";
+} from 'lucide-react';
+import React, { useCallback, useEffect, useId, useState } from 'react';
+import CodeMirrorMerge from 'react-codemirror-merge';
+import { Button } from '@/features/lab/components/ui/button';
+import { customPythonLanguageSupport } from '@/features/lab/core/codemirror/language/languages/python';
 
-import "./merge-editor.css";
-import { storePrompt } from "@marimo-team/codemirror-ai";
-import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import { useAtom, useAtomValue } from "jotai";
-import { AIModelDropdown } from "@/features/lab/components/ai/ai-model-dropdown";
+import './merge-editor.css';
+import { storePrompt } from '@marimo-team/codemirror-ai';
+import type { ReactCodeMirrorRef } from '@uiw/react-codemirror';
+import { useAtom, useAtomValue } from 'jotai';
+import { AIModelDropdown } from '@/features/lab/components/ai/ai-model-dropdown';
 import {
   AddContextButton,
   SendButton,
-} from "@/features/lab/components/chat/chat-components";
-import { Checkbox } from "@/features/lab/components/ui/checkbox";
-import { Label } from "@/features/lab/components/ui/label";
-import { Switch } from "@/features/lab/components/ui/switch";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import { toast } from "@/features/lab/components/ui/use-toast";
-import { stagedAICellsAtom } from "@/features/lab/core/ai/staged-cells";
-import { type AiCompletionCell, includeOtherCellsAtom } from "@/features/lab/core/ai/state";
-import type { CellId } from "@/features/lab/core/cells/ids";
-import { getCodes } from "@/features/lab/core/codemirror/copilot/getCodes";
-import type { LanguageAdapterType } from "@/features/lab/core/codemirror/language/types";
-import { selectAllText } from "@/features/lab/core/codemirror/utils";
-import { useRuntimeManager } from "@/features/lab/core/runtime/config";
-import { useTheme } from "@/features/lab/theme/useTheme";
-import { cn } from "@/features/lab/utils/cn";
-import { prettyError } from "@/features/lab/utils/errors";
-import { retryWithTimeout } from "@/features/lab/utils/timeout";
-import { PromptInput } from "./add-cell-with-ai";
+} from '@/features/lab/components/chat/chat-components';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Tooltip } from '@/components/ui/tooltip';
+import { toast } from '@/features/lab/components/ui/use-toast';
+import { stagedAICellsAtom } from '@/features/lab/core/ai/staged-cells';
+import {
+  type AiCompletionCell,
+  includeOtherCellsAtom,
+} from '@/features/lab/core/ai/state';
+import type { CellId } from '@/features/lab/core/cells/ids';
+import { getCodes } from '@/features/lab/core/codemirror/copilot/getCodes';
+import type { LanguageAdapterType } from '@/features/lab/core/codemirror/language/types';
+import { selectAllText } from '@/features/lab/core/codemirror/utils';
+import { useRuntimeManager } from '@/features/lab/core/runtime/config';
+import { useTheme } from '@/features/lab/theme/useTheme';
+import { cn } from '@/features/lab/utils/cn';
+import { prettyError } from '@/features/lab/utils/errors';
+import { retryWithTimeout } from '@/features/lab/utils/timeout';
+import { PromptInput } from './add-cell-with-ai';
 import {
   AcceptCompletionButton,
   createAiCompletionOnKeydown,
   RejectCompletionButton,
-} from "./completion-handlers";
-import { addContextCompletion, getAICompletionBody } from "./completion-utils";
+} from './completion-handlers';
+import { addContextCompletion, getAICompletionBody } from './completion-utils';
 
 const Original = CodeMirrorMerge.Original;
 const Modified = CodeMirrorMerge.Modified;
@@ -59,7 +62,7 @@ interface Props {
   declineChange: () => void;
   acceptChange: (rightHandCode: string) => void;
   runCell: () => void;
-  outputArea?: "above" | "below";
+  outputArea?: 'above' | 'below';
   /**
    * Children shown when there is no completion
    */
@@ -106,7 +109,7 @@ export const AiCompletionEditor: React.FC<Props> = ({
   const stagedAICells = useAtomValue(stagedAICellsAtom);
   const updatedCell = stagedAICells.get(cellId);
   let previousCellCode: string | undefined;
-  if (updatedCell?.type === "update_cell") {
+  if (updatedCell?.type === 'update_cell') {
     previousCellCode = updatedCell.previousCode;
   }
 
@@ -120,10 +123,10 @@ export const AiCompletionEditor: React.FC<Props> = ({
     handleSubmit,
     complete,
   } = useCompletion({
-    api: runtimeManager.getAiURL("completion").toString(),
+    api: runtimeManager.getAiURL('completion').toString(),
     headers: runtimeManager.headers(),
     initialInput: initialPrompt,
-    streamProtocol: "text",
+    streamProtocol: 'text',
     // Throttle the messages and data updates to 100ms
     experimental_throttle: 100,
     body: {
@@ -132,13 +135,13 @@ export const AiCompletionEditor: React.FC<Props> = ({
         : initialPrompt
           ? getAICompletionBody({ input: initialPrompt })
           : {}),
-      includeOtherCode: includeOtherCells ? getCodes(currentCode) : "",
+      includeOtherCode: includeOtherCells ? getCodes(currentCode) : '',
       code: currentCode,
       language: currentLanguageAdapter,
     },
     onError: (error) => {
       toast({
-        title: "Completion failed",
+        title: 'Completion failed',
         description: prettyError(error),
       });
     },
@@ -182,7 +185,7 @@ export const AiCompletionEditor: React.FC<Props> = ({
   // Reset the input when the prompt changes
   useEffect(() => {
     if (enabled) {
-      setInput(initialPrompt || "");
+      setInput(initialPrompt || '');
     }
   }, [enabled, initialPrompt, setInput]);
 
@@ -190,32 +193,32 @@ export const AiCompletionEditor: React.FC<Props> = ({
 
   const handleAcceptCompletion = () => {
     acceptChange(completion);
-    setCompletion("");
+    setCompletion('');
   };
 
   const handleDeclineCompletion = () => {
     declineChange();
-    setCompletion("");
+    setCompletion('');
   };
 
   const showCompletionBanner =
     enabled && triggerImmediately && (completion || isLoading);
   // Set default output area to below if not specified
-  outputArea = outputArea ?? "below";
+  outputArea = outputArea ?? 'below';
 
   const showInput = enabled && (!triggerImmediately || showInputPrompt);
 
   const completionBanner = (
     <div
       className={cn(
-        "w-full bg-(--cm-background) flex justify-center transition-all duration-300 ease-in-out overflow-hidden",
+        'w-full bg-(--cm-background) flex justify-center transition-all duration-300 ease-in-out overflow-hidden',
         showCompletionBanner
-          ? "max-h-20 opacity-100 translate-y-0"
-          : "max-h-0 opacity-0 -translate-y-2",
+          ? 'max-h-20 opacity-100 translate-y-0'
+          : 'max-h-0 opacity-0 -translate-y-2',
       )}
     >
       <CompletionBanner
-        status={isLoading ? "loading" : "generated"}
+        status={isLoading ? 'loading' : 'generated'}
         onAccept={handleAcceptCompletion}
         onReject={handleDeclineCompletion}
         showInputPrompt={showInputPrompt}
@@ -282,13 +285,13 @@ export const AiCompletionEditor: React.FC<Props> = ({
   return (
     <div
       data-ai-input-open={showInput}
-      className={cn("flex flex-col w-full rounded-[inherit]", className)}
+      className={cn('flex flex-col w-full rounded-[inherit]', className)}
     >
       <div
         className={cn(
-          "flex items-center gap-2 px-3 transition-all rounded-[inherit] rounded-b-none duration-300",
-          showInput && "max-h-[400px] border-b min-h-11 visible",
-          !showInput && "max-h-0 min-h-0 invisible",
+          'flex items-center gap-2 px-3 transition-all rounded-[inherit] rounded-b-none duration-300',
+          showInput && 'max-h-[400px] border-b min-h-11 visible',
+          !showInput && 'max-h-0 min-h-0 invisible',
         )}
       >
         {enabled && (
@@ -299,7 +302,7 @@ export const AiCompletionEditor: React.FC<Props> = ({
               className="h-full my-0 py-2 flex items-center"
               onClose={() => {
                 declineChange();
-                setCompletion("");
+                setCompletion('');
               }}
               value={input}
               onChange={(newValue) => {
@@ -363,7 +366,7 @@ export const AiCompletionEditor: React.FC<Props> = ({
                 />
                 <Label
                   htmlFor={includeOtherCellsCheckboxId}
-                  className="text-muted-foreground text-xs whitespace-nowrap ellipsis"
+                  className="text-mine-muted text-xs whitespace-nowrap ellipsis"
                 >
                   All code
                 </Label>
@@ -377,7 +380,7 @@ export const AiCompletionEditor: React.FC<Props> = ({
               onClick={() => {
                 stop();
                 declineChange();
-                setCompletion("");
+                setCompletion('');
               }}
             >
               <XIcon className="text-(--red-10)" size={16} />
@@ -385,17 +388,17 @@ export const AiCompletionEditor: React.FC<Props> = ({
           </>
         )}
       </div>
-      {outputArea === "above" && completionBanner}
+      {outputArea === 'above' && completionBanner}
       {renderCompletionEditor()}
       {(!completion || !enabled) && !previousCellCode && children}
       {/* By default, show the completion banner below the code */}
-      {outputArea === "below" && completionBanner}
+      {outputArea === 'below' && completionBanner}
     </div>
   );
 };
 
 interface CompletionBannerProps {
-  status: "loading" | "generated";
+  status: 'loading' | 'generated';
   onAccept: () => void;
   onReject: () => void;
   showInputPrompt: boolean;
@@ -413,13 +416,13 @@ const CompletionBanner: React.FC<CompletionBannerProps> = ({
   setShowInputPrompt,
   runCell,
 }) => {
-  const isLoading = status === "loading";
+  const isLoading = status === 'loading';
 
   return (
     <div
       className={cn(
-        "flex flex-row items-center gap-6 rounded-md py-2 px-2.5 text-sm border border-border",
-        "shadow-[0_0_6px_1px_rgba(34,197,94,0.15)]",
+        'flex flex-row items-center gap-6 rounded-md py-2 px-2.5 text-sm border border-mine-border',
+        'shadow-[0_0_6px_1px_rgba(34,197,94,0.15)]',
         className,
       )}
     >
@@ -440,15 +443,15 @@ const CompletionBanner: React.FC<CompletionBannerProps> = ({
           />
         )}
 
-        <p className="transition-opacity duration-200 text-muted-foreground">
-          {isLoading ? "Generating fix..." : "Showing fix"}
+        <p className="transition-opacity duration-200 text-mine-muted">
+          {isLoading ? 'Generating fix...' : 'Showing fix'}
         </p>
       </div>
 
       <div className="flex flex-row items-center gap-1">
         <Label
           htmlFor="show-input-prompt"
-          className="text-muted-foreground text-xs whitespace-nowrap ellipsis"
+          className="text-mine-muted text-xs whitespace-nowrap ellipsis"
         >
           Show prompt
         </Label>

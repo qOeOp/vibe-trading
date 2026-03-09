@@ -3,7 +3,7 @@
 import { marked } from 'marked';
 import { useState } from 'react';
 import { MarkdownRenderer } from '../markdown/markdown-renderer';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Events } from '@/features/lab/utils/events';
 import type { ContentPart } from '@/features/lab/utils/url-parser';
 
@@ -33,7 +33,7 @@ const ImageWithFallback = ({ url }: { url: string }) => {
       </PopoverTrigger>
 
       <PopoverContent
-        className="z-50 p-2 bg-popover rounded-md shadow-lg border w-fit"
+        className="z-50 p-2 bg-mine-card rounded-md shadow-lg border w-fit"
         align="start"
         side="right"
       >

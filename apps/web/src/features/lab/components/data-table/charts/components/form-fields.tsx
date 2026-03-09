@@ -1,27 +1,28 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { capitalize } from "lodash-es";
+import { capitalize } from 'lodash-es';
 import {
   ArrowDownWideNarrowIcon,
   ArrowUpWideNarrowIcon,
   PlusIcon,
   SquareFunctionIcon,
   XIcon,
-} from "lucide-react";
-import React from "react";
-import { type Path, useFormContext, useWatch } from "react-hook-form";
-import type { z } from "zod";
-import { DATA_TYPE_ICON } from "@/features/lab/components/datasets/icons";
-import { Button } from "@/features/lab/components/ui/button";
-import { Checkbox } from "@/features/lab/components/ui/checkbox";
+} from 'lucide-react';
+import React from 'react';
+import { type Path, useFormContext, useWatch } from 'react-hook-form';
+import type { z } from 'zod';
+import { DATA_TYPE_ICON } from '@/features/lab/components/datasets/icons';
+import { Button } from '@/features/lab/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from "@/features/lab/components/ui/form";
-import { DebouncedInput, DebouncedNumberInput } from "@/features/lab/components/ui/input";
-import type { NumberFieldProps } from "@/features/lab/components/ui/number-field";
+} from '@/components/ui/form';
+import { DebouncedInput } from '@/components/ui/input';
+import { DebouncedNumberInput } from '@/features/lab/components/ui/input';
+import type { NumberFieldProps } from '@/features/lab/components/ui/number-field';
 import {
   Select,
   SelectContent,
@@ -31,12 +32,12 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@/features/lab/components/ui/select";
-import { Slider } from "@/features/lab/components/ui/slider";
-import type { DataType } from "@/features/lab/core/kernel/messages";
-import { Multiselect } from "@/features/lab/plugins/impl/MultiselectPlugin";
-import { cn } from "@/features/lab/utils/cn";
-import { convertDataTypeToSelectable } from "../chart-spec/types";
+} from '@/features/lab/components/ui/select';
+import { Slider } from '@/features/lab/components/ui/slider';
+import type { DataType } from '@/features/lab/core/kernel/messages';
+import { Multiselect } from '@/features/lab/plugins/impl/MultiselectPlugin';
+import { cn } from '@/features/lab/utils/cn';
+import { convertDataTypeToSelectable } from '../chart-spec/types';
 import {
   AGGREGATION_TYPE_DESCRIPTIONS,
   AGGREGATION_TYPE_ICON,
@@ -45,9 +46,9 @@ import {
   EMPTY_VALUE,
   SCALE_TYPE_DESCRIPTIONS,
   TIME_UNIT_DESCRIPTIONS,
-} from "../constants";
-import { useChartFormContext } from "../context";
-import type { BinSchema, ChartSchema, ChartSchemaType } from "../schemas";
+} from '../constants';
+import { useChartFormContext } from '../context';
+import type { BinSchema, ChartSchema, ChartSchemaType } from '../schemas';
 import {
   AGGREGATION_FNS,
   type AggregationFn,
@@ -61,10 +62,10 @@ import {
   SORT_TYPES,
   STRING_AGGREGATION_FNS,
   type TimeUnit,
-} from "../types";
-import { IconWithText } from "./layouts";
+} from '../types';
+import { IconWithText } from './layouts';
 
-const CLEAR_VALUE = "__clear__";
+const CLEAR_VALUE = '__clear__';
 
 export type FieldName = Path<z.infer<typeof ChartSchema>>;
 
@@ -91,8 +92,8 @@ export const ColumnSelector = ({
   includeCountField?: boolean;
 }) => {
   const form = useFormContext();
-  const pathType = fieldName.replace(".field", ".type");
-  const pathSelectedDataType = fieldName.replace(".field", ".selectedDataType");
+  const pathType = fieldName.replace('.field', '.type');
+  const pathSelectedDataType = fieldName.replace('.field', '.selectedDataType');
 
   const clear = () => {
     form.setValue(fieldName, EMPTY_VALUE);
@@ -122,7 +123,7 @@ export const ColumnSelector = ({
                   form.setValue(fieldName, value);
                   form.setValue(pathType, EMPTY_VALUE);
                   form.setValue(pathSelectedDataType, EMPTY_VALUE);
-                  onValueChange?.(fieldName, "number");
+                  onValueChange?.(fieldName, 'number');
                   return;
                 }
 
@@ -286,7 +287,7 @@ export const NumberField = ({
       control={form.control}
       name={fieldName}
       render={({ field }) => (
-        <FormItem className={cn("flex flex-row items-center gap-2", className)}>
+        <FormItem className={cn('flex flex-row items-center gap-2', className)}>
           <FormLabel className="whitespace-nowrap">{label}</FormLabel>
           <FormControl>
             <DebouncedNumberInput
@@ -294,7 +295,7 @@ export const NumberField = ({
               value={field.value}
               onValueChange={field.onChange}
               aria-label={label}
-              className={cn("w-16", inputClassName)}
+              className={cn('w-16', inputClassName)}
               isDisabled={isDisabled}
               minValue={0}
               {...props}
@@ -323,7 +324,7 @@ export const BooleanField = ({
       control={form.control}
       name={fieldName}
       render={({ field }) => (
-        <FormItem className={cn("flex flex-row items-center gap-2", className)}>
+        <FormItem className={cn('flex flex-row items-center gap-2', className)}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Checkbox
@@ -368,7 +369,7 @@ export const SliderField = ({
         const numericValue = Number(currentValue);
 
         const saveValue = (value: number | string) => {
-          if (typeof value === "string") {
+          if (typeof value === 'string') {
             value = Number(value);
           }
           field.onChange(value);
@@ -376,7 +377,7 @@ export const SliderField = ({
 
         return (
           <FormItem
-            className={cn("flex flex-row items-center gap-2 w-1/2", className)}
+            className={cn('flex flex-row items-center gap-2 w-1/2', className)}
           >
             <FormLabel>{label}</FormLabel>
             <FormControl>
@@ -420,7 +421,7 @@ export const ColorArrayField = ({
   const [colors, setColors] = React.useState<string[]>(formValue ?? []);
 
   const addColor = () => {
-    const newColors = [...colors, "#000000"];
+    const newColors = [...colors, '#000000'];
     setColors(newColors);
     form.setValue(fieldName, newColors);
   };
@@ -443,7 +444,7 @@ export const ColorArrayField = ({
       control={form.control}
       name={fieldName}
       render={() => (
-        <FormItem className={cn("flex flex-col gap-2", className)}>
+        <FormItem className={cn('flex flex-col gap-2', className)}>
           <FormLabel>{label}</FormLabel>
           <div className="flex flex-col gap-2">
             {colors.map((color, index) => (
@@ -454,7 +455,7 @@ export const ColorArrayField = ({
                   onChange={(e) => updateColor(index, e.target.value)}
                   className="w-4 h-4 rounded cursor-pointer"
                 />
-                <span className="text-xs text-muted-foreground font-mono">
+                <span className="text-xs text-mine-muted font-mono">
                   {color}
                 </span>
                 <Button
@@ -503,7 +504,7 @@ export const TimeUnitSelect = ({
         value={unit}
         className="flex flex-row"
         subtitle={
-          <span className="text-xs text-muted-foreground ml-auto">
+          <span className="text-xs text-mine-muted ml-auto">
             {description}
           </span>
         }
@@ -602,7 +603,7 @@ export const DataTypeSelect = ({
                   {SELECTABLE_DATA_TYPES.map((type) => {
                     const Icon = DATA_TYPE_ICON[type];
                     // Categorical is a clearer name for how we will aggregate this
-                    const name = type === "string" ? "categorical" : type;
+                    const name = type === 'string' ? 'categorical' : type;
                     return (
                       <SelectItem
                         key={type}
@@ -610,7 +611,7 @@ export const DataTypeSelect = ({
                         className="flex flex-col items-start justify-center"
                         subtitle={
                           isOpen && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-mine-muted">
                               {SCALE_TYPE_DESCRIPTIONS[type]}
                             </span>
                           )
@@ -643,14 +644,14 @@ export const AggregationSelect = ({
 }) => {
   const form = useFormContext();
   const availableAggregations =
-    selectedDataType === "string" ? STRING_AGGREGATION_FNS : AGGREGATION_FNS;
+    selectedDataType === 'string' ? STRING_AGGREGATION_FNS : AGGREGATION_FNS;
 
   const { chartType } = useChartFormContext();
   // Heatmap already has binning as an option elsewhere
   const isBinningAllowed = chartType !== ChartType.HEATMAP;
 
   const renderSubtitle = (text: string) => {
-    return <span className="text-xs text-muted-foreground pr-10">{text}</span>;
+    return <span className="text-xs text-mine-muted pr-10">{text}</span>;
   };
 
   const renderSelectItem = ({
@@ -728,7 +729,7 @@ export const AggregationSelect = ({
                   {availableAggregations.map((agg) => {
                     const Icon = AGGREGATION_TYPE_ICON[agg];
                     const subtitle = renderSubtitle(
-                      AGGREGATION_TYPE_DESCRIPTIONS[agg] ?? "Other",
+                      AGGREGATION_TYPE_DESCRIPTIONS[agg] ?? 'Other',
                     );
                     const selectItem = renderSelectItem({
                       value: agg,
@@ -772,7 +773,7 @@ export const TooltipSelect = ({
     const field = fields.find((f) => f.name === name);
     return {
       field: name,
-      type: field?.type ?? "string",
+      type: field?.type ?? 'string',
     };
   };
 
@@ -792,7 +793,7 @@ export const TooltipSelect = ({
                 value={values}
                 setValue={(values) => {
                   const selectedValues =
-                    typeof values === "function" ? values([]) : values;
+                    typeof values === 'function' ? values([]) : values;
 
                   const tooltipObjects = selectedValues.map((fieldName) => {
                     return createTooltip(fieldName, fields);
@@ -829,7 +830,7 @@ export const SortField = ({
         display: (
           <IconWithText
             Icon={
-              type === "ascending"
+              type === 'ascending'
                 ? ArrowUpWideNarrowIcon
                 : ArrowDownWideNarrowIcon
             }
@@ -838,13 +839,13 @@ export const SortField = ({
         ),
         value: type,
       }))}
-      defaultValue={defaultValue ?? "ascending"}
+      defaultValue={defaultValue ?? 'ascending'}
     />
   );
 };
 
 export const BinFields: React.FC<{
-  fieldName: "xAxis" | "yAxis" | "color";
+  fieldName: 'xAxis' | 'yAxis' | 'color';
 }> = ({ fieldName }) => {
   const form = useFormContext<ChartSchemaType>();
   const formValues = useWatch({ control: form.control });

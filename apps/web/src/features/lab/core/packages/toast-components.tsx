@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { Kbd } from "@/features/lab/components/ui/kbd";
-import { toast } from "@/features/lab/components/ui/use-toast";
+import { Kbd } from '@/components/ui/kbd';
+import { toast } from '@/features/lab/components/ui/use-toast';
 
 export const showAddPackageToast = (
   packageName: string,
@@ -9,20 +9,20 @@ export const showAddPackageToast = (
 ) => {
   if (error) {
     toast({
-      title: "Failed to add package",
+      title: 'Failed to add package',
       description: error,
-      variant: "danger",
+      variant: 'danger',
     });
   } else {
     toast({
-      title: "Package added",
+      title: 'Package added',
       description: (
         <div>
           <div>
             The package <Kbd className="inline">{packageName}</Kbd> and its
             dependencies has been added to your environment.
           </div>
-          <div className="text-xs text-muted-foreground mt-1">
+          <div className="text-xs text-mine-muted mt-1">
             Some Python packages may require a kernel restart to see changes.
           </div>
         </div>
@@ -37,20 +37,20 @@ export const showUpgradePackageToast = (
 ) => {
   if (error) {
     toast({
-      title: "Failed to upgrade package",
+      title: 'Failed to upgrade package',
       description: error,
-      variant: "danger",
+      variant: 'danger',
     });
   } else {
     toast({
-      title: "Package upgraded",
+      title: 'Package upgraded',
       description: (
         <div>
           <div>
             The package <Kbd className="inline">{packageName}</Kbd> has been
             upgraded.
           </div>
-          <div className="text-xs text-muted-foreground mt-1">
+          <div className="text-xs text-mine-muted mt-1">
             Some Python packages may require a kernel restart to see changes.
           </div>
         </div>
@@ -65,20 +65,20 @@ export const showRemovePackageToast = (
 ) => {
   if (error) {
     toast({
-      title: "Failed to remove package",
+      title: 'Failed to remove package',
       description: error,
-      variant: "danger",
+      variant: 'danger',
     });
   } else {
     toast({
-      title: "Package removed",
+      title: 'Package removed',
       description: (
         <div>
           <div>
             The package <Kbd className="inline">{packageName}</Kbd> has been
             removed from your environment.
           </div>
-          <div className="text-xs text-muted-foreground mt-1">
+          <div className="text-xs text-mine-muted mt-1">
             Some Python packages may require a kernel restart to see changes.
           </div>
         </div>

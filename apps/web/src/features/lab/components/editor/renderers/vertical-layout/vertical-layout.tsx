@@ -28,7 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/features/lab/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import { outputIsLoading, outputIsStale } from '@/features/lab/core/cells/cell';
 import type { CellId } from '@/features/lab/core/cells/ids';
 import { isOutputEmpty } from '@/features/lab/core/cells/outputs';
@@ -154,7 +154,7 @@ const VerticalLayoutRenderer: React.FC<VerticalLayoutProps> = ({
       if (!kernelState.isInstantiated) {
         return (
           <div className="flex-1 flex flex-col items-center justify-center py-8">
-            <Loader2Icon className="w-8 h-8 animate-spin text-muted-foreground" />
+            <Loader2Icon className="w-8 h-8 animate-spin text-mine-muted" />
           </div>
         );
       }

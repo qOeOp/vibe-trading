@@ -65,26 +65,26 @@ progress {
   border: none;
   flex: 1;
 
-  @apply bg-slate-200 dark:bg-accent/60 h-2 max-h-2 mr-1;
+  @apply bg-slate-200 h-2 max-h-2 mr-1;
 }
 
 /* Progress bar fill styling */
 progress::-webkit-progress-bar {
   border-radius: 9999px;
 
-  @apply bg-slate-200 dark:bg-accent/60;
+  @apply bg-slate-200;
 }
 
 progress::-webkit-progress-value {
   transition: width 0.2s ease;
 
-  @apply bg-blue-500 dark:bg-primary;
+  @apply bg-blue-500;
 }
 
 progress::-moz-progress-bar {
   transition: width 0.2s ease;
 
-  @apply bg-blue-500 dark:bg-primary;
+  @apply bg-blue-500;
 }
 
 /* Wrap existing progress elements */

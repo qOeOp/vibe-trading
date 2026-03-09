@@ -1,13 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { FunctionSquareIcon } from "lucide-react";
-import type React from "react";
-import { VariableTable } from "@/features/lab/components/variables/variables-table";
-import { useCellIds } from "@/features/lab/core/cells/cells";
-import { useVariables } from "@/features/lab/core/variables/state";
-import { PanelEmptyState } from "./empty-state";
+import { FunctionSquareIcon } from 'lucide-react';
+import type React from 'react';
+import { VariableTable } from '@/features/lab/components/variables/variables-table';
+import { useCellIds } from '@/features/lab/core/cells/cells';
+import { useVariables } from '@/features/lab/core/variables/state';
+import { PanelEmptyState } from './empty-state';
 
-const VariablePanel: React.FC = () => {
+export const VariablePanel: React.FC = () => {
   const variables = useVariables();
   const cellIds = useCellIds();
 
@@ -29,5 +29,3 @@ const VariablePanel: React.FC = () => {
     />
   );
 };
-
-export default VariablePanel;

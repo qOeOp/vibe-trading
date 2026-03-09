@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import React from "react";
 import { useDateFormatter, useLocale } from "react-aria";
-import { Tooltip } from "../ui/tooltip";
+import { Tooltip } from '@/components/ui/tooltip';
 
 interface DatePopoverProps {
   date: Date | string | number | null | undefined;
@@ -23,7 +23,7 @@ export const DatePopover: React.FC<DatePopoverProps> = ({
 
   const content = (
     <div className="min-w-[240px] p-1 text-sm">
-      <div className="text-muted-foreground mb-2">
+      <div className="text-mine-muted mb-2">
         <RelativeTime date={dateObj} />
       </div>
       <div className="space-y-1">
@@ -89,11 +89,11 @@ const TimezoneDisplay = ({ date }: { date: Date }) => {
   return (
     <>
       <div className="grid grid-cols-[fit-content(40px)_1fr] gap-4 items-center justify-items-end">
-        <span className="bg-muted rounded-md py-1 px-2 w-fit ml-auto">UTC</span>
+        <span className="bg-mine-hover rounded-md py-1 px-2 w-fit ml-auto">UTC</span>
         <span>{utcFormatter.format(date)}</span>
       </div>
       <div className="grid grid-cols-[fit-content(40px)_1fr] gap-4 items-center justify-items-end">
-        <span className="bg-muted rounded-md py-1 px-2 w-fit ml-auto">
+        <span className="bg-mine-hover rounded-md py-1 px-2 w-fit ml-auto">
           {localTimezone}
         </span>
         <span>{localFormatter.format(date)}</span>

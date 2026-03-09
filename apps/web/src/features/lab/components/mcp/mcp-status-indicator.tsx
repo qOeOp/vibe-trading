@@ -52,7 +52,7 @@ type MCPStatusIndicatorProps = {
 
 // Minimal McpStatusText used by app-config/mcp-config.tsx
 export const McpStatusText: React.FC<{ status: string }> = ({ status }) => (
-  <span className="text-xs text-muted-foreground capitalize">{status}</span>
+  <span className="text-xs text-mine-muted capitalize">{status}</span>
 );
 
 export const MCPStatusIndicator: React.FC<MCPStatusIndicatorProps> = ({

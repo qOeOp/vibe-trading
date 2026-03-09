@@ -1,9 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { MenuIcon } from "lucide-react";
-import React from "react";
-import { useLocale } from "react-aria";
-import { Button } from "../inputs/Inputs";
+import { MenuIcon } from 'lucide-react';
+import React from 'react';
+import { useLocale } from 'react-aria';
+import { Button } from '../inputs/Inputs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,15 +14,15 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/features/lab/components/ui/dropdown-menu";
-import { Tooltip } from "@/features/lab/components/ui/tooltip";
-import { getMarimoVersion } from "@/features/lab/core/meta/globals";
+} from '@/components/ui/dropdown-menu';
+import { Tooltip } from '@/components/ui/tooltip';
+import { getMarimoVersion } from '@/features/lab/core/meta/globals';
 import {
   MinimalShortcut,
   renderShortcut,
-} from "@/features/lab/components/shortcuts/renderShortcut";
-import type { ActionButton } from "../actions/types";
-import { useNotebookActions } from "../actions/useNotebookActions";
+} from '@/features/lab/components/shortcuts/renderShortcut';
+import type { ActionButton } from '../actions/types';
+import { useNotebookActions } from '../actions/useNotebookActions';
 
 interface Props {
   disabled?: boolean;
@@ -31,7 +31,7 @@ interface Props {
 
 export const NotebookMenuDropdown: React.FC<Props> = ({
   disabled = false,
-  tooltip = "Actions",
+  tooltip = 'Actions',
 }) => {
   const actions = useNotebookActions();
   const { locale } = useLocale();
@@ -40,9 +40,9 @@ export const NotebookMenuDropdown: React.FC<Props> = ({
     <div className="flex flex-col gap-2">
       <div>{tooltip}</div>
       {!disabled && (
-        <div className="text-xs text-muted-foreground font-medium pt-1 -mt-2 border-t border-border flex items-center gap-2">
+        <div className="text-xs text-mine-muted font-medium pt-1 -mt-2 border-t border-mine-border flex items-center gap-2">
           <span>Open command palette</span>
-          {renderShortcut("global.commandPalette", false)}
+          {renderShortcut('global.commandPalette', false)}
         </div>
       )}
     </div>
@@ -56,7 +56,7 @@ export const NotebookMenuDropdown: React.FC<Props> = ({
       className="h-[27px] w-[27px]"
       data-testid="notebook-menu-dropdown"
       disabled={disabled}
-      color={disabled ? "disabled" : "hint-green"}
+      color={disabled ? 'disabled' : 'hint-green'}
     >
       <Tooltip content={tooltipContent}>
         <MenuIcon strokeWidth={1.8} />
@@ -149,7 +149,7 @@ export const NotebookMenuDropdown: React.FC<Props> = ({
           );
         })}
         <DropdownMenuSeparator />
-        <div className="flex-1 px-2 text-xs text-muted-foreground flex flex-col gap-1">
+        <div className="flex-1 px-2 text-xs text-mine-muted flex flex-col gap-1">
           <span>Locale: {locale}</span>
           <span>Version: {getMarimoVersion()}</span>
         </div>
