@@ -89,7 +89,7 @@ export function XAxis({
   xAxisOffset = 0,
   wrapTicks = false,
   separated = false,
-  tickStroke = '#e0ddd8',
+  tickStroke = 'var(--color-mine-border)',
   onDimensionsChanged,
 }: XAxisProps) {
   const [labelOffset, setLabelOffset] = useState(0);
@@ -102,8 +102,8 @@ export function XAxis({
   }, [xAxisOffset, dims.height, separated]);
 
   const tickArguments = useMemo(
-    () => xAxisTickCount !== undefined ? [xAxisTickCount] : [5],
-    [xAxisTickCount]
+    () => (xAxisTickCount !== undefined ? [xAxisTickCount] : [5]),
+    [xAxisTickCount],
   );
 
   const handleTicksHeightChange = useCallback(
@@ -115,7 +115,7 @@ export function XAxis({
         onDimensionsChanged?.({ height });
       }
     },
-    [onDimensionsChanged]
+    [onDimensionsChanged],
   );
 
   return (

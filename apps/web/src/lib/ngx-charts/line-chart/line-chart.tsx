@@ -19,7 +19,7 @@
 import { useState, useCallback, useMemo, useId } from 'react';
 import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { CurveFactory} from 'd3-shape';
+import type { CurveFactory } from 'd3-shape';
 import { curveLinear } from 'd3-shape';
 
 import type {
@@ -27,21 +27,11 @@ import type {
   DataItem,
   Series,
   ColorScheme,
-  Margin} from '../types';
-import {
-  ScaleType,
-  LegendPosition,
+  Margin,
 } from '../types';
-import type {
-  TooltipItem,
-  SeriesData} from '../common';
-import {
-  BaseChart,
-  XAxis,
-  YAxis,
-  Legend,
-  TooltipArea,
-} from '../common';
+import { ScaleType, LegendPosition } from '../types';
+import type { TooltipItem, SeriesData } from '../common';
+import { BaseChart, XAxis, YAxis, Legend, TooltipArea } from '../common';
 import { useLineChart } from './hooks';
 import { LineSeries, CircleSeries } from './components';
 
@@ -59,7 +49,9 @@ export interface LineChartProps {
   /** Scale type for color mapping */
   schemeType?: ScaleType;
   /** Custom color mapping */
-  customColors?: ((value: unknown) => string) | Array<{ name: string; value: string }>;
+  customColors?:
+    | ((value: unknown) => string)
+    | Array<{ name: string; value: string }>;
   /** Enable/disable animations */
   animated?: boolean;
   /** Show X axis */
@@ -159,16 +151,19 @@ export interface LineChartProps {
    * Used for BandChart-style rendering where different series have
    * different visual emphasis levels.
    */
-  seriesConfig?: Record<string, {
-    strokeWidth?: number;
-    knockoutColor?: string;
-    knockoutWidthMultiplier?: number;
-    shadowFilter?: string;
-    strokeLinecap?: 'butt' | 'round' | 'square';
-    strokeLinejoin?: 'miter' | 'round' | 'bevel';
-    strokeOpacity?: number;
-    areaFillOpacity?: number;
-  }>;
+  seriesConfig?: Record<
+    string,
+    {
+      strokeWidth?: number;
+      knockoutColor?: string;
+      knockoutWidthMultiplier?: number;
+      shadowFilter?: string;
+      strokeLinecap?: 'butt' | 'round' | 'square';
+      strokeLinejoin?: 'miter' | 'round' | 'bevel';
+      strokeOpacity?: number;
+      areaFillOpacity?: number;
+    }
+  >;
   /**
    * SVG filter definitions to inject into the chart's <defs> block.
    * Useful for drop shadow filters referenced by seriesConfig.shadowFilter.
@@ -254,22 +249,40 @@ export function LineChart({
   // Margins
   const margin: [number, number, number, number] = useMemo(() => {
     if (customMargins) {
-      return [customMargins.top, customMargins.right, customMargins.bottom, customMargins.left];
+      return [
+        customMargins.top,
+        customMargins.right,
+        customMargins.bottom,
+        customMargins.left,
+      ];
     }
     return [10, 20, 10, 20];
   }, [customMargins]);
 
-  const yAxisConfig = useMemo(() => ({
-    visible: showYAxis,
-    showLabel: showYAxisLabel,
-    showGridLines,
-    trimTicks: trimYAxisTicks,
-    maxTickLength: maxYAxisTickLength,
-    tickFormatting: yAxisTickFormatting,
-    ticks: yAxisTicks,
-    wrapTicks,
-    ...yAxis,
-  }), [showYAxis, showYAxisLabel, showGridLines, trimYAxisTicks, maxYAxisTickLength, yAxisTickFormatting, yAxisTicks, wrapTicks, yAxis]);
+  const yAxisConfig = useMemo(
+    () => ({
+      visible: showYAxis,
+      showLabel: showYAxisLabel,
+      showGridLines,
+      trimTicks: trimYAxisTicks,
+      maxTickLength: maxYAxisTickLength,
+      tickFormatting: yAxisTickFormatting,
+      ticks: yAxisTicks,
+      wrapTicks,
+      ...yAxis,
+    }),
+    [
+      showYAxis,
+      showYAxisLabel,
+      showGridLines,
+      trimYAxisTicks,
+      maxYAxisTickLength,
+      yAxisTickFormatting,
+      yAxisTicks,
+      wrapTicks,
+      yAxis,
+    ],
+  );
 
   return (
     <BaseChart
@@ -349,9 +362,22 @@ export function LineChart({
             const filterId = `${shadowIdPrefix}-${defs.length}`;
 
             defs.push(
-              <filter key={filterId} id={filterId} x="-20%" y="-30%" width="140%" height="160%">
-                <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" floodColor="#000" floodOpacity="0.18" />
-              </filter>
+              <filter
+                key={filterId}
+                id={filterId}
+                x="-20%"
+                y="-30%"
+                width="140%"
+                height="160%"
+              >
+                <feDropShadow
+                  dx="0"
+                  dy="1.5"
+                  stdDeviation="2.5"
+                  floodColor="black"
+                  floodOpacity="0.18"
+                />
+              </filter>,
             );
 
             merged[name] = { shadowFilter: `url(#${filterId})` };
@@ -379,7 +405,7 @@ export function LineChart({
           (event: { name: unknown; value: number; series: string }) => {
             onSelect?.(event);
           },
-          []
+          [],
         );
 
         // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
@@ -387,7 +413,7 @@ export function LineChart({
           (item: { name: string; value?: number }) => {
             // Check if already in activeEntries
             const idx = activeEntries.findIndex(
-              (d) => d.name === item.name && d.value === item.value
+              (d) => d.name === item.name && d.value === item.value,
             );
             if (idx > -1) return;
 
@@ -395,14 +421,14 @@ export function LineChart({
             setActiveEntries(newEntries);
             onActivate?.({ value: item, entries: newEntries });
           },
-          []
+          [],
         );
 
         // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
         const handleDeactivate = useCallback(
           (item: { name: string; value?: number }) => {
             const idx = activeEntries.findIndex(
-              (d) => d.name === item.name && d.value === item.value
+              (d) => d.name === item.name && d.value === item.value,
             );
             if (idx === -1) return;
 
@@ -411,7 +437,7 @@ export function LineChart({
             setActiveEntries(newEntries);
             onDeactivate?.({ value: item, entries: newEntries });
           },
-          []
+          [],
         );
 
         // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
@@ -426,7 +452,7 @@ export function LineChart({
               });
             }
           },
-          [handleClick]
+          [handleClick],
         );
 
         // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
@@ -434,7 +460,7 @@ export function LineChart({
           (item: { name: string }) => {
             handleActivate(item);
           },
-          [handleActivate]
+          [handleActivate],
         );
 
         // eslint-disable-next-line react-hooks/rules-of-hooks -- BaseChart render-prop is a stable component function, not a conditional callback
@@ -442,7 +468,7 @@ export function LineChart({
           (item: { name: string }) => {
             handleDeactivate(item);
           },
-          [handleDeactivate]
+          [handleDeactivate],
         );
 
         // Convert data to SeriesData format for tooltip
@@ -461,14 +487,29 @@ export function LineChart({
         // Color helper for tooltip
         const tooltipColors = {
           scaleType: colors.scaleType,
-          getColor: (value: unknown) => colors.getColor(value as string | number | Date),
+          getColor: (value: unknown) =>
+            colors.getColor(value as string | number | Date),
         };
 
         return (
-          <div style={{ display: showLegend ? 'flex' : undefined, width: containerWidth, height: containerHeight, fontFamily: 'var(--font-chart, Roboto, sans-serif)' }}>
+          <div
+            style={{
+              display: showLegend ? 'flex' : undefined,
+              width: containerWidth,
+              height: containerHeight,
+              fontFamily: 'var(--font-chart, Roboto, sans-serif)',
+            }}
+          >
             {/* Main chart SVG */}
             <svg
-              width={showLegend && legendPosition !== LegendPosition.Below ? containerWidth - (legendPosition === LegendPosition.Right ? Math.floor(containerWidth * 2 / 12) : 0) : containerWidth}
+              width={
+                showLegend && legendPosition !== LegendPosition.Below
+                  ? containerWidth -
+                    (legendPosition === LegendPosition.Right
+                      ? Math.floor((containerWidth * 2) / 12)
+                      : 0)
+                  : containerWidth
+              }
               height={containerHeight}
               className="ngx-charts"
               style={{ overflow: 'visible' }}
@@ -503,7 +544,9 @@ export function LineChart({
                     ticks={xAxisTicks}
                     xAxisTickCount={xAxisTickCount}
                     wrapTicks={wrapTicks}
-                    onDimensionsChanged={({ height }) => onXAxisHeightChange(height)}
+                    onDimensionsChanged={({ height }) =>
+                      onXAxisHeightChange(height)
+                    }
                   />
                 )}
 
@@ -528,7 +571,9 @@ export function LineChart({
                     tickTextAnchor={yAxisConfig.tickTextAnchor}
                     overlay={yAxisConfig.overlay}
                     yAxisOffset={measuredYAxisWidth}
-                    onDimensionsChanged={({ width }) => onYAxisWidthChange(width)}
+                    onDimensionsChanged={({ width }) =>
+                      onYAxisWidthChange(width)
+                    }
                   />
                 )}
 
@@ -600,7 +645,6 @@ export function LineChart({
                     </g>
                   )}
                 </g>
-
               </g>
 
               {/* Timeline (for time-based charts) */}
@@ -633,7 +677,11 @@ export function LineChart({
                 title={legendTitle}
                 colors={colors}
                 height={containerHeight}
-                width={legendPosition === LegendPosition.Below ? containerWidth : undefined}
+                width={
+                  legendPosition === LegendPosition.Below
+                    ? containerWidth
+                    : undefined
+                }
                 activeEntries={activeEntries}
                 horizontal={legendPosition === LegendPosition.Below}
                 onLabelClick={handleLegendClick}

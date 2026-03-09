@@ -16,12 +16,7 @@
 
 'use client';
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-} from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import type { ReactNode, CSSProperties } from 'react';
 import type { Placement } from '@/lib/ngx-charts/types';
 
@@ -71,7 +66,7 @@ export interface TooltipContentProps {
 function verticalPosition(
   elDimensions: DOMRect,
   popoverDimensions: DOMRect,
-  alignment: TooltipAlignment
+  alignment: TooltipAlignment,
 ): number | undefined {
   if (alignment === 'top') {
     return elDimensions.top - CARET_OFFSET;
@@ -98,7 +93,7 @@ function verticalPosition(
 function horizontalPosition(
   elDimensions: DOMRect,
   popoverDimensions: DOMRect,
-  alignment: TooltipAlignment
+  alignment: TooltipAlignment,
 ): number | undefined {
   if (alignment === 'left') {
     return elDimensions.left - CARET_OFFSET;
@@ -129,11 +124,14 @@ class PositionHelper {
   static calculateVerticalAlignment(
     elDimensions: DOMRect,
     popoverDimensions: DOMRect,
-    alignment: TooltipAlignment
+    alignment: TooltipAlignment,
   ): number {
     let result = verticalPosition(elDimensions, popoverDimensions, alignment);
 
-    if (result !== undefined && result + popoverDimensions.height > window.innerHeight) {
+    if (
+      result !== undefined &&
+      result + popoverDimensions.height > window.innerHeight
+    ) {
       result = window.innerHeight - popoverDimensions.height;
     }
 
@@ -147,7 +145,7 @@ class PositionHelper {
     elDimensions: DOMRect,
     popoverDimensions: DOMRect,
     caretDimensions: DOMRect,
-    alignment: TooltipAlignment
+    alignment: TooltipAlignment,
   ): number {
     let result = 0;
 
@@ -169,7 +167,7 @@ class PositionHelper {
     const popoverPosition = verticalPosition(
       elDimensions,
       popoverDimensions,
-      alignment
+      alignment,
     );
     if (
       popoverPosition !== undefined &&
@@ -187,11 +185,14 @@ class PositionHelper {
   static calculateHorizontalAlignment(
     elDimensions: DOMRect,
     popoverDimensions: DOMRect,
-    alignment: TooltipAlignment
+    alignment: TooltipAlignment,
   ): number {
     let result = horizontalPosition(elDimensions, popoverDimensions, alignment);
 
-    if (result !== undefined && result + popoverDimensions.width > window.innerWidth) {
+    if (
+      result !== undefined &&
+      result + popoverDimensions.width > window.innerWidth
+    ) {
       result = window.innerWidth - popoverDimensions.width;
     }
 
@@ -205,7 +206,7 @@ class PositionHelper {
     elDimensions: DOMRect,
     popoverDimensions: DOMRect,
     caretDimensions: DOMRect,
-    alignment: TooltipAlignment
+    alignment: TooltipAlignment,
   ): number {
     let result = 0;
 
@@ -227,7 +228,7 @@ class PositionHelper {
     const popoverPosition = horizontalPosition(
       elDimensions,
       popoverDimensions,
-      alignment
+      alignment,
     );
     if (
       popoverPosition !== undefined &&
@@ -246,7 +247,7 @@ class PositionHelper {
     elDimensions: DOMRect,
     popoverDimensions: DOMRect,
     placement: Placement,
-    spacing: number
+    spacing: number,
   ): boolean {
     if (placement === 'right') {
       return (
@@ -283,7 +284,7 @@ class PositionHelper {
     elmDim: DOMRect,
     hostDim: DOMRect,
     caretDimensions: DOMRect,
-    alignment: TooltipAlignment
+    alignment: TooltipAlignment,
   ): Position {
     let top = 0;
     let left = 0;
@@ -294,7 +295,7 @@ class PositionHelper {
         hostDim,
         elmDim,
         caretDimensions,
-        alignment
+        alignment,
       );
     } else if (placement === 'left') {
       left = elmDim.width;
@@ -302,7 +303,7 @@ class PositionHelper {
         hostDim,
         elmDim,
         caretDimensions,
-        alignment
+        alignment,
       );
     } else if (placement === 'top') {
       top = elmDim.height;
@@ -310,7 +311,7 @@ class PositionHelper {
         hostDim,
         elmDim,
         caretDimensions,
-        alignment
+        alignment,
       );
     } else if (placement === 'bottom') {
       top = -7;
@@ -318,7 +319,7 @@ class PositionHelper {
         hostDim,
         elmDim,
         caretDimensions,
-        alignment
+        alignment,
       );
     }
 
@@ -333,7 +334,7 @@ class PositionHelper {
     elmDim: DOMRect,
     hostDim: DOMRect,
     spacing: number,
-    alignment: TooltipAlignment
+    alignment: TooltipAlignment,
   ): Position {
     let top = 0;
     let left = 0;
@@ -343,28 +344,28 @@ class PositionHelper {
       top = PositionHelper.calculateVerticalAlignment(
         hostDim,
         elmDim,
-        alignment
+        alignment,
       );
     } else if (placement === 'left') {
       left = hostDim.left - elmDim.width - spacing;
       top = PositionHelper.calculateVerticalAlignment(
         hostDim,
         elmDim,
-        alignment
+        alignment,
       );
     } else if (placement === 'top') {
       top = hostDim.top - elmDim.height - spacing;
       left = PositionHelper.calculateHorizontalAlignment(
         hostDim,
         elmDim,
-        alignment
+        alignment,
       );
     } else if (placement === 'bottom') {
       top = hostDim.top + hostDim.height + spacing;
       left = PositionHelper.calculateHorizontalAlignment(
         hostDim,
         elmDim,
-        alignment
+        alignment,
       );
     }
 
@@ -378,13 +379,13 @@ class PositionHelper {
     placement: Placement,
     elmDim: DOMRect,
     hostDim: DOMRect,
-    spacing: number
+    spacing: number,
   ): Placement {
     const shouldFlip = PositionHelper.shouldFlip(
       hostDim,
       elmDim,
       placement,
-      spacing
+      spacing,
     );
 
     if (shouldFlip) {
@@ -440,7 +441,7 @@ export function TooltipContent({
       placement,
       elmDim,
       hostDim,
-      spacing
+      spacing,
     );
     setFinalPlacement(newPlacement);
 
@@ -450,7 +451,7 @@ export function TooltipContent({
       elmDim,
       hostDim,
       spacing,
-      alignment as TooltipAlignment
+      alignment as TooltipAlignment,
     );
     setPosition(contentPos);
 
@@ -462,7 +463,7 @@ export function TooltipContent({
         elmDim,
         hostDim,
         caretDimensions,
-        alignment as TooltipAlignment
+        alignment as TooltipAlignment,
       );
       setCaretPosition(caretPos);
     }
@@ -526,16 +527,16 @@ export function TooltipContent({
       : getInitialTransform(finalPlacement),
     ...(type === 'tooltip'
       ? {
-          color: '#fff',
-          background: 'rgba(0, 0, 0, 0.75)',
+          color: 'var(--color-chart-tooltip-text)',
+          background: 'var(--color-chart-tooltip-bg)',
           fontSize: '12px',
           padding: '0 10px',
           textAlign: 'center',
         }
       : {
-          background: '#fff',
-          color: '#060709',
-          border: '1px solid #72809b',
+          background: 'var(--color-mine-card)',
+          color: 'var(--color-mine-text)',
+          border: '1px solid var(--color-mine-border)',
           boxShadow:
             '0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12)',
           fontSize: '13px',
@@ -599,10 +600,12 @@ function getInitialTransform(placement: Placement): string {
  */
 function getCaretBorderStyles(
   placement: Placement,
-  type: TooltipStyleType
+  type: TooltipStyleType,
 ): CSSProperties {
   const caretColor =
-    type === 'tooltip' ? 'rgba(0, 0, 0, 0.75)' : '#fff';
+    type === 'tooltip'
+      ? 'var(--color-chart-tooltip-bg)'
+      : 'var(--color-mine-card)';
 
   switch (placement) {
     case 'left':

@@ -98,7 +98,7 @@ export function YAxis({
   wrapTicks = false,
   separated = false,
   overlay = false,
-  tickStroke = '#e0ddd8',
+  tickStroke = 'var(--color-mine-border)',
   onDimensionsChanged,
 }: YAxisProps) {
   const [labelOffset, setLabelOffset] = useState(15);
